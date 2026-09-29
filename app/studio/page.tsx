@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { ArrowDown, ArrowUp, Eye, GripVertical, LayoutTemplate, Monitor, Package, Palette, Plus, Save, Smartphone, Store, Tablet, Trash2 } from "lucide-react";
+import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
+import { ArrowDown, ArrowUp, Eye, GripVertical, LayoutTemplate, LockKeyhole, Monitor, Package, Palette, Plus, Save, Smartphone, Store, Tablet, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,24 +23,30 @@ export default function Studio() {
   const [selected, setSelected] = useState(1);
   const [viewport, setViewport] = useState("desktop");
   const [published, setPublished] = useState(false);
+  const [studioKey, setStudioKey] = useState("");
+  const [password, setPassword] = useState("");
   const current = useMemo(() => blocks.find((block) => block.id === selected) ?? blocks[0], [blocks, selected]);
 
   function updateBlock(patch: Partial<Block>) { setBlocks((items) => items.map((item) => item.id === selected ? { ...item, ...patch } : item)); }
   function move(index: number, offset: number) { const next = [...blocks]; const target = index + offset; if (target < 0 || target >= next.length) return; [next[index], next[target]] = [next[target], next[index]]; setBlocks(next); }
   function addBlock() { const id = Date.now(); setBlocks((items) => [...items, { id, type: "Texto", title: "Novo bloco", description: "Escreve aqui o conteúdo desta secção." }]); setSelected(id); }
   async function save() {
-    const response = await fetch("/api/studio", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ title: "Início", blocks, status: published ? "published" : "draft" }) });
-    if (response.ok) toast.success(published ? "Página publicada" : "Rascunho guardado"); else toast.error("O modo de demonstração não conseguiu guardar na base de dados.");
+    const response = await fetch("/api/studio", { method: "POST", headers: { "content-type": "application/json", "x-studio-key": studioKey }, body: JSON.stringify({ title: "Início", blocks, status: published ? "published" : "draft" }) });
+    if (response.ok) toast.success(published ? "Página publicada" : "Rascunho guardado"); else if (response.status === 401) { setStudioKey(""); toast.error("A palavra-passe não é válida."); } else toast.error("Não foi possível guardar na base de dados.");
   }
+
+  function unlock(event: FormEvent) { event.preventDefault(); setStudioKey(password); setPassword(""); }
+
+  if (!studioKey) return <main className="grid min-h-screen place-items-center bg-[#171713] p-6 text-white"><form onSubmit={unlock} className="w-full max-w-md bg-[#f4f3ef] p-8 text-[#171713]"><span className="grid size-12 place-items-center bg-[#ff4f1f] text-white"><LockKeyhole/></span><h1 className="mt-6 text-4xl font-black uppercase tracking-[-.055em]">Made in Maia Studio</h1><p className="mt-3 text-black/60">Introduz a palavra-passe definida no serviço Render.</p><label className="mt-7 block text-sm font-semibold" htmlFor="studio-password">Palavra-passe</label><Input id="studio-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 h-12" autoFocus required/><Button type="submit" className="mt-4 h-12 w-full rounded-none bg-[#171713] text-white">Entrar no Studio</Button><Link href="/" className="mt-5 block text-center text-sm underline">Voltar à loja</Link></form></main>;
 
   const width = viewport === "mobile" ? "390px" : viewport === "tablet" ? "760px" : "100%";
   return (
     <main className="min-h-screen bg-[#ecece8] text-[#171713]">
       <Toaster position="bottom-right" />
       <header className="flex h-16 items-center gap-4 border-b border-black/10 bg-[#171713] px-5 text-white">
-        <a href="/" className="flex items-center gap-2 font-black uppercase tracking-tight"><span className="grid size-8 place-items-center bg-[#ff4f1f]">M</span> Studio</a>
+        <Link href="/" className="flex items-center gap-2 font-black uppercase tracking-tight"><span className="grid size-8 place-items-center bg-[#ff4f1f]">M</span> Studio</Link>
         <span className="h-6 w-px bg-white/20"/><span className="text-sm text-white/65">Página: Início</span>
-        <div className="ml-auto flex items-center gap-2"><Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white" asChild><a href="/" target="_blank"><Eye/>Pré-visualizar</a></Button><Button onClick={save} className="rounded-none bg-[#d9ff43] text-black hover:bg-[#c8ef39]"><Save/>Guardar</Button></div>
+        <div className="ml-auto flex items-center gap-2"><Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white" asChild><Link href="/" target="_blank"><Eye/>Pré-visualizar</Link></Button><Button onClick={save} className="rounded-none bg-[#d9ff43] text-black hover:bg-[#c8ef39]"><Save/>Guardar</Button></div>
       </header>
       <div className="grid min-h-[calc(100vh-4rem)] grid-cols-[220px_minmax(0,1fr)_310px] max-lg:grid-cols-[72px_minmax(0,1fr)]">
         <aside className="border-r border-black/10 bg-white p-3">

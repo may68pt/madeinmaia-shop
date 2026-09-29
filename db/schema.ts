@@ -1,43 +1,43 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
-export const products = sqliteTable("products", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   description: text("description").notNull().default(""),
   priceCents: integer("price_cents").notNull().default(2000),
   collection: text("collection").notNull().default("Made in Maia"),
   imageKey: text("image_key"),
-  colorsJson: text("colors_json").notNull().default("[]"),
-  sizesJson: text("sizes_json").notNull().default("[]"),
+  colors: jsonb("colors").$type<string[]>().notNull().default([]),
+  sizes: jsonb("sizes").$type<string[]>().notNull().default([]),
   status: text("status").notNull().default("draft"),
-  updatedAt: integer("updated_at").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const pages = sqliteTable("pages", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const pages = pgTable("pages", {
+  id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   title: text("title").notNull(),
-  blocksJson: text("blocks_json").notNull().default("[]"),
+  blocks: jsonb("blocks").$type<unknown[]>().notNull().default([]),
   status: text("status").notNull().default("draft"),
-  updatedAt: integer("updated_at").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const templates = sqliteTable("templates", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const templates = pgTable("templates", {
+  id: serial("id").primaryKey(),
   key: text("key").notNull().unique(),
   name: text("name").notNull(),
-  blocksJson: text("blocks_json").notNull().default("[]"),
-  updatedAt: integer("updated_at").notNull(),
+  blocks: jsonb("blocks").$type<unknown[]>().notNull().default([]),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const orders = sqliteTable("orders", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
   reference: text("reference").notNull().unique(),
   customerEmail: text("customer_email").notNull(),
   totalCents: integer("total_cents").notNull(),
   status: text("status").notNull().default("pending"),
   paymentProvider: text("payment_provider"),
   paymentReference: text("payment_reference"),
-  createdAt: integer("created_at").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
