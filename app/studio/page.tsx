@@ -1,12 +1,14 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowDown,
   ArrowUp,
   Eye,
   GripVertical,
+  Images,
   LayoutTemplate,
   LockKeyhole,
   Monitor,
@@ -32,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast, Toaster } from "sonner";
+import { PRODUCT_COLORS } from "@/lib/product-colors";
 
 type Block = { id: number; type: string; title: string; description: string };
 type Discovery = {
@@ -209,7 +212,7 @@ export default function Studio() {
   const [studioKey, setStudioKey] = useState("");
   const [password, setPassword] = useState("");
   const [section, setSection] = useState<
-    "pages" | "products" | "discover" | "orders" | "settings"
+    "pages" | "products" | "discover" | "orders" | "media" | "settings"
   >("pages");
   const [discoveries, setDiscoveries] = useState(initialDiscoveries);
   const [catalogue, setCatalogue] = useState(initialProducts);
@@ -261,6 +264,19 @@ export default function Studio() {
       });
       if (response.ok) toast.success("Definições guardadas");
       else toast.error("Não foi possível guardar as definições.");
+      return;
+    }
+    if (section === "media") {
+      const response = await fetch("/api/studio", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-studio-key": studioKey,
+        },
+        body: JSON.stringify({ resource: "settings", entries: [settings] }),
+      });
+      if (response.ok) toast.success("Biblioteca guardada");
+      else toast.error("Não foi possível guardar a biblioteca.");
       return;
     }
     if (section === "orders") {
@@ -498,6 +514,8 @@ export default function Studio() {
               ? "Conteúdo: Descobre"
               : section === "orders"
                 ? "Encomendas"
+                : section === "media"
+                  ? "Biblioteca de media"
                 : section === "settings"
                   ? "Definições"
                   : "Catálogo"}
@@ -529,6 +547,7 @@ export default function Studio() {
               { icon: LayoutTemplate, label: "Páginas", value: "pages" },
               { icon: Palette, label: "Descobre", value: "discover" },
               { icon: Package, label: "Produtos", value: "products" },
+              { icon: Images, label: "Media", value: "media" },
               { icon: Store, label: "Encomendas", value: "orders" },
               { icon: Settings, label: "Definições", value: "settings" },
             ].map(({ icon: Icon, label, value }) => (
@@ -883,6 +902,38 @@ export default function Studio() {
                   ))}
                 </div>
               )}
+            </div>
+          ) : section === "media" ? (
+            <div className="mx-auto max-w-6xl">
+              <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">Conteúdos</p>
+                  <h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">Biblioteca de media</h1>
+                  <p className="mt-3 text-black/60">Carrega os PNG transparentes dos designs e utiliza-os nos produtos.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <label className="inline-flex h-10 cursor-pointer items-center gap-2 bg-[var(--ink)] px-5 text-sm font-medium text-white">
+                    <input type="file" accept="image/png,image/webp,image/jpeg" className="sr-only" disabled={uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadMedia(file); event.target.value = ""; }} />
+                    {uploading ? "A carregar…" : "Carregar imagem"}
+                  </label>
+                  <Button variant="outline" className="rounded-none" onClick={() => setSettings({ ...settings, media: [...settings.media, { url: "", alt: "" }] })}><Plus />Adicionar URL</Button>
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {settings.media.map((item, index) => (
+                  <article key={`${item.url}-${index}`} className="bg-white p-4">
+                    <div className="relative mb-4 aspect-square overflow-hidden bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0]">
+                      {item.url ? <Image src={item.url} alt={item.alt || "Media"} fill sizes="(min-width: 1024px) 30vw, 50vw" unoptimized className="object-contain p-4" /> : <span className="grid h-full place-items-center text-sm text-black/40">Sem imagem</span>}
+                    </div>
+                    <div className="grid gap-2">
+                      <Input value={item.url} onChange={(event) => setSettings({ ...settings, media: settings.media.map((entry, i) => i === index ? { ...entry, url: event.target.value } : entry) })} placeholder="https://..." />
+                      <Input value={item.alt} onChange={(event) => setSettings({ ...settings, media: settings.media.map((entry, i) => i === index ? { ...entry, alt: event.target.value } : entry) })} placeholder="Nome do design" />
+                      <Button variant="ghost" className="justify-start rounded-none text-red-600" onClick={() => setSettings({ ...settings, media: settings.media.filter((_, i) => i !== index) })}><Trash2 />Remover da biblioteca</Button>
+                    </div>
+                  </article>
+                ))}
+                {!settings.media.length && <div className="col-span-full border-2 border-dashed border-black/15 bg-white/50 p-12 text-center"><Images className="mx-auto size-10 text-black/30" /><p className="mt-4 font-bold">Ainda não há imagens.</p><p className="mt-1 text-sm text-black/50">Configura o Cloudinary no Render e carrega o primeiro PNG.</p></div>}
+              </div>
             </div>
           ) : section === "settings" ? (
             <div className="mx-auto max-w-5xl">
@@ -1284,8 +1335,23 @@ export default function Studio() {
                                 imageKey: event.target.value,
                               })
                             }
-                            placeholder="/products/imagem.jpg ou URL"
+                            placeholder="PNG transparente da biblioteca"
                           />
+                          {settings.media.length > 0 && (
+                            <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
+                              {settings.media.filter((item) => item.url).map((item, mediaIndex) => (
+                                <button
+                                  key={`${item.url}-${mediaIndex}`}
+                                  type="button"
+                                  onClick={() => updateProduct(product.id, { imageKey: item.url })}
+                                  title={item.alt || "Usar imagem"}
+                                  className={`relative size-20 shrink-0 overflow-hidden border-2 bg-white ${product.imageKey === item.url ? "border-[var(--brand)]" : "border-black/10"}`}
+                                >
+                                  <Image src={item.url} alt={item.alt || "Design"} fill sizes="80px" unoptimized className="object-contain p-2" />
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                         <div>
                           <label className="mb-1 block text-xs font-bold uppercase">
@@ -1302,6 +1368,26 @@ export default function Studio() {
                               })
                             }
                           />
+                          <div className="mt-3 flex max-h-44 flex-wrap gap-2 overflow-y-auto border border-black/10 p-3">
+                            {PRODUCT_COLORS.map((entry) => {
+                              const active = product.colors.includes(entry.name);
+                              return (
+                                <button
+                                  key={entry.name}
+                                  type="button"
+                                  onClick={() => updateProduct(product.id, {
+                                    colors: active
+                                      ? product.colors.filter((color) => color !== entry.name)
+                                      : [...product.colors, entry.name],
+                                  })}
+                                  className={`flex items-center gap-2 border px-2 py-1.5 text-xs font-bold ${active ? "border-[var(--ink)] bg-[var(--ink)] text-white" : "border-black/15 bg-white"}`}
+                                >
+                                  <span className="size-4 rounded-full border border-black/15" style={{ backgroundColor: entry.hex }} />
+                                  {entry.name}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
                         <div>
                           <label className="mb-1 block text-xs font-bold uppercase">
