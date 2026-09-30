@@ -3,7 +3,8 @@ import { inArray } from "drizzle-orm";
 import { z } from "zod";
 import Stripe from "stripe";
 import { getDb } from "@/db";
-import { orders, products } from "@/db/schema";
+import { orders, products, siteSettings } from "@/db/schema";
+import { DEFAULT_COLORS, DEFAULT_SUPPORTS } from "@/lib/product-catalog";
 
 const schema = z.object({
   customer: z.object({ name:z.string().trim().min(2), email:z.string().email(), phone:z.string().trim().min(6), address:z.string().trim().min(4), postalCode:z.string().trim().min(4), city:z.string().trim().min(2), country:z.string().trim().min(2) }),
@@ -21,17 +22,21 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error:"Confirma os dados de entrega e o carrinho." }, { status:400 });
   const { customer, items } = parsed.data;
   const slugs = [...new Set(items.map((item)=>item.slug))];
-  const catalogue = new Map<string,{name:string;priceCents:number;colors:string[];sizes:string[];variants?:Array<{type?:string;color:string;size:string;stock:number;active?:boolean}>}>(fallback);
+  const catalogue = new Map<string,{name:string;priceCents:number;colors:string[];sizes:string[];disabledSupports?:string[]}>(fallback);
+  let productCatalog = { colors: DEFAULT_COLORS, supports: DEFAULT_SUPPORTS };
   if (process.env.DATABASE_URL) {
     try {
       const stored = await getDb().select().from(products).where(inArray(products.slug, slugs));
-      for (const product of stored) if (product.status === "published") catalogue.set(product.slug, { name:product.name, priceCents:product.priceCents, colors:product.colors, sizes:product.sizes, variants:product.variants });
+      const [settings] = await getDb().select().from(siteSettings).where(inArray(siteSettings.key,["global"]));
+      if (settings?.data.productCatalog) productCatalog = settings.data.productCatalog;
+      for (const product of stored) if (product.status === "published") catalogue.set(product.slug, { name:product.name, priceCents:product.priceCents, colors:product.colors, sizes:product.sizes, disabledSupports:product.disabledSupports });
     } catch { return NextResponse.json({ error:"Não foi possível validar o catálogo." }, { status:503 }); }
   }
   const orderItems = items.flatMap((item)=>{
     const product = catalogue.get(item.slug);
-    const variant = product?.variants?.find((entry)=>(entry.type||"adult-tshirt")===item.productType&&entry.color===item.color&&entry.size===item.size&&entry.active!==false);
-    if (!product || !product.colors.includes(item.color) || (product.variants?.length ? (!variant || variant.stock < item.quantity) : !product.sizes.includes(item.size))) return [];
+    const support = productCatalog.supports.find((entry)=>entry.id===item.productType&&entry.active&&!product?.disabledSupports?.includes(entry.id));
+    const color = productCatalog.colors.find((entry)=>entry.name===item.color&&entry.active&&support?.colorIds.includes(entry.id));
+    if (!product || !support || !color || !support.sizes.includes(item.size)) return [];
     return [{ ...item, name:product.name, unitPriceCents:product.priceCents }];
   });
   if (orderItems.length !== items.length) return NextResponse.json({ error:"Um produto ou variante deixou de estar disponível." }, { status:409 });

@@ -35,7 +35,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { toast, Toaster } from "sonner";
 import { PRODUCT_COLORS } from "@/lib/product-colors";
-import { PRODUCT_TYPES, type ProductVariant } from "@/lib/product-variants";
+import type { ProductVariant } from "@/lib/product-variants";
+import { DEFAULT_COLORS, DEFAULT_SUPPORTS, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
 
 type Block = { id: number; type: string; title: string; description: string };
 type Discovery = {
@@ -57,6 +58,8 @@ type Product = {
   priceCents: number;
   collection: string;
   imageKey: string;
+  gallery: string[];
+  disabledSupports: string[];
   colors: string[];
   sizes: string[];
   variants: ProductVariant[];
@@ -106,6 +109,7 @@ type SiteSettings = {
     darkColor: string;
     backgroundColor: string;
   };
+  productCatalog: { colors: CatalogColor[]; supports: ProductSupport[] };
 };
 
 const initialBlocks: Block[] = [
@@ -152,6 +156,8 @@ const initialProducts: Product[] = [
     priceCents: 2000,
     collection: "Made in Maia",
     imageKey: "/products/white-shirt-1.jpg",
+    gallery: [],
+    disabledSupports: [],
     colors: ["Branco"],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
@@ -165,6 +171,8 @@ const initialProducts: Product[] = [
     priceCents: 2000,
     collection: "Pop Culture",
     imageKey: "/products/red-shirt-1.jpg",
+    gallery: [],
+    disabledSupports: [],
     colors: ["Vermelho"],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
@@ -178,6 +186,8 @@ const initialProducts: Product[] = [
     priceCents: 2000,
     collection: "Música",
     imageKey: "/products/blue-shirt-1.jpg",
+    gallery: [],
+    disabledSupports: [],
     colors: ["Azul"],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
@@ -203,6 +213,7 @@ const initialSettings: SiteSettings = {
     darkColor: "#171713",
     backgroundColor: "#f4f3ef",
   },
+  productCatalog: { colors: DEFAULT_COLORS, supports: DEFAULT_SUPPORTS },
 };
 
 export default function Studio() {
@@ -213,7 +224,7 @@ export default function Studio() {
   const [studioKey, setStudioKey] = useState("");
   const [password, setPassword] = useState("");
   const [section, setSection] = useState<
-    "pages" | "products" | "discover" | "orders" | "media" | "settings"
+    "pages" | "products" | "discover" | "orders" | "catalog" | "media" | "settings"
   >("pages");
   const [discoveries, setDiscoveries] = useState(initialDiscoveries);
   const [catalogue, setCatalogue] = useState(initialProducts);
@@ -254,7 +265,7 @@ export default function Studio() {
     setSelected(id);
   }
   async function save() {
-    if (section === "settings") {
+    if (section === "settings" || section === "catalog") {
       const response = await fetch("/api/studio", {
         method: "POST",
         headers: {
@@ -263,7 +274,7 @@ export default function Studio() {
         },
         body: JSON.stringify({ resource: "settings", entries: [settings] }),
       });
-      if (response.ok) toast.success("Definições guardadas");
+      if (response.ok) toast.success(section === "catalog" ? "Tipos e cores guardados" : "Definições guardadas");
       else toast.error("Não foi possível guardar as definições.");
       return;
     }
@@ -373,6 +384,8 @@ export default function Studio() {
           priceCents: entry.priceCents ?? 0,
           collection: entry.collection ?? "Made in Maia",
           imageKey: entry.imageKey ?? "",
+          gallery: entry.gallery ?? [],
+          disabledSupports: entry.disabledSupports ?? [],
           colors: entry.colors ?? [],
           sizes: entry.sizes ?? [],
           variants: (entry.variants ?? []).map((variant) => ({
@@ -390,6 +403,10 @@ export default function Studio() {
         ...initialSettings,
         ...data.settings,
         theme: { ...initialSettings.theme, ...data.settings.theme },
+        productCatalog: {
+          colors: data.settings.productCatalog?.colors ?? DEFAULT_COLORS,
+          supports: data.settings.productCatalog?.supports ?? DEFAULT_SUPPORTS,
+        },
         media: data.settings.media ?? [],
       });
     setStudioKey(password);
@@ -519,6 +536,8 @@ export default function Studio() {
               ? "Conteúdo: Descobre"
               : section === "orders"
                 ? "Encomendas"
+                : section === "catalog"
+                  ? "Tipos e cores"
                 : section === "media"
                   ? "Biblioteca de media"
                 : section === "settings"
@@ -552,6 +571,7 @@ export default function Studio() {
               { icon: LayoutTemplate, label: "Páginas", value: "pages" },
               { icon: Palette, label: "Descobre", value: "discover" },
               { icon: Package, label: "Produtos", value: "products" },
+              { icon: Store, label: "Tipos e cores", value: "catalog" },
               { icon: Images, label: "Media", value: "media" },
               { icon: Store, label: "Encomendas", value: "orders" },
               { icon: Settings, label: "Definições", value: "settings" },
@@ -908,6 +928,20 @@ export default function Studio() {
                 </div>
               )}
             </div>
+          ) : section === "catalog" ? (
+            <div className="mx-auto max-w-6xl space-y-6">
+              <div><p className="text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">Catálogo base</p><h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">Tipos e cores</h1><p className="mt-3 text-black/60">Estas opções são reutilizadas por todos os designs da loja.</p></div>
+              <section className="bg-white p-6">
+                <div className="flex items-center justify-between gap-4"><div><h2 className="text-2xl font-black uppercase">Gestor de cores</h2><p className="mt-1 text-sm text-black/50">Desativa cores sazonais sem apagar produtos.</p></div><Button variant="outline" className="rounded-none" onClick={() => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors: [...settings.productCatalog.colors, { id: `cor-${Date.now()}`, name: "Nova cor", hex: "#cccccc", active: true }] } })}><Plus />Nova cor</Button></div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {settings.productCatalog.colors.map((color, index) => <div key={color.id} className="grid grid-cols-[42px_1fr_44px] gap-2 border border-black/10 p-2"><input type="color" value={color.hex} onChange={(event) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors: settings.productCatalog.colors.map((item, i) => i === index ? { ...item, hex: event.target.value } : item) } })} className="h-10 w-10" /><Input value={color.name} onChange={(event) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors: settings.productCatalog.colors.map((item, i) => i === index ? { ...item, name: event.target.value } : item) } })} /><Switch checked={color.active} onCheckedChange={(active) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors: settings.productCatalog.colors.map((item, i) => i === index ? { ...item, active } : item) } })} /></div>)}
+                </div>
+              </section>
+              <section className="bg-white p-6">
+                <div className="flex items-center justify-between gap-4"><div><h2 className="text-2xl font-black uppercase">Tipos de produto</h2><p className="mt-1 text-sm text-black/50">Define tamanhos, cores e fotografias em branco de cada suporte.</p></div><Button variant="outline" className="rounded-none" onClick={() => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, supports: [...settings.productCatalog.supports, { id: `suporte-${Date.now()}`, name: "Novo suporte", sizes: ["Único"], colorIds: [], active: true, mockups: {} }] } })}><Plus />Novo tipo</Button></div>
+                <div className="mt-5 space-y-4">{settings.productCatalog.supports.map((support, supportIndex) => <details key={support.id} className="border border-black/10 p-4" open><summary className="cursor-pointer text-xl font-black uppercase">{support.name}</summary><div className="mt-5 grid gap-4"><div className="grid gap-3 md:grid-cols-[1fr_1fr_100px]"><Input value={support.name} onChange={(event) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, supports: settings.productCatalog.supports.map((item, i) => i === supportIndex ? { ...item, name: event.target.value } : item) } })} /><Input value={support.sizes.join(", ")} onChange={(event) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, supports: settings.productCatalog.supports.map((item, i) => i === supportIndex ? { ...item, sizes: event.target.value.split(",").map((value) => value.trim()).filter(Boolean) } : item) } })} placeholder="2, 4, 6, XS, S, M..." /><label className="flex items-center gap-2 text-sm font-bold"><Switch checked={support.active} onCheckedChange={(active) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, supports: settings.productCatalog.supports.map((item, i) => i === supportIndex ? { ...item, active } : item) } })} />Ativo</label></div><div className="flex flex-wrap gap-2">{settings.productCatalog.colors.filter((color) => color.active).map((color) => { const enabled = support.colorIds.includes(color.id); return <button key={color.id} type="button" onClick={() => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, supports: settings.productCatalog.supports.map((item, i) => i === supportIndex ? { ...item, colorIds: enabled ? item.colorIds.filter((id) => id !== color.id) : [...item.colorIds, color.id] } : item) } })} className={`flex items-center gap-2 border px-3 py-2 text-xs font-bold ${enabled ? "border-[var(--ink)] bg-[var(--ink)] text-white" : "border-black/15"}`}><span className="size-4 rounded-full border border-black/10" style={{ backgroundColor: color.hex }} />{color.name}</button>; })}</div><details className="bg-[#f5f5f2] p-4"><summary className="cursor-pointer text-sm font-black uppercase">Fotos do suporte por cor</summary><div className="mt-3 grid gap-2 md:grid-cols-2">{settings.productCatalog.colors.filter((color) => support.colorIds.includes(color.id)).map((color) => <label key={color.id} className="grid gap-1 text-xs font-bold uppercase"><span>{color.name}</span><Input value={support.mockups[color.id] ?? ""} onChange={(event) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, supports: settings.productCatalog.supports.map((item, i) => i === supportIndex ? { ...item, mockups: { ...item.mockups, [color.id]: event.target.value } } : item) } })} placeholder="URL da fotografia em branco" /></label>)}</div></details></div></details>)}</div>
+              </section>
+            </div>
           ) : section === "media" ? (
             <div className="mx-auto max-w-6xl">
               <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -1254,6 +1288,8 @@ export default function Studio() {
                         priceCents: 2000,
                         collection: "Made in Maia",
                         imageKey: "",
+                        gallery: [],
+                        disabledSupports: [],
                         colors: ["Branco"],
                         sizes: ["S", "M", "L"],
                         variants: [],
@@ -1442,129 +1478,9 @@ export default function Studio() {
                         </Button>
                       </div>
                     </div>
-                    <div className="mt-5 border-t border-black/10 pt-5">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <p className="text-xs font-bold uppercase">
-                            Stock por variante
-                          </p>
-                          <p className="mt-1 text-sm text-black/50">
-                            {product.variants?.reduce(
-                              (sum, variant) => sum + variant.stock,
-                              0,
-                            ) ?? 0}{" "}
-                            unidades em stock
-                          </p>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="rounded-none"
-                          onClick={() => {
-                            const existing = new Map(
-                              (product.variants ?? []).map((variant) => [
-                                `${variant.type}:${variant.color}:${variant.size}`,
-                                variant,
-                              ]),
-                            );
-                            updateProduct(product.id, {
-                              variants: product.colors.flatMap((color) =>
-                                PRODUCT_TYPES.flatMap((productType) =>
-                                  productType.sizes.map(
-                                    (size) =>
-                                      existing.get(`${productType.key}:${color}:${size}`) ?? {
-                                        sku: `${product.slug}-${productType.key}-${color}-${size}`.toUpperCase().replace(/[^A-Z0-9]+/g, "-"),
-                                        type: productType.key,
-                                        color,
-                                        size,
-                                        stock: 0,
-                                        active: false,
-                                      },
-                                  ),
-                                ),
-                              ),
-                            });
-                          }}
-                        >
-                          Preparar variantes
-                        </Button>
-                      </div>
-                      {product.variants?.length > 0 && (
-                        <div className="mt-4 space-y-4">
-                          {product.colors.map((color) => (
-                            <details key={color} className="border border-black/10 bg-[#f5f5f2] p-4" open={product.colors.length === 1}>
-                              <summary className="cursor-pointer font-black uppercase">{color}</summary>
-                              <div className="mt-4 grid gap-3 lg:grid-cols-4">
-                                {PRODUCT_TYPES.map((productType) => (
-                                  <div key={productType.key} className="bg-white p-3">
-                                    <p className="text-sm font-black">{productType.label}</p>
-                                    <div className="mt-3 grid grid-cols-3 gap-2">
-                                      {productType.sizes.map((size) => {
-                                        const index = product.variants.findIndex((variant) => variant.type === productType.key && variant.color === color && variant.size === size);
-                                        const active = index >= 0 && product.variants[index].active;
-                                        return <button key={size} type="button" onClick={() => index >= 0 && updateProduct(product.id, { variants: product.variants.map((variant, variantIndex) => variantIndex === index ? { ...variant, active: !active } : variant) })} className={`border px-2 py-2 text-xs font-black ${active ? "border-[var(--brand)] bg-[var(--brand)] text-white" : "border-black/10 text-black/35"}`}>{size}</button>;
-                                      })}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </details>
-                          ))}
-                          <p className="text-xs font-bold uppercase text-black/50">Stock das variantes ativas</p>
-                          {product.variants.map((variant, variantIndex) => variant.active && (
-                            <div
-                              key={`${variant.type}-${variant.color}-${variant.size}`}
-                              className="grid gap-2 bg-[#f5f5f2] p-2 md:grid-cols-[1fr_150px_110px_70px_100px] md:items-center"
-                            >
-                              <Input
-                                value={variant.sku}
-                                aria-label="SKU"
-                                onChange={(event) =>
-                                  updateProduct(product.id, {
-                                    variants: product.variants.map(
-                                      (item, index) =>
-                                        index === variantIndex
-                                          ? { ...item, sku: event.target.value }
-                                          : item,
-                                    ),
-                                  })
-                                }
-                              />
-                              <span className="text-sm font-semibold">
-                                {PRODUCT_TYPES.find((type) => type.key === variant.type)?.label ?? variant.type}
-                              </span>
-                              <span className="text-sm font-semibold">
-                                {variant.color}
-                              </span>
-                              <span className="text-sm font-semibold">
-                                {variant.size}
-                              </span>
-                              <Input
-                                type="number"
-                                min="0"
-                                value={variant.stock}
-                                aria-label={`Stock ${variant.color} ${variant.size}`}
-                                onChange={(event) =>
-                                  updateProduct(product.id, {
-                                    variants: product.variants.map(
-                                      (item, index) =>
-                                        index === variantIndex
-                                          ? {
-                                              ...item,
-                                              stock: Math.max(
-                                                0,
-                                                Number(event.target.value) || 0,
-                                              ),
-                                            }
-                                          : item,
-                                    ),
-                                  })
-                                }
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                    <div className="mt-5 grid gap-5 border-t border-black/10 pt-5 lg:grid-cols-2">
+                      <div><p className="text-xs font-bold uppercase">Suportes disponíveis</p><p className="mt-1 text-sm text-black/50">Todos estão ativos por defeito. Desativa apenas as exceções deste design.</p><div className="mt-3 grid gap-2">{settings.productCatalog.supports.filter((support) => support.active).map((support) => { const enabled = !product.disabledSupports.includes(support.id); return <label key={support.id} className="flex items-center justify-between border border-black/10 p-3 text-sm font-bold"><span>{support.name}</span><Switch checked={enabled} onCheckedChange={(checked) => updateProduct(product.id, { disabledSupports: checked ? product.disabledSupports.filter((id) => id !== support.id) : [...product.disabledSupports, support.id] })} /></label>; })}</div></div>
+                      <div><p className="text-xs font-bold uppercase">Fotografias de moda</p><p className="mt-1 text-sm text-black/50">Imagens adicionais do design vestido ou em contexto.</p><div className="mt-3 grid gap-2">{[0, 1, 2, 3].map((index) => <Input key={index} value={product.gallery[index] ?? ""} onChange={(event) => { const gallery = [...product.gallery]; gallery[index] = event.target.value; updateProduct(product.id, { gallery: gallery.filter(Boolean) }); }} placeholder={`Foto ${index + 1} · URL`} />)}</div></div>
                     </div>
                   </article>
                 ))}

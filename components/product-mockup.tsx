@@ -1,9 +1,11 @@
 import Image from "next/image";
 import { productColorHex } from "@/lib/product-colors";
 
-export function ProductMockup({ artwork, color, name, priority = false }: { artwork: string; color: string; name: string; priority?: boolean }) {
+export function ProductMockup({ artwork, color, name, priority = false, baseImage }: { artwork: string; color: string; name: string; priority?: boolean; baseImage?: string }) {
   if (!/\.png(?:$|\?)/i.test(artwork))
     return <Image src={artwork} alt={`T-shirt ${name}`} fill sizes="(min-width: 1024px) 55vw, 100vw" unoptimized={artwork.startsWith("http")} className="object-cover" priority={priority} />;
+
+  if (baseImage) return <div className="absolute inset-0 bg-[#e9e7e1]"><Image src={baseImage} alt="" fill sizes="(min-width: 1024px) 55vw, 100vw" unoptimized className="object-contain" priority={priority} /><div className="absolute left-[35%] top-[30%] h-[28%] w-[30%]"><Image src={artwork} alt={`Design ${name}`} fill sizes="280px" unoptimized={artwork.startsWith("http")} className="object-contain" priority={priority} /></div></div>;
 
   return (
     <div className="absolute inset-0 grid place-items-center overflow-hidden bg-[#e9e7e1] p-[6%]">

@@ -8,6 +8,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import type { ProductVariant } from "@/lib/product-variants";
+import type { CatalogColor, ProductSupport } from "@/lib/product-catalog";
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
@@ -17,6 +18,8 @@ export const products = pgTable("products", {
   priceCents: integer("price_cents").notNull().default(2000),
   collection: text("collection").notNull().default("Made in Maia"),
   imageKey: text("image_key"),
+  gallery: jsonb("gallery").$type<string[]>().notNull().default([]),
+  disabledSupports: jsonb("disabled_supports").$type<string[]>().notNull().default([]),
   colors: jsonb("colors").$type<string[]>().notNull().default([]),
   sizes: jsonb("sizes").$type<string[]>().notNull().default([]),
   variants: jsonb("variants")
@@ -123,6 +126,10 @@ export type SiteSettings = {
     accentColor: string;
     darkColor: string;
     backgroundColor: string;
+  };
+  productCatalog: {
+    colors: CatalogColor[];
+    supports: ProductSupport[];
   };
 };
 

@@ -9,6 +9,7 @@ import {
   siteSettings,
 } from "@/db/schema";
 import { sendOrderStatusEmail } from "@/lib/order-email";
+import { DEFAULT_COLORS, DEFAULT_SUPPORTS } from "@/lib/product-catalog";
 
 function isAuthenticated(request: Request) {
   const expected = process.env.STUDIO_PASSWORD;
@@ -106,6 +107,22 @@ export async function POST(request: Request) {
             ?.backgroundColor ?? "#f4f3ef",
         ),
       },
+      productCatalog: {
+        colors: Array.isArray((value.productCatalog as Record<string, unknown> | undefined)?.colors)
+          ? ((value.productCatalog as Record<string, unknown>).colors as unknown[]).flatMap((entry) => {
+              if (!entry || typeof entry !== "object") return [];
+              const color = entry as Record<string, unknown>;
+              return [{ id: String(color.id ?? ""), name: String(color.name ?? ""), hex: String(color.hex ?? "#ffffff"), active: color.active !== false }];
+            })
+          : DEFAULT_COLORS,
+        supports: Array.isArray((value.productCatalog as Record<string, unknown> | undefined)?.supports)
+          ? ((value.productCatalog as Record<string, unknown>).supports as unknown[]).flatMap((entry) => {
+              if (!entry || typeof entry !== "object") return [];
+              const support = entry as Record<string, unknown>;
+              return [{ id: String(support.id ?? ""), name: String(support.name ?? ""), sizes: Array.isArray(support.sizes) ? support.sizes.map(String) : [], colorIds: Array.isArray(support.colorIds) ? support.colorIds.map(String) : [], active: support.active !== false, mockups: support.mockups && typeof support.mockups === "object" ? Object.fromEntries(Object.entries(support.mockups as Record<string, unknown>).map(([key, url]) => [key, String(url)])) : {} }];
+            })
+          : DEFAULT_SUPPORTS,
+      },
       media: Array.isArray(value.media)
         ? value.media.flatMap((item) =>
             item && typeof item === "object"
@@ -178,6 +195,8 @@ export async function POST(request: Request) {
           priceCents: Math.max(0, Number(value.priceCents) || 0),
           collection: String(value.collection ?? "Made in Maia"),
           imageKey: value.imageKey ? String(value.imageKey) : null,
+          gallery: Array.isArray(value.gallery) ? value.gallery.map(String).filter(Boolean) : [],
+          disabledSupports: Array.isArray(value.disabledSupports) ? value.disabledSupports.map(String) : [],
           colors: Array.isArray(value.colors) ? value.colors.map(String) : [],
           sizes: Array.isArray(value.sizes) ? value.sizes.map(String) : [],
           variants: Array.isArray(value.variants)
