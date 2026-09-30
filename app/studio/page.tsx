@@ -35,6 +35,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { toast, Toaster } from "sonner";
 import { PRODUCT_COLORS } from "@/lib/product-colors";
+import { PRODUCT_TYPES, type ProductVariant } from "@/lib/product-variants";
 
 type Block = { id: number; type: string; title: string; description: string };
 type Discovery = {
@@ -58,7 +59,7 @@ type Product = {
   imageKey: string;
   colors: string[];
   sizes: string[];
-  variants: Array<{ sku: string; color: string; size: string; stock: number }>;
+  variants: ProductVariant[];
   status: "draft" | "published";
 };
 type Order = {
@@ -374,7 +375,11 @@ export default function Studio() {
           imageKey: entry.imageKey ?? "",
           colors: entry.colors ?? [],
           sizes: entry.sizes ?? [],
-          variants: entry.variants ?? [],
+          variants: (entry.variants ?? []).map((variant) => ({
+            ...variant,
+            type: variant.type ?? "adult-tshirt",
+            active: variant.active !== false,
+          })),
           status: entry.status === "published" ? "published" : "draft",
         })),
       );
@@ -1458,36 +1463,58 @@ export default function Studio() {
                           onClick={() => {
                             const existing = new Map(
                               (product.variants ?? []).map((variant) => [
-                                `${variant.color}:${variant.size}`,
+                                `${variant.type}:${variant.color}:${variant.size}`,
                                 variant,
                               ]),
                             );
                             updateProduct(product.id, {
                               variants: product.colors.flatMap((color) =>
-                                product.sizes.map(
-                                  (size) =>
-                                    existing.get(`${color}:${size}`) ?? {
-                                      sku: `${product.slug}-${color}-${size}`
-                                        .toUpperCase()
-                                        .replace(/[^A-Z0-9]+/g, "-"),
-                                      color,
-                                      size,
-                                      stock: 0,
-                                    },
+                                PRODUCT_TYPES.flatMap((productType) =>
+                                  productType.sizes.map(
+                                    (size) =>
+                                      existing.get(`${productType.key}:${color}:${size}`) ?? {
+                                        sku: `${product.slug}-${productType.key}-${color}-${size}`.toUpperCase().replace(/[^A-Z0-9]+/g, "-"),
+                                        type: productType.key,
+                                        color,
+                                        size,
+                                        stock: 0,
+                                        active: false,
+                                      },
+                                  ),
                                 ),
                               ),
                             });
                           }}
                         >
-                          Gerar combinações
+                          Preparar variantes
                         </Button>
                       </div>
                       {product.variants?.length > 0 && (
-                        <div className="mt-4 grid gap-2">
-                          {product.variants.map((variant, variantIndex) => (
+                        <div className="mt-4 space-y-4">
+                          {product.colors.map((color) => (
+                            <details key={color} className="border border-black/10 bg-[#f5f5f2] p-4" open={product.colors.length === 1}>
+                              <summary className="cursor-pointer font-black uppercase">{color}</summary>
+                              <div className="mt-4 grid gap-3 lg:grid-cols-4">
+                                {PRODUCT_TYPES.map((productType) => (
+                                  <div key={productType.key} className="bg-white p-3">
+                                    <p className="text-sm font-black">{productType.label}</p>
+                                    <div className="mt-3 grid grid-cols-3 gap-2">
+                                      {productType.sizes.map((size) => {
+                                        const index = product.variants.findIndex((variant) => variant.type === productType.key && variant.color === color && variant.size === size);
+                                        const active = index >= 0 && product.variants[index].active;
+                                        return <button key={size} type="button" onClick={() => index >= 0 && updateProduct(product.id, { variants: product.variants.map((variant, variantIndex) => variantIndex === index ? { ...variant, active: !active } : variant) })} className={`border px-2 py-2 text-xs font-black ${active ? "border-[var(--brand)] bg-[var(--brand)] text-white" : "border-black/10 text-black/35"}`}>{size}</button>;
+                                      })}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </details>
+                          ))}
+                          <p className="text-xs font-bold uppercase text-black/50">Stock das variantes ativas</p>
+                          {product.variants.map((variant, variantIndex) => variant.active && (
                             <div
-                              key={`${variant.color}-${variant.size}`}
-                              className="grid grid-cols-[1fr_100px_100px_100px] items-center gap-2 bg-[#f5f5f2] p-2"
+                              key={`${variant.type}-${variant.color}-${variant.size}`}
+                              className="grid gap-2 bg-[#f5f5f2] p-2 md:grid-cols-[1fr_150px_110px_70px_100px] md:items-center"
                             >
                               <Input
                                 value={variant.sku}
@@ -1503,6 +1530,9 @@ export default function Studio() {
                                   })
                                 }
                               />
+                              <span className="text-sm font-semibold">
+                                {PRODUCT_TYPES.find((type) => type.key === variant.type)?.label ?? variant.type}
+                              </span>
                               <span className="text-sm font-semibold">
                                 {variant.color}
                               </span>

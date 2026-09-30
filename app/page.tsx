@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { Menu, Search, ShoppingBag, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { addCartItem, removeCartItem, useCart } from "@/lib/cart";
+import { removeCartItem, useCart } from "@/lib/cart";
 
 type ShopProduct = { slug: string; name: string; collection: string; price: string; priceCents: number; image: string; colors: string[]; sizes: string[] };
 
@@ -77,7 +77,7 @@ export default function Home() {
           <label className="flex h-12 min-w-[280px] items-center gap-3 border border-black/20 bg-white px-4 focus-within:border-black"><Search className="size-5"/><span className="sr-only">Pesquisar designs</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Pesquisar designs" className="w-full bg-transparent outline-none" /></label>
         </div>
         <div className="grid gap-x-4 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((product) => <article key={product.slug} className="group"><Link href={`/produto/${product.slug}`} className="relative block aspect-[4/5] overflow-hidden bg-white"><ProductMockup artwork={product.image} color={product.colors[0] ?? "White"} name={product.name} /><span className="absolute left-4 top-4 bg-[var(--accent-brand)] px-3 py-1 text-xs font-black uppercase">Novo</span></Link><Button onClick={() => addCartItem({slug:product.slug,name:product.name,image:product.image,priceCents:product.priceCents,color:product.colors[0],size:product.sizes[0]})} className="mt-[-52px] ml-4 relative z-10 rounded-none bg-[var(--ink)] text-white opacity-0 transition group-hover:opacity-100 focus:opacity-100">Adicionar rápido</Button><div className="flex items-start justify-between gap-4 pt-4"><div><p className="text-sm text-black/55">{product.collection}</p><Link href={`/produto/${product.slug}`}><h3 className="text-xl font-black uppercase tracking-[-.025em]">{product.name}</h3></Link><p className="mt-1 text-sm text-black/55">{product.colors.join(" · ")} · {product.sizes.join("–")}</p></div><strong className="text-lg">{product.price}</strong></div></article>)}
+          {visible.map((product) => <article key={product.slug} className="group"><Link href={`/produto/${product.slug}`} className="relative block aspect-[4/5] overflow-hidden bg-white"><ProductMockup artwork={product.image} color={product.colors[0] ?? "White"} name={product.name} /><span className="absolute left-4 top-4 bg-[var(--accent-brand)] px-3 py-1 text-xs font-black uppercase">Novo</span></Link><Button asChild className="mt-[-52px] ml-4 relative z-10 rounded-none bg-[var(--ink)] text-white opacity-0 transition group-hover:opacity-100 focus:opacity-100"><Link href={`/produto/${product.slug}`}>Escolher opções</Link></Button><div className="flex items-start justify-between gap-4 pt-4"><div><p className="text-sm text-black/55">{product.collection}</p><Link href={`/produto/${product.slug}`}><h3 className="text-xl font-black uppercase tracking-[-.025em]">{product.name}</h3></Link><p className="mt-1 text-sm text-black/55">{product.colors.join(" · ")} · {product.sizes.join("–")}</p></div><strong className="text-lg">{product.price}</strong></div></article>)}
         </div>
         {visible.length === 0 && <div className="border border-dashed border-black/25 py-16 text-center"><SlidersHorizontal className="mx-auto mb-3"/><p>Nenhum design encontrado.</p></div>}
       </section>

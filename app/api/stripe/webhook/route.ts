@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       if (order && order.status !== "paid") {
         for (const item of order.items) {
           const [product] = await db.select().from(products).where(eq(products.slug,item.slug));
-          if (product?.variants.length) await db.update(products).set({ variants:product.variants.map((variant)=>variant.color===item.color&&variant.size===item.size?{...variant,stock:Math.max(0,variant.stock-item.quantity)}:variant), updatedAt:new Date() }).where(eq(products.slug,item.slug));
+          if (product?.variants.length) await db.update(products).set({ variants:product.variants.map((variant)=>(variant.type||"adult-tshirt")===item.productType&&variant.color===item.color&&variant.size===item.size?{...variant,stock:Math.max(0,variant.stock-item.quantity)}:variant), updatedAt:new Date() }).where(eq(products.slug,item.slug));
         }
         await db.update(orders).set({ status:"paid", paymentReference:session.id }).where(eq(orders.reference,reference));
         await sendOrderStatusEmail({ ...order, status:"paid" }).catch(()=>undefined);

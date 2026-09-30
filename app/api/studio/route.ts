@@ -187,9 +187,11 @@ export async function POST(request: Request) {
                 return [
                   {
                     sku: String(item.sku ?? ""),
+                    type: String(item.type ?? "adult-tshirt"),
                     color: String(item.color ?? ""),
                     size: String(item.size ?? ""),
                     stock: Math.max(0, Number(item.stock) || 0),
+                    active: item.active !== false,
                   },
                 ];
               })

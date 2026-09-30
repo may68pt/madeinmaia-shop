@@ -7,6 +7,7 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+import type { ProductVariant } from "@/lib/product-variants";
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
@@ -19,7 +20,7 @@ export const products = pgTable("products", {
   colors: jsonb("colors").$type<string[]>().notNull().default([]),
   sizes: jsonb("sizes").$type<string[]>().notNull().default([]),
   variants: jsonb("variants")
-    .$type<Array<{ sku: string; color: string; size: string; stock: number }>>()
+    .$type<ProductVariant[]>()
     .notNull()
     .default([]),
   status: text("status").notNull().default("draft"),
@@ -73,6 +74,7 @@ export const orders = pgTable("orders", {
         name: string;
         color: string;
         size: string;
+        productType: string;
         quantity: number;
         unitPriceCents: number;
       }>
