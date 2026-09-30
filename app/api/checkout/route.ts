@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { inArray } from "drizzle-orm";
 import { z } from "zod";
+import Stripe from "stripe";
 import { getDb } from "@/db";
 import { orders, products } from "@/db/schema";
 
@@ -39,11 +40,21 @@ export async function POST(request: Request) {
   const reference = `MIM-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0,4).toUpperCase()}`;
   if (process.env.DATABASE_URL) {
     try {
-      await getDb().insert(orders).values({ reference, customerEmail:customer.email, customerName:customer.name, customerPhone:customer.phone, shippingAddress:{ address:customer.address, postalCode:customer.postalCode, city:customer.city, country:customer.country }, items:orderItems, shippingCents, totalCents, status:"pending", paymentProvider:process.env.PAYMENT_LINK_URL?"payment-link":"manual" });
+      await getDb().insert(orders).values({ reference, customerEmail:customer.email, customerName:customer.name, customerPhone:customer.phone, shippingAddress:{ address:customer.address, postalCode:customer.postalCode, city:customer.city, country:customer.country }, items:orderItems, shippingCents, totalCents, status:"pending", paymentProvider:process.env.STRIPE_SECRET_KEY?"stripe":process.env.PAYMENT_LINK_URL?"payment-link":"manual" });
     } catch { return NextResponse.json({ error:"Não foi possível criar a encomenda." }, { status:503 }); }
   }
   let paymentUrl: string | null = null;
-  if (process.env.PAYMENT_LINK_URL) {
+  if (process.env.STRIPE_SECRET_KEY) {
+    try {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      const origin = new URL(request.url).origin;
+      const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = orderItems.map((item)=>({ quantity:item.quantity, price_data:{ currency:"eur", unit_amount:item.unitPriceCents, product_data:{ name:item.name, description:`${item.size} · ${item.color}` } } }));
+      if (shippingCents) lineItems.push({ quantity:1, price_data:{ currency:"eur", unit_amount:shippingCents, product_data:{ name:"Envio Portugal" } } });
+      const session = await stripe.checkout.sessions.create({ mode:"payment", customer_email:customer.email, line_items:lineItems, success_url:`${origin}/checkout/sucesso?session_id={CHECKOUT_SESSION_ID}`, cancel_url:`${origin}/checkout`, metadata:{ reference }, payment_intent_data:{ metadata:{ reference } } });
+      paymentUrl = session.url;
+      if (process.env.DATABASE_URL) await getDb().update(orders).set({ paymentReference:session.id }).where(inArray(orders.reference,[reference]));
+    } catch { return NextResponse.json({ error:"Não foi possível iniciar o pagamento Stripe." }, { status:502 }); }
+  } else if (process.env.PAYMENT_LINK_URL) {
     const url = new URL(process.env.PAYMENT_LINK_URL);
     url.searchParams.set("reference", reference); url.searchParams.set("amount", String(totalCents));
     paymentUrl = url.toString();

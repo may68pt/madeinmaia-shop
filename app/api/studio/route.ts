@@ -18,9 +18,9 @@ export async function GET(request: Request) {
       db.select().from(randomContent),
       db.select().from(orders).orderBy(desc(orders.createdAt)),
     ]);
-    return NextResponse.json({ page: home ?? null, products: productList, randomContent: discoveries, orders: orderList, paymentConfigured: Boolean(process.env.PAYMENT_LINK_URL) });
+    return NextResponse.json({ page: home ?? null, products: productList, randomContent: discoveries, orders: orderList, paymentConfigured: Boolean(process.env.STRIPE_SECRET_KEY || process.env.PAYMENT_LINK_URL) });
   } catch {
-    return NextResponse.json({ page: null, products: [], randomContent: [], orders: [], paymentConfigured: Boolean(process.env.PAYMENT_LINK_URL), storage: "unavailable" });
+    return NextResponse.json({ page: null, products: [], randomContent: [], orders: [], paymentConfigured: Boolean(process.env.STRIPE_SECRET_KEY || process.env.PAYMENT_LINK_URL), storage: "unavailable" });
   }
 }
 
