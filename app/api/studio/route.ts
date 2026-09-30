@@ -88,6 +88,24 @@ export async function POST(request: Request) {
       terms: String(value.terms ?? ""),
       privacy: String(value.privacy ?? ""),
       returns: String(value.returns ?? ""),
+      theme: {
+        brandColor: String(
+          (value.theme as Record<string, unknown> | undefined)?.brandColor ??
+            "#ff4f1f",
+        ),
+        accentColor: String(
+          (value.theme as Record<string, unknown> | undefined)?.accentColor ??
+            "#d9ff43",
+        ),
+        darkColor: String(
+          (value.theme as Record<string, unknown> | undefined)?.darkColor ??
+            "#171713",
+        ),
+        backgroundColor: String(
+          (value.theme as Record<string, unknown> | undefined)
+            ?.backgroundColor ?? "#f4f3ef",
+        ),
+      },
       media: Array.isArray(value.media)
         ? value.media.flatMap((item) =>
             item && typeof item === "object"

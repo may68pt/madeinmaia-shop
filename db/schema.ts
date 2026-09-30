@@ -116,6 +116,12 @@ export type SiteSettings = {
   privacy: string;
   returns: string;
   media: Array<{ url: string; alt: string }>;
+  theme: {
+    brandColor: string;
+    accentColor: string;
+    darkColor: string;
+    backgroundColor: string;
+  };
 };
 
 export const siteSettings = pgTable("site_settings", {

@@ -96,6 +96,12 @@ type SiteSettings = {
   privacy: string;
   returns: string;
   media: Array<{ url: string; alt: string }>;
+  theme: {
+    brandColor: string;
+    accentColor: string;
+    darkColor: string;
+    backgroundColor: string;
+  };
 };
 
 const initialBlocks: Block[] = [
@@ -187,6 +193,12 @@ const initialSettings: SiteSettings = {
   privacy: "",
   returns: "",
   media: [],
+  theme: {
+    brandColor: "#ff4f1f",
+    accentColor: "#d9ff43",
+    darkColor: "#171713",
+    backgroundColor: "#f4f3ef",
+  },
 };
 
 export default function Studio() {
@@ -204,6 +216,7 @@ export default function Studio() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [paymentConfigured, setPaymentConfigured] = useState(false);
   const [settings, setSettings] = useState(initialSettings);
+  const [uploading, setUploading] = useState(false);
   const current = useMemo(
     () => blocks.find((block) => block.id === selected) ?? blocks[0],
     [blocks, selected],
@@ -351,7 +364,13 @@ export default function Studio() {
       );
     setOrders(data.orders ?? []);
     setPaymentConfigured(Boolean(data.paymentConfigured));
-    if (data.settings) setSettings(data.settings);
+    if (data.settings)
+      setSettings({
+        ...initialSettings,
+        ...data.settings,
+        theme: { ...initialSettings.theme, ...data.settings.theme },
+        media: data.settings.media ?? [],
+      });
     setStudioKey(password);
     setPassword("");
   }
@@ -385,15 +404,43 @@ export default function Studio() {
     } else toast.error("Não foi possível atualizar o estado.");
   }
 
+  async function uploadMedia(file: File) {
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.set("file", file);
+      const response = await fetch("/api/media/upload", {
+        method: "POST",
+        headers: { "x-studio-key": studioKey },
+        body: form,
+      });
+      const data = (await response.json()) as { url?: string; error?: string };
+      if (!response.ok || !data.url)
+        throw new Error(data.error || "Não foi possível carregar a imagem.");
+      setSettings((current) => ({
+        ...current,
+        media: [
+          ...current.media,
+          { url: data.url!, alt: file.name.replace(/\.[^.]+$/, "") },
+        ],
+      }));
+      toast.success("Imagem carregada. Guarda as definições para a adicionar à biblioteca.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro no upload.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   if (!studioKey)
     return (
-      <main className="grid min-h-screen place-items-center bg-[#171713] p-6 text-white">
+      <main className="grid min-h-screen place-items-center bg-[var(--ink)] p-6 text-white">
         <Toaster position="bottom-right" />
         <form
           onSubmit={unlock}
-          className="w-full max-w-md bg-[#f4f3ef] p-8 text-[#171713]"
+          className="w-full max-w-md bg-[var(--paper)] p-8 text-[var(--ink)]"
         >
-          <span className="grid size-12 place-items-center bg-[#ff4f1f] text-white">
+          <span className="grid size-12 place-items-center bg-[var(--brand)] text-white">
             <LockKeyhole />
           </span>
           <h1 className="mt-6 text-4xl font-black uppercase tracking-[-.055em]">
@@ -419,7 +466,7 @@ export default function Studio() {
           />
           <Button
             type="submit"
-            className="mt-4 h-12 w-full rounded-none bg-[#171713] text-white"
+            className="mt-4 h-12 w-full rounded-none bg-[var(--ink)] text-white"
           >
             Entrar no Studio
           </Button>
@@ -433,14 +480,14 @@ export default function Studio() {
   const width =
     viewport === "mobile" ? "390px" : viewport === "tablet" ? "760px" : "100%";
   return (
-    <main className="min-h-screen bg-[#ecece8] text-[#171713]">
+    <main className="min-h-screen bg-[#ecece8] text-[var(--ink)]">
       <Toaster position="bottom-right" />
-      <header className="flex h-16 items-center gap-4 border-b border-black/10 bg-[#171713] px-5 text-white">
+      <header className="flex h-16 items-center gap-4 border-b border-black/10 bg-[var(--ink)] px-5 text-white">
         <Link
           href="/"
           className="flex items-center gap-2 font-black uppercase tracking-tight"
         >
-          <span className="grid size-8 place-items-center bg-[#ff4f1f]">M</span>{" "}
+          <span className="grid size-8 place-items-center bg-[var(--brand)]">M</span>{" "}
           Studio
         </Link>
         <span className="h-6 w-px bg-white/20" />
@@ -468,7 +515,7 @@ export default function Studio() {
           </Button>
           <Button
             onClick={save}
-            className="rounded-none bg-[#d9ff43] text-black hover:bg-[#c8ef39]"
+            className="rounded-none bg-[var(--accent-brand)] text-black hover:bg-[#c8ef39]"
           >
             <Save />
             Guardar
@@ -533,7 +580,7 @@ export default function Studio() {
                 </div>
               </div>
               <div
-                className="mx-auto min-h-[720px] overflow-hidden bg-[#f4f3ef] shadow-xl transition-[width]"
+                className="mx-auto min-h-[720px] overflow-hidden bg-[var(--paper)] shadow-xl transition-[width]"
                 style={{ width }}
               >
                 <div className="flex h-14 items-center border-b border-black/10 px-6">
@@ -549,7 +596,7 @@ export default function Studio() {
                     <button
                       key={block.id}
                       onClick={() => setSelected(block.id)}
-                      className={`group block w-full border-2 p-5 text-left ${selected === block.id ? "border-[#ff4f1f]" : "border-transparent hover:border-black/15"} ${block.type === "Hero" ? "min-h-64 bg-[#ff4f1f] text-white" : block.type === "Produtos" ? "min-h-48 bg-white" : "min-h-32 bg-[#d9ff43]"}`}
+                      className={`group block w-full border-2 p-5 text-left ${selected === block.id ? "border-[var(--brand)]" : "border-transparent hover:border-black/15"} ${block.type === "Hero" ? "min-h-64 bg-[var(--brand)] text-white" : block.type === "Produtos" ? "min-h-48 bg-white" : "min-h-32 bg-[var(--accent-brand)]"}`}
                     >
                       <span className="text-xs font-bold uppercase tracking-widest opacity-60">
                         {block.type}
@@ -589,7 +636,7 @@ export default function Studio() {
             <div className="mx-auto max-w-4xl">
               <div className="mb-8 flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-sm font-black uppercase tracking-[.15em] text-[#ff4f1f]">
+                  <p className="text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">
                     madeinmaia.pt/descobre
                   </p>
                   <h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">
@@ -611,7 +658,7 @@ export default function Studio() {
                 {discoveries.map((entry, index) => (
                   <article key={entry.id} className="bg-white p-5 shadow-sm">
                     <div className="mb-4 flex items-center gap-3">
-                      <span className="grid size-8 place-items-center bg-[#171713] text-sm font-black text-white">
+                      <span className="grid size-8 place-items-center bg-[var(--ink)] text-sm font-black text-white">
                         {index + 1}
                       </span>
                       <Input
@@ -716,7 +763,7 @@ export default function Studio() {
                     },
                   ])
                 }
-                className="mt-5 rounded-none bg-[#171713] text-white"
+                className="mt-5 rounded-none bg-[var(--ink)] text-white"
               >
                 <Plus />
                 Adicionar conteúdo
@@ -726,7 +773,7 @@ export default function Studio() {
             <div className="mx-auto max-w-5xl">
               <div className="mb-8 flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-sm font-black uppercase tracking-[.15em] text-[#ff4f1f]">
+                  <p className="text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">
                     Operação
                   </p>
                   <h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">
@@ -765,7 +812,7 @@ export default function Studio() {
                     >
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
-                          <p className="text-xs font-black uppercase tracking-[.12em] text-[#ff4f1f]">
+                          <p className="text-xs font-black uppercase tracking-[.12em] text-[var(--brand)]">
                             {order.reference}
                           </p>
                           <h2 className="mt-1 text-2xl font-black uppercase">
@@ -840,7 +887,7 @@ export default function Studio() {
           ) : section === "settings" ? (
             <div className="mx-auto max-w-5xl">
               <div className="mb-8">
-                <p className="text-sm font-black uppercase tracking-[.15em] text-[#ff4f1f]">
+                <p className="text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">
                   Sistema
                 </p>
                 <h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">
@@ -971,28 +1018,108 @@ export default function Studio() {
                 </section>
               </div>
               <section className="mt-5 bg-white p-6">
+                <div>
+                  <h2 className="text-2xl font-black uppercase">
+                    Theme Builder
+                  </h2>
+                  <p className="mt-1 text-sm text-black/50">
+                    Define as cores globais aplicadas à loja e às páginas.
+                  </p>
+                </div>
+                <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {(
+                    [
+                      ["brandColor", "Cor da marca"],
+                      ["accentColor", "Cor de destaque"],
+                      ["darkColor", "Texto e fundos escuros"],
+                      ["backgroundColor", "Fundo da loja"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <label key={key} className="space-y-2 text-xs font-bold uppercase">
+                      <span>{label}</span>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={settings.theme[key]}
+                          onChange={(event) =>
+                            setSettings({
+                              ...settings,
+                              theme: {
+                                ...settings.theme,
+                                [key]: event.target.value,
+                              },
+                            })
+                          }
+                          className="h-10 w-12 cursor-pointer border border-input bg-white p-1"
+                        />
+                        <Input
+                          value={settings.theme[key]}
+                          onChange={(event) =>
+                            setSettings({
+                              ...settings,
+                              theme: {
+                                ...settings.theme,
+                                [key]: event.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                    </label>
+                  ))}
+                </div>
+                <div
+                  className="mt-5 flex min-h-24 items-center justify-center p-6 text-center font-black uppercase"
+                  style={{
+                    background: settings.theme.backgroundColor,
+                    color: settings.theme.darkColor,
+                    borderLeft: `12px solid ${settings.theme.brandColor}`,
+                  }}
+                >
+                  <span style={{ background: settings.theme.accentColor }} className="px-5 py-3">
+                    Pré-visualização da identidade
+                  </span>
+                </div>
+              </section>
+              <section className="mt-5 bg-white p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-black uppercase">
                       Biblioteca de media
                     </h2>
                     <p className="mt-1 text-sm text-black/50">
-                      Guarda URLs de imagens alojadas externamente.
+                      Faz upload para Cloudinary ou adiciona um URL externo.
                     </p>
                   </div>
-                  <Button
-                    variant="outline"
-                    className="rounded-none"
-                    onClick={() =>
-                      setSettings({
-                        ...settings,
-                        media: [...settings.media, { url: "", alt: "" }],
-                      })
-                    }
-                  >
-                    <Plus />
-                    Adicionar imagem
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <label className="inline-flex h-9 cursor-pointer items-center gap-2 bg-[var(--ink)] px-4 text-sm font-medium text-white">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        disabled={uploading}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) void uploadMedia(file);
+                          event.target.value = "";
+                        }}
+                      />
+                      {uploading ? "A carregar…" : "Carregar imagem"}
+                    </label>
+                    <Button
+                      variant="outline"
+                      className="rounded-none"
+                      onClick={() =>
+                        setSettings({
+                          ...settings,
+                          media: [...settings.media, { url: "", alt: "" }],
+                        })
+                      }
+                    >
+                      <Plus />
+                      Adicionar URL
+                    </Button>
+                  </div>
                 </div>
                 <div className="mt-5 grid gap-3">
                   {settings.media.map((item, index) => (
@@ -1049,7 +1176,7 @@ export default function Studio() {
             <div className="mx-auto max-w-5xl">
               <div className="mb-8 flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-sm font-black uppercase tracking-[.15em] text-[#ff4f1f]">
+                  <p className="text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">
                     Loja
                   </p>
                   <h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">
@@ -1078,7 +1205,7 @@ export default function Studio() {
                       },
                     ])
                   }
-                  className="rounded-none bg-[#171713] text-white"
+                  className="rounded-none bg-[var(--ink)] text-white"
                 >
                   <Plus />
                   Novo produto
@@ -1455,7 +1582,7 @@ export default function Studio() {
             </div>
           </aside>
         ) : (
-          <aside className="border-l border-black/10 bg-[#d9ff43] p-5 max-lg:hidden">
+          <aside className="border-l border-black/10 bg-[var(--accent-brand)] p-5 max-lg:hidden">
             <p className="text-sm font-black uppercase tracking-[.15em]">
               {section === "orders" ? "Operação" : "Publicação"}
             </p>

@@ -28,11 +28,11 @@ export default async function DiscoverPage() {
   const body = entry?.body ?? "Uma ideia local, feita para viajar contigo. Volta amanhã — esta página está sempre a mudar.";
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[#171713] p-4 text-white sm:p-8">
-      <article className="relative w-full max-w-4xl overflow-hidden bg-[#ff4f1f] p-7 sm:p-12 lg:p-16">
-        <div className="absolute -right-20 -top-20 size-64 rounded-full border-[40px] border-[#d9ff43]/30" />
+    <main className="grid min-h-screen place-items-center bg-[var(--ink)] p-4 text-white sm:p-8">
+      <article className="relative w-full max-w-4xl overflow-hidden bg-[var(--brand)] p-7 sm:p-12 lg:p-16">
+        <div className="absolute -right-20 -top-20 size-64 rounded-full border-[40px] border-[var(--accent-brand)]/30" />
         <Link href="/" className="relative inline-flex items-center gap-3 font-black uppercase tracking-tight">
-          <span className="grid size-10 place-items-center bg-white text-[#171713]">M</span> Made in Maia
+          <span className="grid size-10 place-items-center bg-white text-[var(--ink)]">M</span> Made in Maia
         </Link>
         <div className="relative mt-20 max-w-2xl">
           <p className="flex items-center gap-2 text-sm font-black uppercase tracking-[.18em]"><Sparkles className="size-4"/> Descobre</p>
@@ -40,7 +40,7 @@ export default async function DiscoverPage() {
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">{body}</p>
           {entry?.mediaUrl && entry.type === "image" && <div className="relative mt-8 aspect-video overflow-hidden bg-white/10"><Image src={entry.mediaUrl} alt="" fill sizes="(min-width: 896px) 768px, 100vw" className="object-cover" unoptimized /></div>}
           <div className="mt-10 flex flex-wrap gap-3">
-            {entry?.linkUrl && <a href={entry.linkUrl} className="inline-flex h-12 items-center gap-2 bg-[#d9ff43] px-6 font-black uppercase text-[#171713]">{entry.linkLabel}<ArrowRight className="size-4"/></a>}
+            {entry?.linkUrl && <a href={entry.linkUrl} className="inline-flex h-12 items-center gap-2 bg-[var(--accent-brand)] px-6 font-black uppercase text-[var(--ink)]">{entry.linkLabel}<ArrowRight className="size-4"/></a>}
             <a href="/descobre" className="inline-flex h-12 items-center gap-2 border border-white/40 px-6 font-bold uppercase"><RefreshCw className="size-4"/> Outra surpresa</a>
           </div>
         </div>

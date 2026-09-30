@@ -33,7 +33,7 @@ export default async function LegalPage({
     /* fallback */
   }
   return (
-    <main className="min-h-screen bg-[#f4f3ef] text-[#171713]">
+    <main className="min-h-screen bg-[var(--paper)] text-[var(--ink)]">
       <header className="border-b border-black/10 px-5 py-5 lg:px-10">
         <Link
           href="/"
@@ -44,7 +44,7 @@ export default async function LegalPage({
         </Link>
       </header>
       <article className="mx-auto max-w-3xl px-5 py-16">
-        <p className="text-sm font-black uppercase tracking-[.16em] text-[#ff4f1f]">
+        <p className="text-sm font-black uppercase tracking-[.16em] text-[var(--brand)]">
           Made in Maia
         </p>
         <h1 className="mt-4 text-5xl font-black uppercase tracking-[-.055em] sm:text-7xl">

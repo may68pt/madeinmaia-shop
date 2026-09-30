@@ -19,6 +19,10 @@
 }
 
 :root {
+  --brand: #ff4f1f;
+  --accent-brand: #d9ff43;
+  --ink: #171713;
+  --paper: #f4f3ef;
   --background: #f4f3ef;
   --foreground: #11110f;
   --card: #ffffff;

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { siteSettings } from "@/db/schema";
@@ -28,12 +29,36 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  let theme = {
+    brandColor: "#ff4f1f",
+    accentColor: "#d9ff43",
+    darkColor: "#171713",
+    backgroundColor: "#f4f3ef",
+  };
+  try {
+    const [settings] = await getDb()
+      .select()
+      .from(siteSettings)
+      .where(eq(siteSettings.key, "global"));
+    if (settings?.data.theme) theme = { ...theme, ...settings.data.theme };
+  } catch {
+    /* local fallback */
+  }
+  const themeStyle = {
+    "--brand": theme.brandColor,
+    "--accent-brand": theme.accentColor,
+    "--ink": theme.darkColor,
+    "--paper": theme.backgroundColor,
+    "--primary": theme.brandColor,
+    "--background": theme.backgroundColor,
+    "--foreground": theme.darkColor,
+  } as CSSProperties;
   return (
     <html lang="pt">
-      <body>{children}</body>
+      <body style={themeStyle}>{children}</body>
     </html>
   );
 }
