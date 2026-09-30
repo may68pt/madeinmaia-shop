@@ -10,6 +10,7 @@ export type ProductSupport = {
 
 const kids = ["2", "4", "6", "8", "10", "12"];
 const adults = ["XS", "S", "M", "L", "XL", "2XL", "3XL"];
+export const CATALOG_SIZES = [...kids, ...adults, "Único"];
 
 export const DEFAULT_COLORS: CatalogColor[] = [
   ["white", "White", "#f7f7f4"], ["grey", "Grey", "#b7b8b8"], ["black", "Black", "#111111"],
