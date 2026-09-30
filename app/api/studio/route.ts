@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     ]);
     return NextResponse.json({ page: home ?? null, products: productList, randomContent: discoveries });
   } catch {
-    return NextResponse.json({ page: null, storage: "unavailable" }, { status: 503 });
+    return NextResponse.json({ page: null, products: [], randomContent: [], storage: "unavailable" });
   }
 }
 
