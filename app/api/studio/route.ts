@@ -26,6 +26,25 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   if (!isAuthenticated(request)) return NextResponse.json({ error: "Autenticação necessária" }, { status: 401 });
   const body = await request.json() as { resource?: string; title?: string; blocks?: unknown[]; status?: string; entries?: unknown[] };
+  if (body.resource === "products") {
+    if (!Array.isArray(body.entries)) return NextResponse.json({ error: "Catálogo inválido" }, { status: 400 });
+    const entries = body.entries.flatMap((entry) => {
+      if (!entry || typeof entry !== "object") return [];
+      const value = entry as Record<string, unknown>;
+      const name = String(value.name ?? "").trim();
+      const slug = String(value.slug ?? "").trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, "");
+      if (!name || !slug) return [];
+      return [{
+        slug, name, description: String(value.description ?? ""), priceCents: Math.max(0, Number(value.priceCents) || 0),
+        collection: String(value.collection ?? "Made in Maia"), imageKey: value.imageKey ? String(value.imageKey) : null,
+        colors: Array.isArray(value.colors) ? value.colors.map(String) : [], sizes: Array.isArray(value.sizes) ? value.sizes.map(String) : [],
+        status: value.status === "published" ? "published" : "draft", updatedAt: new Date(),
+      }];
+    });
+    const db = getDb();
+    for (const entry of entries) await db.insert(products).values(entry).onConflictDoUpdate({ target: products.slug, set: entry });
+    return NextResponse.json({ ok: true, count: entries.length });
+  }
   if (body.resource === "random-content") {
     if (!Array.isArray(body.entries)) return NextResponse.json({ error: "Conteúdo inválido" }, { status: 400 });
     const entries = body.entries.flatMap((entry) => {

@@ -7,22 +7,35 @@ import { Menu, Search, ShoppingBag, SlidersHorizontal, Sparkles } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
-const products = [
-  { name: "Guardião Zen", collection: "Made in Maia", price: "20,00 €", image: "/products/white-shirt-1.jpg", tone: "White" },
-  { name: "Piramide Digital", collection: "Pop Culture", price: "20,00 €", image: "/products/red-shirt-1.jpg", tone: "Red" },
-  { name: "Los Robots", collection: "Música", price: "20,00 €", image: "/products/blue-shirt-1.jpg", tone: "Blue" },
+type ShopProduct = { name: string; collection: string; price: string; priceCents: number; image: string; tone: string };
+
+const defaultProducts: ShopProduct[] = [
+  { name: "Guardião Zen", collection: "Made in Maia", price: "20,00 €", priceCents: 2000, image: "/products/white-shirt-1.jpg", tone: "White" },
+  { name: "Piramide Digital", collection: "Pop Culture", price: "20,00 €", priceCents: 2000, image: "/products/red-shirt-1.jpg", tone: "Red" },
+  { name: "Los Robots", collection: "Música", price: "20,00 €", priceCents: 2000, image: "/products/blue-shirt-1.jpg", tone: "Blue" },
 ];
 
 export default function Home() {
   const [query, setQuery] = useState("");
-  const [cart, setCart] = useState<typeof products>([]);
+  const [products, setProducts] = useState(defaultProducts);
+  const [cart, setCart] = useState<ShopProduct[]>([]);
   const visible = products.filter((product) => product.name.toLowerCase().includes(query.toLowerCase()));
+
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/products").then((response) => response.json()).then((payload: unknown) => {
+      const data = payload as { products?: Array<{ name: string; collection: string; priceCents: number; imageKey: string | null; colors: string[] }> };
+      if (!active || !data.products?.length) return;
+      setProducts(data.products.map((product) => ({ name: product.name, collection: product.collection, price: `${(product.priceCents / 100).toFixed(2).replace(".", ",")} €`, priceCents: product.priceCents, image: product.imageKey || "/products/white-shirt-1.jpg", tone: product.colors?.join(" · ") || "Várias cores" })));
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     const context = (document as Document & { modelContext?: { registerTool?: (tool: unknown, options?: { signal?: AbortSignal }) => void | Promise<void> } }).modelContext;
     if (!context?.registerTool) return;
     const lifecycle = new AbortController();
-    void Promise.resolve(context.registerTool({ name: "search_products", title: "Pesquisar produtos", description: "Filtra a grelha visível da loja Made in Maia pelo nome do design.", inputSchema: { type: "object", properties: { query: { type: "string" } }, required: ["query"], additionalProperties: false }, annotations: { readOnlyHint: true, untrustedContentHint: false }, execute(input: unknown) { const value = typeof input === "object" && input && "query" in input ? String((input as { query: unknown }).query) : ""; setQuery(value); return { query: value, matches: products.filter((product) => product.name.toLowerCase().includes(value.toLowerCase())).length }; } }, { signal: lifecycle.signal })).catch(() => undefined);
+    void Promise.resolve(context.registerTool({ name: "search_products", title: "Pesquisar produtos", description: "Filtra a grelha visível da loja Made in Maia pelo nome do design.", inputSchema: { type: "object", properties: { query: { type: "string" } }, required: ["query"], additionalProperties: false }, annotations: { readOnlyHint: true, untrustedContentHint: false }, execute(input: unknown) { const value = typeof input === "object" && input && "query" in input ? String((input as { query: unknown }).query) : ""; setQuery(value); return { query: value, matches: defaultProducts.filter((product) => product.name.toLowerCase().includes(value.toLowerCase())).length }; } }, { signal: lifecycle.signal })).catch(() => undefined);
     return () => lifecycle.abort();
   }, []);
 
@@ -39,7 +52,7 @@ export default function Home() {
           <nav className="hidden items-center gap-7 text-sm font-semibold lg:flex"><a href="#novidades">Novidades</a><a href="#colecoes">Coleções</a><Link href="/descobre">Descobre</Link><Link href="/marca">A marca</Link></nav>
           <Sheet>
             <SheetTrigger asChild><Button variant="ghost" className="relative" size="icon" aria-label="Ver saco de compras"><ShoppingBag />{cart.length > 0 && <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-[#ff4f1f] text-[11px] font-bold text-white">{cart.length}</span>}</Button></SheetTrigger>
-            <SheetContent className="flex flex-col bg-[#f4f3ef] p-6 sm:max-w-md"><SheetHeader><SheetTitle className="text-left text-3xl font-black uppercase tracking-tight">O teu saco</SheetTitle></SheetHeader><div className="mt-6 flex-1 space-y-3">{cart.length === 0 ? <p className="border border-dashed border-black/20 p-7 text-center text-black/55">Ainda não adicionaste nenhum design.</p> : cart.map((item, index) => <div key={`${item.name}-${index}`} className="flex items-center gap-4 bg-white p-3"><div className="relative size-20 overflow-hidden"><Image src={item.image} alt="" fill sizes="80px" className="object-cover"/></div><div><strong className="uppercase">{item.name}</strong><p className="text-sm text-black/55">M · {item.tone}</p></div><span className="ml-auto font-bold">{item.price}</span></div>)}</div><div className="border-t border-black/15 pt-5"><div className="mb-4 flex justify-between text-lg font-bold"><span>Total</span><span>{(cart.length * 20).toFixed(2).replace(".", ",")} €</span></div><Button disabled={cart.length === 0} className="h-13 w-full rounded-none bg-[#171713] text-base text-white">Continuar para pagamento</Button><p className="mt-3 text-center text-xs text-black/50">Checkout seguro por Viva.com ou Stripe.</p></div></SheetContent>
+            <SheetContent className="flex flex-col bg-[#f4f3ef] p-6 sm:max-w-md"><SheetHeader><SheetTitle className="text-left text-3xl font-black uppercase tracking-tight">O teu saco</SheetTitle></SheetHeader><div className="mt-6 flex-1 space-y-3">{cart.length === 0 ? <p className="border border-dashed border-black/20 p-7 text-center text-black/55">Ainda não adicionaste nenhum design.</p> : cart.map((item, index) => <div key={`${item.name}-${index}`} className="flex items-center gap-4 bg-white p-3"><div className="relative size-20 overflow-hidden"><Image src={item.image} alt="" fill sizes="80px" unoptimized={item.image.startsWith("http")} className="object-cover"/></div><div><strong className="uppercase">{item.name}</strong><p className="text-sm text-black/55">M · {item.tone}</p></div><span className="ml-auto font-bold">{item.price}</span></div>)}</div><div className="border-t border-black/15 pt-5"><div className="mb-4 flex justify-between text-lg font-bold"><span>Total</span><span>{(cart.reduce((sum,item)=>sum+item.priceCents,0)/100).toFixed(2).replace(".", ",")} €</span></div><Button disabled={cart.length === 0} className="h-13 w-full rounded-none bg-[#171713] text-base text-white">Continuar para pagamento</Button><p className="mt-3 text-center text-xs text-black/50">Checkout seguro por Viva.com ou Stripe.</p></div></SheetContent>
           </Sheet>
         </div>
       </header>
@@ -62,7 +75,7 @@ export default function Home() {
           <label className="flex h-12 min-w-[280px] items-center gap-3 border border-black/20 bg-white px-4 focus-within:border-black"><Search className="size-5"/><span className="sr-only">Pesquisar designs</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Pesquisar designs" className="w-full bg-transparent outline-none" /></label>
         </div>
         <div className="grid gap-x-4 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((product) => <article key={product.name} className="group"><div className="relative aspect-[4/5] overflow-hidden bg-white"><Image src={product.image} alt={`T-shirt ${product.name}`} fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-[1.03]"/><span className="absolute left-4 top-4 bg-[#d9ff43] px-3 py-1 text-xs font-black uppercase">Novo</span><Button onClick={() => setCart((items) => [...items, product])} className="absolute bottom-4 left-4 right-4 translate-y-3 rounded-none bg-[#171713] text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 focus:translate-y-0 focus:opacity-100">Adicionar ao saco</Button></div><div className="flex items-start justify-between gap-4 pt-4"><div><p className="text-sm text-black/55">{product.collection}</p><h3 className="text-xl font-black uppercase tracking-[-.025em]">{product.name}</h3><p className="mt-1 text-sm text-black/55">{product.tone} · XS–XXL</p></div><strong className="text-lg">{product.price}</strong></div></article>)}
+          {visible.map((product) => <article key={product.name} className="group"><div className="relative aspect-[4/5] overflow-hidden bg-white"><Image src={product.image} alt={`T-shirt ${product.name}`} fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" unoptimized={product.image.startsWith("http")} className="object-cover transition duration-500 group-hover:scale-[1.03]"/><span className="absolute left-4 top-4 bg-[#d9ff43] px-3 py-1 text-xs font-black uppercase">Novo</span><Button onClick={() => setCart((items) => [...items, product])} className="absolute bottom-4 left-4 right-4 translate-y-3 rounded-none bg-[#171713] text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 focus:translate-y-0 focus:opacity-100">Adicionar ao saco</Button></div><div className="flex items-start justify-between gap-4 pt-4"><div><p className="text-sm text-black/55">{product.collection}</p><h3 className="text-xl font-black uppercase tracking-[-.025em]">{product.name}</h3><p className="mt-1 text-sm text-black/55">{product.tone} · XS–XXL</p></div><strong className="text-lg">{product.price}</strong></div></article>)}
         </div>
         {visible.length === 0 && <div className="border border-dashed border-black/25 py-16 text-center"><SlidersHorizontal className="mx-auto mb-3"/><p>Nenhum design encontrado.</p></div>}
       </section>
