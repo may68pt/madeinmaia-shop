@@ -14,6 +14,7 @@ import {
   Palette,
   Plus,
   Save,
+  Settings,
   Smartphone,
   Store,
   Tablet,
@@ -82,6 +83,19 @@ type Order = {
   status: string;
   paymentProvider: string | null;
   createdAt: string;
+};
+type SiteSettings = {
+  brandName: string;
+  contactEmail: string;
+  announcement: string;
+  seoTitle: string;
+  seoDescription: string;
+  instagramUrl: string;
+  facebookUrl: string;
+  terms: string;
+  privacy: string;
+  returns: string;
+  media: Array<{ url: string; alt: string }>;
 };
 
 const initialBlocks: Block[] = [
@@ -160,6 +174,20 @@ const initialProducts: Product[] = [
     status: "published",
   },
 ];
+const initialSettings: SiteSettings = {
+  brandName: "Made in Maia",
+  contactEmail: "",
+  announcement:
+    "Produzido na Maia · Envio gratuito em Portugal a partir de 45 €",
+  seoTitle: "Made in Maia — T-shirts com ideias",
+  seoDescription: "T-shirts desenhadas e impressas na Maia.",
+  instagramUrl: "",
+  facebookUrl: "",
+  terms: "",
+  privacy: "",
+  returns: "",
+  media: [],
+};
 
 export default function Studio() {
   const [blocks, setBlocks] = useState(initialBlocks);
@@ -169,12 +197,13 @@ export default function Studio() {
   const [studioKey, setStudioKey] = useState("");
   const [password, setPassword] = useState("");
   const [section, setSection] = useState<
-    "pages" | "products" | "discover" | "orders"
+    "pages" | "products" | "discover" | "orders" | "settings"
   >("pages");
   const [discoveries, setDiscoveries] = useState(initialDiscoveries);
   const [catalogue, setCatalogue] = useState(initialProducts);
   const [orders, setOrders] = useState<Order[]>([]);
   const [paymentConfigured, setPaymentConfigured] = useState(false);
+  const [settings, setSettings] = useState(initialSettings);
   const current = useMemo(
     () => blocks.find((block) => block.id === selected) ?? blocks[0],
     [blocks, selected],
@@ -208,6 +237,19 @@ export default function Studio() {
     setSelected(id);
   }
   async function save() {
+    if (section === "settings") {
+      const response = await fetch("/api/studio", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-studio-key": studioKey,
+        },
+        body: JSON.stringify({ resource: "settings", entries: [settings] }),
+      });
+      if (response.ok) toast.success("Definições guardadas");
+      else toast.error("Não foi possível guardar as definições.");
+      return;
+    }
     if (section === "orders") {
       toast.info("Os estados das encomendas são guardados imediatamente.");
       return;
@@ -275,6 +317,7 @@ export default function Studio() {
       products?: Array<Partial<Product> & { id: number }>;
       orders?: Order[];
       paymentConfigured?: boolean;
+      settings?: SiteSettings | null;
     };
     if (data.randomContent?.length)
       setDiscoveries(
@@ -308,6 +351,7 @@ export default function Studio() {
       );
     setOrders(data.orders ?? []);
     setPaymentConfigured(Boolean(data.paymentConfigured));
+    if (data.settings) setSettings(data.settings);
     setStudioKey(password);
     setPassword("");
   }
@@ -407,7 +451,9 @@ export default function Studio() {
               ? "Conteúdo: Descobre"
               : section === "orders"
                 ? "Encomendas"
-                : "Catálogo"}
+                : section === "settings"
+                  ? "Definições"
+                  : "Catálogo"}
         </span>
         <div className="ml-auto flex items-center gap-2">
           <Button
@@ -437,6 +483,7 @@ export default function Studio() {
               { icon: Palette, label: "Descobre", value: "discover" },
               { icon: Package, label: "Produtos", value: "products" },
               { icon: Store, label: "Encomendas", value: "orders" },
+              { icon: Settings, label: "Definições", value: "settings" },
             ].map(({ icon: Icon, label, value }) => (
               <Button
                 key={label}
@@ -790,6 +837,214 @@ export default function Studio() {
                 </div>
               )}
             </div>
+          ) : section === "settings" ? (
+            <div className="mx-auto max-w-5xl">
+              <div className="mb-8">
+                <p className="text-sm font-black uppercase tracking-[.15em] text-[#ff4f1f]">
+                  Sistema
+                </p>
+                <h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">
+                  Definições
+                </h1>
+                <p className="mt-3 text-black/60">
+                  Marca, SEO, contactos, páginas legais e biblioteca de media.
+                </p>
+              </div>
+              <div className="grid gap-5 lg:grid-cols-2">
+                <section className="space-y-4 bg-white p-6">
+                  <h2 className="text-2xl font-black uppercase">Marca e SEO</h2>
+                  <Input
+                    value={settings.brandName}
+                    onChange={(event) =>
+                      setSettings({
+                        ...settings,
+                        brandName: event.target.value,
+                      })
+                    }
+                    placeholder="Nome da marca"
+                  />
+                  <Input
+                    type="email"
+                    value={settings.contactEmail}
+                    onChange={(event) =>
+                      setSettings({
+                        ...settings,
+                        contactEmail: event.target.value,
+                      })
+                    }
+                    placeholder="Email de contacto"
+                  />
+                  <Input
+                    value={settings.announcement}
+                    onChange={(event) =>
+                      setSettings({
+                        ...settings,
+                        announcement: event.target.value,
+                      })
+                    }
+                    placeholder="Mensagem no topo da loja"
+                  />
+                  <Input
+                    value={settings.seoTitle}
+                    onChange={(event) =>
+                      setSettings({ ...settings, seoTitle: event.target.value })
+                    }
+                    placeholder="Título SEO"
+                  />
+                  <textarea
+                    value={settings.seoDescription}
+                    onChange={(event) =>
+                      setSettings({
+                        ...settings,
+                        seoDescription: event.target.value,
+                      })
+                    }
+                    className="min-h-24 w-full border border-input p-3"
+                    placeholder="Descrição SEO"
+                  />
+                  <Input
+                    value={settings.instagramUrl}
+                    onChange={(event) =>
+                      setSettings({
+                        ...settings,
+                        instagramUrl: event.target.value,
+                      })
+                    }
+                    placeholder="Instagram URL"
+                  />
+                  <Input
+                    value={settings.facebookUrl}
+                    onChange={(event) =>
+                      setSettings({
+                        ...settings,
+                        facebookUrl: event.target.value,
+                      })
+                    }
+                    placeholder="Facebook URL"
+                  />
+                </section>
+                <section className="space-y-4 bg-white p-6">
+                  <h2 className="text-2xl font-black uppercase">
+                    Páginas legais
+                  </h2>
+                  <label className="block text-xs font-bold uppercase">
+                    Termos e condições
+                  </label>
+                  <textarea
+                    value={settings.terms}
+                    onChange={(event) =>
+                      setSettings({ ...settings, terms: event.target.value })
+                    }
+                    className="min-h-32 w-full border border-input p-3"
+                  />
+                  <label className="block text-xs font-bold uppercase">
+                    Privacidade
+                  </label>
+                  <textarea
+                    value={settings.privacy}
+                    onChange={(event) =>
+                      setSettings({ ...settings, privacy: event.target.value })
+                    }
+                    className="min-h-32 w-full border border-input p-3"
+                  />
+                  <label className="block text-xs font-bold uppercase">
+                    Trocas e devoluções
+                  </label>
+                  <textarea
+                    value={settings.returns}
+                    onChange={(event) =>
+                      setSettings({ ...settings, returns: event.target.value })
+                    }
+                    className="min-h-32 w-full border border-input p-3"
+                  />
+                  <div className="flex flex-wrap gap-3 text-sm underline">
+                    <Link href="/legal/terms" target="_blank">
+                      Ver termos
+                    </Link>
+                    <Link href="/legal/privacy" target="_blank">
+                      Ver privacidade
+                    </Link>
+                    <Link href="/legal/returns" target="_blank">
+                      Ver devoluções
+                    </Link>
+                  </div>
+                </section>
+              </div>
+              <section className="mt-5 bg-white p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-black uppercase">
+                      Biblioteca de media
+                    </h2>
+                    <p className="mt-1 text-sm text-black/50">
+                      Guarda URLs de imagens alojadas externamente.
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="rounded-none"
+                    onClick={() =>
+                      setSettings({
+                        ...settings,
+                        media: [...settings.media, { url: "", alt: "" }],
+                      })
+                    }
+                  >
+                    <Plus />
+                    Adicionar imagem
+                  </Button>
+                </div>
+                <div className="mt-5 grid gap-3">
+                  {settings.media.map((item, index) => (
+                    <div
+                      key={index}
+                      className="grid gap-2 md:grid-cols-[1fr_1fr_44px]"
+                    >
+                      <Input
+                        value={item.url}
+                        onChange={(event) =>
+                          setSettings({
+                            ...settings,
+                            media: settings.media.map((entry, i) =>
+                              i === index
+                                ? { ...entry, url: event.target.value }
+                                : entry,
+                            ),
+                          })
+                        }
+                        placeholder="https://..."
+                      />
+                      <Input
+                        value={item.alt}
+                        onChange={(event) =>
+                          setSettings({
+                            ...settings,
+                            media: settings.media.map((entry, i) =>
+                              i === index
+                                ? { ...entry, alt: event.target.value }
+                                : entry,
+                            ),
+                          })
+                        }
+                        placeholder="Descrição da imagem"
+                      />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() =>
+                          setSettings({
+                            ...settings,
+                            media: settings.media.filter((_, i) => i !== index),
+                          })
+                        }
+                      >
+                        <Trash2 className="text-red-600" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
           ) : (
             <div className="mx-auto max-w-5xl">
               <div className="mb-8 flex items-end justify-between gap-4">
@@ -972,15 +1227,101 @@ export default function Studio() {
                     <div className="mt-5 border-t border-black/10 pt-5">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                          <p className="text-xs font-bold uppercase">Stock por variante</p>
-                          <p className="mt-1 text-sm text-black/50">{product.variants?.reduce((sum, variant) => sum + variant.stock, 0) ?? 0} unidades em stock</p>
+                          <p className="text-xs font-bold uppercase">
+                            Stock por variante
+                          </p>
+                          <p className="mt-1 text-sm text-black/50">
+                            {product.variants?.reduce(
+                              (sum, variant) => sum + variant.stock,
+                              0,
+                            ) ?? 0}{" "}
+                            unidades em stock
+                          </p>
                         </div>
-                        <Button type="button" variant="outline" className="rounded-none" onClick={() => {
-                          const existing = new Map((product.variants ?? []).map((variant) => [`${variant.color}:${variant.size}`, variant]));
-                          updateProduct(product.id, { variants: product.colors.flatMap((color) => product.sizes.map((size) => existing.get(`${color}:${size}`) ?? { sku: `${product.slug}-${color}-${size}`.toUpperCase().replace(/[^A-Z0-9]+/g, "-"), color, size, stock: 0 })) });
-                        }}>Gerar combinações</Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="rounded-none"
+                          onClick={() => {
+                            const existing = new Map(
+                              (product.variants ?? []).map((variant) => [
+                                `${variant.color}:${variant.size}`,
+                                variant,
+                              ]),
+                            );
+                            updateProduct(product.id, {
+                              variants: product.colors.flatMap((color) =>
+                                product.sizes.map(
+                                  (size) =>
+                                    existing.get(`${color}:${size}`) ?? {
+                                      sku: `${product.slug}-${color}-${size}`
+                                        .toUpperCase()
+                                        .replace(/[^A-Z0-9]+/g, "-"),
+                                      color,
+                                      size,
+                                      stock: 0,
+                                    },
+                                ),
+                              ),
+                            });
+                          }}
+                        >
+                          Gerar combinações
+                        </Button>
                       </div>
-                      {product.variants?.length > 0 && <div className="mt-4 grid gap-2">{product.variants.map((variant, variantIndex) => <div key={`${variant.color}-${variant.size}`} className="grid grid-cols-[1fr_100px_100px_100px] items-center gap-2 bg-[#f5f5f2] p-2"><Input value={variant.sku} aria-label="SKU" onChange={(event) => updateProduct(product.id, { variants: product.variants.map((item, index) => index === variantIndex ? { ...item, sku: event.target.value } : item) })}/><span className="text-sm font-semibold">{variant.color}</span><span className="text-sm font-semibold">{variant.size}</span><Input type="number" min="0" value={variant.stock} aria-label={`Stock ${variant.color} ${variant.size}`} onChange={(event) => updateProduct(product.id, { variants: product.variants.map((item, index) => index === variantIndex ? { ...item, stock: Math.max(0, Number(event.target.value) || 0) } : item) })}/></div>)}</div>}
+                      {product.variants?.length > 0 && (
+                        <div className="mt-4 grid gap-2">
+                          {product.variants.map((variant, variantIndex) => (
+                            <div
+                              key={`${variant.color}-${variant.size}`}
+                              className="grid grid-cols-[1fr_100px_100px_100px] items-center gap-2 bg-[#f5f5f2] p-2"
+                            >
+                              <Input
+                                value={variant.sku}
+                                aria-label="SKU"
+                                onChange={(event) =>
+                                  updateProduct(product.id, {
+                                    variants: product.variants.map(
+                                      (item, index) =>
+                                        index === variantIndex
+                                          ? { ...item, sku: event.target.value }
+                                          : item,
+                                    ),
+                                  })
+                                }
+                              />
+                              <span className="text-sm font-semibold">
+                                {variant.color}
+                              </span>
+                              <span className="text-sm font-semibold">
+                                {variant.size}
+                              </span>
+                              <Input
+                                type="number"
+                                min="0"
+                                value={variant.stock}
+                                aria-label={`Stock ${variant.color} ${variant.size}`}
+                                onChange={(event) =>
+                                  updateProduct(product.id, {
+                                    variants: product.variants.map(
+                                      (item, index) =>
+                                        index === variantIndex
+                                          ? {
+                                              ...item,
+                                              stock: Math.max(
+                                                0,
+                                                Number(event.target.value) || 0,
+                                              ),
+                                            }
+                                          : item,
+                                    ),
+                                  })
+                                }
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </article>
                 ))}

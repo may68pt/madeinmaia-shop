@@ -80,6 +80,7 @@ export default function Home() {
         </div>
         {visible.length === 0 && <div className="border border-dashed border-black/25 py-16 text-center"><SlidersHorizontal className="mx-auto mb-3"/><p>Nenhum design encontrado.</p></div>}
       </section>
+      <footer className="mt-10 bg-[#171713] px-5 py-10 text-white lg:px-10"><div className="mx-auto flex max-w-[1440px] flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"><strong className="text-2xl font-black uppercase tracking-[-.05em]">Made in Maia</strong><nav className="flex flex-wrap gap-5 text-sm text-white/65"><Link href="/legal/terms">Termos</Link><Link href="/legal/privacy">Privacidade</Link><Link href="/legal/returns">Trocas e devoluções</Link><Link href="/marca">A marca</Link></nav></div></footer>
     </main>
   );
 }
