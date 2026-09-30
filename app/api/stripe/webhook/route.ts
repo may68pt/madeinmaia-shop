@@ -3,6 +3,8 @@ import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import { getDb } from "@/db";
 import { orders } from "@/db/schema";
+import { products } from "@/db/schema";
+import { sendOrderStatusEmail } from "@/lib/order-email";
 
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_SECRET_KEY;
@@ -17,7 +19,18 @@ export async function POST(request: Request) {
   if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
     const session = event.data.object;
     const reference = session.metadata?.reference;
-    if (reference) await getDb().update(orders).set({ status:"paid", paymentReference:session.id }).where(eq(orders.reference,reference));
+    if (reference) {
+      const db = getDb();
+      const [order] = await db.select().from(orders).where(eq(orders.reference,reference));
+      if (order && order.status !== "paid") {
+        for (const item of order.items) {
+          const [product] = await db.select().from(products).where(eq(products.slug,item.slug));
+          if (product?.variants.length) await db.update(products).set({ variants:product.variants.map((variant)=>variant.color===item.color&&variant.size===item.size?{...variant,stock:Math.max(0,variant.stock-item.quantity)}:variant), updatedAt:new Date() }).where(eq(products.slug,item.slug));
+        }
+        await db.update(orders).set({ status:"paid", paymentReference:session.id }).where(eq(orders.reference,reference));
+        await sendOrderStatusEmail({ ...order, status:"paid" }).catch(()=>undefined);
+      }
+    }
   }
   if (event.type === "checkout.session.expired") {
     const reference = event.data.object.metadata?.reference;

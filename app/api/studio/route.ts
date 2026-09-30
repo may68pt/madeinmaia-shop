@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { orders, pages, products, randomContent } from "@/db/schema";
+import { sendOrderStatusEmail } from "@/lib/order-email";
 
 function isAuthenticated(request: Request) {
   const expected = process.env.STUDIO_PASSWORD;
@@ -31,8 +32,11 @@ export async function POST(request: Request) {
     const allowed = ["pending", "paid", "preparing", "shipped", "cancelled"];
     if (!body.reference || !body.status || !allowed.includes(body.status)) return NextResponse.json({ error:"Estado inválido" }, { status:400 });
     try {
-      const updated = await getDb().update(orders).set({ status:body.status }).where(eq(orders.reference, body.reference)).returning({ reference:orders.reference, status:orders.status });
+      const db = getDb();
+      const updated = await db.update(orders).set({ status:body.status }).where(eq(orders.reference, body.reference)).returning({ reference:orders.reference, status:orders.status });
       if (!updated.length) return NextResponse.json({ error:"Encomenda não encontrada" }, { status:404 });
+      const [order] = await db.select().from(orders).where(eq(orders.reference,body.reference));
+      if (order) await sendOrderStatusEmail(order).catch(()=>undefined);
       return NextResponse.json({ ok:true, order:updated[0] });
     } catch { return NextResponse.json({ error:"Não foi possível atualizar a encomenda." }, { status:503 }); }
   }
@@ -48,6 +52,7 @@ export async function POST(request: Request) {
         slug, name, description: String(value.description ?? ""), priceCents: Math.max(0, Number(value.priceCents) || 0),
         collection: String(value.collection ?? "Made in Maia"), imageKey: value.imageKey ? String(value.imageKey) : null,
         colors: Array.isArray(value.colors) ? value.colors.map(String) : [], sizes: Array.isArray(value.sizes) ? value.sizes.map(String) : [],
+        variants: Array.isArray(value.variants) ? value.variants.flatMap((variant)=>{ if(!variant||typeof variant!=="object")return[]; const item=variant as Record<string,unknown>; return [{ sku:String(item.sku??""), color:String(item.color??""), size:String(item.size??""), stock:Math.max(0,Number(item.stock)||0) }]; }) : [],
         status: value.status === "published" ? "published" : "draft", updatedAt: new Date(),
       }];
     });

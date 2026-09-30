@@ -21,16 +21,17 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error:"Confirma os dados de entrega e o carrinho." }, { status:400 });
   const { customer, items } = parsed.data;
   const slugs = [...new Set(items.map((item)=>item.slug))];
-  const catalogue = new Map<string,{name:string;priceCents:number;colors:string[];sizes:string[]}>(fallback);
+  const catalogue = new Map<string,{name:string;priceCents:number;colors:string[];sizes:string[];variants?:Array<{color:string;size:string;stock:number}>}>(fallback);
   if (process.env.DATABASE_URL) {
     try {
       const stored = await getDb().select().from(products).where(inArray(products.slug, slugs));
-      for (const product of stored) if (product.status === "published") catalogue.set(product.slug, { name:product.name, priceCents:product.priceCents, colors:product.colors, sizes:product.sizes });
+      for (const product of stored) if (product.status === "published") catalogue.set(product.slug, { name:product.name, priceCents:product.priceCents, colors:product.colors, sizes:product.sizes, variants:product.variants });
     } catch { return NextResponse.json({ error:"Não foi possível validar o catálogo." }, { status:503 }); }
   }
   const orderItems = items.flatMap((item)=>{
     const product = catalogue.get(item.slug);
-    if (!product || !product.colors.includes(item.color) || !product.sizes.includes(item.size)) return [];
+    const variant = product?.variants?.find((entry)=>entry.color===item.color&&entry.size===item.size);
+    if (!product || !product.colors.includes(item.color) || !product.sizes.includes(item.size) || (product.variants?.length && (!variant || variant.stock < item.quantity))) return [];
     return [{ ...item, name:product.name, unitPriceCents:product.priceCents }];
   });
   if (orderItems.length !== items.length) return NextResponse.json({ error:"Um produto ou variante deixou de estar disponível." }, { status:409 });

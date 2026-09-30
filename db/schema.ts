@@ -10,6 +10,7 @@ export const products = pgTable("products", {
   imageKey: text("image_key"),
   colors: jsonb("colors").$type<string[]>().notNull().default([]),
   sizes: jsonb("sizes").$type<string[]>().notNull().default([]),
+  variants: jsonb("variants").$type<Array<{ sku: string; color: string; size: string; stock: number }>>().notNull().default([]),
   status: text("status").notNull().default("draft"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
