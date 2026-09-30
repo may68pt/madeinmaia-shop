@@ -1,4 +1,4 @@
-import { integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
@@ -40,4 +40,17 @@ export const orders = pgTable("orders", {
   paymentProvider: text("payment_provider"),
   paymentReference: text("payment_reference"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const randomContent = pgTable("random_content", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  type: text("type").notNull().default("text"),
+  body: text("body").notNull().default(""),
+  mediaUrl: text("media_url"),
+  linkUrl: text("link_url"),
+  linkLabel: text("link_label").notNull().default("Descobrir"),
+  weight: integer("weight").notNull().default(1),
+  active: boolean("active").notNull().default(true),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

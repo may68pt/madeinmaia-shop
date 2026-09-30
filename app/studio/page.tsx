@@ -11,11 +11,16 @@ import { Switch } from "@/components/ui/switch";
 import { toast, Toaster } from "sonner";
 
 type Block = { id: number; type: string; title: string; description: string };
+type Discovery = { id: number; title: string; type: string; body: string; mediaUrl: string; linkUrl: string; linkLabel: string; weight: number; active: boolean };
 
 const initialBlocks: Block[] = [
   { id: 1, type: "Hero", title: "Veste uma ideia.", description: "T-shirts desenhadas e impressas na Maia." },
   { id: 2, type: "Produtos", title: "Novos na loja", description: "Grelha automática com os produtos mais recentes." },
   { id: 3, type: "Banner", title: "QR Edition", description: "Uma ligação pessoal, impressa na manga." },
+];
+
+const initialDiscoveries: Discovery[] = [
+  { id: 1, title: "Hoje encontraste a Maia.", type: "text", body: "Uma ideia local, feita para viajar contigo.", mediaUrl: "", linkUrl: "/marca", linkLabel: "Conhecer a marca", weight: 1, active: true },
 ];
 
 export default function Studio() {
@@ -25,19 +30,35 @@ export default function Studio() {
   const [published, setPublished] = useState(false);
   const [studioKey, setStudioKey] = useState("");
   const [password, setPassword] = useState("");
+  const [section, setSection] = useState<"pages" | "products" | "discover">("pages");
+  const [discoveries, setDiscoveries] = useState(initialDiscoveries);
   const current = useMemo(() => blocks.find((block) => block.id === selected) ?? blocks[0], [blocks, selected]);
 
   function updateBlock(patch: Partial<Block>) { setBlocks((items) => items.map((item) => item.id === selected ? { ...item, ...patch } : item)); }
   function move(index: number, offset: number) { const next = [...blocks]; const target = index + offset; if (target < 0 || target >= next.length) return; [next[index], next[target]] = [next[target], next[index]]; setBlocks(next); }
   function addBlock() { const id = Date.now(); setBlocks((items) => [...items, { id, type: "Texto", title: "Novo bloco", description: "Escreve aqui o conteúdo desta secção." }]); setSelected(id); }
   async function save() {
+    if (section === "discover") {
+      const response = await fetch("/api/studio", { method: "POST", headers: { "content-type": "application/json", "x-studio-key": studioKey }, body: JSON.stringify({ resource: "random-content", entries: discoveries }) });
+      if (response.ok) toast.success("Conteúdos de Descobre guardados"); else toast.error("Não foi possível guardar os conteúdos.");
+      return;
+    }
     const response = await fetch("/api/studio", { method: "POST", headers: { "content-type": "application/json", "x-studio-key": studioKey }, body: JSON.stringify({ title: "Início", blocks, status: published ? "published" : "draft" }) });
     if (response.ok) toast.success(published ? "Página publicada" : "Rascunho guardado"); else if (response.status === 401) { setStudioKey(""); toast.error("A palavra-passe não é válida."); } else toast.error("Não foi possível guardar na base de dados.");
   }
 
-  function unlock(event: FormEvent) { event.preventDefault(); setStudioKey(password); setPassword(""); }
+  async function unlock(event: FormEvent) {
+    event.preventDefault();
+    const response = await fetch("/api/studio", { headers: { "x-studio-key": password } });
+    if (!response.ok) { toast.error("A palavra-passe não é válida."); return; }
+    const data = await response.json() as { randomContent?: Array<Partial<Discovery> & { id: number }> };
+    if (data.randomContent?.length) setDiscoveries(data.randomContent.map((entry) => ({ id: entry.id, title: entry.title ?? "", type: entry.type ?? "text", body: entry.body ?? "", mediaUrl: entry.mediaUrl ?? "", linkUrl: entry.linkUrl ?? "", linkLabel: entry.linkLabel ?? "Descobrir", weight: entry.weight ?? 1, active: entry.active !== false })));
+    setStudioKey(password); setPassword("");
+  }
 
-  if (!studioKey) return <main className="grid min-h-screen place-items-center bg-[#171713] p-6 text-white"><form onSubmit={unlock} className="w-full max-w-md bg-[#f4f3ef] p-8 text-[#171713]"><span className="grid size-12 place-items-center bg-[#ff4f1f] text-white"><LockKeyhole/></span><h1 className="mt-6 text-4xl font-black uppercase tracking-[-.055em]">Made in Maia Studio</h1><p className="mt-3 text-black/60">Introduz a palavra-passe definida no serviço Render.</p><label className="mt-7 block text-sm font-semibold" htmlFor="studio-password">Palavra-passe</label><Input id="studio-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 h-12" autoFocus required/><Button type="submit" className="mt-4 h-12 w-full rounded-none bg-[#171713] text-white">Entrar no Studio</Button><Link href="/" className="mt-5 block text-center text-sm underline">Voltar à loja</Link></form></main>;
+  function updateDiscovery(id: number, patch: Partial<Discovery>) { setDiscoveries((items) => items.map((item) => item.id === id ? { ...item, ...patch } : item)); }
+
+  if (!studioKey) return <main className="grid min-h-screen place-items-center bg-[#171713] p-6 text-white"><Toaster position="bottom-right"/><form onSubmit={unlock} className="w-full max-w-md bg-[#f4f3ef] p-8 text-[#171713]"><span className="grid size-12 place-items-center bg-[#ff4f1f] text-white"><LockKeyhole/></span><h1 className="mt-6 text-4xl font-black uppercase tracking-[-.055em]">Made in Maia Studio</h1><p className="mt-3 text-black/60">Introduz a palavra-passe definida no serviço Render.</p><label className="mt-7 block text-sm font-semibold" htmlFor="studio-password">Palavra-passe</label><Input id="studio-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 h-12" autoFocus required/><Button type="submit" className="mt-4 h-12 w-full rounded-none bg-[#171713] text-white">Entrar no Studio</Button><Link href="/" className="mt-5 block text-center text-sm underline">Voltar à loja</Link></form></main>;
 
   const width = viewport === "mobile" ? "390px" : viewport === "tablet" ? "760px" : "100%";
   return (
@@ -45,26 +66,28 @@ export default function Studio() {
       <Toaster position="bottom-right" />
       <header className="flex h-16 items-center gap-4 border-b border-black/10 bg-[#171713] px-5 text-white">
         <Link href="/" className="flex items-center gap-2 font-black uppercase tracking-tight"><span className="grid size-8 place-items-center bg-[#ff4f1f]">M</span> Studio</Link>
-        <span className="h-6 w-px bg-white/20"/><span className="text-sm text-white/65">Página: Início</span>
+        <span className="h-6 w-px bg-white/20"/><span className="text-sm text-white/65">{section === "pages" ? "Página: Início" : section === "discover" ? "Conteúdo: Descobre" : "Catálogo"}</span>
         <div className="ml-auto flex items-center gap-2"><Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white" asChild><Link href="/" target="_blank"><Eye/>Pré-visualizar</Link></Button><Button onClick={save} className="rounded-none bg-[#d9ff43] text-black hover:bg-[#c8ef39]"><Save/>Guardar</Button></div>
       </header>
       <div className="grid min-h-[calc(100vh-4rem)] grid-cols-[220px_minmax(0,1fr)_310px] max-lg:grid-cols-[72px_minmax(0,1fr)]">
         <aside className="border-r border-black/10 bg-white p-3">
           <nav className="grid gap-2">
-            {[{icon:LayoutTemplate,label:"Páginas"},{icon:Palette,label:"Tema"},{icon:Package,label:"Produtos"},{icon:Store,label:"Encomendas"}].map(({icon:Icon,label}, index) => <Button key={label} variant={index === 0 ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><Icon/><span className="max-lg:hidden">{label}</span></Button>)}
+            {[{icon:LayoutTemplate,label:"Páginas",value:"pages"},{icon:Palette,label:"Descobre",value:"discover"},{icon:Package,label:"Produtos",value:"products"},{icon:Store,label:"Encomendas",value:"products"}].map(({icon:Icon,label,value}) => <Button key={label} onClick={() => setSection(value as typeof section)} variant={section === value ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><Icon/><span className="max-lg:hidden">{label}</span></Button>)}
           </nav>
         </aside>
         <section className="min-w-0 p-4 md:p-7">
+          {section === "pages" ? <>
           <div className="mb-4 flex items-center justify-between"><div className="flex gap-1 rounded-none bg-white p-1"><Button size="icon" variant={viewport === "desktop" ? "secondary" : "ghost"} onClick={() => setViewport("desktop")} aria-label="Desktop"><Monitor/></Button><Button size="icon" variant={viewport === "tablet" ? "secondary" : "ghost"} onClick={() => setViewport("tablet")} aria-label="Tablet"><Tablet/></Button><Button size="icon" variant={viewport === "mobile" ? "secondary" : "ghost"} onClick={() => setViewport("mobile")} aria-label="Telemóvel"><Smartphone/></Button></div><div className="flex items-center gap-2 text-sm"><Switch checked={published} onCheckedChange={setPublished}/>{published ? "Publicada" : "Rascunho"}</div></div>
           <div className="mx-auto min-h-[720px] overflow-hidden bg-[#f4f3ef] shadow-xl transition-[width]" style={{ width }}>
             <div className="flex h-14 items-center border-b border-black/10 px-6"><strong className="uppercase tracking-tight">Made in Maia</strong><span className="ml-auto text-sm">Loja &nbsp; Coleções &nbsp; QR</span></div>
             <div className="space-y-3 p-4 md:p-6">{blocks.map((block, index) => <button key={block.id} onClick={() => setSelected(block.id)} className={`group block w-full border-2 p-5 text-left ${selected === block.id ? "border-[#ff4f1f]" : "border-transparent hover:border-black/15"} ${block.type === "Hero" ? "min-h-64 bg-[#ff4f1f] text-white" : block.type === "Produtos" ? "min-h-48 bg-white" : "min-h-32 bg-[#d9ff43]"}`}><span className="text-xs font-bold uppercase tracking-widest opacity-60">{block.type}</span><h2 className={`${block.type === "Hero" ? "mt-14 text-5xl" : "mt-4 text-2xl"} font-black uppercase tracking-[-.05em]`}>{block.title}</h2><p className="mt-2 opacity-70">{block.description}</p><span className="mt-4 inline-flex gap-1 opacity-0 group-hover:opacity-100"><span onClick={(event) => { event.stopPropagation(); move(index,-1); }} className="bg-black/10 p-1"><ArrowUp className="size-4"/></span><span onClick={(event) => { event.stopPropagation(); move(index,1); }} className="bg-black/10 p-1"><ArrowDown className="size-4"/></span></span></button>)}</div>
           </div>
+          </> : section === "discover" ? <div className="mx-auto max-w-4xl"><div className="mb-8 flex items-end justify-between gap-4"><div><p className="text-sm font-black uppercase tracking-[.15em] text-[#ff4f1f]">madeinmaia.pt/descobre</p><h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">Conteúdo aleatório</h1><p className="mt-3 max-w-2xl text-black/60">Cada leitura do QR escolhe um destes conteúdos ativos. O peso aumenta a frequência relativa.</p></div><Button asChild variant="outline" className="rounded-none"><Link href="/descobre" target="_blank"><Eye/>Testar</Link></Button></div><div className="space-y-4">{discoveries.map((entry, index)=><article key={entry.id} className="bg-white p-5 shadow-sm"><div className="mb-4 flex items-center gap-3"><span className="grid size-8 place-items-center bg-[#171713] text-sm font-black text-white">{index+1}</span><Input value={entry.title} onChange={(event)=>updateDiscovery(entry.id,{title:event.target.value})} className="h-11 text-lg font-bold"/><Switch checked={entry.active} onCheckedChange={(active)=>updateDiscovery(entry.id,{active})}/><Button size="icon" variant="ghost" onClick={()=>setDiscoveries((items)=>items.filter((item)=>item.id!==entry.id))} aria-label="Remover"><Trash2 className="text-red-600"/></Button></div><div className="grid gap-4 md:grid-cols-2"><div><label className="mb-1 block text-xs font-bold uppercase">Mensagem</label><textarea value={entry.body} onChange={(event)=>updateDiscovery(entry.id,{body:event.target.value})} className="min-h-24 w-full border border-input p-3"/></div><div className="grid gap-3"><div><label className="mb-1 block text-xs font-bold uppercase">Link de destino</label><Input value={entry.linkUrl} onChange={(event)=>updateDiscovery(entry.id,{linkUrl:event.target.value})} placeholder="/marca ou https://..."/></div><div className="grid grid-cols-2 gap-3"><Input value={entry.linkLabel} onChange={(event)=>updateDiscovery(entry.id,{linkLabel:event.target.value})} placeholder="Texto do botão"/><Input type="number" min="1" value={entry.weight} onChange={(event)=>updateDiscovery(entry.id,{weight:Number(event.target.value)})} aria-label="Peso"/></div></div></div></article>)}</div><Button onClick={()=>setDiscoveries((items)=>[...items,{id:Date.now(),title:"Nova surpresa",type:"text",body:"Escreve aqui a mensagem.",mediaUrl:"",linkUrl:"",linkLabel:"Descobrir",weight:1,active:true}])} className="mt-5 rounded-none bg-[#171713] text-white"><Plus/>Adicionar conteúdo</Button></div> : <div className="grid min-h-[65vh] place-items-center bg-white p-10 text-center"><div><Package className="mx-auto size-12 text-[#ff4f1f]"/><h1 className="mt-5 text-4xl font-black uppercase">Catálogo</h1><p className="mt-3 max-w-md text-black/60">A gestão completa de produtos, variantes, stock e coleções entra no próximo bloco.</p></div></div>}
         </section>
-        <aside className="border-l border-black/10 bg-white p-5 max-lg:hidden">
+        {section === "pages" ? <aside className="border-l border-black/10 bg-white p-5 max-lg:hidden">
           <Tabs defaultValue="content"><TabsList className="grid w-full grid-cols-2"><TabsTrigger value="content">Conteúdo</TabsTrigger><TabsTrigger value="style">Estilo</TabsTrigger></TabsList><TabsContent value="content" className="space-y-5 pt-5"><div><label className="mb-2 block text-sm font-semibold">Tipo de bloco</label><Select value={current?.type} onValueChange={(value) => updateBlock({type:value})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Hero">Hero</SelectItem><SelectItem value="Produtos">Produtos</SelectItem><SelectItem value="Banner">Banner</SelectItem><SelectItem value="Texto">Texto</SelectItem></SelectContent></Select></div><div><label className="mb-2 block text-sm font-semibold">Título</label><Input value={current?.title ?? ""} onChange={(event) => updateBlock({title:event.target.value})}/></div><div><label className="mb-2 block text-sm font-semibold">Descrição</label><textarea value={current?.description ?? ""} onChange={(event) => updateBlock({description:event.target.value})} className="min-h-28 w-full border border-input p-3 outline-none focus:ring-2 focus:ring-ring"/></div><Button onClick={addBlock} variant="outline" className="w-full rounded-none"><Plus/>Adicionar bloco</Button><Button onClick={() => setBlocks((items) => items.filter((item) => item.id !== selected))} variant="ghost" className="w-full rounded-none text-red-600"><Trash2/>Remover bloco</Button></TabsContent><TabsContent value="style" className="space-y-5 pt-5"><div><label className="mb-2 block text-sm font-semibold">Fundo</label><div className="grid grid-cols-4 gap-2">{["#ff4f1f","#d9ff43","#171713","#ffffff"].map((color)=><button key={color} className="aspect-square border" style={{backgroundColor:color}} aria-label={`Cor ${color}`}/>)}</div></div><div><label className="mb-2 block text-sm font-semibold">Largura</label><Select defaultValue="full"><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="full">Largura total</SelectItem><SelectItem value="content">Conteúdo</SelectItem><SelectItem value="narrow">Estreita</SelectItem></SelectContent></Select></div></TabsContent></Tabs>
           <div className="mt-8 border-t pt-5"><p className="flex items-center gap-2 text-sm font-semibold"><GripVertical className="size-4"/>Estrutura da página</p><ol className="mt-3 space-y-2">{blocks.map((block)=><li key={block.id}><button onClick={()=>setSelected(block.id)} className={`w-full px-3 py-2 text-left text-sm ${selected===block.id?"bg-[#fff0ea] text-[#d33b10]":"bg-[#f5f5f2]"}`}>{block.type} · {block.title}</button></li>)}</ol></div>
-        </aside>
+        </aside> : <aside className="border-l border-black/10 bg-[#d9ff43] p-5 max-lg:hidden"><p className="text-sm font-black uppercase tracking-[.15em]">Publicação</p><h2 className="mt-5 text-3xl font-black uppercase tracking-[-.04em]">Guardar torna o conteúdo imediatamente disponível.</h2><p className="mt-4 text-sm leading-relaxed text-black/65">O QR permanece sempre igual. Ativa, desativa ou altera as surpresas sem reimprimir qualquer peça.</p></aside>}
       </div>
     </main>
   );

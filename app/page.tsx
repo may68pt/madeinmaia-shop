@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, Search, ShoppingBag, SlidersHorizontal, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,10 +33,10 @@ export default function Home() {
         <div className="mx-auto flex max-w-[1440px] items-center gap-5 px-5 py-4 lg:px-10">
           <Sheet>
             <SheetTrigger asChild><Button variant="ghost" size="icon" className="lg:hidden" aria-label="Abrir menu"><Menu /></Button></SheetTrigger>
-            <SheetContent side="left" className="bg-[#f4f3ef] p-7"><SheetHeader><SheetTitle className="text-left text-2xl">Explorar</SheetTitle></SheetHeader><nav className="mt-8 grid gap-5 text-lg"><a href="#novidades">Novidades</a><a href="#colecoes">Coleções</a><a href="#qr">QR personalizável</a><a href="#sobre">Made in Maia</a></nav></SheetContent>
+            <SheetContent side="left" className="bg-[#f4f3ef] p-7"><SheetHeader><SheetTitle className="text-left text-2xl">Explorar</SheetTitle></SheetHeader><nav className="mt-8 grid gap-5 text-lg"><a href="#novidades">Novidades</a><a href="#colecoes">Coleções</a><Link href="/descobre">Descobre</Link><Link href="/marca">A marca</Link></nav></SheetContent>
           </Sheet>
           <a href="#" className="mr-auto flex items-center gap-2" aria-label="Made in Maia, início"><span className="grid size-10 rotate-3 place-items-center bg-[#ff4f1f] text-xl font-black text-white">M</span><span className="text-xl font-black uppercase tracking-[-0.055em] sm:text-2xl">Made in Maia</span></a>
-          <nav className="hidden items-center gap-7 text-sm font-semibold lg:flex"><a href="#novidades">Novidades</a><a href="#colecoes">Coleções</a><a href="#qr">QR personalizável</a><a href="#sobre">A marca</a></nav>
+          <nav className="hidden items-center gap-7 text-sm font-semibold lg:flex"><a href="#novidades">Novidades</a><a href="#colecoes">Coleções</a><Link href="/descobre">Descobre</Link><Link href="/marca">A marca</Link></nav>
           <Sheet>
             <SheetTrigger asChild><Button variant="ghost" className="relative" size="icon" aria-label="Ver saco de compras"><ShoppingBag />{cart.length > 0 && <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-[#ff4f1f] text-[11px] font-bold text-white">{cart.length}</span>}</Button></SheetTrigger>
             <SheetContent className="flex flex-col bg-[#f4f3ef] p-6 sm:max-w-md"><SheetHeader><SheetTitle className="text-left text-3xl font-black uppercase tracking-tight">O teu saco</SheetTitle></SheetHeader><div className="mt-6 flex-1 space-y-3">{cart.length === 0 ? <p className="border border-dashed border-black/20 p-7 text-center text-black/55">Ainda não adicionaste nenhum design.</p> : cart.map((item, index) => <div key={`${item.name}-${index}`} className="flex items-center gap-4 bg-white p-3"><div className="relative size-20 overflow-hidden"><Image src={item.image} alt="" fill className="object-cover"/></div><div><strong className="uppercase">{item.name}</strong><p className="text-sm text-black/55">M · {item.tone}</p></div><span className="ml-auto font-bold">{item.price}</span></div>)}</div><div className="border-t border-black/15 pt-5"><div className="mb-4 flex justify-between text-lg font-bold"><span>Total</span><span>{(cart.length * 20).toFixed(2).replace(".", ",")} €</span></div><Button disabled={cart.length === 0} className="h-13 w-full rounded-none bg-[#171713] text-base text-white">Continuar para pagamento</Button><p className="mt-3 text-center text-xs text-black/50">Checkout seguro por Viva.com ou Stripe.</p></div></SheetContent>
@@ -51,7 +52,7 @@ export default function Home() {
         <div className="grid min-h-[470px] grid-cols-2 gap-3 bg-[#d9ff43] p-3 lg:min-h-[600px]">
           <div className="relative col-span-2 overflow-hidden bg-white"><Image src="/products/white-shirt-1.jpg" alt="T-shirt Made in Maia branca" fill priority className="object-cover" /></div>
           <div className="flex items-end bg-[#171713] p-5 text-white"><p className="text-2xl font-black uppercase leading-none">177 designs<br/>e a contar.</p></div>
-          <div id="qr" className="flex flex-col justify-between bg-white p-5"><span className="text-sm font-bold uppercase tracking-wider">QR Edition</span><p className="text-sm leading-snug text-black/65">Leva o teu link contigo, impresso na manga.</p></div>
+          <Link href="/descobre" className="flex flex-col justify-between bg-white p-5"><span className="text-sm font-bold uppercase tracking-wider">Descobre</span><p className="text-sm leading-snug text-black/65">O símbolo abre uma surpresa diferente cada vez.</p></Link>
         </div>
       </section>
 

@@ -1,0 +1,14 @@
+import Link from "next/link";
+import { ArrowLeft, MapPin, Scissors, Sparkles } from "lucide-react";
+
+export default function BrandPage() {
+  return <main className="min-h-screen bg-[#f4f3ef] text-[#171713]">
+    <header className="flex items-center justify-between border-b border-black/10 px-5 py-5 lg:px-10"><Link href="/" className="flex items-center gap-2 font-black uppercase"><ArrowLeft className="size-4"/> Loja</Link><strong className="text-xl uppercase tracking-[-.05em]">Made in Maia</strong></header>
+    <section className="grid min-h-[72vh] lg:grid-cols-2">
+      <div className="flex flex-col justify-between bg-[#d9ff43] p-8 sm:p-12 lg:p-16"><p className="text-sm font-black uppercase tracking-[.18em]">A marca</p><h1 className="my-20 text-[clamp(4rem,10vw,9rem)] font-black uppercase leading-[.76] tracking-[-.075em]">Ideias com sotaque local.</h1><p className="max-w-xl text-xl leading-relaxed">A Made in Maia transforma referências, humor e cultura em peças para usar todos os dias. Pensada na Maia, produzida em pequenas séries e feita para circular.</p></div>
+      <div className="grid content-center gap-10 bg-[#171713] p-8 text-white sm:p-12 lg:p-16">
+        {[{icon:MapPin,title:"Da Maia para todo o lado",text:"Uma marca independente com os pés na cidade e os olhos no mundo."},{icon:Scissors,title:"Produção consciente",text:"Pequenas quantidades, impressão cuidada e menos desperdício."},{icon:Sparkles,title:"Cada peça conta algo",text:"Designs que provocam uma conversa — incluindo o QR que nunca mostra sempre a mesma coisa."}].map(({icon:Icon,title,text})=><article key={title} className="border-t border-white/20 pt-6"><Icon className="mb-5 text-[#d9ff43]"/><h2 className="text-3xl font-black uppercase tracking-[-.04em]">{title}</h2><p className="mt-3 max-w-lg text-white/65">{text}</p></article>)}
+      </div>
+    </section>
+  </main>;
+}
