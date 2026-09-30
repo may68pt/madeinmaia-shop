@@ -15,6 +15,13 @@
       "when": 1790726807845,
       "tag": "0001_certain_lockheed",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790729462153,
+      "tag": "0002_spooky_stryfe",
+      "breakpoints": true
     }
   ]
 }

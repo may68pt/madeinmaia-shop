@@ -48,3 +48,4 @@ export function addCartItem(item: Omit<CartItem, "key" | "quantity">) {
 }
 
 export function removeCartItem(key: string) { writeCart(readCart().filter((item) => item.key !== key)); }
+export function clearCart() { writeCart([]); }
