@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { pages, products, randomContent } from "@/db/schema";
+import { orders, pages, products, randomContent } from "@/db/schema";
 
 function isAuthenticated(request: Request) {
   const expected = process.env.STUDIO_PASSWORD;
@@ -12,20 +12,30 @@ export async function GET(request: Request) {
   if (!isAuthenticated(request)) return NextResponse.json({ error: "Autenticação necessária" }, { status: 401 });
   try {
     const db = getDb();
-    const [[home], productList, discoveries] = await Promise.all([
+    const [[home], productList, discoveries, orderList] = await Promise.all([
       db.select().from(pages).where(eq(pages.slug, "inicio")),
       db.select().from(products),
       db.select().from(randomContent),
+      db.select().from(orders).orderBy(desc(orders.createdAt)),
     ]);
-    return NextResponse.json({ page: home ?? null, products: productList, randomContent: discoveries });
+    return NextResponse.json({ page: home ?? null, products: productList, randomContent: discoveries, orders: orderList, paymentConfigured: Boolean(process.env.PAYMENT_LINK_URL) });
   } catch {
-    return NextResponse.json({ page: null, products: [], randomContent: [], storage: "unavailable" });
+    return NextResponse.json({ page: null, products: [], randomContent: [], orders: [], paymentConfigured: Boolean(process.env.PAYMENT_LINK_URL), storage: "unavailable" });
   }
 }
 
 export async function POST(request: Request) {
   if (!isAuthenticated(request)) return NextResponse.json({ error: "Autenticação necessária" }, { status: 401 });
-  const body = await request.json() as { resource?: string; title?: string; blocks?: unknown[]; status?: string; entries?: unknown[] };
+  const body = await request.json() as { resource?: string; reference?: string; title?: string; blocks?: unknown[]; status?: string; entries?: unknown[] };
+  if (body.resource === "order-status") {
+    const allowed = ["pending", "paid", "preparing", "shipped", "cancelled"];
+    if (!body.reference || !body.status || !allowed.includes(body.status)) return NextResponse.json({ error:"Estado inválido" }, { status:400 });
+    try {
+      const updated = await getDb().update(orders).set({ status:body.status }).where(eq(orders.reference, body.reference)).returning({ reference:orders.reference, status:orders.status });
+      if (!updated.length) return NextResponse.json({ error:"Encomenda não encontrada" }, { status:404 });
+      return NextResponse.json({ ok:true, order:updated[0] });
+    } catch { return NextResponse.json({ error:"Não foi possível atualizar a encomenda." }, { status:503 }); }
+  }
   if (body.resource === "products") {
     if (!Array.isArray(body.entries)) return NextResponse.json({ error: "Catálogo inválido" }, { status: 400 });
     const entries = body.entries.flatMap((entry) => {
