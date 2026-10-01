@@ -10,6 +10,7 @@ import {
 } from "@/db/schema";
 import { sendOrderStatusEmail } from "@/lib/order-email";
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport } from "@/lib/product-catalog";
+import { DEFAULT_NAVIGATION } from "@/lib/site-navigation";
 
 function isAuthenticated(request: Request) {
   const expected = process.env.STUDIO_PASSWORD;
@@ -34,9 +35,9 @@ export async function GET(request: Request) {
         ? NextResponse.json({ product })
         : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
     }
-    const [[home], productList, discoveries, orderList, [settings]] =
+    const [pageList, productList, discoveries, orderList, [settings]] =
       await Promise.all([
-        db.select().from(pages).where(eq(pages.slug, "inicio")),
+        db.select().from(pages).orderBy(pages.id),
         db.select({
           id: products.id,
           slug: products.slug,
@@ -50,7 +51,8 @@ export async function GET(request: Request) {
         db.select().from(siteSettings).where(eq(siteSettings.key, "global")),
       ]);
     return NextResponse.json({
-      page: home ?? null,
+      page: pageList.find((page) => page.slug === "inicio") ?? null,
+      pages: pageList,
       products: productList,
       randomContent: discoveries,
       orders: orderList,
@@ -66,6 +68,7 @@ export async function GET(request: Request) {
       randomContent: [],
       orders: [],
       settings: null,
+      pages: [],
       paymentConfigured: Boolean(
         process.env.STRIPE_SECRET_KEY || process.env.PAYMENT_LINK_URL,
       ),
@@ -117,6 +120,21 @@ export async function POST(request: Request) {
       seoDescription: String(value.seoDescription ?? ""),
       instagramUrl: String(value.instagramUrl ?? ""),
       facebookUrl: String(value.facebookUrl ?? ""),
+      navigation: Array.isArray(value.navigation)
+        ? value.navigation.flatMap((entry) => {
+            if (!entry || typeof entry !== "object") return [];
+            const item = entry as Record<string, unknown>;
+            const label = String(item.label ?? "").trim();
+            const url = String(item.url ?? "").trim();
+            if (!label || !url) return [];
+            return [{
+              id: String(item.id ?? crypto.randomUUID()),
+              label,
+              url,
+              visible: item.visible !== false,
+            }];
+          })
+        : DEFAULT_NAVIGATION,
       terms: String(value.terms ?? ""),
       privacy: String(value.privacy ?? ""),
       returns: String(value.returns ?? ""),
@@ -277,6 +295,35 @@ export async function POST(request: Request) {
         .where(notInArray(products.slug, entries.map((entry) => entry.slug)));
     return NextResponse.json({ ok: true, count: entries.length });
   }
+  if (body.resource === "pages") {
+    if (!Array.isArray(body.entries))
+      return NextResponse.json({ error: "Páginas inválidas" }, { status: 400 });
+    const entries = body.entries.flatMap((entry) => {
+      if (!entry || typeof entry !== "object") return [];
+      const value = entry as Record<string, unknown>;
+      const title = String(value.title ?? "").trim();
+      const slug = String(value.slug ?? "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, "-")
+        .replace(/^-|-$/g, "");
+      if (!title || !slug || !Array.isArray(value.blocks)) return [];
+      return [{
+        slug,
+        title,
+        blocks: value.blocks,
+        status: value.status === "published" ? "published" : "draft",
+        updatedAt: new Date(),
+      }];
+    });
+    const db = getDb();
+    for (const entry of entries)
+      await db.insert(pages).values(entry).onConflictDoUpdate({
+        target: pages.slug,
+        set: entry,
+      });
+    return NextResponse.json({ ok: true, count: entries.length });
+  }
   if (body.resource === "random-content") {
     if (!Array.isArray(body.entries))
       return NextResponse.json({ error: "Conteúdo inválido" }, { status: 400 });
@@ -289,6 +336,8 @@ export async function POST(request: Request) {
           title: String(value.title),
           type: String(value.type ?? "text"),
           body: String(value.body ?? ""),
+          category: String(value.category ?? "Internet gem").trim() || "Internet gem",
+          tags: Array.isArray(value.tags) ? value.tags.map(String).filter(Boolean) : [],
           mediaUrl: value.mediaUrl ? String(value.mediaUrl) : null,
           linkUrl: value.linkUrl ? String(value.linkUrl) : null,
           linkLabel: String(value.linkLabel ?? "Descobrir"),

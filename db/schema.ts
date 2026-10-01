@@ -102,6 +102,8 @@ export const randomContent = pgTable("random_content", {
   title: text("title").notNull(),
   type: text("type").notNull().default("text"),
   body: text("body").notNull().default(""),
+  category: text("category").notNull().default("Internet gem"),
+  tags: jsonb("tags").$type<string[]>().notNull().default([]),
   mediaUrl: text("media_url"),
   linkUrl: text("link_url"),
   linkLabel: text("link_label").notNull().default("Descobrir"),
@@ -120,6 +122,12 @@ export type SiteSettings = {
   seoDescription: string;
   instagramUrl: string;
   facebookUrl: string;
+  navigation: Array<{
+    id: string;
+    label: string;
+    url: string;
+    visible: boolean;
+  }>;
   terms: string;
   privacy: string;
   returns: string;

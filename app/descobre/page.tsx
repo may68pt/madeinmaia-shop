@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, RefreshCw, Sparkles } from "lucide-react";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { randomContent } from "@/db/schema";
+import { DiscoveryContent } from "@/components/discovery-content";
 
 export const dynamic = "force-dynamic";
 
@@ -37,11 +37,10 @@ export default async function DiscoverPage() {
         <div className="relative mt-20 max-w-2xl">
           <p className="flex items-center gap-2 text-sm font-black uppercase tracking-[.18em]"><Sparkles className="size-4"/> Descobre</p>
           <h1 className="mt-5 text-5xl font-black uppercase leading-[.88] tracking-[-.06em] sm:text-7xl">{title}</h1>
-          <p className="mt-7 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">{body}</p>
-          {entry?.mediaUrl && entry.type === "image" && <div className="relative mt-8 aspect-video overflow-hidden bg-white/10"><Image src={entry.mediaUrl} alt="" fill sizes="(min-width: 896px) 768px, 100vw" className="object-cover" unoptimized /></div>}
+          {entry ? <DiscoveryContent entry={entry} /> : <p className="mt-7 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">{body}</p>}
           <div className="mt-10 flex flex-wrap gap-3">
             {entry?.linkUrl && <a href={entry.linkUrl} className="inline-flex h-12 items-center gap-2 bg-[var(--accent-brand)] px-6 font-black uppercase text-[var(--ink)]">{entry.linkLabel}<ArrowRight className="size-4"/></a>}
-            <a href="/descobre" className="inline-flex h-12 items-center gap-2 border border-white/40 px-6 font-bold uppercase"><RefreshCw className="size-4"/> Outra surpresa</a>
+            <Link href="/descobre" className="inline-flex h-12 items-center gap-2 border border-white/40 px-6 font-bold uppercase"><RefreshCw className="size-4"/> Outra surpresa</Link>
           </div>
         </div>
         <p className="relative mt-20 text-xs font-bold uppercase tracking-[.2em] text-white/55">madeinmaia.pt/descobre</p>

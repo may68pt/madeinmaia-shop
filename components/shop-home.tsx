@@ -11,6 +11,7 @@ import { removeCartItem, useCart } from "@/lib/cart";
 import { DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as PageBlockData } from "@/lib/page-blocks";
 import { PageBlock } from "@/components/page-block";
 import { LOCALES, UI_STRINGS, translatedName, type Locale } from "@/lib/i18n";
+import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
 
 type ShopProduct = { slug: string; name: string; nameTranslations:Record<string,string>; collection: string; tags:string[]; price: string; priceCents: number; image: string; colors: string[]; sizes: string[] };
 
@@ -38,7 +39,7 @@ function mapProduct(product: ApiProduct): ShopProduct {
   };
 }
 
-export default function Home({ initialProducts = [], initialTotal = 0, initialBlocks = DEFAULT_PAGE_BLOCKS, initialOffset = 0, initialPage = 1, initialQuery = "" }: { initialProducts?:ApiProduct[]; initialTotal?:number; initialBlocks?:PageBlockData[]; initialOffset?:number; initialPage?:number; initialQuery?:string }) {
+export default function Home({ initialProducts = [], initialTotal = 0, initialBlocks = DEFAULT_PAGE_BLOCKS, initialOffset = 0, initialPage = 1, initialQuery = "", navigation = DEFAULT_NAVIGATION }: { initialProducts?:ApiProduct[]; initialTotal?:number; initialBlocks?:PageBlockData[]; initialOffset?:number; initialPage?:number; initialQuery?:string; navigation?:NavigationItem[] }) {
   const [query, setQuery] = useState(initialQuery);
   const [products, setProducts] = useState<ShopProduct[]>(initialProducts.map(mapProduct));
   const [blocks, setBlocks] = useState<PageBlockData[]>(withRequiredHomeBlocks(initialBlocks));
@@ -108,10 +109,10 @@ export default function Home({ initialProducts = [], initialTotal = 0, initialBl
         <div className="mx-auto flex max-w-[1440px] items-center gap-5 px-5 py-4 lg:px-10">
           <Sheet>
             <SheetTrigger asChild><Button variant="ghost" size="icon" className="lg:hidden" aria-label="Abrir menu"><Menu /></Button></SheetTrigger>
-            <SheetContent side="left" className="bg-[var(--paper)] p-7"><SheetHeader><SheetTitle className="text-left text-2xl">Explorar</SheetTitle></SheetHeader><nav className="mt-8 grid gap-5 text-lg"><a href="#novidades">Novidades</a><a href="#colecoes">Coleções</a><Link href="/descobre">Descobre</Link><Link href="/marca">A marca</Link></nav></SheetContent>
+            <SheetContent side="left" className="bg-[var(--paper)] p-7"><SheetHeader><SheetTitle className="text-left text-2xl">Explore</SheetTitle></SheetHeader><nav className="mt-8 grid gap-5 text-lg">{navigation.filter((item) => item.visible).map((item) => <Link key={item.id} href={item.url}>{item.label}</Link>)}</nav></SheetContent>
           </Sheet>
           <a href="#" className="mr-auto flex items-center gap-2" aria-label="Made in Maia, início"><span className="grid size-10 rotate-3 place-items-center bg-[var(--brand)] text-xl font-black text-white">M</span><span className="text-xl font-black uppercase tracking-[-0.055em] sm:text-2xl">Made in Maia</span></a>
-          <nav className="hidden items-center gap-7 text-sm font-semibold lg:flex"><a href="#novidades">New</a><a href="#colecoes">{strings.collections}</a><Link href="/descobre">{strings.discover}</Link><Link href="/marca">{strings.brand}</Link></nav>
+          <nav className="hidden items-center gap-7 text-sm font-semibold lg:flex">{navigation.filter((item) => item.visible).map((item) => <Link key={item.id} href={item.url}>{item.label}</Link>)}</nav>
           <label className="sr-only" htmlFor="language">Language</label><select id="language" value={locale} onChange={(event)=>setLocale(event.target.value as Locale)} className="bg-transparent text-xs font-black uppercase">{LOCALES.map((item)=><option key={item} value={item}>{item}</option>)}</select>
           <Sheet>
             <SheetTrigger asChild><Button variant="ghost" className="relative" size="icon" aria-label="Ver saco de compras"><ShoppingBag />{cart.length > 0 && <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-[var(--brand)] text-[11px] font-bold text-white">{cart.reduce((sum,item)=>sum+item.quantity,0)}</span>}</Button></SheetTrigger>

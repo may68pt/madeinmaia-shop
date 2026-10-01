@@ -38,12 +38,15 @@ import type { ProductVariant } from "@/lib/product-variants";
 import { ADULT_SIZES, CATALOG_CATEGORIES, CATALOG_SIZES, DEFAULT_COLORS, DEFAULT_SUPPORTS, KIDS_SIZES, normalizeSupport, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
 import { DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as Block, type PageBlockType } from "@/lib/page-blocks";
 import { PageBlock } from "@/components/page-block";
+import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
 
 type Discovery = {
   id: number;
   title: string;
   type: string;
   body: string;
+  category: string;
+  tags: string[];
   mediaUrl: string;
   linkUrl: string;
   linkLabel: string;
@@ -95,6 +98,13 @@ type Order = {
   paymentProvider: string | null;
   createdAt: string;
 };
+type StudioPage = {
+  id?: number;
+  slug: string;
+  title: string;
+  blocks: Block[];
+  status: "draft" | "published";
+};
 type SiteSettings = {
   brandName: string;
   contactEmail: string;
@@ -103,6 +113,7 @@ type SiteSettings = {
   seoDescription: string;
   instagramUrl: string;
   facebookUrl: string;
+  navigation: NavigationItem[];
   terms: string;
   privacy: string;
   returns: string;
@@ -128,6 +139,8 @@ const initialDiscoveries: Discovery[] = [
     title: "Hoje encontraste a Maia.",
     type: "text",
     body: "Uma ideia local, feita para viajar contigo.",
+    category: "Made in Maia",
+    tags: ["local", "surpresa"],
     mediaUrl: "",
     linkUrl: "/marca",
     linkLabel: "Conhecer a marca",
@@ -204,6 +217,7 @@ const initialSettings: SiteSettings = {
   seoDescription: "T-shirts desenhadas e impressas na Maia.",
   instagramUrl: "",
   facebookUrl: "",
+  navigation: DEFAULT_NAVIGATION,
   terms: "",
   privacy: "",
   returns: "",
@@ -219,13 +233,17 @@ const initialSettings: SiteSettings = {
 
 export default function Studio() {
   const [blocks, setBlocks] = useState(initialBlocks);
+  const [pageList, setPageList] = useState<StudioPage[]>([
+    { slug: "inicio", title: "Início", blocks: initialBlocks, status: "draft" },
+  ]);
+  const [currentPageSlug, setCurrentPageSlug] = useState("inicio");
   const [selected, setSelected] = useState(1);
   const [viewport, setViewport] = useState("desktop");
   const [published, setPublished] = useState(false);
   const [studioKey, setStudioKey] = useState("");
   const [password, setPassword] = useState("");
   const [section, setSection] = useState<
-    "pages" | "products" | "discover" | "orders" | "catalog" | "media" | "settings"
+    "pages" | "menus" | "products" | "discover" | "orders" | "catalog" | "media" | "settings"
   >("pages");
   const [discoveries, setDiscoveries] = useState(initialDiscoveries);
   const [catalogue, setCatalogue] = useState(initialProducts);
@@ -258,6 +276,56 @@ export default function Studio() {
     [next[index], next[target]] = [next[target], next[index]];
     setBlocks(next);
   }
+  function pageSnapshot(): StudioPage[] {
+    return pageList.map((page) =>
+      page.slug === currentPageSlug
+        ? { ...page, blocks, status: published ? "published" : "draft" }
+        : page,
+    );
+  }
+  function selectPage(slug: string) {
+    const nextPages = pageSnapshot();
+    const page = nextPages.find((entry) => entry.slug === slug);
+    if (!page) return;
+    setPageList(nextPages);
+    setCurrentPageSlug(slug);
+    setBlocks(page.blocks);
+    setSelected(page.blocks[0]?.id ?? 0);
+    setPublished(page.status === "published");
+  }
+  function addPage() {
+    const suffix = pageList.length + 1;
+    const page: StudioPage = {
+      slug: `nova-pagina-${suffix}`,
+      title: "Nova página",
+      blocks: [{
+        id: Date.now(),
+        type: "Hero",
+        eyebrow: "Made in Maia",
+        title: "Nova página",
+        description: "Começa a construir esta página.",
+        background: "var(--brand)",
+        textColor: "#ffffff",
+        width: "full",
+        align: "left",
+        spacing: "large",
+      }],
+      status: "draft",
+    };
+    setPageList([...pageSnapshot(), page]);
+    setCurrentPageSlug(page.slug);
+    setBlocks(page.blocks);
+    setSelected(page.blocks[0].id);
+    setPublished(false);
+  }
+  function updateCurrentPage(patch: Partial<Pick<StudioPage, "title" | "slug">>) {
+    const oldSlug = currentPageSlug;
+    const nextSlug = patch.slug ?? oldSlug;
+    setPageList((items) => items.map((page) =>
+      page.slug === oldSlug ? { ...page, ...patch, blocks } : page,
+    ));
+    if (nextSlug !== oldSlug) setCurrentPageSlug(nextSlug);
+  }
   function addBlock() {
     const id = Date.now();
     setBlocks((items) => [
@@ -277,7 +345,7 @@ export default function Studio() {
     setSelected(id);
   }
   async function save() {
-    if (section === "settings" || section === "catalog") {
+    if (section === "settings" || section === "catalog" || section === "menus") {
       const response = await fetch("/api/studio", {
         method: "POST",
         headers: {
@@ -286,7 +354,7 @@ export default function Studio() {
         },
         body: JSON.stringify({ resource: "settings", entries: [settings] }),
       });
-      if (response.ok) toast.success(section === "catalog" ? "Tipos e cores guardados" : "Definições guardadas");
+      if (response.ok) toast.success(section === "catalog" ? "Tipos e cores guardados" : section === "menus" ? "Menu guardado" : "Definições guardadas");
       else toast.error("Não foi possível guardar as definições.");
       return;
     }
@@ -337,6 +405,7 @@ export default function Studio() {
       else toast.error("Não foi possível guardar os conteúdos.");
       return;
     }
+    const pagesToSave = pageSnapshot();
     const response = await fetch("/api/studio", {
       method: "POST",
       headers: {
@@ -344,13 +413,14 @@ export default function Studio() {
         "x-studio-key": studioKey,
       },
       body: JSON.stringify({
-        title: "Início",
-        blocks,
-        status: published ? "published" : "draft",
+        resource: "pages",
+        entries: pagesToSave,
       }),
     });
-    if (response.ok)
+    if (response.ok) {
+      setPageList(pagesToSave);
       toast.success(published ? "Página publicada" : "Rascunho guardado");
+    }
     else if (response.status === 401) {
       setStudioKey("");
       toast.error("A palavra-passe não é válida.");
@@ -368,15 +438,30 @@ export default function Studio() {
     }
     const data = (await response.json()) as {
       page?: { blocks?: Block[]; status?: string } | null;
+      pages?: StudioPage[];
       randomContent?: Array<Partial<Discovery> & { id: number }>;
       products?: Array<Partial<Product> & { id: number }>;
       orders?: Order[];
       paymentConfigured?: boolean;
       settings?: SiteSettings | null;
     };
-    if (data.page?.blocks?.length) {
-      setBlocks(withRequiredHomeBlocks(data.page.blocks));
-      setSelected(data.page.blocks[0].id);
+    if (data.pages?.length) {
+      const normalizedPages = data.pages.map((page) => ({
+        ...page,
+        blocks: page.slug === "inicio" ? withRequiredHomeBlocks(page.blocks) : page.blocks,
+        status: page.status === "published" ? "published" as const : "draft" as const,
+      }));
+      const home = normalizedPages.find((page) => page.slug === "inicio") ?? normalizedPages[0];
+      setPageList(normalizedPages);
+      setCurrentPageSlug(home.slug);
+      setBlocks(home.blocks);
+      setSelected(home.blocks[0]?.id ?? 0);
+      setPublished(home.status === "published");
+    } else if (data.page?.blocks?.length) {
+      const homeBlocks = withRequiredHomeBlocks(data.page.blocks);
+      setBlocks(homeBlocks);
+      setPageList([{ slug: "inicio", title: "Início", blocks: homeBlocks, status: data.page.status === "published" ? "published" : "draft" }]);
+      setSelected(homeBlocks[0].id);
       setPublished(data.page.status === "published");
     }
     if (data.randomContent?.length)
@@ -386,6 +471,8 @@ export default function Studio() {
           title: entry.title ?? "",
           type: entry.type ?? "text",
           body: entry.body ?? "",
+          category: entry.category ?? "Internet gem",
+          tags: entry.tags ?? [],
           mediaUrl: entry.mediaUrl ?? "",
           linkUrl: entry.linkUrl ?? "",
           linkLabel: entry.linkLabel ?? "Descobrir",
@@ -434,6 +521,7 @@ export default function Studio() {
           ...item,
           kind: item.kind ?? "artwork",
         })),
+        navigation: data.settings.navigation?.length ? data.settings.navigation : DEFAULT_NAVIGATION,
       });
     setStudioKey(password);
     setPassword("");
@@ -600,7 +688,9 @@ export default function Studio() {
         <span className="h-6 w-px bg-white/20" />
         <span className="text-sm text-white/65">
           {section === "pages"
-            ? "Página: Início"
+            ? `Página: ${pageList.find((page) => page.slug === currentPageSlug)?.title ?? "Início"}`
+            : section === "menus"
+              ? "Navegação principal"
             : section === "discover"
               ? "Conteúdo: Descobre"
               : section === "orders"
@@ -638,6 +728,7 @@ export default function Studio() {
           <nav className="grid gap-2">
             {[
               { icon: LayoutTemplate, label: "Páginas", value: "pages" },
+              { icon: GripVertical, label: "Menus", value: "menus" },
               { icon: Palette, label: "Descobre", value: "discover" },
               { icon: Package, label: "Produtos", value: "products" },
               { icon: Store, label: "Tipos e cores", value: "catalog" },
@@ -660,6 +751,19 @@ export default function Studio() {
         <section className="min-w-0 p-4 md:p-7">
           {section === "pages" ? (
             <>
+              <div className="mb-4 flex flex-wrap items-center gap-2 bg-white p-3 shadow-sm">
+                <label className="text-xs font-black uppercase tracking-[.12em]">Página</label>
+                <Select value={currentPageSlug} onValueChange={selectPage}>
+                  <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {pageList.map((page) => <SelectItem key={page.slug} value={page.slug}>{page.title}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <Button type="button" variant="outline" className="rounded-none" onClick={addPage}><Plus />Nova página</Button>
+                <Button type="button" variant="ghost" className="ml-auto rounded-none" asChild>
+                  <Link href={currentPageSlug === "inicio" ? "/loja" : `/${currentPageSlug}`} target="_blank"><Eye />Abrir página</Link>
+                </Button>
+              </div>
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex gap-1 rounded-none bg-white p-1">
                   <Button
@@ -735,6 +839,36 @@ export default function Studio() {
                 </div>
               </div>
             </>
+          ) : section === "menus" ? (
+            <div className="mx-auto max-w-4xl">
+              <div className="mb-8 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">Navegação</p>
+                  <h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">Menu principal</h1>
+                  <p className="mt-3 max-w-2xl text-black/60">Ordena os links, altera os nomes e esconde o que ainda não deve aparecer.</p>
+                </div>
+                <Button type="button" className="rounded-none bg-[var(--ink)] text-white" onClick={() => setSettings({ ...settings, navigation: [...settings.navigation, { id: crypto.randomUUID(), label: "Novo link", url: "/", visible: true }] })}><Plus />Adicionar link</Button>
+              </div>
+              <ol className="space-y-3">
+                {settings.navigation.map((item, index) => (
+                  <li key={item.id} className="grid items-center gap-3 border border-black/10 bg-white p-4 shadow-sm md:grid-cols-[32px_1fr_1fr_auto]">
+                    <GripVertical className="text-black/30" />
+                    <Input aria-label="Nome do link" value={item.label} onChange={(event) => setSettings({ ...settings, navigation: settings.navigation.map((entry) => entry.id === item.id ? { ...entry, label: event.target.value } : entry) })} />
+                    <Input aria-label="Destino do link" value={item.url} onChange={(event) => setSettings({ ...settings, navigation: settings.navigation.map((entry) => entry.id === item.id ? { ...entry, url: event.target.value } : entry) })} />
+                    <div className="flex items-center gap-1">
+                      <Switch checked={item.visible} onCheckedChange={(visible) => setSettings({ ...settings, navigation: settings.navigation.map((entry) => entry.id === item.id ? { ...entry, visible } : entry) })} />
+                      <Button type="button" size="icon" variant="ghost" disabled={index === 0} onClick={() => { const next = [...settings.navigation]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; setSettings({ ...settings, navigation: next }); }}><ArrowUp /></Button>
+                      <Button type="button" size="icon" variant="ghost" disabled={index === settings.navigation.length - 1} onClick={() => { const next = [...settings.navigation]; [next[index + 1], next[index]] = [next[index], next[index + 1]]; setSettings({ ...settings, navigation: next }); }}><ArrowDown /></Button>
+                      <Button type="button" size="icon" variant="ghost" className="text-red-600" onClick={() => setSettings({ ...settings, navigation: settings.navigation.filter((entry) => entry.id !== item.id) })}><Trash2 /></Button>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+              <div className="mt-8 border border-black/10 bg-[var(--ink)] p-5 text-white">
+                <p className="mb-4 text-xs font-black uppercase tracking-[.15em] text-white/50">Pré-visualização</p>
+                <nav className="flex flex-wrap gap-5 text-sm font-bold">{settings.navigation.filter((item) => item.visible).map((item) => <span key={item.id}>{item.label}</span>)}</nav>
+              </div>
+            </div>
           ) : section === "discover" ? (
             <div className="mx-auto max-w-4xl">
               <div className="mb-8 flex items-end justify-between gap-4">
@@ -792,10 +926,33 @@ export default function Studio() {
                         <Trash2 className="text-red-600" />
                       </Button>
                     </div>
+                    <div className="mb-4 grid gap-3 md:grid-cols-3">
+                      <label className="grid gap-1 text-xs font-bold uppercase">Formato
+                        <Select value={entry.type} onValueChange={(type) => updateDiscovery(entry.id, { type })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="article">Artigo / long page</SelectItem>
+                            <SelectItem value="meme">Meme</SelectItem>
+                            <SelectItem value="image">Imagem</SelectItem>
+                            <SelectItem value="gif">GIF</SelectItem>
+                            <SelectItem value="video">Vídeo</SelectItem>
+                            <SelectItem value="youtube">YouTube embed</SelectItem>
+                            <SelectItem value="link">Link recomendado</SelectItem>
+                            <SelectItem value="text">Texto curto</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </label>
+                      <label className="grid gap-1 text-xs font-bold uppercase">Categoria / trigger
+                        <Input value={entry.category} onChange={(event) => updateDiscovery(entry.id, { category: event.target.value })} placeholder="Internet gem" />
+                      </label>
+                      <label className="grid gap-1 text-xs font-bold uppercase">Tags
+                        <Input value={entry.tags.join(", ")} onChange={(event) => updateDiscovery(entry.id, { tags: event.target.value.split(",").map((tag) => tag.trim()).filter(Boolean) })} placeholder="internet, nostalgia, funny" />
+                      </label>
+                    </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
                         <label className="mb-1 block text-xs font-bold uppercase">
-                          Mensagem
+                          Conteúdo do artigo / mensagem
                         </label>
                         <textarea
                           value={entry.body}
@@ -806,8 +963,13 @@ export default function Studio() {
                           }
                           className="min-h-24 w-full border border-input p-3"
                         />
+                        <p className="mt-1 text-xs text-black/40">Aceita vários parágrafos; no frontend será apresentado como conteúdo editorial.</p>
                       </div>
                       <div className="grid gap-3">
+                        <div>
+                          <label className="mb-1 block text-xs font-bold uppercase">Media / embed URL</label>
+                          <Input value={entry.mediaUrl} onChange={(event) => updateDiscovery(entry.id, { mediaUrl: event.target.value })} placeholder="Imagem, GIF, MP4 ou URL do YouTube" />
+                        </div>
                         <div>
                           <label className="mb-1 block text-xs font-bold uppercase">
                             Link de destino
@@ -858,6 +1020,8 @@ export default function Studio() {
                       title: "Nova surpresa",
                       type: "text",
                       body: "Escreve aqui a mensagem.",
+                      category: "Internet gem",
+                      tags: [],
                       mediaUrl: "",
                       linkUrl: "",
                       linkLabel: "Descobrir",
@@ -1460,6 +1624,11 @@ export default function Studio() {
                 <TabsTrigger value="style">Estilo</TabsTrigger>
               </TabsList>
               <TabsContent value="content" className="space-y-5 pt-5">
+                <div className="border-b border-black/10 pb-5">
+                  <p className="mb-3 text-xs font-black uppercase tracking-[.12em]">Definições da página</p>
+                  <label className="grid gap-1 text-sm font-semibold">Nome no Studio<Input value={pageList.find((page) => page.slug === currentPageSlug)?.title ?? ""} onChange={(event) => updateCurrentPage({ title: event.target.value })} /></label>
+                  <label className="mt-3 grid gap-1 text-sm font-semibold">URL<Input disabled={currentPageSlug === "inicio"} value={currentPageSlug} onChange={(event) => updateCurrentPage({ slug: event.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "-") })} /></label>
+                </div>
                 <div>
                   <label className="mb-2 block text-sm font-semibold">
                     Tipo de bloco

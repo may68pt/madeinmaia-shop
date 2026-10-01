@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { and, asc, count, eq, ilike, or, sql } from "drizzle-orm";
 import Home, { type ApiProduct } from "@/components/shop-home";
 import { getDb } from "@/db";
-import { pages, products } from "@/db/schema";
+import { pages, products, siteSettings } from "@/db/schema";
 import { DEFAULT_PAGE_BLOCKS, type PageBlock } from "@/lib/page-blocks";
+import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 24;
@@ -27,6 +28,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   let initialProducts:ApiProduct[] = [];
   let initialTotal = 0;
   let initialBlocks:PageBlock[] = DEFAULT_PAGE_BLOCKS;
+  let navigation:NavigationItem[] = DEFAULT_NAVIGATION;
   try {
     const db = getDb();
     const where = query
@@ -37,7 +39,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
           sql`${products.tags}::text ILIKE ${`%${query}%`}`,
         ))
       : eq(products.status,"published");
-    const [catalogue, [{ total }], [storedPage]] = await Promise.all([
+    const [catalogue, [{ total }], [storedPage], [settings]] = await Promise.all([
       db.select({
         slug:products.slug,
         name:products.name,
@@ -51,11 +53,13 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       }).from(products).where(where).orderBy(asc(products.id)).limit(PAGE_SIZE).offset(offset),
       db.select({ total:count() }).from(products).where(where),
       db.select().from(pages).where(eq(pages.slug,"inicio")),
+      db.select().from(siteSettings).where(eq(siteSettings.key,"global")),
     ]);
     initialProducts = catalogue;
     initialTotal = total;
     if (storedPage?.status === "published" && Array.isArray(storedPage.blocks))
       initialBlocks = storedPage.blocks as PageBlock[];
+    if (settings?.data.navigation?.length) navigation = settings.data.navigation;
   } catch {
     /* local fallback inside the client component */
   }
@@ -71,5 +75,5 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       name:product.name,
     })),
   };
-  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData).replace(/</g,"\\u003c")}}/><Home initialProducts={initialProducts} initialTotal={initialTotal} initialBlocks={initialBlocks} initialOffset={offset} initialPage={page} initialQuery={query} /></>;
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData).replace(/</g,"\\u003c")}}/><Home initialProducts={initialProducts} initialTotal={initialTotal} initialBlocks={initialBlocks} initialOffset={offset} initialPage={page} initialQuery={query} navigation={navigation} /></>;
 }
