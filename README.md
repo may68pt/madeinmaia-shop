@@ -27,6 +27,7 @@ Local uploads are written to `public/uploads` when `UPLOADS_DIR` is empty.
 
 - Render paid web service (`0.5c-512mb`)
 - Render paid PostgreSQL (`0.1c-256mb`)
+- Existing Render resources remain in their current Oregon region
 - 5 GB Render persistent disk mounted at `/var/data`
 - Product media stored at `/var/data/uploads` and served through `/uploads/*`
 - Cloudflare for DNS and SSL
