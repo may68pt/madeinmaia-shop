@@ -36,8 +36,8 @@ import { Switch } from "@/components/ui/switch";
 import { toast, Toaster } from "sonner";
 import { PRODUCT_COLORS } from "@/lib/product-colors";
 import type { ProductVariant } from "@/lib/product-variants";
-import { CATALOG_CATEGORIES, CATALOG_SIZES, DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
-import { DEFAULT_PAGE_BLOCKS, type PageBlock as Block, type PageBlockType } from "@/lib/page-blocks";
+import { ADULT_SIZES, CATALOG_CATEGORIES, CATALOG_SIZES, DEFAULT_COLORS, DEFAULT_SUPPORTS, KIDS_SIZES, normalizeSupport, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
+import { DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as Block, type PageBlockType } from "@/lib/page-blocks";
 import { PageBlock } from "@/components/page-block";
 
 type Discovery = {
@@ -55,9 +55,11 @@ type Product = {
   id: number;
   slug: string;
   name: string;
+  nameTranslations: Record<string, string>;
   description: string;
   priceCents: number;
   collection: string;
+  tags: string[];
   imageKey: string;
   gallery: string[];
   disabledSupports: string[];
@@ -134,9 +136,11 @@ const initialProducts: Product[] = [
     id: 1,
     slug: "guardiao-zen",
     name: "Guardião Zen",
+    nameTranslations: {},
     description: "",
     priceCents: 2000,
     collection: "Made in Maia",
+    tags: ["Cats"],
     imageKey: "/products/white-shirt-1.jpg",
     gallery: [],
     disabledSupports: [],
@@ -149,9 +153,11 @@ const initialProducts: Product[] = [
     id: 2,
     slug: "piramide-digital",
     name: "Pirâmide Digital",
+    nameTranslations: {},
     description: "",
     priceCents: 2000,
     collection: "Pop Culture",
+    tags: ["Quotes"],
     imageKey: "/products/red-shirt-1.jpg",
     gallery: [],
     disabledSupports: [],
@@ -164,9 +170,11 @@ const initialProducts: Product[] = [
     id: 3,
     slug: "los-robots",
     name: "Los Robots",
+    nameTranslations: {},
     description: "",
     priceCents: 2000,
     collection: "Música",
+    tags: ["Jars"],
     imageKey: "/products/blue-shirt-1.jpg",
     gallery: [],
     disabledSupports: [],
@@ -351,7 +359,7 @@ export default function Studio() {
       settings?: SiteSettings | null;
     };
     if (data.page?.blocks?.length) {
-      setBlocks(data.page.blocks);
+      setBlocks(withRequiredHomeBlocks(data.page.blocks));
       setSelected(data.page.blocks[0].id);
       setPublished(data.page.status === "published");
     }
@@ -375,9 +383,11 @@ export default function Studio() {
           id: entry.id,
           slug: entry.slug ?? "",
           name: entry.name ?? "",
+          nameTranslations: entry.nameTranslations ?? {},
           description: entry.description ?? "",
           priceCents: entry.priceCents ?? 0,
           collection: entry.collection ?? "Made in Maia",
+          tags: entry.tags ?? [],
           imageKey: entry.imageKey ?? "",
           gallery: entry.gallery ?? [],
           disabledSupports: entry.disabledSupports ?? [],
@@ -400,7 +410,7 @@ export default function Studio() {
         theme: { ...initialSettings.theme, ...data.settings.theme },
         productCatalog: {
           colors: data.settings.productCatalog?.colors ?? DEFAULT_COLORS,
-          supports: (data.settings.productCatalog?.supports ?? DEFAULT_SUPPORTS).map(normalizeSupport),
+          supports: (data.settings.productCatalog?.supports ?? DEFAULT_SUPPORTS).filter((support) => support.id !== "sunglasses").map(normalizeSupport),
         },
         media: data.settings.media ?? [],
       });
@@ -927,11 +937,11 @@ export default function Studio() {
                 <div className="mt-6 space-y-8">{CATALOG_CATEGORIES.map((category) => <div key={category.id}><h3 className="mb-3 text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">{category.name}</h3><div className="space-y-3">{settings.productCatalog.supports.map(normalizeSupport).map((support, supportIndex) => ({ support, supportIndex })).filter(({ support }) => support.categoryId === category.id).map(({ support, supportIndex }) => {
                   const updateSupport = (patch: Partial<ProductSupport>) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, supports: settings.productCatalog.supports.map((item, i) => i === supportIndex ? normalizeSupport({ ...support, ...patch }) : item) } });
                   const activeColors = settings.productCatalog.colors.filter((color) => color.active);
-                  const optionPool = support.variantMode === "audience" ? ["Kids", "Adults"] : support.variantMode === "size" ? CATALOG_SIZES.filter((item) => item !== "Único") : [];
+                  const optionPool = support.variantMode === "size" ? CATALOG_SIZES.filter((item) => item !== "Único") : [];
                   const setAllColors = (enabled:boolean) => updateSupport({ colorIds: enabled ? activeColors.map((color) => color.id) : [], availability: enabled ? Object.fromEntries(activeColors.map((color) => [color.id, [...optionPool]])) : {} });
                   return <details key={support.id} className="rounded-3xl border border-black/10 p-5" open><summary className="cursor-pointer text-xl font-black uppercase">{support.name}</summary><div className="mt-5 grid gap-6">
-                    <div className="grid gap-3 md:grid-cols-[1fr_190px_120px]"><Input value={support.name} onChange={(event) => updateSupport({ name: event.target.value })} /><Select value={support.categoryId} onValueChange={(value) => updateSupport({ categoryId:value as ProductSupport["categoryId"], variantMode:value === "bags" ? "none" : value === "accessories" ? "audience" : "size", sizes:value === "bags" ? [] : value === "accessories" ? ["Kids","Adults"] : CATALOG_SIZES.filter((item)=>item!=="Único") })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CATALOG_CATEGORIES.map((item)=><SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}</SelectContent></Select><label className="flex items-center gap-2 text-sm font-bold"><Switch checked={support.active} onCheckedChange={(active) => updateSupport({ active })} />Ativo</label></div>
-                    {support.variantMode === "none" ? <p className="rounded-2xl bg-[#f5f5f2] p-4 text-sm font-bold">Sem tamanho — o cliente escolhe apenas a cor.</p> : <div><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-black uppercase">{support.variantMode === "audience" ? "Modelos" : "Tamanhos base"}</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={() => updateSupport({ sizes:[...optionPool], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[...optionPool]])) })}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={() => updateSupport({ sizes:[], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[]])) })}>Limpar tudo</Button></div></div><div className="flex flex-wrap gap-2">{optionPool.map((option) => { const enabled=support.sizes.includes(option); return <button key={option} type="button" onClick={() => updateSupport({ sizes:enabled ? support.sizes.filter((item)=>item!==option) : [...support.sizes,option] })} className={`rounded-full border px-4 py-2 text-sm font-black ${enabled ? "border-[var(--brand)] bg-[var(--brand)] text-white" : "border-black/15"}`}>{option}</button>; })}</div></div>}
+                    <div className="grid gap-3 md:grid-cols-[1fr_190px_120px]"><Input value={support.name} onChange={(event) => updateSupport({ name: event.target.value })} /><Select value={support.categoryId} onValueChange={(value) => updateSupport({ categoryId:value as ProductSupport["categoryId"], variantMode:value === "bags" ? "none" : "size", sizes:value === "bags" ? [] : CATALOG_SIZES.filter((item)=>item!=="Único") })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CATALOG_CATEGORIES.map((item)=><SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}</SelectContent></Select><label className="flex items-center gap-2 text-sm font-bold"><Switch checked={support.active} onCheckedChange={(active) => updateSupport({ active })} />Ativo</label></div>
+                    {support.variantMode === "none" ? <p className="rounded-2xl bg-[#f5f5f2] p-4 text-sm font-bold">Sem tamanho — o cliente escolhe apenas a cor.</p> : <div><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-black uppercase">Tamanhos base</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={() => updateSupport({ sizes:[...optionPool], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[...optionPool]])) })}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={() => updateSupport({ sizes:[], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[]])) })}>Limpar tudo</Button></div></div><div className="grid gap-3 sm:grid-cols-2">{[{label:"Kids",values:KIDS_SIZES},{label:"Adults",values:ADULT_SIZES}].map((group)=><div key={group.label} className="rounded-2xl border border-black/10 p-4"><p className="mb-3 text-xs font-black uppercase">{group.label}</p><div className="flex flex-wrap gap-2">{group.values.map((option)=>{const enabled=support.sizes.includes(option);return <button key={option} type="button" onClick={()=>updateSupport({sizes:enabled?support.sizes.filter((item)=>item!==option):[...support.sizes,option]})} className={`rounded-full border px-4 py-2 text-sm font-black ${enabled?"border-[var(--brand)] bg-[var(--brand)] text-white":"border-black/15"}`}>{option}</button>})}</div></div>)}</div></div>}
                     <div><div className="mb-3 flex items-center justify-between gap-3"><p className="text-xs font-black uppercase">Cores e disponibilidade</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={()=>setAllColors(true)}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={()=>setAllColors(false)}>Limpar tudo</Button></div></div><div className="space-y-2">{activeColors.map((color) => { const enabled=support.colorIds.includes(color.id); const availableOptions=support.availability[color.id] ?? []; return <div key={color.id} className={`rounded-2xl border p-3 ${enabled ? "border-black/20" : "border-black/10 opacity-60"}`}><div className="flex items-center gap-3"><Switch checked={enabled} onCheckedChange={(checked)=>updateSupport({ colorIds:checked ? [...support.colorIds,color.id] : support.colorIds.filter((id)=>id!==color.id), availability:{...support.availability,[color.id]:checked?[...support.sizes]:[]} })}/><span className="size-5 rounded-full border border-black/10" style={{backgroundColor:color.hex}}/><strong className="flex-1 text-sm">{color.name}</strong>{enabled&&<Input className="max-w-xs" value={support.mockups[color.id]??""} onChange={(event)=>updateSupport({mockups:{...support.mockups,[color.id]:event.target.value}})} placeholder="Foto base desta cor"/>}</div>{enabled&&support.variantMode!=="none"&&<div className="mt-3 flex flex-wrap gap-2 pl-12">{support.sizes.map((option)=>{const selected=availableOptions.includes(option);return <button key={option} type="button" onClick={()=>updateSupport({availability:{...support.availability,[color.id]:selected?availableOptions.filter((item)=>item!==option):[...availableOptions,option]}})} className={`rounded-full border px-3 py-1 text-xs font-bold ${selected?"border-[var(--ink)] bg-[var(--ink)] text-white":"border-black/15"}`}>{option}</button>})}</div>}</div>})}</div></div>
                   </div></details>;
                 })}</div></div>)}</div>
@@ -1279,9 +1289,11 @@ export default function Studio() {
                         id: Date.now(),
                         slug: "novo-produto",
                         name: "Novo produto",
+                        nameTranslations: {},
                         description: "",
                         priceCents: 2000,
                         collection: "Made in Maia",
+                        tags: [],
                         imageKey: "",
                         gallery: [],
                         disabledSupports: [],
@@ -1342,6 +1354,14 @@ export default function Studio() {
                             }
                           />
                         </div>
+                        <div>
+                          <label className="mb-1 block text-xs font-bold uppercase">Tags de pesquisa e coleção</label>
+                          <Input value={product.tags.join(", ")} onChange={(event) => updateProduct(product.id, { tags:event.target.value.split(",").map((value)=>value.trim()).filter(Boolean) })} placeholder="Cats, Quotes, Jars" />
+                        </div>
+                        <details className="md:col-span-2 rounded-2xl border border-black/10 p-4">
+                          <summary className="cursor-pointer text-xs font-black uppercase">Traduções do nome</summary>
+                          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{["pt","es","de","fr"].map((locale)=><label key={locale} className="grid gap-1 text-xs font-bold uppercase"><span>{locale}</span><Input value={product.nameTranslations[locale]??""} onChange={(event)=>updateProduct(product.id,{nameTranslations:{...product.nameTranslations,[locale]:event.target.value}})} placeholder={product.name}/></label>)}</div>
+                        </details>
                         <div>
                           <label className="mb-1 block text-xs font-bold uppercase">
                             Preço (€)
@@ -1505,6 +1525,10 @@ export default function Studio() {
                     <SelectContent>
                       <SelectItem value="Hero">Hero</SelectItem>
                       <SelectItem value="Produtos">Produtos</SelectItem>
+                      <SelectItem value="Coleções">Coleções</SelectItem>
+                      <SelectItem value="Logo aleatório">Logo aleatório</SelectItem>
+                      <SelectItem value="Linktree">Linktree</SelectItem>
+                      <SelectItem value="Localização">Localização</SelectItem>
                       <SelectItem value="Banner">Banner</SelectItem>
                       <SelectItem value="Texto">Texto</SelectItem>
                     </SelectContent>
@@ -1523,6 +1547,7 @@ export default function Studio() {
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2"><div><label className="mb-2 block text-sm font-semibold">Texto do botão</label><Input value={current?.ctaLabel ?? ""} onChange={(event) => updateBlock({ ctaLabel:event.target.value })}/></div><div><label className="mb-2 block text-sm font-semibold">Link</label><Input value={current?.ctaUrl ?? ""} onChange={(event) => updateBlock({ ctaUrl:event.target.value })}/></div></div>
+                <div><label className="mb-2 block text-sm font-semibold">Imagem de fundo</label><Input value={current?.imageUrl ?? ""} onChange={(event)=>updateBlock({imageUrl:event.target.value})} placeholder="URL da fotografia do edifício ou banner"/></div>
                 <div>
                   <label className="mb-2 block text-sm font-semibold">
                     Descrição
@@ -1535,6 +1560,7 @@ export default function Studio() {
                     className="min-h-28 w-full border border-input p-3 outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
+                <details className="rounded-2xl border border-black/10 p-4"><summary className="cursor-pointer text-sm font-black">Traduções deste bloco</summary><div className="mt-4 space-y-4">{["pt","es","de","fr"].map((locale)=>{const translation=current?.translations?.[locale]??{};const updateTranslation=(patch:Record<string,string>)=>updateBlock({translations:{...(current?.translations??{}),[locale]:{...translation,...patch}}});return <div key={locale} className="rounded-xl bg-[#f5f5f2] p-3"><p className="mb-2 text-xs font-black uppercase">{locale}</p><div className="grid gap-2"><Input value={translation.title??""} onChange={(event)=>updateTranslation({title:event.target.value})} placeholder="Título"/><textarea value={translation.description??""} onChange={(event)=>updateTranslation({description:event.target.value})} placeholder="Descrição" className="min-h-20 border border-input bg-white p-3"/></div></div>})}</div></details>
                 <Button
                   onClick={addBlock}
                   variant="outline"

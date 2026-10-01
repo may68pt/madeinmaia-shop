@@ -120,7 +120,8 @@ export async function POST(request: Request) {
               if (!entry || typeof entry !== "object") return [];
               const support = entry as Record<string, unknown>;
               const availability = support.availability && typeof support.availability === "object" ? Object.fromEntries(Object.entries(support.availability as Record<string, unknown>).map(([key, options]) => [key, Array.isArray(options) ? options.map(String) : []])) : undefined;
-              return [normalizeSupport({ id: String(support.id ?? ""), categoryId: support.categoryId as "apparel" | "accessories" | "bags" | undefined, name: String(support.name ?? ""), variantMode: support.variantMode as "size" | "audience" | "none" | undefined, sizes: Array.isArray(support.sizes) ? support.sizes.map(String) : undefined, colorIds: Array.isArray(support.colorIds) ? support.colorIds.map(String) : undefined, availability, active: support.active !== false, mockups: support.mockups && typeof support.mockups === "object" ? Object.fromEntries(Object.entries(support.mockups as Record<string, unknown>).map(([key, url]) => [key, String(url)])) : {} })];
+              if (String(support.id ?? "") === "sunglasses") return [];
+              return [normalizeSupport({ id: String(support.id ?? ""), categoryId: support.categoryId as "apparel" | "bags" | undefined, name: String(support.name ?? ""), variantMode: support.variantMode as "size" | "none" | undefined, sizes: Array.isArray(support.sizes) ? support.sizes.map(String) : undefined, colorIds: Array.isArray(support.colorIds) ? support.colorIds.map(String) : undefined, availability, active: support.active !== false, mockups: support.mockups && typeof support.mockups === "object" ? Object.fromEntries(Object.entries(support.mockups as Record<string, unknown>).map(([key, url]) => [key, String(url)])) : {} })];
             })
           : DEFAULT_SUPPORTS,
       },
@@ -192,9 +193,11 @@ export async function POST(request: Request) {
         {
           slug,
           name,
+          nameTranslations: value.nameTranslations && typeof value.nameTranslations === "object" ? Object.fromEntries(Object.entries(value.nameTranslations as Record<string, unknown>).map(([locale, translatedName]) => [locale, String(translatedName)])) : {},
           description: String(value.description ?? ""),
           priceCents: Math.max(0, Number(value.priceCents) || 0),
           collection: String(value.collection ?? "Made in Maia"),
+          tags: Array.isArray(value.tags) ? value.tags.map(String).filter(Boolean) : [],
           imageKey: value.imageKey ? String(value.imageKey) : null,
           gallery: Array.isArray(value.gallery) ? value.gallery.map(String).filter(Boolean) : [],
           disabledSupports: Array.isArray(value.disabledSupports) ? value.disabledSupports.map(String) : [],

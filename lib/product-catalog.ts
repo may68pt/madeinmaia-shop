@@ -1,7 +1,7 @@
 export type CatalogColor = { id: string; name: string; hex: string; active: boolean };
 export type ProductSupport = {
   id: string;
-  categoryId: "apparel" | "accessories" | "bags";
+  categoryId: "apparel" | "bags";
   name: string;
   variantMode: "size" | "audience" | "none";
   sizes: string[];
@@ -16,9 +16,10 @@ const adults = ["XS", "S", "M", "L", "XL", "2XL", "3XL"];
 export const CATALOG_SIZES = [...kids, ...adults, "Único"];
 export const CATALOG_CATEGORIES = [
   { id: "apparel", name: "Vestuário" },
-  { id: "accessories", name: "Acessórios" },
   { id: "bags", name: "Sacos" },
 ] as const;
+export const KIDS_SIZES = kids;
+export const ADULT_SIZES = adults;
 
 export const DEFAULT_COLORS: CatalogColor[] = [
   ["white", "White", "#f7f7f4"], ["grey", "Grey", "#b7b8b8"], ["black", "Black", "#111111"],
@@ -34,19 +35,21 @@ export const DEFAULT_COLORS: CatalogColor[] = [
 
 const allColorIds = DEFAULT_COLORS.map((color) => color.id);
 const available = (colorIds:string[], options:string[]) => Object.fromEntries(colorIds.map((id)=>[id,options]));
+const tshirtMockups = Object.fromEntries([
+  "white", "black", "grey", "dark-grey", "pastel-yellow", "sand", "orange", "red", "peach", "pink", "purple", "navy-blue", "royal-blue", "aqua-blue", "atol-blue", "pastel-blue", "pastel-green", "kelly-green", "forest-green", "chocolate-brown", "mustard-yellow",
+].map((id) => [id, `/plain-tshirts/${id}.jpg`]));
 export const DEFAULT_SUPPORTS: ProductSupport[] = [
-  { id:"tshirt-150", categoryId:"apparel", name:"T-shirt 150g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, mockups:{} },
-  { id:"tshirt-190", categoryId:"apparel", name:"T-shirt 190g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, mockups:{} },
+  { id:"tshirt-150", categoryId:"apparel", name:"T-shirt 150g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, mockups:tshirtMockups },
+  { id:"tshirt-190", categoryId:"apparel", name:"T-shirt 190g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, mockups:tshirtMockups },
   { id:"hoodie", categoryId:"apparel", name:"Hoodie", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, mockups:{} },
   { id:"long-sleeve", categoryId:"apparel", name:"Long Sleeve T-shirt", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, mockups:{} },
-  { id:"sunglasses", categoryId:"accessories", name:"Sun Glasses", variantMode:"audience", sizes:["Kids","Adults"], colorIds:allColorIds, availability:available(allColorIds,["Kids","Adults"]), active:true, mockups:{} },
   { id:"tote-bag", categoryId:"bags", name:"Tote Bag", variantMode:"none", sizes:[], colorIds:["grey","white"], availability:available(["grey","white"],[]), active:true, mockups:{} },
 ];
 
 export function normalizeSupport(value: Partial<ProductSupport>): ProductSupport {
   const fallback = DEFAULT_SUPPORTS.find((support) => support.id === value.id);
-  const categoryId = value.categoryId === "accessories" || value.categoryId === "bags" ? value.categoryId : fallback?.categoryId ?? "apparel";
-  const variantMode = value.variantMode === "audience" || value.variantMode === "none" ? value.variantMode : fallback?.variantMode ?? "size";
+  const categoryId = value.categoryId === "bags" ? value.categoryId : fallback?.categoryId ?? "apparel";
+  const variantMode = value.variantMode === "none" ? value.variantMode : fallback?.variantMode ?? "size";
   const sizes = variantMode === "none" ? [] : value.sizes ?? fallback?.sizes ?? (variantMode === "audience" ? ["Kids", "Adults"] : [...kids, ...adults]);
   const colorIds = value.colorIds ?? fallback?.colorIds ?? [];
   const storedAvailability = value.availability && typeof value.availability === "object" ? value.availability : {};
@@ -60,7 +63,7 @@ export function normalizeSupport(value: Partial<ProductSupport>): ProductSupport
     colorIds,
     availability,
     active: value.active !== false,
-    mockups: value.mockups ?? {},
+    mockups: { ...(fallback?.mockups ?? {}), ...Object.fromEntries(Object.entries(value.mockups ?? {}).filter(([,url])=>Boolean(url))) },
   };
 }
 
