@@ -67,6 +67,7 @@ type Product = {
   sizes: string[];
   variants: ProductVariant[];
   status: "draft" | "published";
+  detailsLoaded: boolean;
 };
 type Order = {
   id: number;
@@ -153,6 +154,7 @@ const initialProducts: Product[] = [
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
     status: "published",
+    detailsLoaded: true,
   },
   {
     id: 2,
@@ -171,6 +173,7 @@ const initialProducts: Product[] = [
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
     status: "published",
+    detailsLoaded: true,
   },
   {
     id: 3,
@@ -189,6 +192,7 @@ const initialProducts: Product[] = [
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
     status: "published",
+    detailsLoaded: true,
   },
 ];
 const initialSettings: SiteSettings = {
@@ -304,13 +308,14 @@ export default function Studio() {
       return;
     }
     if (section === "products") {
+      const loadedProducts = catalogue.filter((product) => product.detailsLoaded);
       const response = await fetch("/api/studio", {
         method: "POST",
         headers: {
           "content-type": "application/json",
           "x-studio-key": studioKey,
         },
-        body: JSON.stringify({ resource: "products", entries: catalogue }),
+        body: JSON.stringify({ resource: "products", entries: loadedProducts }),
       });
       if (response.ok) toast.success("Catálogo guardado");
       else toast.error("Não foi possível guardar o catálogo.");
@@ -411,6 +416,7 @@ export default function Studio() {
             active: variant.active !== false,
           })),
           status: entry.status === "published" ? "published" : "draft",
+          detailsLoaded: false,
         })),
       );
     setOrders(data.orders ?? []);
@@ -442,6 +448,45 @@ export default function Studio() {
     setCatalogue((items) =>
       items.map((item) => (item.id === id ? { ...item, ...patch } : item)),
     );
+  }
+  async function openProduct(product: Product) {
+    if (expandedProductId === product.id) {
+      setExpandedProductId(null);
+      return;
+    }
+    setExpandedProductId(product.id);
+    if (product.detailsLoaded || product.id > 1_000_000_000_000) return;
+    const response = await fetch(`/api/studio?productId=${product.id}`, {
+      headers: { "x-studio-key": studioKey },
+    });
+    if (!response.ok) {
+      toast.error("Não foi possível carregar o produto.");
+      return;
+    }
+    const data = (await response.json()) as { product: Partial<Product> };
+    setCatalogue((items) => items.map((item) => item.id === product.id ? {
+      ...item,
+      ...data.product,
+      nameTranslations: data.product.nameTranslations ?? {},
+      tags: data.product.tags ?? [],
+      gallery: data.product.gallery ?? [],
+      disabledSupports: data.product.disabledSupports ?? [],
+      colors: data.product.colors ?? [],
+      sizes: data.product.sizes ?? [],
+      variants: data.product.variants ?? [],
+      detailsLoaded: true,
+    } : item));
+  }
+  async function updateProductStatus(product: Product, active: boolean) {
+    const status = active ? "published" : "draft";
+    updateProduct(product.id, { status });
+    if (product.id > 1_000_000_000_000) return;
+    const response = await fetch("/api/studio", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-studio-key": studioKey },
+      body: JSON.stringify({ resource: "product-status", productId: product.id, status }),
+    });
+    if (!response.ok) toast.error("Não foi possível alterar o estado do produto.");
   }
   async function updateOrderStatus(reference: string, status: string) {
     const response = await fetch("/api/studio", {
@@ -1334,6 +1379,7 @@ export default function Studio() {
                         sizes: ["S", "M", "L"],
                         variants: [],
                         status: "draft",
+                        detailsLoaded: true,
                       },
                       ...items,
                     ]);
@@ -1351,20 +1397,20 @@ export default function Studio() {
                   return (
                     <article key={product.id} className="overflow-hidden border border-black/10 bg-white shadow-sm">
                       <div className="grid grid-cols-[72px_1fr_auto] items-center gap-4 p-3 sm:grid-cols-[72px_130px_1fr_auto]">
-                        <button type="button" onClick={() => setExpandedProductId(isOpen ? null : product.id)} className="relative size-16 overflow-hidden border border-black/10 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:16px_16px]">
+                        <button type="button" onClick={() => void openProduct(product)} className="relative size-16 overflow-hidden border border-black/10 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:16px_16px]">
                           {product.imageKey ? <Image src={product.imageKey} alt="" fill sizes="64px" unoptimized className="object-contain p-1" /> : <Images className="absolute inset-0 m-auto size-5 text-black/25" />}
                         </button>
                         <span className="hidden font-mono text-sm font-black sm:block">{product.designCode || "MiM_0000"}</span>
-                        <button type="button" onClick={() => setExpandedProductId(isOpen ? null : product.id)} className="min-w-0 text-left">
+                        <button type="button" onClick={() => void openProduct(product)} className="min-w-0 text-left">
                           <strong className="block truncate text-lg">{product.name}</strong>
                           <span className="text-xs text-black/45 sm:hidden">{product.designCode || "MiM_0000"}</span>
                         </button>
                         <div className="flex items-center gap-3">
-                          <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.status === "published"} onCheckedChange={(checked) => updateProduct(product.id, { status: checked ? "published" : "draft" })} /><span className="hidden sm:inline">{product.status === "published" ? "Ativo" : "Inativo"}</span></label>
-                          <Button type="button" variant="ghost" size="icon" onClick={() => setExpandedProductId(isOpen ? null : product.id)} aria-label={isOpen ? "Fechar produto" : "Abrir produto"}><span className={`text-xl transition-transform ${isOpen ? "rotate-180" : ""}`}>⌄</span></Button>
+                          <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.status === "published"} onCheckedChange={(checked) => void updateProductStatus(product, checked)} /><span className="hidden sm:inline">{product.status === "published" ? "Ativo" : "Inativo"}</span></label>
+                          <Button type="button" variant="ghost" size="icon" onClick={() => void openProduct(product)} aria-label={isOpen ? "Fechar produto" : "Abrir produto"}><span className={`text-xl transition-transform ${isOpen ? "rotate-180" : ""}`}>⌄</span></Button>
                         </div>
                       </div>
-                      {isOpen && (
+                      {isOpen && product.detailsLoaded && (
                         <div className="border-t border-black/10 p-5">
                           <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
                             <div className="grid content-start gap-4 md:grid-cols-2">
@@ -1384,6 +1430,7 @@ export default function Studio() {
                           </div>
                         </div>
                       )}
+                      {isOpen && !product.detailsLoaded && <div className="border-t border-black/10 p-8 text-center text-sm font-bold text-black/45">A carregar produto…</div>}
                     </article>
                   );
                 })}

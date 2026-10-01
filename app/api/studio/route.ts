@@ -24,10 +24,27 @@ export async function GET(request: Request) {
     );
   try {
     const db = getDb();
+    const productId = Number(new URL(request.url).searchParams.get("productId"));
+    if (Number.isInteger(productId) && productId > 0) {
+      const [product] = await db
+        .select()
+        .from(products)
+        .where(eq(products.id, productId));
+      return product
+        ? NextResponse.json({ product })
+        : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
+    }
     const [[home], productList, discoveries, orderList, [settings]] =
       await Promise.all([
         db.select().from(pages).where(eq(pages.slug, "inicio")),
-        db.select().from(products),
+        db.select({
+          id: products.id,
+          slug: products.slug,
+          designCode: products.designCode,
+          name: products.name,
+          imageKey: products.imageKey,
+          status: products.status,
+        }).from(products),
         db.select().from(randomContent),
         db.select().from(orders).orderBy(desc(orders.createdAt)),
         db.select().from(siteSettings).where(eq(siteSettings.key, "global")),
@@ -65,12 +82,25 @@ export async function POST(request: Request) {
     );
   const body = (await request.json()) as {
     resource?: string;
+    productId?: number;
     reference?: string;
     title?: string;
     blocks?: unknown[];
     status?: string;
     entries?: unknown[];
   };
+  if (body.resource === "product-status") {
+    if (!Number.isInteger(body.productId) || !["draft", "published"].includes(String(body.status)))
+      return NextResponse.json({ error: "Estado inválido" }, { status: 400 });
+    const updated = await getDb()
+      .update(products)
+      .set({ status: String(body.status), updatedAt: new Date() })
+      .where(eq(products.id, Number(body.productId)))
+      .returning({ id: products.id });
+    return updated.length
+      ? NextResponse.json({ ok: true })
+      : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
+  }
   if (body.resource === "settings") {
     if (!body.entries?.[0] || typeof body.entries[0] !== "object")
       return NextResponse.json(
