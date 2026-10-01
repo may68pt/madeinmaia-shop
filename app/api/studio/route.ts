@@ -9,7 +9,7 @@ import {
   siteSettings,
 } from "@/db/schema";
 import { sendOrderStatusEmail } from "@/lib/order-email";
-import { DEFAULT_COLORS, DEFAULT_SUPPORTS } from "@/lib/product-catalog";
+import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport } from "@/lib/product-catalog";
 
 function isAuthenticated(request: Request) {
   const expected = process.env.STUDIO_PASSWORD;
@@ -119,7 +119,8 @@ export async function POST(request: Request) {
           ? ((value.productCatalog as Record<string, unknown>).supports as unknown[]).flatMap((entry) => {
               if (!entry || typeof entry !== "object") return [];
               const support = entry as Record<string, unknown>;
-              return [{ id: String(support.id ?? ""), name: String(support.name ?? ""), sizes: Array.isArray(support.sizes) ? support.sizes.map(String) : [], colorIds: Array.isArray(support.colorIds) ? support.colorIds.map(String) : [], active: support.active !== false, mockups: support.mockups && typeof support.mockups === "object" ? Object.fromEntries(Object.entries(support.mockups as Record<string, unknown>).map(([key, url]) => [key, String(url)])) : {} }];
+              const availability = support.availability && typeof support.availability === "object" ? Object.fromEntries(Object.entries(support.availability as Record<string, unknown>).map(([key, options]) => [key, Array.isArray(options) ? options.map(String) : []])) : undefined;
+              return [normalizeSupport({ id: String(support.id ?? ""), categoryId: support.categoryId as "apparel" | "accessories" | "bags" | undefined, name: String(support.name ?? ""), variantMode: support.variantMode as "size" | "audience" | "none" | undefined, sizes: Array.isArray(support.sizes) ? support.sizes.map(String) : undefined, colorIds: Array.isArray(support.colorIds) ? support.colorIds.map(String) : undefined, availability, active: support.active !== false, mockups: support.mockups && typeof support.mockups === "object" ? Object.fromEntries(Object.entries(support.mockups as Record<string, unknown>).map(([key, url]) => [key, String(url)])) : {} })];
             })
           : DEFAULT_SUPPORTS,
       },

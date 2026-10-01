@@ -36,9 +36,10 @@ import { Switch } from "@/components/ui/switch";
 import { toast, Toaster } from "sonner";
 import { PRODUCT_COLORS } from "@/lib/product-colors";
 import type { ProductVariant } from "@/lib/product-variants";
-import { CATALOG_SIZES, DEFAULT_COLORS, DEFAULT_SUPPORTS, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
+import { CATALOG_CATEGORIES, CATALOG_SIZES, DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
+import { DEFAULT_PAGE_BLOCKS, type PageBlock as Block, type PageBlockType } from "@/lib/page-blocks";
+import { PageBlock } from "@/components/page-block";
 
-type Block = { id: number; type: string; title: string; description: string };
 type Discovery = {
   id: number;
   title: string;
@@ -112,26 +113,7 @@ type SiteSettings = {
   productCatalog: { colors: CatalogColor[]; supports: ProductSupport[] };
 };
 
-const initialBlocks: Block[] = [
-  {
-    id: 1,
-    type: "Hero",
-    title: "Veste uma ideia.",
-    description: "T-shirts desenhadas e impressas na Maia.",
-  },
-  {
-    id: 2,
-    type: "Produtos",
-    title: "Novos na loja",
-    description: "Grelha automática com os produtos mais recentes.",
-  },
-  {
-    id: 3,
-    type: "Banner",
-    title: "QR Edition",
-    description: "Uma ligação pessoal, impressa na manga.",
-  },
-];
+const initialBlocks: Block[] = DEFAULT_PAGE_BLOCKS;
 
 const initialDiscoveries: Discovery[] = [
   {
@@ -233,6 +215,7 @@ export default function Studio() {
   const [settings, setSettings] = useState(initialSettings);
   const [uploading, setUploading] = useState(false);
   const [draggedColorId, setDraggedColorId] = useState<string | null>(null);
+  const [draggedBlockId, setDraggedBlockId] = useState<number | null>(null);
   const current = useMemo(
     () => blocks.find((block) => block.id === selected) ?? blocks[0],
     [blocks, selected],
@@ -261,6 +244,11 @@ export default function Studio() {
         type: "Texto",
         title: "Novo bloco",
         description: "Escreve aqui o conteúdo desta secção.",
+        background: "#ffffff",
+        textColor: "var(--ink)",
+        width: "content",
+        align: "left",
+        spacing: "normal",
       },
     ]);
     setSelected(id);
@@ -355,12 +343,18 @@ export default function Studio() {
       return;
     }
     const data = (await response.json()) as {
+      page?: { blocks?: Block[]; status?: string } | null;
       randomContent?: Array<Partial<Discovery> & { id: number }>;
       products?: Array<Partial<Product> & { id: number }>;
       orders?: Order[];
       paymentConfigured?: boolean;
       settings?: SiteSettings | null;
     };
+    if (data.page?.blocks?.length) {
+      setBlocks(data.page.blocks);
+      setSelected(data.page.blocks[0].id);
+      setPublished(data.page.status === "published");
+    }
     if (data.randomContent?.length)
       setDiscoveries(
         data.randomContent.map((entry) => ({
@@ -406,7 +400,7 @@ export default function Studio() {
         theme: { ...initialSettings.theme, ...data.settings.theme },
         productCatalog: {
           colors: data.settings.productCatalog?.colors ?? DEFAULT_COLORS,
-          supports: data.settings.productCatalog?.supports ?? DEFAULT_SUPPORTS,
+          supports: (data.settings.productCatalog?.supports ?? DEFAULT_SUPPORTS).map(normalizeSupport),
         },
         media: data.settings.media ?? [],
       });
@@ -636,23 +630,13 @@ export default function Studio() {
                     Loja &nbsp; Coleções &nbsp; QR
                   </span>
                 </div>
-                <div className="space-y-3 p-4 md:p-6">
+                <div>
                   {blocks.map((block, index) => (
-                    <button
-                      key={block.id}
-                      onClick={() => setSelected(block.id)}
-                      className={`group block w-full border-2 p-5 text-left ${selected === block.id ? "border-[var(--brand)]" : "border-transparent hover:border-black/15"} ${block.type === "Hero" ? "min-h-64 bg-[var(--brand)] text-white" : block.type === "Produtos" ? "min-h-48 bg-white" : "min-h-32 bg-[var(--accent-brand)]"}`}
-                    >
-                      <span className="text-xs font-bold uppercase tracking-widest opacity-60">
-                        {block.type}
-                      </span>
-                      <h2
-                        className={`${block.type === "Hero" ? "mt-14 text-5xl" : "mt-4 text-2xl"} font-black uppercase tracking-[-.05em]`}
-                      >
-                        {block.title}
-                      </h2>
-                      <p className="mt-2 opacity-70">{block.description}</p>
-                      <span className="mt-4 inline-flex gap-1 opacity-0 group-hover:opacity-100">
+                    <div key={block.id} className="group relative">
+                      <PageBlock block={block} editor selected={selected === block.id} onSelect={() => setSelected(block.id)}>
+                        {block.type === "Produtos" ? <div className="grid grid-cols-3 gap-3"><div className="aspect-[4/5] bg-black/5"/><div className="aspect-[4/5] bg-black/5"/><div className="aspect-[4/5] bg-black/5"/></div> : undefined}
+                      </PageBlock>
+                      <span className="absolute right-4 top-4 inline-flex gap-1 opacity-0 group-hover:opacity-100">
                         <span
                           onClick={(event) => {
                             event.stopPropagation();
@@ -672,7 +656,7 @@ export default function Studio() {
                           <ArrowDown className="size-4" />
                         </span>
                       </span>
-                    </button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -934,22 +918,23 @@ export default function Studio() {
               <div><p className="text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">Catálogo base</p><h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">Tipos e cores</h1><p className="mt-3 text-black/60">Estas opções são reutilizadas por todos os designs da loja.</p></div>
               <section className="bg-white p-6">
                 <div className="flex items-center justify-between gap-4"><div><h2 className="text-2xl font-black uppercase">Gestor de cores</h2><p className="mt-1 text-sm text-black/50">Desativa cores sazonais sem apagar produtos.</p></div><Button variant="outline" className="rounded-none" onClick={() => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors: [...settings.productCatalog.colors, { id: `cor-${Date.now()}`, name: "Nova cor", hex: "#cccccc", active: true }] } })}><Plus />Nova cor</Button></div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {settings.productCatalog.colors.map((color, index) => <div key={color.id} draggable onDragStart={() => setDraggedColorId(color.id)} onDragEnd={() => setDraggedColorId(null)} onDragOver={(event) => event.preventDefault()} onDrop={() => { if (!draggedColorId || draggedColorId === color.id) return; const colors = [...settings.productCatalog.colors]; const from = colors.findIndex((item) => item.id === draggedColorId); const [moved] = colors.splice(from, 1); colors.splice(index, 0, moved); setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors } }); setDraggedColorId(null); }} className={`grid cursor-grab grid-cols-[28px_42px_1fr_44px] items-center gap-2 border p-2 ${draggedColorId === color.id ? "border-[var(--brand)] opacity-50" : "border-black/10"}`}><GripVertical className="size-4 text-black/35" /><input type="color" value={color.hex} onChange={(event) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors: settings.productCatalog.colors.map((item, i) => i === index ? { ...item, hex: event.target.value } : item) } })} className="h-10 w-10" /><Input value={color.name} onChange={(event) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors: settings.productCatalog.colors.map((item, i) => i === index ? { ...item, name: event.target.value } : item) } })} /><Switch checked={color.active} onCheckedChange={(active) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors: settings.productCatalog.colors.map((item, i) => i === index ? { ...item, active } : item) } })} /></div>)}
+                <div className="mt-5 max-w-2xl space-y-2">
+                  {settings.productCatalog.colors.map((color, index) => <div key={color.id} draggable onDragStart={() => setDraggedColorId(color.id)} onDragEnd={() => setDraggedColorId(null)} onDragOver={(event) => event.preventDefault()} onDrop={() => { if (!draggedColorId || draggedColorId === color.id) return; const colors = [...settings.productCatalog.colors]; const from = colors.findIndex((item) => item.id === draggedColorId); const [moved] = colors.splice(from, 1); colors.splice(index, 0, moved); setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors } }); setDraggedColorId(null); }} className={`grid cursor-grab grid-cols-[28px_42px_1fr_44px] items-center gap-2 rounded-full border px-3 py-2 ${draggedColorId === color.id ? "border-[var(--brand)] opacity-50" : "border-black/10"}`}><GripVertical className="size-4 text-black/35" /><input type="color" value={color.hex} onChange={(event) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors: settings.productCatalog.colors.map((item, i) => i === index ? { ...item, hex: event.target.value } : item) } })} className="h-9 w-9 rounded-full" /><Input value={color.name} onChange={(event) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors: settings.productCatalog.colors.map((item, i) => i === index ? { ...item, name: event.target.value } : item) } })} className="rounded-full border-0 bg-transparent shadow-none" /><Switch checked={color.active} onCheckedChange={(active) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, colors: settings.productCatalog.colors.map((item, i) => i === index ? { ...item, active } : item) } })} /></div>)}
                 </div>
               </section>
               <section className="bg-white p-6">
-                <div className="flex items-center justify-between gap-4"><div><h2 className="text-2xl font-black uppercase">Tipos de produto</h2><p className="mt-1 text-sm text-black/50">Define tamanhos, cores e fotografias em branco de cada suporte.</p></div><Button variant="outline" className="rounded-none" onClick={() => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, supports: [...settings.productCatalog.supports, { id: `suporte-${Date.now()}`, name: "Novo suporte", sizes: ["Único"], colorIds: [], active: true, mockups: {} }] } })}><Plus />Novo tipo</Button></div>
-                <div className="mt-5 space-y-4">{settings.productCatalog.supports.map((support, supportIndex) => {
-                  const updateSupport = (patch: Partial<ProductSupport>) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, supports: settings.productCatalog.supports.map((item, i) => i === supportIndex ? { ...item, ...patch } : item) } });
+                <div className="flex items-center justify-between gap-4"><div><h2 className="text-2xl font-black uppercase">Tipos de produto</h2><p className="mt-1 text-sm text-black/50">Cada categoria mostra apenas as opções que fazem sentido.</p></div><Button variant="outline" className="rounded-none" onClick={() => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, supports: [...settings.productCatalog.supports, normalizeSupport({ id: `suporte-${Date.now()}`, name: "Novo suporte", categoryId: "apparel", variantMode: "size", colorIds: [] })] } })}><Plus />Novo tipo</Button></div>
+                <div className="mt-6 space-y-8">{CATALOG_CATEGORIES.map((category) => <div key={category.id}><h3 className="mb-3 text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">{category.name}</h3><div className="space-y-3">{settings.productCatalog.supports.map(normalizeSupport).map((support, supportIndex) => ({ support, supportIndex })).filter(({ support }) => support.categoryId === category.id).map(({ support, supportIndex }) => {
+                  const updateSupport = (patch: Partial<ProductSupport>) => setSettings({ ...settings, productCatalog: { ...settings.productCatalog, supports: settings.productCatalog.supports.map((item, i) => i === supportIndex ? normalizeSupport({ ...support, ...patch }) : item) } });
                   const activeColors = settings.productCatalog.colors.filter((color) => color.active);
-                  return <details key={support.id} className="border border-black/10 p-4" open><summary className="cursor-pointer text-xl font-black uppercase">{support.name}</summary><div className="mt-5 grid gap-5">
-                    <div className="grid gap-3 md:grid-cols-[1fr_110px]"><Input value={support.name} onChange={(event) => updateSupport({ name: event.target.value })} /><label className="flex items-center gap-2 text-sm font-bold"><Switch checked={support.active} onCheckedChange={(active) => updateSupport({ active })} />Ativo</label></div>
-                    <div><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-black uppercase">Tamanhos</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={() => updateSupport({ sizes: [...CATALOG_SIZES] })}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={() => updateSupport({ sizes: [] })}>Limpar tudo</Button></div></div><div className="flex flex-wrap gap-2">{CATALOG_SIZES.map((size) => { const enabled = support.sizes.includes(size); return <button key={size} type="button" onClick={() => updateSupport({ sizes: enabled ? support.sizes.filter((item) => item !== size) : [...support.sizes, size] })} className={`min-w-12 border px-3 py-2 text-sm font-black ${enabled ? "border-[var(--brand)] bg-[var(--brand)] text-white" : "border-black/15"}`}>{size}</button>; })}</div></div>
-                    <div><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-black uppercase">Cores</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={() => updateSupport({ colorIds: activeColors.map((color) => color.id) })}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={() => updateSupport({ colorIds: [] })}>Limpar tudo</Button></div></div><div className="flex flex-wrap gap-2">{activeColors.map((color) => { const enabled = support.colorIds.includes(color.id); return <button key={color.id} type="button" onClick={() => updateSupport({ colorIds: enabled ? support.colorIds.filter((id) => id !== color.id) : [...support.colorIds, color.id] })} className={`flex items-center gap-2 border px-3 py-2 text-xs font-bold ${enabled ? "border-[var(--ink)] bg-[var(--ink)] text-white" : "border-black/15"}`}><span className="size-4 rounded-full border border-black/10" style={{ backgroundColor: color.hex }} />{color.name}</button>; })}</div></div>
-                    <details className="bg-[#f5f5f2] p-4"><summary className="cursor-pointer text-sm font-black uppercase">Fotos do suporte por cor</summary><div className="mt-3 grid gap-2 md:grid-cols-2">{settings.productCatalog.colors.filter((color) => support.colorIds.includes(color.id)).map((color) => <label key={color.id} className="grid gap-1 text-xs font-bold uppercase"><span>{color.name}</span><Input value={support.mockups[color.id] ?? ""} onChange={(event) => updateSupport({ mockups: { ...support.mockups, [color.id]: event.target.value } })} placeholder="URL da fotografia em branco" /></label>)}</div></details>
+                  const optionPool = support.variantMode === "audience" ? ["Kids", "Adults"] : support.variantMode === "size" ? CATALOG_SIZES.filter((item) => item !== "Único") : [];
+                  const setAllColors = (enabled:boolean) => updateSupport({ colorIds: enabled ? activeColors.map((color) => color.id) : [], availability: enabled ? Object.fromEntries(activeColors.map((color) => [color.id, [...optionPool]])) : {} });
+                  return <details key={support.id} className="rounded-3xl border border-black/10 p-5" open><summary className="cursor-pointer text-xl font-black uppercase">{support.name}</summary><div className="mt-5 grid gap-6">
+                    <div className="grid gap-3 md:grid-cols-[1fr_190px_120px]"><Input value={support.name} onChange={(event) => updateSupport({ name: event.target.value })} /><Select value={support.categoryId} onValueChange={(value) => updateSupport({ categoryId:value as ProductSupport["categoryId"], variantMode:value === "bags" ? "none" : value === "accessories" ? "audience" : "size", sizes:value === "bags" ? [] : value === "accessories" ? ["Kids","Adults"] : CATALOG_SIZES.filter((item)=>item!=="Único") })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CATALOG_CATEGORIES.map((item)=><SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}</SelectContent></Select><label className="flex items-center gap-2 text-sm font-bold"><Switch checked={support.active} onCheckedChange={(active) => updateSupport({ active })} />Ativo</label></div>
+                    {support.variantMode === "none" ? <p className="rounded-2xl bg-[#f5f5f2] p-4 text-sm font-bold">Sem tamanho — o cliente escolhe apenas a cor.</p> : <div><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-black uppercase">{support.variantMode === "audience" ? "Modelos" : "Tamanhos base"}</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={() => updateSupport({ sizes:[...optionPool], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[...optionPool]])) })}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={() => updateSupport({ sizes:[], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[]])) })}>Limpar tudo</Button></div></div><div className="flex flex-wrap gap-2">{optionPool.map((option) => { const enabled=support.sizes.includes(option); return <button key={option} type="button" onClick={() => updateSupport({ sizes:enabled ? support.sizes.filter((item)=>item!==option) : [...support.sizes,option] })} className={`rounded-full border px-4 py-2 text-sm font-black ${enabled ? "border-[var(--brand)] bg-[var(--brand)] text-white" : "border-black/15"}`}>{option}</button>; })}</div></div>}
+                    <div><div className="mb-3 flex items-center justify-between gap-3"><p className="text-xs font-black uppercase">Cores e disponibilidade</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={()=>setAllColors(true)}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={()=>setAllColors(false)}>Limpar tudo</Button></div></div><div className="space-y-2">{activeColors.map((color) => { const enabled=support.colorIds.includes(color.id); const availableOptions=support.availability[color.id] ?? []; return <div key={color.id} className={`rounded-2xl border p-3 ${enabled ? "border-black/20" : "border-black/10 opacity-60"}`}><div className="flex items-center gap-3"><Switch checked={enabled} onCheckedChange={(checked)=>updateSupport({ colorIds:checked ? [...support.colorIds,color.id] : support.colorIds.filter((id)=>id!==color.id), availability:{...support.availability,[color.id]:checked?[...support.sizes]:[]} })}/><span className="size-5 rounded-full border border-black/10" style={{backgroundColor:color.hex}}/><strong className="flex-1 text-sm">{color.name}</strong>{enabled&&<Input className="max-w-xs" value={support.mockups[color.id]??""} onChange={(event)=>updateSupport({mockups:{...support.mockups,[color.id]:event.target.value}})} placeholder="Foto base desta cor"/>}</div>{enabled&&support.variantMode!=="none"&&<div className="mt-3 flex flex-wrap gap-2 pl-12">{support.sizes.map((option)=>{const selected=availableOptions.includes(option);return <button key={option} type="button" onClick={()=>updateSupport({availability:{...support.availability,[color.id]:selected?availableOptions.filter((item)=>item!==option):[...availableOptions,option]}})} className={`rounded-full border px-3 py-1 text-xs font-bold ${selected?"border-[var(--ink)] bg-[var(--ink)] text-white":"border-black/15"}`}>{option}</button>})}</div>}</div>})}</div></div>
                   </div></details>;
-                })}</div>
+                })}</div></div>)}</div>
               </section>
             </div>
           ) : section === "media" ? (
@@ -1512,7 +1497,7 @@ export default function Studio() {
                   </label>
                   <Select
                     value={current?.type}
-                    onValueChange={(value) => updateBlock({ type: value })}
+                    onValueChange={(value) => updateBlock({ type: value as PageBlockType })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -1525,6 +1510,7 @@ export default function Studio() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div><label className="mb-2 block text-sm font-semibold">Antetítulo</label><Input value={current?.eyebrow ?? ""} onChange={(event) => updateBlock({ eyebrow: event.target.value })} /></div>
                 <div>
                   <label className="mb-2 block text-sm font-semibold">
                     Título
@@ -1536,6 +1522,7 @@ export default function Studio() {
                     }
                   />
                 </div>
+                <div className="grid grid-cols-2 gap-2"><div><label className="mb-2 block text-sm font-semibold">Texto do botão</label><Input value={current?.ctaLabel ?? ""} onChange={(event) => updateBlock({ ctaLabel:event.target.value })}/></div><div><label className="mb-2 block text-sm font-semibold">Link</label><Input value={current?.ctaUrl ?? ""} onChange={(event) => updateBlock({ ctaUrl:event.target.value })}/></div></div>
                 <div>
                   <label className="mb-2 block text-sm font-semibold">
                     Descrição
@@ -1575,11 +1562,12 @@ export default function Studio() {
                     Fundo
                   </label>
                   <div className="grid grid-cols-4 gap-2">
-                    {["#ff4f1f", "#d9ff43", "#171713", "#ffffff"].map(
+                    {["var(--brand)", "var(--accent-brand)", "var(--ink)", "#ffffff"].map(
                       (color) => (
                         <button
                           key={color}
-                          className="aspect-square border"
+                          onClick={() => updateBlock({ background: color })}
+                          className={`aspect-square border-2 ${current?.background === color ? "border-black" : "border-transparent"}`}
                           style={{ backgroundColor: color }}
                           aria-label={`Cor ${color}`}
                         />
@@ -1591,7 +1579,7 @@ export default function Studio() {
                   <label className="mb-2 block text-sm font-semibold">
                     Largura
                   </label>
-                  <Select defaultValue="full">
+                  <Select value={current?.width ?? "content"} onValueChange={(value) => updateBlock({ width:value as Block["width"] })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -1602,6 +1590,8 @@ export default function Studio() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div><label className="mb-2 block text-sm font-semibold">Alinhamento</label><Select value={current?.align ?? "left"} onValueChange={(value)=>updateBlock({align:value as Block["align"]})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="left">Esquerda</SelectItem><SelectItem value="center">Centro</SelectItem></SelectContent></Select></div>
+                <div><label className="mb-2 block text-sm font-semibold">Espaçamento</label><Select value={current?.spacing ?? "normal"} onValueChange={(value)=>updateBlock({spacing:value as Block["spacing"]})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="compact">Compacto</SelectItem><SelectItem value="normal">Normal</SelectItem><SelectItem value="large">Amplo</SelectItem></SelectContent></Select></div>
               </TabsContent>
             </Tabs>
             <div className="mt-8 border-t pt-5">
@@ -1611,12 +1601,12 @@ export default function Studio() {
               </p>
               <ol className="mt-3 space-y-2">
                 {blocks.map((block) => (
-                  <li key={block.id}>
+                  <li key={block.id} draggable onDragStart={() => setDraggedBlockId(block.id)} onDragEnd={() => setDraggedBlockId(null)} onDragOver={(event) => event.preventDefault()} onDrop={() => { if (!draggedBlockId || draggedBlockId === block.id) return; const next=[...blocks]; const from=next.findIndex((item)=>item.id===draggedBlockId); const to=next.findIndex((item)=>item.id===block.id); const [moved]=next.splice(from,1); next.splice(to,0,moved); setBlocks(next); setDraggedBlockId(null); }}>
                     <button
                       onClick={() => setSelected(block.id)}
-                      className={`w-full px-3 py-2 text-left text-sm ${selected === block.id ? "bg-[#fff0ea] text-[#d33b10]" : "bg-[#f5f5f2]"}`}
+                      className={`flex w-full items-center gap-2 rounded-full px-3 py-2 text-left text-sm ${selected === block.id ? "bg-[#fff0ea] text-[#d33b10]" : "bg-[#f5f5f2]"}`}
                     >
-                      {block.type} · {block.title}
+                      <GripVertical className="size-4 shrink-0 opacity-40" />{block.type} · {block.title}
                     </button>
                   </li>
                 ))}

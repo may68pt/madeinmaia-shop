@@ -4,7 +4,7 @@ import { z } from "zod";
 import Stripe from "stripe";
 import { getDb } from "@/db";
 import { orders, products, siteSettings } from "@/db/schema";
-import { DEFAULT_COLORS, DEFAULT_SUPPORTS } from "@/lib/product-catalog";
+import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport, supportOptions } from "@/lib/product-catalog";
 
 const schema = z.object({
   customer: z.object({ name:z.string().trim().min(2), email:z.string().email(), phone:z.string().trim().min(6), address:z.string().trim().min(4), postalCode:z.string().trim().min(4), city:z.string().trim().min(2), country:z.string().trim().min(2) }),
@@ -34,9 +34,11 @@ export async function POST(request: Request) {
   }
   const orderItems = items.flatMap((item)=>{
     const product = catalogue.get(item.slug);
-    const support = productCatalog.supports.find((entry)=>entry.id===item.productType&&entry.active&&!product?.disabledSupports?.includes(entry.id));
+    const supportValue = productCatalog.supports.find((entry)=>entry.id===item.productType&&entry.active&&!product?.disabledSupports?.includes(entry.id));
+    const support = supportValue ? normalizeSupport(supportValue) : undefined;
     const color = productCatalog.colors.find((entry)=>entry.name===item.color&&entry.active&&support?.colorIds.includes(entry.id));
-    if (!product || !support || !color || !support.sizes.includes(item.size)) return [];
+    const validOption = support?.variantMode === "none" ? item.size === "Único" : Boolean(color && support && supportOptions(support, color.id).includes(item.size));
+    if (!product || !support || !color || !validOption) return [];
     return [{ ...item, name:product.name, unitPriceCents:product.priceCents }];
   });
   if (orderItems.length !== items.length) return NextResponse.json({ error:"Um produto ou variante deixou de estar disponível." }, { status:409 });
