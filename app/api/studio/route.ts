@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, notInArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   orders,
@@ -88,6 +88,7 @@ export async function POST(request: Request) {
     blocks?: unknown[];
     status?: string;
     entries?: unknown[];
+    replace?: boolean;
   };
   if (body.resource === "product-status") {
     if (!Number.isInteger(body.productId) || !["draft", "published"].includes(String(body.status)))
@@ -270,6 +271,10 @@ export async function POST(request: Request) {
         .insert(products)
         .values(entry)
         .onConflictDoUpdate({ target: products.slug, set: entry });
+    if (body.replace && entries.length)
+      await db
+        .delete(products)
+        .where(notInArray(products.slug, entries.map((entry) => entry.slug)));
     return NextResponse.json({ ok: true, count: entries.length });
   }
   if (body.resource === "random-content") {

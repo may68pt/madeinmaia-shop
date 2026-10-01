@@ -1,0 +1,1633 @@
+[
+  {
+    "folder": "0206-Luffy-wanted-poster",
+    "slug": "0206-luffy-wanted-poster",
+    "designCode": "MiM_0206",
+    "name": "Luffy Wanted Poster",
+    "coverFile": "0206-luffy-wanted-poster.png"
+  },
+  {
+    "folder": "0226-cool-family",
+    "slug": "0226-cool-family",
+    "designCode": "MiM_0226",
+    "name": "Cool Family",
+    "coverFile": "0226-cool-family.png"
+  },
+  {
+    "folder": "0231-am-I-drunk",
+    "slug": "0231-am-i-drunk",
+    "designCode": "MiM_0231",
+    "name": "Am I Drunk",
+    "coverFile": "0231-am-i-drunk.png"
+  },
+  {
+    "folder": "0232-cool-uncle",
+    "slug": "0232-cool-uncle",
+    "designCode": "MiM_0232",
+    "name": "Cool Uncle",
+    "coverFile": null
+  },
+  {
+    "folder": "0233-cool-aunt",
+    "slug": "0233-cool-aunt",
+    "designCode": "MiM_0233",
+    "name": "Cool Aunt",
+    "coverFile": null
+  },
+  {
+    "folder": "0230-better-days-loading",
+    "slug": "0230-better-days-loading",
+    "designCode": "MiM_0230",
+    "name": "Better Days Loading",
+    "coverFile": null
+  },
+  {
+    "folder": "0178-I-am-groove",
+    "slug": "0178-i-am-groove",
+    "designCode": "MiM_0178",
+    "name": "I Am Groove",
+    "coverFile": "0178-i-am-groove.png"
+  },
+  {
+    "folder": "0228-cool-kid",
+    "slug": "0228-cool-kid",
+    "designCode": "MiM_0228",
+    "name": "Cool Kid",
+    "coverFile": "0228-cool-kid.png"
+  },
+  {
+    "folder": "0227-cool-dad",
+    "slug": "0227-cool-dad",
+    "designCode": "MiM_0227",
+    "name": "Cool Dad",
+    "coverFile": "0227-cool-dad.png"
+  },
+  {
+    "folder": "0229-Survival-rate",
+    "slug": "0229-survival-rate",
+    "designCode": "MiM_0229",
+    "name": "Survival Rate",
+    "coverFile": "0229-survival-rate.png"
+  },
+  {
+    "folder": "0221-el-camino",
+    "slug": "0221-el-camino",
+    "designCode": "MiM_0221",
+    "name": "El Camino",
+    "coverFile": "0221-el-camino.png"
+  },
+  {
+    "folder": "0225-fuck-normal-i-want-magic",
+    "slug": "0225-fuck-normal-i-want-magic",
+    "designCode": "MiM_0225",
+    "name": "Fuck Normal I Want Magic",
+    "coverFile": "0225-fuck-normal-i-want-magic.png"
+  },
+  {
+    "folder": "0223-the-cats-code",
+    "slug": "0223-the-cats-code",
+    "designCode": "MiM_0223",
+    "name": "The Cats Code",
+    "coverFile": "0223-the-cats-code.png"
+  },
+  {
+    "folder": "0205-luffy-im-gonnal-be-king-of-the-pirates",
+    "slug": "0205-luffy-im-gonnal-be-king-of-the-pirates",
+    "designCode": "MiM_0205",
+    "name": "Luffy Im Gonnal Be King Of The Pirates",
+    "coverFile": "0205-luffy-im-gonnal-be-king-of-the-pirates.png"
+  },
+  {
+    "folder": "0222-Secret-Society-Social-Club",
+    "slug": "0222-secret-society-social-club",
+    "designCode": "MiM_0222",
+    "name": "Secret Society Social Club",
+    "coverFile": "0222-secret-society-social-club.png"
+  },
+  {
+    "folder": "0222-Francsinha-Social-Club",
+    "slug": "0222-francsinha-social-club",
+    "designCode": "MiM_0222",
+    "name": "Francsinha Social Club",
+    "coverFile": null
+  },
+  {
+    "folder": "0224-portugal",
+    "slug": "0224-portugal",
+    "designCode": "MiM_0224",
+    "name": "Portugal",
+    "coverFile": "0224-portugal.png"
+  },
+  {
+    "folder": "0192-lightspeed-santa",
+    "slug": "0192-lightspeed-santa",
+    "designCode": "MiM_0192",
+    "name": "Lightspeed Santa",
+    "coverFile": "0192-lightspeed-santa.png"
+  },
+  {
+    "folder": "0208-mother-of-cats",
+    "slug": "0208-mother-of-cats",
+    "designCode": "MiM_0208",
+    "name": "Mother Of Cats",
+    "coverFile": "0208-mother-of-cats.png"
+  },
+  {
+    "folder": "0215-respira-fundo-e-conta-ate-foda-se",
+    "slug": "0215-respira-fundo-e-conta-ate-foda-se",
+    "designCode": "MiM_0215",
+    "name": "Respira Fundo E Conta Ate Foda Se",
+    "coverFile": "0215-respira-fundo-e-conta-ate-foda-se.png"
+  },
+  {
+    "folder": "0210-porto-first-questions-later",
+    "slug": "0210-porto-first-questions-later",
+    "designCode": "MiM_0210",
+    "name": "Porto First Questions Later",
+    "coverFile": "0210-porto-first-questions-later.png"
+  },
+  {
+    "folder": "0209-Sardines-Social-Club",
+    "slug": "0209-sardines-social-club",
+    "designCode": "MiM_0209",
+    "name": "Sardines Social Club",
+    "coverFile": "0209-sardines-social-club.png"
+  },
+  {
+    "folder": "0219-Portoverse-rick-n-morty",
+    "slug": "0219-portoverse-rick-n-morty",
+    "designCode": "MiM_0219",
+    "name": "Portoverse Rick N Morty",
+    "coverFile": "0219-portoverse-rick-n-morty.png"
+  },
+  {
+    "folder": "0218-every-one-is-fighting-a-battle-you-know-nothing-about",
+    "slug": "0218-every-one-is-fighting-a-battle-you-know-nothing-about",
+    "designCode": "MiM_0218",
+    "name": "Every One Is Fighting A Battle You Know Nothing About",
+    "coverFile": "0218-every-one-is-fighting-a-battle-you-know-nothing-about.png"
+  },
+  {
+    "folder": "0058-leao-em-frasco",
+    "slug": "0058-leao-em-frasco",
+    "designCode": "MiM_0058",
+    "name": "Leao Em Frasco",
+    "coverFile": "0058-leao-em-frasco.png"
+  },
+  {
+    "folder": "0193-StarTrek-French-Buldog",
+    "slug": "0193-startrek-french-buldog",
+    "designCode": "MiM_0193",
+    "name": "StarTrek French Buldog",
+    "coverFile": "0193-startrek-french-buldog.png"
+  },
+  {
+    "folder": "0194-Gigerbread-cookie-monster-alien",
+    "slug": "0194-gigerbread-cookie-monster-alien",
+    "designCode": "MiM_0194",
+    "name": "Gigerbread Cookie Monster Alien",
+    "coverFile": "0194-gigerbread-cookie-monster-alien.png"
+  },
+  {
+    "folder": "0204-pijama-batman",
+    "slug": "0204-pijama-batman",
+    "designCode": "MiM_0204",
+    "name": "Pijama Batman",
+    "coverFile": "0204-pijama-batman.png"
+  },
+  {
+    "folder": "0217-its-ok-not-to-be-ok",
+    "slug": "0217-its-ok-not-to-be-ok",
+    "designCode": "MiM_0217",
+    "name": "Its Ok Not To Be Ok",
+    "coverFile": null
+  },
+  {
+    "folder": "0144-angel-kitten",
+    "slug": "0144-angel-kitten",
+    "designCode": "MiM_0144",
+    "name": "Angel Kitten",
+    "coverFile": "0144-angel-kitten.png"
+  },
+  {
+    "folder": "0220-the-turtles",
+    "slug": "0220-the-turtles",
+    "designCode": "MiM_0220",
+    "name": "The Turtles",
+    "coverFile": null
+  },
+  {
+    "folder": "0191-Goku-Tiles",
+    "slug": "0191-goku-tiles",
+    "designCode": "MiM_0191",
+    "name": "Goku Tiles",
+    "coverFile": "0191-goku-tiles.png"
+  },
+  {
+    "folder": "0199-mincraft-porto-portal",
+    "slug": "0199-mincraft-porto-portal",
+    "designCode": "MiM_0199",
+    "name": "Mincraft Porto Portal",
+    "coverFile": "0199-mincraft-porto-portal.png"
+  },
+  {
+    "folder": "0207-cars-galore",
+    "slug": "0207-cars-galore",
+    "designCode": "MiM_0207",
+    "name": "Cars Galore",
+    "coverFile": "0207-cars-galore.png"
+  },
+  {
+    "folder": "0172-the-port-awakens",
+    "slug": "0172-the-port-awakens",
+    "designCode": "MiM_0172",
+    "name": "The Port Awakens",
+    "coverFile": "0172-the-port-awakens.png"
+  },
+  {
+    "folder": "0197-MAGIC-8BALL",
+    "slug": "0197-magic-8ball",
+    "designCode": "MiM_0197",
+    "name": "MAGIC 8BALL",
+    "coverFile": "0197-magic-8ball.png"
+  },
+  {
+    "folder": "0216-porto-azulejo",
+    "slug": "0216-porto-azulejo",
+    "designCode": "MiM_0216",
+    "name": "Porto Azulejo",
+    "coverFile": null
+  },
+  {
+    "folder": "0214-zero-paintiance-full-lipstick",
+    "slug": "0214-zero-paintiance-full-lipstick",
+    "designCode": "MiM_0214",
+    "name": "Zero Paintiance Full Lipstick",
+    "coverFile": "0214-zero-paintiance-full-lipstick.png"
+  },
+  {
+    "folder": "0213-emotionally-expensive",
+    "slug": "0213-emotionally-expensive",
+    "designCode": "MiM_0213",
+    "name": "Emotionally Expensive",
+    "coverFile": "0213-emotionally-expensive.png"
+  },
+  {
+    "folder": "0212-beijinhos-n-bad-decisions",
+    "slug": "0212-beijinhos-n-bad-decisions",
+    "designCode": "MiM_0212",
+    "name": "Beijinhos N Bad Decisions",
+    "coverFile": "0212-beijinhos-n-bad-decisions.png"
+  },
+  {
+    "folder": "0211-good-girls-go-to-porto-bad-gilrs-stay-longer",
+    "slug": "0211-good-girls-go-to-porto-bad-gilrs-stay-longer",
+    "designCode": "MiM_0211",
+    "name": "Good Girls Go To Porto Bad Gilrs Stay Longer",
+    "coverFile": "0211-good-girls-go-to-porto-bad-gilrs-stay-longer.png"
+  },
+  {
+    "folder": "0190-denver",
+    "slug": "0190-denver",
+    "designCode": "MiM_0190",
+    "name": "Denver",
+    "coverFile": "0190-denver.png"
+  },
+  {
+    "folder": "0203-scan-here-to-save-the-world",
+    "slug": "0203-scan-here-to-save-the-world",
+    "designCode": "MiM_0203",
+    "name": "Scan Here To Save The World",
+    "coverFile": "0203-scan-here-to-save-the-world.png"
+  },
+  {
+    "folder": "0201-nintendo-switch",
+    "slug": "0201-nintendo-switch",
+    "designCode": "MiM_0201",
+    "name": "Nintendo Switch",
+    "coverFile": "0201-nintendo-switch.png"
+  },
+  {
+    "folder": "00124-dragon-biker",
+    "slug": "00124-dragon-biker",
+    "designCode": "MiM_0124",
+    "name": "Dragon Biker",
+    "coverFile": "00124-dragon-biker.png"
+  },
+  {
+    "folder": "0200-porto-portugal-illustration",
+    "slug": "0200-porto-portugal-illustration",
+    "designCode": "MiM_0200",
+    "name": "Porto Portugal Illustration",
+    "coverFile": "0200-porto-portugal-illustration.png"
+  },
+  {
+    "folder": "0202-dont-panic",
+    "slug": "0202-dont-panic",
+    "designCode": "MiM_0202",
+    "name": "Dont Panic",
+    "coverFile": "0202-dont-panic.png"
+  },
+  {
+    "folder": "0115-love-miau",
+    "slug": "0115-love-miau",
+    "designCode": "MiM_0115",
+    "name": "Love Miau",
+    "coverFile": "0115-love-miau.png"
+  },
+  {
+    "folder": "0198-one-piece-porto-grand-line",
+    "slug": "0198-one-piece-porto-grand-line",
+    "designCode": "MiM_0198",
+    "name": "One Piece Porto Grand Line",
+    "coverFile": "0198-one-piece-porto-grand-line.png"
+  },
+  {
+    "folder": "0038-aquele-beijo-no-jarro",
+    "slug": "0038-aquele-beijo-no-jarro",
+    "designCode": "MiM_0038",
+    "name": "Aquele Beijo No Jarro",
+    "coverFile": "0038-aquele-beijo-no-jarro.png"
+  },
+  {
+    "folder": "0180-miro-tree",
+    "slug": "0180-miro-tree",
+    "designCode": "MiM_0180",
+    "name": "Miro Tree",
+    "coverFile": "0180-miro-tree.png"
+  },
+  {
+    "folder": "0001-Gaurdia-do-copo",
+    "slug": "0001-gaurdia-do-copo",
+    "designCode": "MiM_0001",
+    "name": "Gaurdia Do Copo",
+    "coverFile": "0001-gaurdia-do-copo.png"
+  },
+  {
+    "folder": "0196-Steampunk-pink-Unicorn",
+    "slug": "0196-steampunk-pink-unicorn",
+    "designCode": "MiM_0196",
+    "name": "Steampunk Pink Unicorn",
+    "coverFile": "0196-steampunk-pink-unicorn.png"
+  },
+  {
+    "folder": "0195-free-space",
+    "slug": "0195-free-space",
+    "designCode": "MiM_0195",
+    "name": "Free Space",
+    "coverFile": "0195-free-space.png"
+  },
+  {
+    "folder": "0090-Gatos-dos-Céus",
+    "slug": "0090-gatos-dos-ceus",
+    "designCode": "MiM_0090",
+    "name": "Gatos Dos CéUs",
+    "coverFile": "0090-gatos-dos-ceus.png"
+  },
+  {
+    "folder": "0183-BlonknRoll",
+    "slug": "0183-blonknroll",
+    "designCode": "MiM_0183",
+    "name": "BlonknRoll",
+    "coverFile": "0183-blonknroll.png"
+  },
+  {
+    "folder": "0163-naruto-party-jtuso",
+    "slug": "0163-naruto-party-jtuso",
+    "designCode": "MiM_0163",
+    "name": "Naruto Party Jtuso",
+    "coverFile": "0163-naruto-party-jtuso.png"
+  },
+  {
+    "folder": "0176-Templar-Ronaldo",
+    "slug": "0176-templar-ronaldo",
+    "designCode": "MiM_0176",
+    "name": "Templar Ronaldo",
+    "coverFile": "0176-templar-ronaldo.png"
+  },
+  {
+    "folder": "0164-arhham-beats-dj",
+    "slug": "0164-arhham-beats-dj",
+    "designCode": "MiM_0164",
+    "name": "Arhham Beats Dj",
+    "coverFile": "0164-arhham-beats-dj.png"
+  },
+  {
+    "folder": "0158-templario-de-triciclo",
+    "slug": "0158-templario-de-triciclo",
+    "designCode": "MiM_0158",
+    "name": "Templario De Triciclo",
+    "coverFile": "0158-templario-de-triciclo.png"
+  },
+  {
+    "folder": "0157-Icream-Knight",
+    "slug": "0157-icream-knight",
+    "designCode": "MiM_0157",
+    "name": "Icream Knight",
+    "coverFile": "0157-icream-knight.png"
+  },
+  {
+    "folder": "0044-Peaky-Gremlin",
+    "slug": "0044-peaky-gremlin",
+    "designCode": "MiM_0044",
+    "name": "Peaky Gremlin",
+    "coverFile": "0044-peaky-gremlin.png"
+  },
+  {
+    "folder": "0035-Gremlin Gang",
+    "slug": "0035-gremlin-gang",
+    "designCode": "MiM_0035",
+    "name": "Gremlin Gang",
+    "coverFile": "0035-gremlin-gang.png"
+  },
+  {
+    "folder": "0022-GremlinZAÇO",
+    "slug": "0022-gremlinzaco",
+    "designCode": "MiM_0022",
+    "name": "GremlinZAÇO",
+    "coverFile": "0022-gremlinzaco.png"
+  },
+  {
+    "folder": "0156-SteamPunk-gizmo",
+    "slug": "0156-steampunk-gizmo",
+    "designCode": "MiM_0156",
+    "name": "SteamPunk Gizmo",
+    "coverFile": "0156-steampunk-gizmo.jpg"
+  },
+  {
+    "folder": "0112-Doctor Spider Jones",
+    "slug": "0112-doctor-spider-jones",
+    "designCode": "MiM_0112",
+    "name": "Doctor Spider Jones",
+    "coverFile": "0112-doctor-spider-jones.png"
+  },
+  {
+    "folder": "0134-banana-dead-pool",
+    "slug": "0134-banana-dead-pool",
+    "designCode": "MiM_0134",
+    "name": "Banana Dead Pool",
+    "coverFile": "0134-banana-dead-pool.png"
+  },
+  {
+    "folder": "0149-Iron-Prime",
+    "slug": "0149-iron-prime",
+    "designCode": "MiM_0149",
+    "name": "Iron Prime",
+    "coverFile": "0149-iron-prime.jpg"
+  },
+  {
+    "folder": "0159-Optimus-Prime-Delvery",
+    "slug": "0159-optimus-prime-delvery",
+    "designCode": "MiM_0159",
+    "name": "Optimus Prime Delvery",
+    "coverFile": "0159-optimus-prime-delvery.png"
+  },
+  {
+    "folder": "0171-start-game",
+    "slug": "0171-start-game",
+    "designCode": "MiM_0171",
+    "name": "Start Game",
+    "coverFile": "0171-start-game.png"
+  },
+  {
+    "folder": "0170-gameboy-kitten",
+    "slug": "0170-gameboy-kitten",
+    "designCode": "MiM_0170",
+    "name": "Gameboy Kitten",
+    "coverFile": "0170-gameboy-kitten.png"
+  },
+  {
+    "folder": "0056-frasco-de-gatos",
+    "slug": "0056-frasco-de-gatos",
+    "designCode": "MiM_0056",
+    "name": "Frasco De Gatos",
+    "coverFile": "0056-frasco-de-gatos.png"
+  },
+  {
+    "folder": "0152-caldeirao-do-gato",
+    "slug": "0152-caldeirao-do-gato",
+    "designCode": "MiM_0152",
+    "name": "Caldeirao Do Gato",
+    "coverFile": "0152-caldeirao-do-gato.png"
+  },
+  {
+    "folder": "0123-cool-cat",
+    "slug": "0123-cool-cat",
+    "designCode": "MiM_0123",
+    "name": "Cool Cat",
+    "coverFile": "0123-cool-cat.png"
+  },
+  {
+    "folder": "0160-bumper-car-kitten",
+    "slug": "0160-bumper-car-kitten",
+    "designCode": "MiM_0160",
+    "name": "Bumper Car Kitten",
+    "coverFile": "0160-bumper-car-kitten.png"
+  },
+  {
+    "folder": "0076-Streampunk-cat-gato",
+    "slug": "0076-streampunk-cat-gato",
+    "designCode": "MiM_0076",
+    "name": "Streampunk Cat Gato",
+    "coverFile": "0076-streampunk-cat-gato.png"
+  },
+  {
+    "folder": "0116-Catmas-cat",
+    "slug": "0116-catmas-cat",
+    "designCode": "MiM_0116",
+    "name": "Catmas Cat",
+    "coverFile": "0116-catmas-cat.png"
+  },
+  {
+    "folder": "0063-Space Gato",
+    "slug": "0063-space-gato",
+    "designCode": "MiM_0063",
+    "name": "Space Gato",
+    "coverFile": "0063-space-gato.png"
+  },
+  {
+    "folder": "0003-robots",
+    "slug": "0003-robots",
+    "designCode": "MiM_0003",
+    "name": "Robots",
+    "coverFile": "0003-robots.png"
+  },
+  {
+    "folder": "0077-daft-punk",
+    "slug": "0077-daft-punk",
+    "designCode": "MiM_0077",
+    "name": "Daft Punk",
+    "coverFile": "0077-daft-punk.png"
+  },
+  {
+    "folder": "0101-one-man-band",
+    "slug": "0101-one-man-band",
+    "designCode": "MiM_0101",
+    "name": "One Man Band",
+    "coverFile": "0101-one-man-band.png"
+  },
+  {
+    "folder": "0028-old-skool-cyberpunk",
+    "slug": "0028-old-skool-cyberpunk",
+    "designCode": "MiM_0028",
+    "name": "Old Skool Cyberpunk",
+    "coverFile": "0028-old-skool-cyberpunk.png"
+  },
+  {
+    "folder": "0033-musica-no-espaco",
+    "slug": "0033-musica-no-espaco",
+    "designCode": "MiM_0033",
+    "name": "Musica No Espaco",
+    "coverFile": "0033-musica-no-espaco.png"
+  },
+  {
+    "folder": "0046-Space-rock",
+    "slug": "0046-space-rock",
+    "designCode": "MiM_0046",
+    "name": "Space Rock",
+    "coverFile": "0046-space-rock.png"
+  },
+  {
+    "folder": "0024-Esquecimento-Global",
+    "slug": "0024-esquecimento-global",
+    "designCode": "MiM_0024",
+    "name": "Esquecimento Global",
+    "coverFile": "0024-esquecimento-global.png"
+  },
+  {
+    "folder": "0040-Zombie-Freddy-mercury",
+    "slug": "0040-zombie-freddy-mercury",
+    "designCode": "MiM_0040",
+    "name": "Zombie Freddy Mercury",
+    "coverFile": "0040-zombie-freddy-mercury.png"
+  },
+  {
+    "folder": "0021-Michael Jackson Zombie",
+    "slug": "0021-michael-jackson-zombie",
+    "designCode": "MiM_0021",
+    "name": "Michael Jackson Zombie",
+    "coverFile": "0021-michael-jackson-zombie.png"
+  },
+  {
+    "folder": "0031-Zombie-kurt-cobain",
+    "slug": "0031-zombie-kurt-cobain",
+    "designCode": "MiM_0031",
+    "name": "Zombie Kurt Cobain",
+    "coverFile": "0031-zombie-kurt-cobain.png"
+  },
+  {
+    "folder": "0006_zombie-bowie",
+    "slug": "0006-zombie-bowie",
+    "designCode": "MiM_0006",
+    "name": "Zombie Bowie",
+    "coverFile": "0006-zombie-bowie.png"
+  },
+  {
+    "folder": "0053-groot-pizza",
+    "slug": "0053-groot-pizza",
+    "designCode": "MiM_0053",
+    "name": "Groot Pizza",
+    "coverFile": "0053-groot-pizza.png"
+  },
+  {
+    "folder": "0065-pickle-groot",
+    "slug": "0065-pickle-groot",
+    "designCode": "MiM_0065",
+    "name": "Pickle Groot",
+    "coverFile": "0065-pickle-groot.png"
+  },
+  {
+    "folder": "0097-Rocking-Racoon",
+    "slug": "0097-rocking-racoon",
+    "designCode": "MiM_0097",
+    "name": "Rocking Racoon",
+    "coverFile": "0097-rocking-racoon.png"
+  },
+  {
+    "folder": "0091-space-cocktails",
+    "slug": "0091-space-cocktails",
+    "designCode": "MiM_0091",
+    "name": "Space Cocktails",
+    "coverFile": "0091-space-cocktails.png"
+  },
+  {
+    "folder": "0098-red-sunset-panda",
+    "slug": "0098-red-sunset-panda",
+    "designCode": "MiM_0098",
+    "name": "Red Sunset Panda",
+    "coverFile": "0098-red-sunset-panda.png"
+  },
+  {
+    "folder": "0099-isqueiro-made-in-maia",
+    "slug": "0099-isqueiro-made-in-maia",
+    "designCode": "MiM_0099",
+    "name": "Isqueiro Made In Maia",
+    "coverFile": "0099-isqueiro-made-in-maia.png"
+  },
+  {
+    "folder": "0069-air-maia-jar",
+    "slug": "0069-air-maia-jar",
+    "designCode": "MiM_0069",
+    "name": "Air Maia Jar",
+    "coverFile": "0069-air-maia-jar.png"
+  },
+  {
+    "folder": "0011-Descobrimentos 2001",
+    "slug": "0011-descobrimentos-2001",
+    "designCode": "MiM_0011",
+    "name": "Descobrimentos 2001",
+    "coverFile": "0011-descobrimentos-2001.png"
+  },
+  {
+    "folder": "0010-Viera-do-Carvalho",
+    "slug": "0010-viera-do-carvalho",
+    "designCode": "MiM_0010",
+    "name": "Viera Do Carvalho",
+    "coverFile": "0010-viera-do-carvalho.png"
+  },
+  {
+    "folder": "0173-Port-Miau",
+    "slug": "0173-port-miau",
+    "designCode": "MiM_0173",
+    "name": "Port Miau",
+    "coverFile": "0173-port-miau.png"
+  },
+  {
+    "folder": "0094-Selo-Lidador",
+    "slug": "0094-selo-lidador",
+    "designCode": "MiM_0094",
+    "name": "Selo Lidador",
+    "coverFile": "0094-selo-lidador.png"
+  },
+  {
+    "folder": "0103-atendimento-prioritario",
+    "slug": "0103-atendimento-prioritario",
+    "designCode": "MiM_0103",
+    "name": "Atendimento Prioritario",
+    "coverFile": "0103-atendimento-prioritario.png"
+  },
+  {
+    "folder": "0111-olho-so-picasso",
+    "slug": "0111-olho-so-picasso",
+    "designCode": "MiM_0111",
+    "name": "Olho So Picasso",
+    "coverFile": "0111-olho-so-picasso.png"
+  },
+  {
+    "folder": "0106-all-in-picos",
+    "slug": "0106-all-in-picos",
+    "designCode": "MiM_0106",
+    "name": "All In Picos",
+    "coverFile": "0106-all-in-picos.png"
+  },
+  {
+    "folder": "0189-Elsa-on-tiles",
+    "slug": "0189-elsa-on-tiles",
+    "designCode": "MiM_0189",
+    "name": "Elsa On Tiles",
+    "coverFile": "0189-elsa-on-tiles.png"
+  },
+  {
+    "folder": "0190-fishing-christmas-miracles",
+    "slug": "0190-fishing-christmas-miracles",
+    "designCode": "MiM_0190",
+    "name": "Fishing Christmas Miracles",
+    "coverFile": "0190-fishing-christmas-miracles.png"
+  },
+  {
+    "folder": "0188-Tinder-egg",
+    "slug": "0188-tinder-egg",
+    "designCode": "MiM_0188",
+    "name": "Tinder Egg",
+    "coverFile": "0188-tinder-egg.png"
+  },
+  {
+    "folder": "0187-Jurassic-Port",
+    "slug": "0187-jurassic-port",
+    "designCode": "MiM_0187",
+    "name": "Jurassic Port",
+    "coverFile": "0187-jurassic-port.png"
+  },
+  {
+    "folder": "0186-groot-violin",
+    "slug": "0186-groot-violin",
+    "designCode": "MiM_0186",
+    "name": "Groot Violin",
+    "coverFile": "0186-groot-violin.png"
+  },
+  {
+    "folder": "0184-UFO-JAR",
+    "slug": "0184-ufo-jar",
+    "designCode": "MiM_0184",
+    "name": "UFO JAR",
+    "coverFile": "0184-ufo-jar.png"
+  },
+  {
+    "folder": "0182-Batman-tiles",
+    "slug": "0182-batman-tiles",
+    "designCode": "MiM_0182",
+    "name": "Batman Tiles",
+    "coverFile": "0182-batman-tiles.png"
+  },
+  {
+    "folder": "0181-caas-de-papel-guy",
+    "slug": "0181-caas-de-papel-guy",
+    "designCode": "MiM_0181",
+    "name": "Caas De Papel Guy",
+    "coverFile": "0181-caas-de-papel-guy.png"
+  },
+  {
+    "folder": "0179-part-lego-jar",
+    "slug": "0179-part-lego-jar",
+    "designCode": "MiM_0179",
+    "name": "Part Lego Jar",
+    "coverFile": "0179-part-lego-jar.png"
+  },
+  {
+    "folder": "0174-MEGA-make-europe-great-again",
+    "slug": "0174-mega-make-europe-great-again",
+    "designCode": "MiM_0174",
+    "name": "MEGA Make Europe Great Again",
+    "coverFile": "0174-mega-make-europe-great-again.png"
+  },
+  {
+    "folder": "137-Cookie-monster-Busted",
+    "slug": "137-cookie-monster-busted",
+    "designCode": "MiM_0137",
+    "name": "Cookie Monster Busted",
+    "coverFile": "137-cookie-monster-busted.png"
+  },
+  {
+    "folder": "0169-Retro-bot",
+    "slug": "0169-retro-bot",
+    "designCode": "MiM_0169",
+    "name": "Retro Bot",
+    "coverFile": "0169-retro-bot.png"
+  },
+  {
+    "folder": "0168-Cute-BOT",
+    "slug": "0168-cute-bot",
+    "designCode": "MiM_0168",
+    "name": "Cute BOT",
+    "coverFile": "0168-cute-bot.png"
+  },
+  {
+    "folder": "0167-vhs-bot",
+    "slug": "0167-vhs-bot",
+    "designCode": "MiM_0167",
+    "name": "Vhs Bot",
+    "coverFile": "0167-vhs-bot.png"
+  },
+  {
+    "folder": "0166-the-porto",
+    "slug": "0166-the-porto",
+    "designCode": "MiM_0166",
+    "name": "The Porto",
+    "coverFile": "0166-the-porto.png"
+  },
+  {
+    "folder": "0165-Arkham-Drum-Beats",
+    "slug": "0165-arkham-drum-beats",
+    "designCode": "MiM_0165",
+    "name": "Arkham Drum Beats",
+    "coverFile": "0165-arkham-drum-beats.png"
+  },
+  {
+    "folder": "0162-Naruto-Sasuke-Jar",
+    "slug": "0162-naruto-sasuke-jar",
+    "designCode": "MiM_0162",
+    "name": "Naruto Sasuke Jar",
+    "coverFile": "0162-naruto-sasuke-jar.png"
+  },
+  {
+    "folder": "0161-Hulk-Yoga",
+    "slug": "0161-hulk-yoga",
+    "designCode": "MiM_0161",
+    "name": "Hulk Yoga",
+    "coverFile": "0161-hulk-yoga.png"
+  },
+  {
+    "folder": "0151-Skull-tree",
+    "slug": "0151-skull-tree",
+    "designCode": "MiM_0151",
+    "name": "Skull Tree",
+    "coverFile": "0151-skull-tree.png"
+  },
+  {
+    "folder": "0122-pinoquio-de-natal",
+    "slug": "0122-pinoquio-de-natal",
+    "designCode": "MiM_0122",
+    "name": "Pinoquio De Natal",
+    "coverFile": "0122-pinoquio-de-natal.png"
+  },
+  {
+    "folder": "0107-zombie-marley",
+    "slug": "0107-zombie-marley",
+    "designCode": "MiM_0107",
+    "name": "Zombie Marley",
+    "coverFile": "0107-zombie-marley.png"
+  },
+  {
+    "folder": "0100-sentado-ao-cogumelo",
+    "slug": "0100-sentado-ao-cogumelo",
+    "designCode": "MiM_0100",
+    "name": "Sentado Ao Cogumelo",
+    "coverFile": "0100-sentado-ao-cogumelo.png"
+  },
+  {
+    "folder": "0057-jarro picasso",
+    "slug": "0057-jarro-picasso",
+    "designCode": "MiM_0057",
+    "name": "Jarro Picasso",
+    "coverFile": "0057-jarro-picasso.png"
+  },
+  {
+    "folder": "0041-jarro-de-herois",
+    "slug": "0041-jarro-de-herois",
+    "designCode": "MiM_0041",
+    "name": "Jarro De Herois",
+    "coverFile": "0041-jarro-de-herois.png"
+  },
+  {
+    "folder": "0047-Jarro-de-Cogumelos",
+    "slug": "0047-jarro-de-cogumelos",
+    "designCode": "MiM_0047",
+    "name": "Jarro De Cogumelos",
+    "coverFile": "0047-jarro-de-cogumelos.png"
+  },
+  {
+    "folder": "0185-Drummer-Groot",
+    "slug": "0185-drummer-groot",
+    "designCode": "MiM_0185",
+    "name": "Drummer Groot",
+    "coverFile": null
+  },
+  {
+    "folder": "0080-Jarro-cabeca-de-lego",
+    "slug": "0080-jarro-cabeca-de-lego",
+    "designCode": "MiM_0080",
+    "name": "Jarro Cabeca De Lego",
+    "coverFile": "0080-jarro-cabeca-de-lego.png"
+  },
+  {
+    "folder": "0055-chilling-gorila-jar",
+    "slug": "0055-chilling-gorila-jar",
+    "designCode": "MiM_0055",
+    "name": "Chilling Gorila Jar",
+    "coverFile": "0055-chilling-gorila-jar.png"
+  },
+  {
+    "folder": "0136-Luffy-x",
+    "slug": "0136-luffy-x",
+    "designCode": "MiM_0136",
+    "name": "Luffy X",
+    "coverFile": "0136-luffy-x.png"
+  },
+  {
+    "folder": "0125-semente-negra",
+    "slug": "0125-semente-negra",
+    "designCode": "MiM_0125",
+    "name": "Semente Negra",
+    "coverFile": "0125-semente-negra.png"
+  },
+  {
+    "folder": "0150-Portal-Adventures",
+    "slug": "0150-portal-adventures",
+    "designCode": "MiM_0150",
+    "name": "Portal Adventures",
+    "coverFile": "0150-portal-adventures.png"
+  },
+  {
+    "folder": "0118-ciberpunk-santa",
+    "slug": "0118-ciberpunk-santa",
+    "designCode": "MiM_0118",
+    "name": "Ciberpunk Santa",
+    "coverFile": "0118-ciberpunk-santa.png"
+  },
+  {
+    "folder": "0117-wintergato",
+    "slug": "0117-wintergato",
+    "designCode": "MiM_0117",
+    "name": "Wintergato",
+    "coverFile": "0117-wintergato.png"
+  },
+  {
+    "folder": "0113-Against-my-better-judgement",
+    "slug": "0113-against-my-better-judgement",
+    "designCode": "MiM_0113",
+    "name": "Against My Better Judgement",
+    "coverFile": "0113-against-my-better-judgement.png"
+  },
+  {
+    "folder": "0109-agua-é-vida",
+    "slug": "0109-agua-e-vida",
+    "designCode": "MiM_0109",
+    "name": "Agua é Vida",
+    "coverFile": "0109-agua-e-vida.png"
+  },
+  {
+    "folder": "0108-alivio-betraquio",
+    "slug": "0108-alivio-betraquio",
+    "designCode": "MiM_0108",
+    "name": "Alivio Betraquio",
+    "coverFile": "0108-alivio-betraquio.png"
+  },
+  {
+    "folder": "0093-FCMaiaSK8-LEGO",
+    "slug": "0093-fcmaiask8-lego",
+    "designCode": "MiM_0093",
+    "name": "FCMaiaSK8 LEGO",
+    "coverFile": "0093-fcmaiask8-lego.png"
+  },
+  {
+    "folder": "0088-skate-or-die-stake-or-die",
+    "slug": "0088-skate-or-die-stake-or-die",
+    "designCode": "MiM_0088",
+    "name": "Skate Or Die Stake Or Die",
+    "coverFile": "0088-skate-or-die-stake-or-die.png"
+  },
+  {
+    "folder": "0087-summer-jar",
+    "slug": "0087-summer-jar",
+    "designCode": "MiM_0087",
+    "name": "Summer Jar",
+    "coverFile": "0087-summer-jar.png"
+  },
+  {
+    "folder": "0085-troidzoid",
+    "slug": "0085-troidzoid",
+    "designCode": "MiM_0085",
+    "name": "Troidzoid",
+    "coverFile": "0085-troidzoid.png"
+  },
+  {
+    "folder": "0084-bilhete-de-uma-vida",
+    "slug": "0084-bilhete-de-uma-vida",
+    "designCode": "MiM_0084",
+    "name": "Bilhete De Uma Vida",
+    "coverFile": "0084-bilhete-de-uma-vida.png"
+  },
+  {
+    "folder": "0082-jarro-de-erva",
+    "slug": "0082-jarro-de-erva",
+    "designCode": "MiM_0082",
+    "name": "Jarro De Erva",
+    "coverFile": "0082-jarro-de-erva.png"
+  },
+  {
+    "folder": "0081-Man-in-Jar",
+    "slug": "0081-man-in-jar",
+    "designCode": "MiM_0081",
+    "name": "Man In Jar",
+    "coverFile": "0081-man-in-jar.png"
+  },
+  {
+    "folder": "0079-Ricky-mortieh-cenas",
+    "slug": "0079-ricky-mortieh-cenas",
+    "designCode": "MiM_0079",
+    "name": "Ricky Mortieh Cenas",
+    "coverFile": "0079-ricky-mortieh-cenas.png"
+  },
+  {
+    "folder": "0068-visques-arcade",
+    "slug": "0068-visques-arcade",
+    "designCode": "MiM_0068",
+    "name": "Visques Arcade",
+    "coverFile": "0068-visques-arcade.png"
+  },
+  {
+    "folder": "0075-jarro-de-barbies",
+    "slug": "0075-jarro-de-barbies",
+    "designCode": "MiM_0075",
+    "name": "Jarro De Barbies",
+    "coverFile": "0075-jarro-de-barbies.png"
+  },
+  {
+    "folder": "0066-Jarro-de-barbies",
+    "slug": "0066-jarro-de-barbies",
+    "designCode": "MiM_0066",
+    "name": "Jarro De Barbies",
+    "coverFile": "0066-jarro-de-barbies.png"
+  },
+  {
+    "folder": "0023-i-am-Eddie",
+    "slug": "0023-i-am-eddie",
+    "designCode": "MiM_0023",
+    "name": "I Am Eddie",
+    "coverFile": "0023-i-am-eddie.png"
+  },
+  {
+    "folder": "0042-Alien no Jarro",
+    "slug": "0042-alien-no-jarro",
+    "designCode": "MiM_0042",
+    "name": "Alien No Jarro",
+    "coverFile": "0042-alien-no-jarro.png"
+  },
+  {
+    "folder": "0048-a-nuvem",
+    "slug": "0048-a-nuvem",
+    "designCode": "MiM_0048",
+    "name": "A Nuvem",
+    "coverFile": "0048-a-nuvem.png"
+  },
+  {
+    "folder": "0017-alegria-engarradada",
+    "slug": "0017-alegria-engarradada",
+    "designCode": "MiM_0017",
+    "name": "Alegria Engarradada",
+    "coverFile": "0017-alegria-engarradada.png"
+  },
+  {
+    "folder": "0177",
+    "slug": "0177",
+    "designCode": "MiM_0177",
+    "name": "",
+    "coverFile": "0177.png"
+  },
+  {
+    "folder": "0155-ovo-estrelado-beach-sunset",
+    "slug": "0155-ovo-estrelado-beach-sunset",
+    "designCode": "MiM_0155",
+    "name": "Ovo Estrelado Beach Sunset",
+    "coverFile": "0155-ovo-estrelado-beach-sunset.png"
+  },
+  {
+    "folder": "0154-medusa",
+    "slug": "0154-medusa",
+    "designCode": "MiM_0154",
+    "name": "Medusa",
+    "coverFile": "0154-medusa.png"
+  },
+  {
+    "folder": "0153-spider-tilhas",
+    "slug": "0153-spider-tilhas",
+    "designCode": "MiM_0153",
+    "name": "Spider Tilhas",
+    "coverFile": "0153-spider-tilhas.png"
+  },
+  {
+    "folder": "0148-cameleon-cat",
+    "slug": "0148-cameleon-cat",
+    "designCode": "MiM_0148",
+    "name": "Cameleon Cat",
+    "coverFile": "0148-cameleon-cat.png"
+  },
+  {
+    "folder": "0147-pussy-cone",
+    "slug": "0147-pussy-cone",
+    "designCode": "MiM_0147",
+    "name": "Pussy Cone",
+    "coverFile": "0147-pussy-cone.png"
+  },
+  {
+    "folder": "0146-alien-fossil",
+    "slug": "0146-alien-fossil",
+    "designCode": "MiM_0146",
+    "name": "Alien Fossil",
+    "coverFile": "0146-alien-fossil.png"
+  },
+  {
+    "folder": "0145-Alices-box",
+    "slug": "0145-alices-box",
+    "designCode": "MiM_0145",
+    "name": "Alices Box",
+    "coverFile": "0145-alices-box.png"
+  },
+  {
+    "folder": "0143-sardines",
+    "slug": "0143-sardines",
+    "designCode": "MiM_0143",
+    "name": "Sardines",
+    "coverFile": "0143-sardines.png"
+  },
+  {
+    "folder": "0142-sapo-leitor",
+    "slug": "0142-sapo-leitor",
+    "designCode": "MiM_0142",
+    "name": "Sapo Leitor",
+    "coverFile": "0142-sapo-leitor.png"
+  },
+  {
+    "folder": "0141-coelhinhas",
+    "slug": "0141-coelhinhas",
+    "designCode": "MiM_0141",
+    "name": "Coelhinhas",
+    "coverFile": "0141-coelhinhas.png"
+  },
+  {
+    "folder": "0140-gato-gelado-de-pau",
+    "slug": "0140-gato-gelado-de-pau",
+    "designCode": "MiM_0140",
+    "name": "Gato Gelado De Pau",
+    "coverFile": "0140-gato-gelado-de-pau.png"
+  },
+  {
+    "folder": "0139-Gato-Picasso",
+    "slug": "0139-gato-picasso",
+    "designCode": "MiM_0139",
+    "name": "Gato Picasso",
+    "coverFile": "0139-gato-picasso.png"
+  },
+  {
+    "folder": "0138-Naruto-Believe-it",
+    "slug": "0138-naruto-believe-it",
+    "designCode": "MiM_0138",
+    "name": "Naruto Believe It",
+    "coverFile": "0138-naruto-believe-it.png"
+  },
+  {
+    "folder": "0135-business-pug",
+    "slug": "0135-business-pug",
+    "designCode": "MiM_0135",
+    "name": "Business Pug",
+    "coverFile": "0135-business-pug.png"
+  },
+  {
+    "folder": "0133-paixoes-improvaveis",
+    "slug": "0133-paixoes-improvaveis",
+    "designCode": "MiM_0133",
+    "name": "Paixoes Improvaveis",
+    "coverFile": "0133-paixoes-improvaveis.png"
+  },
+  {
+    "folder": "0132-pijama-wolf",
+    "slug": "0132-pijama-wolf",
+    "designCode": "MiM_0132",
+    "name": "Pijama Wolf",
+    "coverFile": "0132-pijama-wolf.png"
+  },
+  {
+    "folder": "0131-the-egg",
+    "slug": "0131-the-egg",
+    "designCode": "MiM_0131",
+    "name": "The Egg",
+    "coverFile": "0131-the-egg.png"
+  },
+  {
+    "folder": "0130-sapo-biker",
+    "slug": "0130-sapo-biker",
+    "designCode": "MiM_0130",
+    "name": "Sapo Biker",
+    "coverFile": "0130-sapo-biker.png"
+  },
+  {
+    "folder": "0129-icream-kittens",
+    "slug": "0129-icream-kittens",
+    "designCode": "MiM_0129",
+    "name": "Icream Kittens",
+    "coverFile": "0129-icream-kittens.png"
+  },
+  {
+    "folder": "0128-espuma-estrelada",
+    "slug": "0128-espuma-estrelada",
+    "designCode": "MiM_0128",
+    "name": "Espuma Estrelada",
+    "coverFile": "0128-espuma-estrelada.png"
+  },
+  {
+    "folder": "0127-lobo-no-luar",
+    "slug": "0127-lobo-no-luar",
+    "designCode": "MiM_0127",
+    "name": "Lobo No Luar",
+    "coverFile": "0127-lobo-no-luar.jpg"
+  },
+  {
+    "folder": "0126-mecha-flower",
+    "slug": "0126-mecha-flower",
+    "designCode": "MiM_0126",
+    "name": "Mecha Flower",
+    "coverFile": "0126-mecha-flower.png"
+  },
+  {
+    "folder": "0121-catu-de-natal",
+    "slug": "0121-catu-de-natal",
+    "designCode": "MiM_0121",
+    "name": "Catu De Natal",
+    "coverFile": "0121-catu-de-natal.png"
+  },
+  {
+    "folder": "0120-SurfingKinght",
+    "slug": "0120-surfingkinght",
+    "designCode": "MiM_0120",
+    "name": "SurfingKinght",
+    "coverFile": "0120-surfingkinght.png"
+  },
+  {
+    "folder": "0119-Intemporalidade",
+    "slug": "0119-intemporalidade",
+    "designCode": "MiM_0119",
+    "name": "Intemporalidade",
+    "coverFile": "0119-intemporalidade.png"
+  },
+  {
+    "folder": "0114-i-am-fruit",
+    "slug": "0114-i-am-fruit",
+    "designCode": "MiM_0114",
+    "name": "I Am Fruit",
+    "coverFile": "0114-i-am-fruit.png"
+  },
+  {
+    "folder": "0110-bohemian-sunset",
+    "slug": "0110-bohemian-sunset",
+    "designCode": "MiM_0110",
+    "name": "Bohemian Sunset",
+    "coverFile": "0110-bohemian-sunset.png"
+  },
+  {
+    "folder": "0105-arco-club-da-maia",
+    "slug": "0105-arco-club-da-maia",
+    "designCode": "MiM_0105",
+    "name": "Arco Club Da Maia",
+    "coverFile": "0105-arco-club-da-maia.png"
+  },
+  {
+    "folder": "0104-olimpias",
+    "slug": "0104-olimpias",
+    "designCode": "MiM_0104",
+    "name": "Olimpias",
+    "coverFile": "0104-olimpias.png"
+  },
+  {
+    "folder": "0102-caocerto-madeinmaia",
+    "slug": "0102-caocerto-madeinmaia",
+    "designCode": "MiM_0102",
+    "name": "Caocerto Madeinmaia",
+    "coverFile": "0102-caocerto-madeinmaia.png"
+  },
+  {
+    "folder": "0096-Um-Pug-Gargola ",
+    "slug": "0096-um-pug-gargola",
+    "designCode": "MiM_0096",
+    "name": "Um Pug Gargola",
+    "coverFile": "0096-um-pug-gargola.png"
+  },
+  {
+    "folder": "0095-K9-Submarino",
+    "slug": "0095-k9-submarino",
+    "designCode": "MiM_0095",
+    "name": "K9 Submarino",
+    "coverFile": "0095-k9-submarino.png"
+  },
+  {
+    "folder": "0092-caonishi-vs-gatoshi",
+    "slug": "0092-caonishi-vs-gatoshi",
+    "designCode": "MiM_0092",
+    "name": "Caonishi Vs Gatoshi",
+    "coverFile": "0092-caonishi-vs-gatoshi.png"
+  },
+  {
+    "folder": "0089-o-meu-qr-code",
+    "slug": "0089-o-meu-qr-code",
+    "designCode": "MiM_0089",
+    "name": "O Meu Qr Code",
+    "coverFile": null
+  },
+  {
+    "folder": "0086-Barry",
+    "slug": "0086-barry",
+    "designCode": "MiM_0086",
+    "name": "Barry",
+    "coverFile": "0086-barry.png"
+  },
+  {
+    "folder": "0083-Maiato-no-Espaco",
+    "slug": "0083-maiato-no-espaco",
+    "designCode": "MiM_0083",
+    "name": "Maiato No Espaco",
+    "coverFile": "0083-maiato-no-espaco.png"
+  },
+  {
+    "folder": "0078-arvore-do-conhecimento",
+    "slug": "0078-arvore-do-conhecimento",
+    "designCode": "MiM_0078",
+    "name": "Arvore Do Conhecimento",
+    "coverFile": "0078-arvore-do-conhecimento.png"
+  },
+  {
+    "folder": "0074-jarro-de-herois",
+    "slug": "0074-jarro-de-herois",
+    "designCode": "MiM_0074",
+    "name": "Jarro De Herois",
+    "coverFile": "0074-jarro-de-herois.png"
+  },
+  {
+    "folder": "0073-quino-no-jarro",
+    "slug": "0073-quino-no-jarro",
+    "designCode": "MiM_0073",
+    "name": "Quino No Jarro",
+    "coverFile": "0073-quino-no-jarro.png"
+  },
+  {
+    "folder": "0072-mais-barbies",
+    "slug": "0072-mais-barbies",
+    "designCode": "MiM_0072",
+    "name": "Mais Barbies",
+    "coverFile": "0072-mais-barbies.png"
+  },
+  {
+    "folder": "0071-jarro-com-lego-indiana-jones",
+    "slug": "0071-jarro-com-lego-indiana-jones",
+    "designCode": "MiM_0071",
+    "name": "Jarro Com Lego Indiana Jones",
+    "coverFile": "0071-jarro-com-lego-indiana-jones.png"
+  },
+  {
+    "folder": "0070-jarro-com-robots",
+    "slug": "0070-jarro-com-robots",
+    "designCode": "MiM_0070",
+    "name": "Jarro Com Robots",
+    "coverFile": "0070-jarro-com-robots.png"
+  },
+  {
+    "folder": "0067-alien-in-a-jar",
+    "slug": "0067-alien-in-a-jar",
+    "designCode": "MiM_0067",
+    "name": "Alien In A Jar",
+    "coverFile": "0067-alien-in-a-jar.png"
+  },
+  {
+    "folder": "0062-gatos-das-bolas",
+    "slug": "0062-gatos-das-bolas",
+    "designCode": "MiM_0062",
+    "name": "Gatos Das Bolas",
+    "coverFile": "0062-gatos-das-bolas.png"
+  },
+  {
+    "folder": "0061-poker-alho",
+    "slug": "0061-poker-alho",
+    "designCode": "MiM_0061",
+    "name": "Poker Alho",
+    "coverFile": "0061-poker-alho.png"
+  },
+  {
+    "folder": "0060-Dave-Apenborough",
+    "slug": "0060-dave-apenborough",
+    "designCode": "MiM_0060",
+    "name": "Dave Apenborough",
+    "coverFile": "0060-dave-apenborough.png"
+  },
+  {
+    "folder": "0059-Jarhead",
+    "slug": "0059-jarhead",
+    "designCode": "MiM_0059",
+    "name": "Jarhead",
+    "coverFile": "0059-jarhead.png"
+  },
+  {
+    "folder": "0054-zombie-freddy",
+    "slug": "0054-zombie-freddy",
+    "designCode": "MiM_0054",
+    "name": "Zombie Freddy",
+    "coverFile": "0054-zombie-freddy.png"
+  },
+  {
+    "folder": "0052-pinpup-summer",
+    "slug": "0052-pinpup-summer",
+    "designCode": "MiM_0052",
+    "name": "Pinpup Summer",
+    "coverFile": "0052-pinpup-summer.png"
+  },
+  {
+    "folder": "0051-jarro-de-super-homens",
+    "slug": "0051-jarro-de-super-homens",
+    "designCode": "MiM_0051",
+    "name": "Jarro De Super Homens",
+    "coverFile": "0051-jarro-de-super-homens.png"
+  },
+  {
+    "folder": "0050-jarro-de-magia",
+    "slug": "0050-jarro-de-magia",
+    "designCode": "MiM_0050",
+    "name": "Jarro De Magia",
+    "coverFile": "0050-jarro-de-magia.png"
+  },
+  {
+    "folder": "0049-jarro-simio",
+    "slug": "0049-jarro-simio",
+    "designCode": "MiM_0049",
+    "name": "Jarro Simio",
+    "coverFile": "0049-jarro-simio.png"
+  },
+  {
+    "folder": "0045-gorila-no-jarro",
+    "slug": "0045-gorila-no-jarro",
+    "designCode": "MiM_0045",
+    "name": "Gorila No Jarro",
+    "coverFile": "0045-gorila-no-jarro.png"
+  },
+  {
+    "folder": "0043-Jarro-Hamburger",
+    "slug": "0043-jarro-hamburger",
+    "designCode": "MiM_0043",
+    "name": "Jarro Hamburger",
+    "coverFile": "0043-jarro-hamburger.png"
+  },
+  {
+    "folder": "0039-guardia-do-vinho",
+    "slug": "0039-guardia-do-vinho",
+    "designCode": "MiM_0039",
+    "name": "Guardia Do Vinho",
+    "coverFile": "0039-guardia-do-vinho.png"
+  },
+  {
+    "folder": "0037-Coelho-a-caçador",
+    "slug": "0037-coelho-a-cacador",
+    "designCode": "MiM_0037",
+    "name": "Coelho A CaçAdor",
+    "coverFile": "0037-coelho-a-cacador.png"
+  },
+  {
+    "folder": "0036-Descobrimentos-2000",
+    "slug": "0036-descobrimentos-2000",
+    "designCode": "MiM_0036",
+    "name": "Descobrimentos 2000",
+    "coverFile": "0036-descobrimentos-2000.png"
+  },
+  {
+    "folder": "0034-quinta-da-gruta",
+    "slug": "0034-quinta-da-gruta",
+    "designCode": "MiM_0034",
+    "name": "Quinta Da Gruta",
+    "coverFile": "0034-quinta-da-gruta.png"
+  },
+  {
+    "folder": "0032-rabo-de-peixe",
+    "slug": "0032-rabo-de-peixe",
+    "designCode": "MiM_0032",
+    "name": "Rabo De Peixe",
+    "coverFile": "0032-rabo-de-peixe.png"
+  },
+  {
+    "folder": "0030-PINUP-VAMP",
+    "slug": "0030-pinup-vamp",
+    "designCode": "MiM_0030",
+    "name": "PINUP VAMP",
+    "coverFile": "0030-pinup-vamp.png"
+  },
+  {
+    "folder": "0029-gato-cocktail",
+    "slug": "0029-gato-cocktail",
+    "designCode": "MiM_0029",
+    "name": "Gato Cocktail",
+    "coverFile": "0029-gato-cocktail.png"
+  },
+  {
+    "folder": "0027-obsessão-engarrafada",
+    "slug": "0027-obsessao-engarrafada",
+    "designCode": "MiM_0027",
+    "name": "ObsessãO Engarrafada",
+    "coverFile": "0027-obsessao-engarrafada.png"
+  },
+  {
+    "folder": "0026-2-cavalos",
+    "slug": "0026-2-cavalos",
+    "designCode": "MiM_0026",
+    "name": "2 Cavalos",
+    "coverFile": "0026-2-cavalos.png"
+  },
+  {
+    "folder": "0025-where-is-my-face",
+    "slug": "0025-where-is-my-face",
+    "designCode": "MiM_0025",
+    "name": "Where Is My Face",
+    "coverFile": "0025-where-is-my-face.png"
+  },
+  {
+    "folder": "0020-2-camelos",
+    "slug": "0020-2-camelos",
+    "designCode": "MiM_0020",
+    "name": "2 Camelos",
+    "coverFile": "0020-2-camelos.png"
+  },
+  {
+    "folder": "0019-kiko-darko",
+    "slug": "0019-kiko-darko",
+    "designCode": "MiM_0019",
+    "name": "Kiko Darko",
+    "coverFile": "0019-kiko-darko.png"
+  },
+  {
+    "folder": "0018-alma-engarrafada",
+    "slug": "0018-alma-engarrafada",
+    "designCode": "MiM_0018",
+    "name": "Alma Engarrafada",
+    "coverFile": "0018-alma-engarrafada.png"
+  },
+  {
+    "folder": "0016-Chaladão",
+    "slug": "0016-chaladao",
+    "designCode": "MiM_0016",
+    "name": "ChaladãO",
+    "coverFile": "0016-chaladao.png"
+  },
+  {
+    "folder": "0015-submarino-amarelo",
+    "slug": "0015-submarino-amarelo",
+    "designCode": "MiM_0015",
+    "name": "Submarino Amarelo",
+    "coverFile": "0015-submarino-amarelo.png"
+  },
+  {
+    "folder": "0014-Citroen-Lama",
+    "slug": "0014-citroen-lama",
+    "designCode": "MiM_0014",
+    "name": "Citroen Lama",
+    "coverFile": "0014-citroen-lama.png"
+  },
+  {
+    "folder": "0013-Zombie-de-praia",
+    "slug": "0013-zombie-de-praia",
+    "designCode": "MiM_0013",
+    "name": "Zombie De Praia",
+    "coverFile": "0013-zombie-de-praia.png"
+  },
+  {
+    "folder": "0012-Jay Leno",
+    "slug": "0012-jay-leno",
+    "designCode": "MiM_0012",
+    "name": "Jay Leno",
+    "coverFile": "0012-jay-leno.png"
+  },
+  {
+    "folder": "0009-patito no copo",
+    "slug": "0009-patito-no-copo",
+    "designCode": "MiM_0009",
+    "name": "Patito No Copo",
+    "coverFile": "0009-patito-no-copo.png"
+  },
+  {
+    "folder": "0008-Kiko-Darko-2",
+    "slug": "0008-kiko-darko-2",
+    "designCode": "MiM_0008",
+    "name": "Kiko Darko 2",
+    "coverFile": "0008-kiko-darko-2.png"
+  },
+  {
+    "folder": "0007-nicola-tesla",
+    "slug": "0007-nicola-tesla",
+    "designCode": "MiM_0007",
+    "name": "Nicola Tesla",
+    "coverFile": "0007-nicola-tesla.png"
+  },
+  {
+    "folder": "0005-Lara-croft",
+    "slug": "0005-lara-croft",
+    "designCode": "MiM_0005",
+    "name": "Lara Croft",
+    "coverFile": "0005-lara-croft.png"
+  },
+  {
+    "folder": "0004-guardiao-zen",
+    "slug": "0004-guardiao-zen",
+    "designCode": "MiM_0004",
+    "name": "Guardiao Zen",
+    "coverFile": "0004-guardiao-zen.png"
+  },
+  {
+    "folder": "0002-piramide-digital",
+    "slug": "0002-piramide-digital",
+    "designCode": "MiM_0002",
+    "name": "Piramide Digital",
+    "coverFile": "0002-piramide-digital.png"
+  }
+]
