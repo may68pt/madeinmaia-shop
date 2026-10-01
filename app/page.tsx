@@ -60,7 +60,6 @@ export default async function ComingSoonPage() {
           <div className="flex flex-wrap gap-5 text-xs font-bold uppercase tracking-[.16em] text-white/55">
             <Link href="/shouldertag">Random content</Link>
             <Link href="/marca">About the brand</Link>
-            <Link href="/loja">Preview the shop</Link>
           </div>
         </footer>
       </div>
