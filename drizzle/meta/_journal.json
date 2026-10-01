@@ -50,6 +50,13 @@
       "when": 1790845200000,
       "tag": "0006_product_localization_tags",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790861422467,
+      "tag": "0007_lumpy_pandemic",
+      "breakpoints": true
     }
   ]
 }

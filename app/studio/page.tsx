@@ -53,6 +53,7 @@ type Discovery = {
 type Product = {
   id: number;
   slug: string;
+  designCode: string;
   name: string;
   nameTranslations: Record<string, string>;
   description: string;
@@ -138,6 +139,7 @@ const initialProducts: Product[] = [
   {
     id: 1,
     slug: "guardiao-zen",
+    designCode: "MiM_0001",
     name: "Guardião Zen",
     nameTranslations: {},
     description: "",
@@ -155,6 +157,7 @@ const initialProducts: Product[] = [
   {
     id: 2,
     slug: "piramide-digital",
+    designCode: "MiM_0002",
     name: "Pirâmide Digital",
     nameTranslations: {},
     description: "",
@@ -172,6 +175,7 @@ const initialProducts: Product[] = [
   {
     id: 3,
     slug: "los-robots",
+    designCode: "MiM_0003",
     name: "Los Robots",
     nameTranslations: {},
     description: "",
@@ -225,6 +229,8 @@ export default function Studio() {
   const [paymentConfigured, setPaymentConfigured] = useState(false);
   const [settings, setSettings] = useState(initialSettings);
   const [uploading, setUploading] = useState(false);
+  const [expandedProductId, setExpandedProductId] = useState<number | null>(null);
+  const [galleryUrlDrafts, setGalleryUrlDrafts] = useState<Record<number, string>>({});
   const [mediaQuery, setMediaQuery] = useState("");
   const [mediaFilter, setMediaFilter] = useState<"all" | "artwork" | "lifestyle" | "base">("all");
   const [draggedColorId, setDraggedColorId] = useState<string | null>(null);
@@ -387,6 +393,7 @@ export default function Studio() {
         data.products.map((entry) => ({
           id: entry.id,
           slug: entry.slug ?? "",
+          designCode: entry.designCode ?? "",
           name: entry.name ?? "",
           nameTranslations: entry.nameTranslations ?? {},
           description: entry.description ?? "",
@@ -1307,12 +1314,13 @@ export default function Studio() {
                   </p>
                 </div>
                 <Button
-                  onClick={() =>
+                  onClick={() => {
+                    const id = Date.now();
                     setCatalogue((items) => [
-                      ...items,
                       {
-                        id: Date.now(),
+                        id,
                         slug: "novo-produto",
+                        designCode: `MiM_${String(items.length + 1).padStart(4, "0")}`,
                         name: "Novo produto",
                         nameTranslations: {},
                         description: "",
@@ -1327,151 +1335,58 @@ export default function Studio() {
                         variants: [],
                         status: "draft",
                       },
-                    ])
-                  }
+                      ...items,
+                    ]);
+                    setExpandedProductId(id);
+                  }}
                   className="rounded-none bg-[var(--ink)] text-white"
                 >
                   <Plus />
                   Novo produto
                 </Button>
               </div>
-              <div className="space-y-4">
-                {catalogue.map((product) => (
-                  <article key={product.id} className="bg-white p-5 shadow-sm">
-                    <div className="grid gap-5 lg:grid-cols-[1fr_180px]">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div>
-                          <label className="mb-1 block text-xs font-bold uppercase">
-                            Nome
-                          </label>
-                          <Input
-                            value={product.name}
-                            onChange={(event) =>
-                              updateProduct(product.id, {
-                                name: event.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-xs font-bold uppercase">
-                            Slug
-                          </label>
-                          <Input
-                            value={product.slug}
-                            onChange={(event) =>
-                              updateProduct(product.id, {
-                                slug: event.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-xs font-bold uppercase">
-                            Coleção
-                          </label>
-                          <Input
-                            value={product.collection}
-                            onChange={(event) =>
-                              updateProduct(product.id, {
-                                collection: event.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-xs font-bold uppercase">Tags de pesquisa e coleção</label>
-                          <Input value={product.tags.join(", ")} onChange={(event) => updateProduct(product.id, { tags:event.target.value.split(",").map((value)=>value.trim()).filter(Boolean) })} placeholder="Cats, Quotes, Jars" />
-                        </div>
-                        <details className="md:col-span-2 rounded-2xl border border-black/10 p-4">
-                          <summary className="cursor-pointer text-xs font-black uppercase">Traduções do nome</summary>
-                          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{["pt","es","de","fr"].map((locale)=><label key={locale} className="grid gap-1 text-xs font-bold uppercase"><span>{locale}</span><Input value={product.nameTranslations[locale]??""} onChange={(event)=>updateProduct(product.id,{nameTranslations:{...product.nameTranslations,[locale]:event.target.value}})} placeholder={product.name}/></label>)}</div>
-                        </details>
-                        <div>
-                          <label className="mb-1 block text-xs font-bold uppercase">
-                            Preço (€)
-                          </label>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={(product.priceCents / 100).toFixed(2)}
-                            onChange={(event) =>
-                              updateProduct(product.id, {
-                                priceCents: Math.round(
-                                  Number(event.target.value) * 100,
-                                ),
-                              })
-                            }
-                          />
-                        </div>
-                        <div className="md:col-span-2">
-                          <label className="mb-1 block text-xs font-bold uppercase">
-                            Imagem
-                          </label>
-                          <Input
-                            value={product.imageKey}
-                            onChange={(event) =>
-                              updateProduct(product.id, {
-                                imageKey: event.target.value,
-                              })
-                            }
-                            placeholder="PNG transparente da biblioteca"
-                          />
-                          {settings.media.some((item) => item.url && item.kind !== "lifestyle") && (
-                            <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
-                              {settings.media.filter((item) => item.url && item.kind !== "lifestyle").map((item, mediaIndex) => (
-                                <button
-                                  key={`${item.url}-${mediaIndex}`}
-                                  type="button"
-                                  onClick={() => updateProduct(product.id, { imageKey: item.url })}
-                                  title={item.alt || "Usar imagem"}
-                                  className={`relative size-20 shrink-0 overflow-hidden border-2 bg-white ${product.imageKey === item.url ? "border-[var(--brand)]" : "border-black/10"}`}
-                                >
-                                  <Image src={item.url} alt={item.alt || "Design"} fill sizes="80px" unoptimized className="object-contain p-2" />
-                                </button>
-                              ))}
-                            </div>
-                          )}
+              <div className="space-y-3">
+                {catalogue.map((product) => {
+                  const isOpen = expandedProductId === product.id;
+                  return (
+                    <article key={product.id} className="overflow-hidden border border-black/10 bg-white shadow-sm">
+                      <div className="grid grid-cols-[72px_1fr_auto] items-center gap-4 p-3 sm:grid-cols-[72px_130px_1fr_auto]">
+                        <button type="button" onClick={() => setExpandedProductId(isOpen ? null : product.id)} className="relative size-16 overflow-hidden border border-black/10 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:16px_16px]">
+                          {product.imageKey ? <Image src={product.imageKey} alt="" fill sizes="64px" unoptimized className="object-contain p-1" /> : <Images className="absolute inset-0 m-auto size-5 text-black/25" />}
+                        </button>
+                        <span className="hidden font-mono text-sm font-black sm:block">{product.designCode || "MiM_0000"}</span>
+                        <button type="button" onClick={() => setExpandedProductId(isOpen ? null : product.id)} className="min-w-0 text-left">
+                          <strong className="block truncate text-lg">{product.name}</strong>
+                          <span className="text-xs text-black/45 sm:hidden">{product.designCode || "MiM_0000"}</span>
+                        </button>
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.status === "published"} onCheckedChange={(checked) => updateProduct(product.id, { status: checked ? "published" : "draft" })} /><span className="hidden sm:inline">{product.status === "published" ? "Ativo" : "Inativo"}</span></label>
+                          <Button type="button" variant="ghost" size="icon" onClick={() => setExpandedProductId(isOpen ? null : product.id)} aria-label={isOpen ? "Fechar produto" : "Abrir produto"}><span className={`text-xl transition-transform ${isOpen ? "rotate-180" : ""}`}>⌄</span></Button>
                         </div>
                       </div>
-                      <div className="flex flex-col justify-between gap-4 border-l border-black/10 pl-5">
-                        <div>
-                          <p className="text-xs font-bold uppercase">Estado</p>
-                          <div className="mt-3 flex items-center gap-2">
-                            <Switch
-                              checked={product.status === "published"}
-                              onCheckedChange={(checked) =>
-                                updateProduct(product.id, {
-                                  status: checked ? "published" : "draft",
-                                })
-                              }
-                            />
-                            <span className="text-sm">
-                              {product.status === "published"
-                                ? "Publicado"
-                                : "Rascunho"}
-                            </span>
+                      {isOpen && (
+                        <div className="border-t border-black/10 p-5">
+                          <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
+                            <div className="grid content-start gap-4 md:grid-cols-2">
+                              <label className="grid gap-1 text-xs font-bold uppercase"><span>Número do design</span><Input value={product.designCode} onChange={(event) => updateProduct(product.id, { designCode: event.target.value })} onBlur={(event) => { const digits = event.target.value.replace(/\D/g, "").slice(-4); updateProduct(product.id, { designCode: `MiM_${digits.padStart(4, "0")}` }); }} placeholder="MiM_0000" /></label>
+                              <label className="grid gap-1 text-xs font-bold uppercase"><span>Nome</span><Input value={product.name} onChange={(event) => updateProduct(product.id, { name: event.target.value })} /></label>
+                              <label className="grid gap-1 text-xs font-bold uppercase"><span>Slug</span><Input value={product.slug} onChange={(event) => updateProduct(product.id, { slug: event.target.value })} /></label>
+                              <label className="grid gap-1 text-xs font-bold uppercase"><span>Preço (€)</span><Input type="number" min="0" step="0.01" value={(product.priceCents / 100).toFixed(2)} onChange={(event) => updateProduct(product.id, { priceCents: Math.round(Number(event.target.value) * 100) })} /></label>
+                              <label className="grid gap-1 text-xs font-bold uppercase md:col-span-2"><span>Tags de pesquisa</span><Input value={product.tags.join(", ")} onChange={(event) => updateProduct(product.id, { tags: event.target.value.split(",").map((value) => value.trim()).filter(Boolean) })} placeholder="Cats, Quotes, Jars" /></label>
+                              <details className="rounded-2xl border border-black/10 p-4 md:col-span-2"><summary className="cursor-pointer text-xs font-black uppercase">Traduções do nome</summary><div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{["pt", "es", "de", "fr"].map((locale) => <label key={locale} className="grid gap-1 text-xs font-bold uppercase"><span>{locale}</span><Input value={product.nameTranslations[locale] ?? ""} onChange={(event) => updateProduct(product.id, { nameTranslations: { ...product.nameTranslations, [locale]: event.target.value } })} placeholder={product.name} /></label>)}</div></details>
+                              <div className="md:col-span-2"><p className="text-xs font-bold uppercase">Suportes disponíveis</p><p className="mt-1 text-sm text-black/50">Todos ficam ativos por defeito; desativa apenas as exceções.</p><div className="mt-3 grid gap-2 sm:grid-cols-2">{settings.productCatalog.supports.filter((support) => support.active).map((support) => { const enabled = !product.disabledSupports.includes(support.id); return <label key={support.id} className="flex items-center justify-between border border-black/10 p-3 text-sm font-bold"><span>{support.name}</span><Switch checked={enabled} onCheckedChange={(checked) => updateProduct(product.id, { disabledSupports: checked ? product.disabledSupports.filter((id) => id !== support.id) : [...product.disabledSupports, support.id] })} /></label>; })}</div></div>
+                            </div>
+                            <div className="space-y-6">
+                              <section><div className="mb-2 flex items-center justify-between"><div><p className="text-xs font-bold uppercase">Imagem de capa</p><p className="text-xs text-black/45">PNG com fundo transparente</p></div>{product.imageKey && <Button type="button" size="sm" variant="ghost" className="text-red-600" onClick={() => updateProduct(product.id, { imageKey: "" })}><Trash2 />Remover</Button>}</div><div className="relative aspect-square overflow-hidden border-2 border-dashed border-black/15 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:24px_24px]">{product.imageKey ? <Image src={product.imageKey} alt={product.name} fill sizes="360px" unoptimized className="object-contain p-5" /> : <span className="grid h-full place-items-center text-sm font-bold text-black/35">Seleciona um design</span>}</div><Input className="mt-2" value={product.imageKey} onChange={(event) => updateProduct(product.id, { imageKey: event.target.value })} placeholder="URL do PNG" />{settings.media.some((item) => item.url && item.kind === "artwork") && <div className="mt-2 flex gap-2 overflow-x-auto pb-2">{settings.media.filter((item) => item.url && item.kind === "artwork").map((item) => <button key={item.url} type="button" title={item.alt} onClick={() => updateProduct(product.id, { imageKey: item.url })} className={`relative size-16 shrink-0 overflow-hidden border-2 bg-white ${product.imageKey === item.url ? "border-[var(--brand)]" : "border-black/10"}`}><Image src={item.url} alt={item.alt || "Design"} fill sizes="64px" unoptimized className="object-contain p-1" /></button>)}</div>}</section>
+                              <section><p className="text-xs font-bold uppercase">Outras fotografias</p><p className="mt-1 text-xs text-black/45">Moda, detalhes e contexto.</p>{product.gallery.length > 0 && <div className="mt-3 grid grid-cols-2 gap-2">{product.gallery.map((photo, index) => <div key={`${photo}-${index}`} className="group relative aspect-[4/3] overflow-hidden bg-[#eee]"><Image src={photo} alt="" fill sizes="180px" unoptimized className="object-cover" /><Button type="button" size="icon" variant="destructive" className="absolute right-2 top-2 size-8 opacity-90" onClick={() => updateProduct(product.id, { gallery: product.gallery.filter((_, itemIndex) => itemIndex !== index) })}><Trash2 className="size-4" /></Button></div>)}</div>}<div className="mt-3 flex gap-2"><Input value={galleryUrlDrafts[product.id] ?? ""} onChange={(event) => setGalleryUrlDrafts((drafts) => ({ ...drafts, [product.id]: event.target.value }))} placeholder="URL de outra fotografia" /><Button type="button" variant="outline" onClick={() => { const url = (galleryUrlDrafts[product.id] ?? "").trim(); if (!url) return; updateProduct(product.id, { gallery: [...product.gallery, url] }); setGalleryUrlDrafts((drafts) => ({ ...drafts, [product.id]: "" })); }}><Plus /></Button></div>{settings.media.some((item) => item.kind === "lifestyle" && item.url) && <div className="mt-2 flex gap-2 overflow-x-auto">{settings.media.filter((item) => item.kind === "lifestyle" && item.url).map((item) => <button key={item.url} type="button" title={item.alt} onClick={() => !product.gallery.includes(item.url) && updateProduct(product.id, { gallery: [...product.gallery, item.url] })} className="relative size-16 shrink-0 overflow-hidden border border-black/10 bg-white"><Image src={item.url} alt={item.alt || "Fotografia"} fill sizes="64px" unoptimized className="object-cover" /></button>)}</div>}</section>
+                              <Button variant="outline" className="w-full rounded-none" asChild><Link href={`/produto/${product.slug}`} target="_blank"><Eye />Ver produto</Link></Button>
+                            </div>
                           </div>
                         </div>
-                        <Button
-                          variant="outline"
-                          className="rounded-none"
-                          asChild
-                        >
-                          <Link href="/" target="_blank">
-                            <Eye />
-                            Ver loja
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="mt-5 grid gap-5 border-t border-black/10 pt-5 lg:grid-cols-2">
-                      <div><p className="text-xs font-bold uppercase">Suportes disponíveis</p><p className="mt-1 text-sm text-black/50">Todos estão ativos por defeito. Desativa apenas as exceções deste design.</p><div className="mt-3 grid gap-2">{settings.productCatalog.supports.filter((support) => support.active).map((support) => { const enabled = !product.disabledSupports.includes(support.id); return <label key={support.id} className="flex items-center justify-between border border-black/10 p-3 text-sm font-bold"><span>{support.name}</span><Switch checked={enabled} onCheckedChange={(checked) => updateProduct(product.id, { disabledSupports: checked ? product.disabledSupports.filter((id) => id !== support.id) : [...product.disabledSupports, support.id] })} /></label>; })}</div></div>
-                      <div><p className="text-xs font-bold uppercase">Fotografias de moda</p><p className="mt-1 text-sm text-black/50">Seleciona imagens da biblioteca ou introduz um URL.</p><div className="mt-3 grid gap-2">{[0, 1, 2, 3].map((index) => <div key={index}><Input value={product.gallery[index] ?? ""} onChange={(event) => { const gallery = [...product.gallery]; gallery[index] = event.target.value; updateProduct(product.id, { gallery: gallery.filter(Boolean) }); }} placeholder={`Foto ${index + 1} · URL`} />{settings.media.some((item) => item.kind === "lifestyle" && item.url) && <div className="mt-2 flex gap-2 overflow-x-auto">{settings.media.filter((item) => item.kind === "lifestyle" && item.url).map((item) => <button key={`${index}-${item.url}`} type="button" title={item.alt} onClick={() => { const gallery = [...product.gallery]; gallery[index] = item.url; updateProduct(product.id, { gallery: gallery.filter(Boolean) }); }} className="relative size-14 shrink-0 overflow-hidden border border-black/10 bg-white"><Image src={item.url} alt={item.alt || "Moda"} fill sizes="56px" unoptimized className="object-cover" /></button>)}</div>}</div>)}</div></div>
-                    </div>
-                  </article>
-                ))}
+                      )}
+                    </article>
+                  );
+                })}
               </div>
             </div>
           )}

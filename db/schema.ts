@@ -13,6 +13,7 @@ import type { CatalogColor, ProductSupport } from "@/lib/product-catalog";
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
+  designCode: text("design_code").notNull().default(""),
   name: text("name").notNull(),
   nameTranslations: jsonb("name_translations").$type<Record<string, string>>().notNull().default({}),
   description: text("description").notNull().default(""),

@@ -199,6 +199,9 @@ export async function POST(request: Request) {
       return [
         {
           slug,
+          designCode: String(value.designCode ?? "")
+            .trim()
+            .toUpperCase(),
           name,
           nameTranslations: value.nameTranslations && typeof value.nameTranslations === "object" ? Object.fromEntries(Object.entries(value.nameTranslations as Record<string, unknown>).map(([locale, translatedName]) => [locale, String(translatedName)])) : {},
           description: String(value.description ?? ""),
