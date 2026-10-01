@@ -8,6 +8,7 @@ export type ProductSupport = {
   colorIds: string[];
   availability: Record<string, string[]>;
   active: boolean;
+  templateImage: string;
   mockups: Record<string, string>;
 };
 
@@ -39,11 +40,11 @@ const tshirtMockups = Object.fromEntries([
   "white", "black", "grey", "dark-grey", "pastel-yellow", "sand", "orange", "red", "peach", "pink", "purple", "navy-blue", "royal-blue", "aqua-blue", "atol-blue", "pastel-blue", "pastel-green", "kelly-green", "forest-green", "chocolate-brown", "mustard-yellow",
 ].map((id) => [id, `/plain-tshirts/${id}.jpg`]));
 export const DEFAULT_SUPPORTS: ProductSupport[] = [
-  { id:"tshirt-150", categoryId:"apparel", name:"T-shirt 150g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, mockups:tshirtMockups },
-  { id:"tshirt-190", categoryId:"apparel", name:"T-shirt 190g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, mockups:tshirtMockups },
-  { id:"hoodie", categoryId:"apparel", name:"Hoodie", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, mockups:{} },
-  { id:"long-sleeve", categoryId:"apparel", name:"Long Sleeve T-shirt", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, mockups:{} },
-  { id:"tote-bag", categoryId:"bags", name:"Tote Bag", variantMode:"none", sizes:[], colorIds:["grey","white"], availability:available(["grey","white"],[]), active:true, mockups:{} },
+  { id:"tshirt-150", categoryId:"apparel", name:"T-shirt 150g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/tshirt-neutral-v1.png", mockups:tshirtMockups },
+  { id:"tshirt-190", categoryId:"apparel", name:"T-shirt 190g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/tshirt-neutral-v1.png", mockups:tshirtMockups },
+  { id:"hoodie", categoryId:"apparel", name:"Hoodie", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"", mockups:{} },
+  { id:"long-sleeve", categoryId:"apparel", name:"Long Sleeve T-shirt", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"", mockups:{} },
+  { id:"tote-bag", categoryId:"bags", name:"Tote Bag", variantMode:"none", sizes:[], colorIds:["grey","white"], availability:available(["grey","white"],[]), active:true, templateImage:"", mockups:{} },
 ];
 
 export function normalizeSupport(value: Partial<ProductSupport>): ProductSupport {
@@ -63,6 +64,7 @@ export function normalizeSupport(value: Partial<ProductSupport>): ProductSupport
     colorIds,
     availability,
     active: value.active !== false,
+    templateImage: value.templateImage ?? fallback?.templateImage ?? "",
     mockups: { ...(fallback?.mockups ?? {}), ...Object.fromEntries(Object.entries(value.mockups ?? {}).filter(([,url])=>Boolean(url))) },
   };
 }
