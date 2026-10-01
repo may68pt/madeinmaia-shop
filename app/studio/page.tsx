@@ -34,7 +34,6 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast, Toaster } from "sonner";
-import { PRODUCT_COLORS } from "@/lib/product-colors";
 import type { ProductVariant } from "@/lib/product-variants";
 import { ADULT_SIZES, CATALOG_CATEGORIES, CATALOG_SIZES, DEFAULT_COLORS, DEFAULT_SUPPORTS, KIDS_SIZES, normalizeSupport, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
 import { DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as Block, type PageBlockType } from "@/lib/page-blocks";
@@ -105,7 +104,11 @@ type SiteSettings = {
   terms: string;
   privacy: string;
   returns: string;
-  media: Array<{ url: string; alt: string }>;
+  media: Array<{
+    url: string;
+    alt: string;
+    kind: "artwork" | "lifestyle" | "base";
+  }>;
   theme: {
     brandColor: string;
     accentColor: string;
@@ -222,6 +225,8 @@ export default function Studio() {
   const [paymentConfigured, setPaymentConfigured] = useState(false);
   const [settings, setSettings] = useState(initialSettings);
   const [uploading, setUploading] = useState(false);
+  const [mediaQuery, setMediaQuery] = useState("");
+  const [mediaFilter, setMediaFilter] = useState<"all" | "artwork" | "lifestyle" | "base">("all");
   const [draggedColorId, setDraggedColorId] = useState<string | null>(null);
   const [draggedBlockId, setDraggedBlockId] = useState<number | null>(null);
   const current = useMemo(
@@ -412,7 +417,10 @@ export default function Studio() {
           colors: data.settings.productCatalog?.colors ?? DEFAULT_COLORS,
           supports: (data.settings.productCatalog?.supports ?? DEFAULT_SUPPORTS).filter((support) => support.id !== "sunglasses").map(normalizeSupport),
         },
-        media: data.settings.media ?? [],
+        media: (data.settings.media ?? []).map((item) => ({
+          ...item,
+          kind: item.kind ?? "artwork",
+        })),
       });
     setStudioKey(password);
     setPassword("");
@@ -464,10 +472,14 @@ export default function Studio() {
         ...current,
         media: [
           ...current.media,
-          { url: data.url!, alt: file.name.replace(/\.[^.]+$/, "") },
+          {
+            url: data.url!,
+            alt: file.name.replace(/\.[^.]+$/, ""),
+            kind: file.type === "image/png" ? "artwork" : "lifestyle",
+          },
         ],
       }));
-      toast.success("Imagem carregada. Guarda as definições para a adicionar à biblioteca.");
+      toast.success("Imagem carregada. Guarda a biblioteca para confirmar.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erro no upload.");
     } finally {
@@ -957,14 +969,23 @@ export default function Studio() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <label className="inline-flex h-10 cursor-pointer items-center gap-2 bg-[var(--ink)] px-5 text-sm font-medium text-white">
-                    <input type="file" accept="image/png,image/webp,image/jpeg" className="sr-only" disabled={uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadMedia(file); event.target.value = ""; }} />
-                    {uploading ? "A carregar…" : "Carregar imagem"}
+                    <input type="file" multiple accept="image/png,image/webp,image/jpeg" className="sr-only" disabled={uploading} onChange={(event) => { const files = Array.from(event.target.files ?? []); if (files.length) void Promise.all(files.map(uploadMedia)); event.target.value = ""; }} />
+                    {uploading ? "A carregar…" : "Carregar imagens"}
                   </label>
-                  <Button variant="outline" className="rounded-none" onClick={() => setSettings({ ...settings, media: [...settings.media, { url: "", alt: "" }] })}><Plus />Adicionar URL</Button>
+                  <Button variant="outline" className="rounded-none" onClick={() => setSettings({ ...settings, media: [...settings.media, { url: "", alt: "", kind: "artwork" }] })}><Plus />Adicionar URL</Button>
+                </div>
+              </div>
+              <div className="mb-5 grid gap-3 bg-white p-4 md:grid-cols-[1fr_auto]">
+                <Input value={mediaQuery} onChange={(event) => setMediaQuery(event.target.value)} placeholder="Pesquisar por nome ou URL…" />
+                <div className="flex flex-wrap gap-2">
+                  {(["all", "artwork", "lifestyle", "base"] as const).map((filter) => <Button key={filter} type="button" size="sm" variant={mediaFilter === filter ? "default" : "outline"} onClick={() => setMediaFilter(filter)}>{filter === "all" ? "Tudo" : filter === "artwork" ? "Designs" : filter === "lifestyle" ? "Moda" : "Peças base"}</Button>)}
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {settings.media.map((item, index) => (
+                {settings.media.map((item, index) => ({ item, index })).filter(({ item }) => {
+                  const query = mediaQuery.trim().toLowerCase();
+                  return (mediaFilter === "all" || item.kind === mediaFilter) && (!query || `${item.alt} ${item.url}`.toLowerCase().includes(query));
+                }).map(({ item, index }) => (
                   <article key={`${item.url}-${index}`} className="bg-white p-4">
                     <div className="relative mb-4 aspect-square overflow-hidden bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0]">
                       {item.url ? <Image src={item.url} alt={item.alt || "Media"} fill sizes="(min-width: 1024px) 30vw, 50vw" unoptimized className="object-contain p-4" /> : <span className="grid h-full place-items-center text-sm text-black/40">Sem imagem</span>}
@@ -972,6 +993,7 @@ export default function Studio() {
                     <div className="grid gap-2">
                       <Input value={item.url} onChange={(event) => setSettings({ ...settings, media: settings.media.map((entry, i) => i === index ? { ...entry, url: event.target.value } : entry) })} placeholder="https://..." />
                       <Input value={item.alt} onChange={(event) => setSettings({ ...settings, media: settings.media.map((entry, i) => i === index ? { ...entry, alt: event.target.value } : entry) })} placeholder="Nome do design" />
+                      <Select value={item.kind ?? "artwork"} onValueChange={(kind) => setSettings({ ...settings, media: settings.media.map((entry, i) => i === index ? { ...entry, kind: kind as "artwork" | "lifestyle" | "base" } : entry) })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="artwork">Design transparente</SelectItem><SelectItem value="lifestyle">Fotografia de moda</SelectItem><SelectItem value="base">Peça sem design</SelectItem></SelectContent></Select>
                       <Button variant="ghost" className="justify-start rounded-none text-red-600" onClick={() => setSettings({ ...settings, media: settings.media.filter((_, i) => i !== index) })}><Trash2 />Remover da biblioteca</Button>
                     </div>
                   </article>
@@ -1207,7 +1229,10 @@ export default function Studio() {
                       onClick={() =>
                         setSettings({
                           ...settings,
-                          media: [...settings.media, { url: "", alt: "" }],
+                          media: [
+                            ...settings.media,
+                            { url: "", alt: "", kind: "artwork" },
+                          ],
                         })
                       }
                     >
@@ -1393,9 +1418,9 @@ export default function Studio() {
                             }
                             placeholder="PNG transparente da biblioteca"
                           />
-                          {settings.media.length > 0 && (
+                          {settings.media.some((item) => item.url && item.kind !== "lifestyle") && (
                             <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
-                              {settings.media.filter((item) => item.url).map((item, mediaIndex) => (
+                              {settings.media.filter((item) => item.url && item.kind !== "lifestyle").map((item, mediaIndex) => (
                                 <button
                                   key={`${item.url}-${mediaIndex}`}
                                   type="button"
@@ -1408,58 +1433,6 @@ export default function Studio() {
                               ))}
                             </div>
                           )}
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-xs font-bold uppercase">
-                            Cores, separadas por vírgula
-                          </label>
-                          <Input
-                            value={product.colors.join(", ")}
-                            onChange={(event) =>
-                              updateProduct(product.id, {
-                                colors: event.target.value
-                                  .split(",")
-                                  .map((v) => v.trim())
-                                  .filter(Boolean),
-                              })
-                            }
-                          />
-                          <div className="mt-3 flex max-h-44 flex-wrap gap-2 overflow-y-auto border border-black/10 p-3">
-                            {PRODUCT_COLORS.map((entry) => {
-                              const active = product.colors.includes(entry.name);
-                              return (
-                                <button
-                                  key={entry.name}
-                                  type="button"
-                                  onClick={() => updateProduct(product.id, {
-                                    colors: active
-                                      ? product.colors.filter((color) => color !== entry.name)
-                                      : [...product.colors, entry.name],
-                                  })}
-                                  className={`flex items-center gap-2 border px-2 py-1.5 text-xs font-bold ${active ? "border-[var(--ink)] bg-[var(--ink)] text-white" : "border-black/15 bg-white"}`}
-                                >
-                                  <span className="size-4 rounded-full border border-black/15" style={{ backgroundColor: entry.hex }} />
-                                  {entry.name}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-xs font-bold uppercase">
-                            Tamanhos, separados por vírgula
-                          </label>
-                          <Input
-                            value={product.sizes.join(", ")}
-                            onChange={(event) =>
-                              updateProduct(product.id, {
-                                sizes: event.target.value
-                                  .split(",")
-                                  .map((v) => v.trim())
-                                  .filter(Boolean),
-                              })
-                            }
-                          />
                         </div>
                       </div>
                       <div className="flex flex-col justify-between gap-4 border-l border-black/10 pl-5">
@@ -1495,7 +1468,7 @@ export default function Studio() {
                     </div>
                     <div className="mt-5 grid gap-5 border-t border-black/10 pt-5 lg:grid-cols-2">
                       <div><p className="text-xs font-bold uppercase">Suportes disponíveis</p><p className="mt-1 text-sm text-black/50">Todos estão ativos por defeito. Desativa apenas as exceções deste design.</p><div className="mt-3 grid gap-2">{settings.productCatalog.supports.filter((support) => support.active).map((support) => { const enabled = !product.disabledSupports.includes(support.id); return <label key={support.id} className="flex items-center justify-between border border-black/10 p-3 text-sm font-bold"><span>{support.name}</span><Switch checked={enabled} onCheckedChange={(checked) => updateProduct(product.id, { disabledSupports: checked ? product.disabledSupports.filter((id) => id !== support.id) : [...product.disabledSupports, support.id] })} /></label>; })}</div></div>
-                      <div><p className="text-xs font-bold uppercase">Fotografias de moda</p><p className="mt-1 text-sm text-black/50">Imagens adicionais do design vestido ou em contexto.</p><div className="mt-3 grid gap-2">{[0, 1, 2, 3].map((index) => <Input key={index} value={product.gallery[index] ?? ""} onChange={(event) => { const gallery = [...product.gallery]; gallery[index] = event.target.value; updateProduct(product.id, { gallery: gallery.filter(Boolean) }); }} placeholder={`Foto ${index + 1} · URL`} />)}</div></div>
+                      <div><p className="text-xs font-bold uppercase">Fotografias de moda</p><p className="mt-1 text-sm text-black/50">Seleciona imagens da biblioteca ou introduz um URL.</p><div className="mt-3 grid gap-2">{[0, 1, 2, 3].map((index) => <div key={index}><Input value={product.gallery[index] ?? ""} onChange={(event) => { const gallery = [...product.gallery]; gallery[index] = event.target.value; updateProduct(product.id, { gallery: gallery.filter(Boolean) }); }} placeholder={`Foto ${index + 1} · URL`} />{settings.media.some((item) => item.kind === "lifestyle" && item.url) && <div className="mt-2 flex gap-2 overflow-x-auto">{settings.media.filter((item) => item.kind === "lifestyle" && item.url).map((item) => <button key={`${index}-${item.url}`} type="button" title={item.alt} onClick={() => { const gallery = [...product.gallery]; gallery[index] = item.url; updateProduct(product.id, { gallery: gallery.filter(Boolean) }); }} className="relative size-14 shrink-0 overflow-hidden border border-black/10 bg-white"><Image src={item.url} alt={item.alt || "Moda"} fill sizes="56px" unoptimized className="object-cover" /></button>)}</div>}</div>)}</div></div>
                     </div>
                   </article>
                 ))}

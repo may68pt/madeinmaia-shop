@@ -122,7 +122,11 @@ export type SiteSettings = {
   terms: string;
   privacy: string;
   returns: string;
-  media: Array<{ url: string; alt: string }>;
+  media: Array<{
+    url: string;
+    alt: string;
+    kind: "artwork" | "lifestyle" | "base";
+  }>;
   theme: {
     brandColor: string;
     accentColor: string;

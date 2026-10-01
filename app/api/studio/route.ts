@@ -132,6 +132,13 @@ export async function POST(request: Request) {
                   {
                     url: String((item as Record<string, unknown>).url ?? ""),
                     alt: String((item as Record<string, unknown>).alt ?? ""),
+                    kind: ["artwork", "lifestyle", "base"].includes(
+                      String((item as Record<string, unknown>).kind ?? ""),
+                    )
+                      ? (String(
+                          (item as Record<string, unknown>).kind,
+                        ) as "artwork" | "lifestyle" | "base")
+                      : "artwork",
                   },
                 ]
               : [],
