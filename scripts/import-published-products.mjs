@@ -10,6 +10,9 @@ if (!studioPassword) throw new Error("STUDIO_PASSWORD is required");
 const manifest = JSON.parse(
   await readFile(new URL("./published-products.json", import.meta.url), "utf8"),
 );
+const selectedManifest = process.env.IMPORT_ONLY_SLUG
+  ? manifest.filter((item) => item.slug === process.env.IMPORT_ONLY_SLUG)
+  : manifest;
 
 async function request(url, options, attempts = 3) {
   let lastError;
@@ -47,16 +50,15 @@ async function uploadCover(filename) {
   return (await response.json()).url;
 }
 
-const products = [];
 let uploaded = 0;
-for (const item of manifest) {
+async function buildProduct(item) {
   let imageKey = null;
   if (item.coverFile) {
     imageKey = await uploadCover(item.coverFile);
     uploaded += 1;
     if (uploaded % 20 === 0) console.log(`Uploaded ${uploaded} covers`);
   }
-  products.push({
+  return {
     slug: item.slug,
     designCode: item.designCode,
     name: item.name,
@@ -71,8 +73,14 @@ for (const item of manifest) {
     sizes: [],
     variants: [],
     status: "published",
-  });
+  };
 }
+
+const products = [];
+for (let index = 0; index < selectedManifest.length; index += 5)
+  products.push(
+    ...(await Promise.all(selectedManifest.slice(index, index + 5).map(buildProduct))),
+  );
 
 const response = await request(`${baseUrl}/api/studio`, {
   method: "POST",
@@ -83,7 +91,6 @@ const response = await request(`${baseUrl}/api/studio`, {
   body: JSON.stringify({
     resource: "products",
     entries: products,
-    replace: true,
   }),
 });
 const result = await response.json();
