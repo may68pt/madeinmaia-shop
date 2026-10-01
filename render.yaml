@@ -8,6 +8,8 @@ services:
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeployTrigger: commit
+    domains:
+      - madeinmaia.pt
     disk:
       name: madeinmaia-media
       mountPath: /var/data
