@@ -21,3 +21,12 @@ location /uploads/ {
 ```
 
 Back up `/var/lib/madeinmaia/uploads` together with PostgreSQL. Deployments should replace only the application directory and must never delete the persistent uploads directory.
+
+On Render, mount a persistent disk at `/var/data` and use:
+
+```env
+UPLOADS_DIR=/var/data/uploads
+UPLOADS_PUBLIC_URL=/uploads
+```
+
+The application serves `/uploads/<filename>` itself, so the persistent disk also works without Nginx.
