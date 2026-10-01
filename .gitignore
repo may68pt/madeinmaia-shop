@@ -46,6 +46,8 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+/public/uploads/*
+!/public/uploads/.gitkeep
 
 # generated deployment archives
 /*.tar.gz

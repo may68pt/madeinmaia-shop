@@ -976,7 +976,7 @@ export default function Studio() {
                     </div>
                   </article>
                 ))}
-                {!settings.media.length && <div className="col-span-full border-2 border-dashed border-black/15 bg-white/50 p-12 text-center"><Images className="mx-auto size-10 text-black/30" /><p className="mt-4 font-bold">Ainda não há imagens.</p><p className="mt-1 text-sm text-black/50">Configura o Cloudinary no Render e carrega o primeiro PNG.</p></div>}
+                {!settings.media.length && <div className="col-span-full border-2 border-dashed border-black/15 bg-white/50 p-12 text-center"><Images className="mx-auto size-10 text-black/30" /><p className="mt-4 font-bold">Ainda não há imagens.</p><p className="mt-1 text-sm text-black/50">Carrega o primeiro PNG, JPG ou WebP para a biblioteca local.</p></div>}
               </div>
             </div>
           ) : section === "settings" ? (
@@ -1183,7 +1183,7 @@ export default function Studio() {
                       Biblioteca de media
                     </h2>
                     <p className="mt-1 text-sm text-black/50">
-                      Faz upload para Cloudinary ou adiciona um URL externo.
+                      Carrega para o servidor ou adiciona um URL externo.
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
