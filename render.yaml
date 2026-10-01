@@ -2,11 +2,17 @@ services:
   - type: web
     name: madeinmaia-shop
     runtime: node
-    plan: free
+    plan: 0.5c-512mb
+    region: frankfurt
     buildCommand: npm ci && npm run build
-    startCommand: npm run db:migrate && npm start
+    preDeployCommand: npm run db:migrate
+    startCommand: npm start
     healthCheckPath: /api/health
     autoDeployTrigger: commit
+    disk:
+      name: madeinmaia-media
+      mountPath: /var/data
+      sizeGB: 5
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -14,7 +20,20 @@ services:
           property: connectionString
       - key: STUDIO_PASSWORD
         sync: false
+      - key: UPLOADS_DIR
+        value: /var/data/uploads
+      - key: UPLOADS_PUBLIC_URL
+        value: /uploads
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: ORDER_FROM_EMAIL
+        value: Made in Maia <loja@madeinmaia.pt>
 
 databases:
   - name: madeinmaia-shop-db
-    plan: free
+    plan: 0.1c-256mb
+    region: frankfurt
