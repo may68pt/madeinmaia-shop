@@ -2,12 +2,19 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { productColorHex } from "@/lib/product-colors";
 
-export function ProductMockup({ artwork, color, name, priority = false, baseImage, templateImage }: { artwork: string; color: string; name: string; priority?: boolean; baseImage?: string; templateImage?: string }) {
+export function ProductMockup({ artwork, color, name, priority = false, baseImage, templateImage, supportId = "tshirt-150" }: { artwork: string; color: string; name: string; priority?: boolean; baseImage?: string; templateImage?: string; supportId?: string }) {
   const colorHex = productColorHex(color);
   if (!/\.png(?:$|\?)/i.test(artwork))
     return <Image src={artwork} alt={`T-shirt ${name}`} fill sizes="(min-width: 1024px) 55vw, 100vw" unoptimized={artwork.startsWith("http")} className="object-cover" priority={priority} />;
 
   if (templateImage) {
+    const printArea = supportId === "tote-bag"
+      ? { top: "40%", left: "29%", width: "42%", height: "32%" }
+      : supportId === "hoodie"
+        ? { top: "27%", left: "34%", width: "32%", height: "27%" }
+        : supportId === "long-sleeve"
+          ? { top: "22%", left: "34%", width: "32%", height: "30%" }
+          : { top: "80px", left: "35%", width: "30%", height: "30%" };
     const maskStyle = {
       backgroundColor: colorHex,
       maskImage: `url(${templateImage})`,
@@ -22,7 +29,7 @@ export function ProductMockup({ artwork, color, name, priority = false, baseImag
     return <div className="absolute inset-0 overflow-hidden bg-[#e9e7e1]">
       <div className="absolute inset-[5%] transition-colors duration-500" style={maskStyle} />
       <div className="absolute inset-[5%] mix-blend-multiply"><Image src={templateImage} alt={`${color} ${name}`} fill sizes="(min-width: 1024px) 55vw, 100vw" unoptimized className="object-contain grayscale" priority={priority} /></div>
-      <div className="absolute left-[35%] top-[31%] h-[27%] w-[30%]"><Image src={artwork} alt={`Design ${name}`} fill sizes="280px" unoptimized={artwork.startsWith("http")} className="object-contain drop-shadow-sm transition-transform duration-300" priority={priority} /></div>
+      <div className="absolute" style={printArea}><Image src={artwork} alt={`Design ${name}`} fill sizes="280px" unoptimized={artwork.startsWith("http")} className="object-contain drop-shadow-sm transition-transform duration-300" priority={priority} /></div>
     </div>;
   }
 

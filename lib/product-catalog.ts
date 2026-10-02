@@ -42,9 +42,9 @@ const tshirtMockups = Object.fromEntries([
 export const DEFAULT_SUPPORTS: ProductSupport[] = [
   { id:"tshirt-150", categoryId:"apparel", name:"T-shirt 150g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/tshirt-neutral-v1.png", mockups:tshirtMockups },
   { id:"tshirt-190", categoryId:"apparel", name:"T-shirt 190g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/tshirt-neutral-v1.png", mockups:tshirtMockups },
-  { id:"hoodie", categoryId:"apparel", name:"Hoodie", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"", mockups:{} },
-  { id:"long-sleeve", categoryId:"apparel", name:"Long Sleeve T-shirt", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"", mockups:{} },
-  { id:"tote-bag", categoryId:"bags", name:"Tote Bag", variantMode:"none", sizes:[], colorIds:["grey","white"], availability:available(["grey","white"],[]), active:true, templateImage:"", mockups:{} },
+  { id:"hoodie", categoryId:"apparel", name:"Hoodie", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/hoodie-neutral-v1.png", mockups:{} },
+  { id:"long-sleeve", categoryId:"apparel", name:"Long Sleeve T-shirt", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/long-sleeve-neutral-v1.png", mockups:{} },
+  { id:"tote-bag", categoryId:"bags", name:"Tote Bag", variantMode:"none", sizes:[], colorIds:["grey","white"], availability:available(["grey","white"],[]), active:true, templateImage:"/mockup-templates/tote-denim-neutral-v1.png", mockups:{} },
 ];
 
 export function normalizeSupport(value: Partial<ProductSupport>): ProductSupport {
@@ -64,7 +64,7 @@ export function normalizeSupport(value: Partial<ProductSupport>): ProductSupport
     colorIds,
     availability,
     active: value.active !== false,
-    templateImage: value.templateImage ?? fallback?.templateImage ?? "",
+    templateImage: value.templateImage || fallback?.templateImage || "",
     mockups: { ...(fallback?.mockups ?? {}), ...Object.fromEntries(Object.entries(value.mockups ?? {}).filter(([,url])=>Boolean(url))) },
   };
 }
