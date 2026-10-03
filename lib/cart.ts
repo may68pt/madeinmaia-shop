@@ -45,7 +45,7 @@ export function addCartItem(item: Omit<CartItem, "key" | "quantity">) {
   const items = readCart();
   const key = `${item.slug}:${item.productType}:${item.color}:${item.size}`;
   const existing = items.find((entry) => entry.key === key);
-  writeCart(existing ? items.map((entry) => entry.key === key ? { ...entry, quantity: entry.quantity + 1 } : entry) : [...items, { ...item, key, quantity: 1 }]);
+  writeCart(existing ? items.map((entry) => entry.key === key ? { ...entry, quantity: Math.min(20, entry.quantity + 1) } : entry) : [...items, { ...item, key, quantity: 1 }]);
 }
 
 export function removeCartItem(key: string) { writeCart(readCart().filter((item) => item.key !== key)); }

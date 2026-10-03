@@ -26,8 +26,9 @@ export default function CheckoutPage() {
       const response = await fetch("/api/checkout",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({customer,items:cart.map(({slug,productType,color,size,quantity})=>({slug,productType:productType||"adult-tshirt",color,size,quantity}))})});
       const data = await response.json() as Result & {error?:string};
       if (!response.ok) throw new Error(data.error||"Não foi possível criar a encomenda.");
-      clearCart(); setResult(data);
+      setResult(data);
       if (data.paymentUrl) window.location.assign(data.paymentUrl);
+      else clearCart();
     } catch (reason) { setError(reason instanceof Error?reason.message:"Ocorreu um erro."); } finally { setLoading(false); }
   }
 

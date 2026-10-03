@@ -40,7 +40,7 @@ export default async function DiscoverPage() {
           {entry ? <DiscoveryContent entry={entry} /> : <p className="mt-7 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">{body}</p>}
           <div className="mt-10 flex flex-wrap gap-3">
             {entry?.linkUrl && <a href={entry.linkUrl} className="inline-flex h-12 items-center gap-2 bg-[var(--accent-brand)] px-6 font-black uppercase text-[var(--ink)]">{entry.linkLabel}<ArrowRight className="size-4"/></a>}
-            <Link href="/descobre" className="inline-flex h-12 items-center gap-2 border border-white/40 px-6 font-bold uppercase"><RefreshCw className="size-4"/> Outra surpresa</Link>
+            <Link href={`/descobre?again=${crypto.randomUUID()}`} className="inline-flex h-12 items-center gap-2 border border-white/40 px-6 font-bold uppercase"><RefreshCw className="size-4"/> Outra surpresa</Link>
           </div>
         </div>
         <p className="relative mt-20 text-xs font-bold uppercase tracking-[.2em] text-white/55">madeinmaia.pt/descobre</p>

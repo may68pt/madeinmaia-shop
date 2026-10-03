@@ -71,5 +71,6 @@ export function normalizeSupport(value: Partial<ProductSupport>): ProductSupport
 
 export function supportOptions(support: ProductSupport, colorId: string) {
   if (support.variantMode === "none") return [];
-  return support.availability[colorId] ?? support.sizes;
+  const available = support.availability[colorId] ?? support.sizes;
+  return available.filter((option) => support.sizes.includes(option));
 }

@@ -37,6 +37,6 @@ export async function GET(request: Request) {
       page: page?.status === "published" ? page : null,
     });
   } catch {
-    return NextResponse.json({ products: [], storage: "unavailable" });
+    return NextResponse.json({ products: [], total: 0, offset: 0, limit: 24, hasMore: false, page: null, storage: "unavailable" }, { status: 503 });
   }
 }

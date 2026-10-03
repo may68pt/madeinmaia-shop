@@ -43,7 +43,13 @@ export async function GET(request: Request) {
           slug: products.slug,
           designCode: products.designCode,
           name: products.name,
+          nameTranslations: products.nameTranslations,
+          priceCents: products.priceCents,
+          collection: products.collection,
+          tags: products.tags,
           imageKey: products.imageKey,
+          colors: products.colors,
+          sizes: products.sizes,
           status: products.status,
         }).from(products),
         db.select().from(randomContent),
@@ -104,6 +110,18 @@ export async function POST(request: Request) {
     return updated.length
       ? NextResponse.json({ ok: true })
       : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
+  }
+  if (body.resource === "page-delete") {
+    const slug = String(body.reference ?? "").trim();
+    if (!slug || slug === "inicio")
+      return NextResponse.json({ error: "Esta página não pode ser removida" }, { status: 400 });
+    const deleted = await getDb()
+      .delete(pages)
+      .where(eq(pages.slug, slug))
+      .returning({ slug: pages.slug });
+    return deleted.length
+      ? NextResponse.json({ ok: true })
+      : NextResponse.json({ error: "Página não encontrada" }, { status: 404 });
   }
   if (body.resource === "settings") {
     if (!body.entries?.[0] || typeof body.entries[0] !== "object")

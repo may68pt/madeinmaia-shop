@@ -50,14 +50,18 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     const [[stored], [settings]] = await Promise.all([db.select().from(products).where(eq(products.slug, slug)), db.select().from(siteSettings).where(eq(siteSettings.key,"global"))]);
     if (stored?.status === "published") product = { slug:stored.slug, name:stored.name, nameTranslations:stored.nameTranslations, description:stored.description, priceCents:stored.priceCents, collection:stored.collection, tags:stored.tags, imageKey:stored.imageKey || "/products/white-shirt-1.jpg", gallery:stored.gallery, disabledSupports:stored.disabledSupports };
     if (settings?.data.productCatalog) catalog = settings.data.productCatalog;
-    if (product)
-      related = await db.select({
+    if (product) {
+      const candidates = await db.select({
         slug:products.slug,
         name:products.name,
         imageKey:products.imageKey,
         priceCents:products.priceCents,
         collection:products.collection,
-      }).from(products).where(and(eq(products.status,"published"),eq(products.collection,product.collection),ne(products.slug,product.slug))).limit(4);
+        tags:products.tags,
+      }).from(products).where(and(eq(products.status,"published"),ne(products.slug,product.slug))).limit(48);
+      const tagMatches = candidates.filter((candidate) => candidate.tags.some((tag) => product?.tags.includes(tag)));
+      related = (tagMatches.length ? tagMatches : candidates).slice(0, 4);
+    }
   } catch { /* local fallback */ }
   if (!product) return <main className="grid min-h-screen place-items-center bg-[var(--paper)] p-8 text-center"><div><h1 className="text-5xl font-black uppercase">Produto não encontrado</h1><Link href="/loja" className="mt-6 inline-block underline">Voltar à loja</Link></div></main>;
   const supports = catalog.supports.filter((support)=>support.id!=="sunglasses"&&support.active&&!product.disabledSupports.includes(support.id)).map(normalizeSupport);
@@ -76,5 +80,5 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       url: `https://madeinmaia.pt/produto/${product.slug}`,
     },
   };
-  return <main className="min-h-screen bg-[var(--paper)] text-[var(--ink)]"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><header className="flex items-center justify-between border-b border-black/10 px-5 py-5 lg:px-10"><Link href="/loja" className="flex items-center gap-2 font-black uppercase"><ArrowLeft className="size-4"/>Loja</Link><strong className="text-xl uppercase tracking-[-.05em]">Made in Maia</strong></header><ProductPurchase slug={product.slug} name={product.name} description={product.description} collection={product.collection} image={product.imageKey} gallery={product.gallery} priceCents={product.priceCents} supports={supports} catalogColors={catalog.colors}/><ProductDiscovery related={related} collection={product.collection}/></main>;
+  return <main className="min-h-screen bg-[var(--paper)] text-[var(--ink)]"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><header className="flex items-center justify-between border-b border-black/10 px-5 py-5 lg:px-10"><Link href="/loja" className="flex items-center gap-2 font-black uppercase"><ArrowLeft className="size-4"/>Loja</Link><strong className="text-xl uppercase tracking-[-.05em]">Made in Maia</strong></header><ProductPurchase slug={product.slug} name={product.name} description={product.description} collection={product.collection} image={product.imageKey} gallery={product.gallery} priceCents={product.priceCents} supports={supports} catalogColors={catalog.colors}/><ProductDiscovery related={related} collection={product.tags[0] ?? product.collection}/></main>;
 }

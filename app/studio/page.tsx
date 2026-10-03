@@ -89,6 +89,7 @@ type Order = {
   items: Array<{
     slug: string;
     name: string;
+    productType?: string;
     color: string;
     size: string;
     quantity: number;
@@ -319,6 +320,30 @@ export default function Studio() {
     setBlocks(page.blocks);
     setSelected(page.blocks[0].id);
     setPublished(false);
+  }
+  async function deleteCurrentPage() {
+    if (currentPageSlug === "inicio") return;
+    const page = pageList.find((entry) => entry.slug === currentPageSlug);
+    if (!page || !window.confirm(`Remover a página “${page.title}”? Esta ação não pode ser anulada.`)) return;
+    const response = await fetch("/api/studio", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-studio-key": studioKey },
+      body: JSON.stringify({ resource: "page-delete", reference: currentPageSlug }),
+    });
+    if (!response.ok) {
+      toast.error("Não foi possível remover a página.");
+      return;
+    }
+    const remaining = pageList.filter((entry) => entry.slug !== currentPageSlug);
+    const next = remaining.find((entry) => entry.slug === "inicio") ?? remaining[0];
+    setPageList(remaining);
+    if (next) {
+      setCurrentPageSlug(next.slug);
+      setBlocks(next.blocks);
+      setSelected(next.blocks[0]?.id ?? 0);
+      setPublished(next.status === "published");
+    }
+    toast.success("Página removida");
   }
   function updateCurrentPage(patch: Partial<Pick<StudioPage, "title" | "slug">>) {
     const oldSlug = currentPageSlug;
@@ -762,6 +787,7 @@ export default function Studio() {
                   </SelectContent>
                 </Select>
                 <Button type="button" variant="outline" className="rounded-none" onClick={addPage}><Plus />Nova página</Button>
+                {currentPageSlug !== "inicio" && <Button type="button" variant="ghost" className="rounded-none text-red-600" onClick={() => void deleteCurrentPage()}><Trash2 />Remover página</Button>}
                 <Button type="button" variant="ghost" className="ml-auto rounded-none" asChild>
                   <Link href={currentPageSlug === "inicio" ? "/loja" : `/${currentPageSlug}`} target="_blank"><Eye />Abrir página</Link>
                 </Button>
@@ -1109,7 +1135,7 @@ export default function Studio() {
                           <ul className="mt-2 space-y-1 text-sm">
                             {order.items.map((item, index) => (
                               <li key={`${item.slug}-${index}`}>
-                                {item.quantity}× {item.name} · {item.size} ·{" "}
+                                {item.quantity}× {item.name} · {item.productType || "Suporte"} · {item.size} ·{" "}
                                 {item.color}
                               </li>
                             ))}
@@ -1180,7 +1206,7 @@ export default function Studio() {
                       <div><p className="text-xs font-black uppercase">Template único para todas as cores</p><p className="mt-1 text-sm text-black/50">PNG branco/cinza com fundo transparente. A loja aplica a cor sem carregar outra fotografia.</p><Input className="mt-3" value={support.templateImage} onChange={(event) => updateSupport({ templateImage: event.target.value })} placeholder="/mockup-templates/tshirt-neutral-v1.png" />{settings.media.some((item) => item.kind === "base" && item.url) && <div className="mt-2 flex flex-wrap gap-2">{settings.media.filter((item) => item.kind === "base" && item.url).map((item) => <Button key={item.url} type="button" size="sm" variant="outline" onClick={() => updateSupport({ templateImage: item.url })}>{item.alt || "Usar template"}</Button>)}</div>}</div>
                       <div className="relative aspect-square overflow-hidden bg-white">{support.templateImage ? <Image src={support.templateImage} alt="Template neutro" fill sizes="180px" unoptimized className="object-contain p-3" /> : <span className="grid h-full place-items-center p-4 text-center text-xs font-bold text-black/35">Sem template — será usado o mockup SVG</span>}</div>
                     </div>
-                    {support.variantMode === "none" ? <p className="rounded-2xl bg-[#f5f5f2] p-4 text-sm font-bold">Sem tamanho — o cliente escolhe apenas a cor.</p> : <div><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-black uppercase">Tamanhos base</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={() => updateSupport({ sizes:[...optionPool], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[...optionPool]])) })}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={() => updateSupport({ sizes:[], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[]])) })}>Limpar tudo</Button></div></div><div className="grid gap-3 sm:grid-cols-2">{[{label:"Kids",values:KIDS_SIZES},{label:"Adults",values:ADULT_SIZES}].map((group)=><div key={group.label} className="rounded-2xl border border-black/10 p-4"><p className="mb-3 text-xs font-black uppercase">{group.label}</p><div className="flex flex-wrap gap-2">{group.values.map((option)=>{const enabled=support.sizes.includes(option);return <button key={option} type="button" onClick={()=>updateSupport({sizes:enabled?support.sizes.filter((item)=>item!==option):[...support.sizes,option]})} className={`rounded-full border px-4 py-2 text-sm font-black ${enabled?"border-[var(--brand)] bg-[var(--brand)] text-white":"border-black/15"}`}>{option}</button>})}</div></div>)}</div></div>}
+                    {support.variantMode === "none" ? <p className="rounded-2xl bg-[#f5f5f2] p-4 text-sm font-bold">Sem tamanho — o cliente escolhe apenas a cor.</p> : <div><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-black uppercase">Tamanhos base</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={() => updateSupport({ sizes:[...optionPool], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[...optionPool]])) })}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={() => updateSupport({ sizes:[], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[]])) })}>Limpar tudo</Button></div></div><div className="grid gap-3 sm:grid-cols-2">{[{label:"Kids",values:KIDS_SIZES},{label:"Adults",values:ADULT_SIZES}].map((group)=><div key={group.label} className="rounded-2xl border border-black/10 p-4"><p className="mb-3 text-xs font-black uppercase">{group.label}</p><div className="flex flex-wrap gap-2">{group.values.map((option)=>{const enabled=support.sizes.includes(option);return <button key={option} type="button" onClick={()=>updateSupport({sizes:enabled?support.sizes.filter((item)=>item!==option):[...support.sizes,option],availability:enabled?Object.fromEntries(Object.entries(support.availability).map(([colorId,options])=>[colorId,options.filter((item)=>item!==option)])):support.availability})} className={`rounded-full border px-4 py-2 text-sm font-black ${enabled?"border-[var(--brand)] bg-[var(--brand)] text-white":"border-black/15"}`}>{option}</button>})}</div></div>)}</div></div>}
                     <div><div className="mb-3 flex items-center justify-between gap-3"><p className="text-xs font-black uppercase">Cores e disponibilidade</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={()=>setAllColors(true)}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={()=>setAllColors(false)}>Limpar tudo</Button></div></div><div className="space-y-2">{activeColors.map((color) => { const enabled=support.colorIds.includes(color.id); const availableOptions=support.availability[color.id] ?? []; return <details key={color.id} className={`overflow-hidden rounded-2xl border ${enabled ? "border-black/20" : "border-black/10 opacity-60"}`}><summary className="flex cursor-pointer list-none items-center gap-3 p-3 [&::-webkit-details-marker]:hidden"><span onClick={(event)=>event.stopPropagation()}><Switch checked={enabled} onCheckedChange={(checked)=>updateSupport({ colorIds:checked ? [...support.colorIds,color.id] : support.colorIds.filter((id)=>id!==color.id), availability:{...support.availability,[color.id]:checked?[...support.sizes]:[]} })}/></span><span className="size-5 rounded-full border border-black/10" style={{backgroundColor:color.hex}}/><strong className="flex-1 text-sm">{color.name}</strong></summary><div className="border-t border-black/10 px-3 pb-3 pt-3 pl-12">{!enabled ? <p className="text-xs font-bold text-black/45">Ativa esta cor para gerir a disponibilidade.</p> : support.variantMode === "none" ? <p className="text-xs font-bold text-black/45">Este suporte não tem tamanhos.</p> : <div className="flex flex-wrap gap-2">{support.sizes.map((option)=>{const selected=availableOptions.includes(option);return <button key={option} type="button" onClick={()=>updateSupport({availability:{...support.availability,[color.id]:selected?availableOptions.filter((item)=>item!==option):[...availableOptions,option]}})} className={`rounded-full border px-3 py-1 text-xs font-bold ${selected?"border-[var(--ink)] bg-[var(--ink)] text-white":"border-black/15"}`}>{option}</button>})}</div>}</div></details>})}</div><details className="mt-4 text-sm"><summary className="cursor-pointer font-bold text-black/45">Mockups individuais antigos (fallback)</summary><div className="mt-3 grid gap-2">{activeColors.filter((color)=>support.colorIds.includes(color.id)).map((color)=><label key={color.id} className="grid grid-cols-[120px_1fr] items-center gap-2"><span>{color.name}</span><Input value={support.mockups[color.id]??""} onChange={(event)=>updateSupport({mockups:{...support.mockups,[color.id]:event.target.value}})} placeholder="Foto específica opcional"/></label>)}</div></details></div>
                   </div></details>;
                 })}</div></div>)}</div>
