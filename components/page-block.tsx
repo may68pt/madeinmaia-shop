@@ -19,7 +19,7 @@ export function PageBlock({ block, children, locale="en", editor = false, select
       {copy.eyebrow&&<p className="text-sm font-black uppercase tracking-[.16em] opacity-70">{copy.eyebrow}</p>}
       <h2 className={`${hero ? "mt-5 text-[clamp(3.4rem,8vw,7.8rem)] leading-[.78]" : "mt-3 text-4xl md:text-6xl"} font-black uppercase tracking-[-.065em]`}>{copy.title}</h2>
       {copy.description&&<p className={`${blockAlign === "center" ? "mx-auto" : ""} mt-6 max-w-2xl text-lg leading-relaxed opacity-75`}>{copy.description}</p>}
-      {copy.ctaLabel&&block.ctaUrl&&<Link href={block.ctaUrl} className="mt-8 inline-flex bg-[var(--ink)] px-7 py-4 font-black uppercase text-white">{copy.ctaLabel}</Link>}
+      {copy.ctaLabel&&block.ctaUrl&&(editor?<span className="mt-8 inline-flex bg-[var(--ink)] px-7 py-4 font-black uppercase text-white">{copy.ctaLabel}</span>:<Link href={block.ctaUrl} className="mt-8 inline-flex bg-[var(--ink)] px-7 py-4 font-black uppercase text-white">{copy.ctaLabel}</Link>)}
       {children&&<div className="mt-8 text-left">{children}</div>}
     </div>
   </section>;

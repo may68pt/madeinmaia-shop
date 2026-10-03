@@ -17,6 +17,7 @@ import {
   Plus,
   Save,
   Settings,
+  ShoppingBag,
   Smartphone,
   Store,
   Tablet,
@@ -38,6 +39,7 @@ import type { ProductVariant } from "@/lib/product-variants";
 import { ADULT_SIZES, CATALOG_CATEGORIES, CATALOG_SIZES, DEFAULT_COLORS, DEFAULT_SUPPORTS, KIDS_SIZES, normalizeSupport, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
 import { DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as Block, type PageBlockType } from "@/lib/page-blocks";
 import { PageBlock } from "@/components/page-block";
+import { ProductMockup } from "@/components/product-mockup";
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
 
 type Discovery = {
@@ -800,19 +802,24 @@ export default function Studio() {
                 className="mx-auto min-h-[720px] overflow-hidden bg-[var(--paper)] shadow-xl transition-[width]"
                 style={{ width }}
               >
-                <div className="flex h-14 items-center border-b border-black/10 px-6">
-                  <strong className="uppercase tracking-tight">
-                    Made in Maia
-                  </strong>
-                  <span className="ml-auto text-sm">
-                    Loja &nbsp; Coleções &nbsp; QR
+                <div className="bg-[var(--ink)] px-5 py-2 text-center text-sm font-medium tracking-wide text-white">
+                  {settings.announcement}
+                </div>
+                <div className="flex h-[73px] items-center gap-5 border-b border-black/10 px-5 lg:px-10">
+                  <span className="flex items-center gap-2">
+                    <span className="grid size-10 rotate-3 place-items-center bg-[var(--brand)] text-xl font-black text-white">M</span>
+                    <strong className="text-xl uppercase tracking-[-.055em]">{settings.brandName}</strong>
                   </span>
+                  <nav className="ml-auto hidden items-center gap-6 text-sm font-semibold lg:flex">
+                    {settings.navigation.filter((item) => item.visible).map((item) => <span key={item.id}>{item.label}</span>)}
+                  </nav>
+                  <span className="grid size-10 place-items-center"><ShoppingBag className="size-5" /></span>
                 </div>
                 <div>
                   {blocks.map((block, index) => (
                     <div key={block.id} className="group relative">
                       <PageBlock block={block} editor selected={selected === block.id} onSelect={() => setSelected(block.id)}>
-                        {block.type === "Produtos" ? <div className="grid grid-cols-3 gap-3"><div className="aspect-[4/5] bg-black/5"/><div className="aspect-[4/5] bg-black/5"/><div className="aspect-[4/5] bg-black/5"/></div> : undefined}
+                        {block.type === "Produtos" ? <div className="grid gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">{catalogue.filter((product) => product.status === "published").slice(0, 6).map((product) => <article key={product.id} className="text-[var(--ink)]"><div className="relative aspect-[4/5] overflow-hidden bg-white"><ProductMockup artwork={product.imageKey || "/products/white-shirt-1.jpg"} color={product.colors[0] ?? "White"} name={product.name} /><span className="absolute left-4 top-4 bg-[var(--accent-brand)] px-3 py-1 text-xs font-black uppercase">New</span></div><div className="flex items-start justify-between gap-4 pt-4"><div><p className="text-sm opacity-55">{product.tags.join(" · ") || product.collection}</p><h3 className="text-xl font-black uppercase tracking-[-.025em]">{product.name}</h3></div><strong className="text-lg">{(product.priceCents / 100).toFixed(2).replace(".", ",")} €</strong></div></article>)}</div> : block.type === "Coleções" ? <div className="grid gap-3 sm:grid-cols-3">{["Cats", "Quotes", "Jars"].map((tag) => <div key={tag} className="rounded-full border border-black/15 bg-white px-6 py-8 text-left text-2xl font-black uppercase">{tag}<span className="mt-2 block text-xs font-normal normal-case opacity-55">{catalogue.filter((product) => product.status === "published" && product.tags.includes(tag)).length} designs</span></div>)}</div> : undefined}
                       </PageBlock>
                       <span className="absolute right-4 top-4 inline-flex gap-1 opacity-0 group-hover:opacity-100">
                         <span
