@@ -122,6 +122,13 @@ export type SiteSettings = {
   seoDescription: string;
   instagramUrl: string;
   facebookUrl: string;
+  launchSplash: {
+    enabled: boolean;
+    eyebrow: string;
+    title: string;
+    description: string;
+    shoulderTagLabel: string;
+  };
   navigation: Array<{
     id: string;
     label: string;

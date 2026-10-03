@@ -138,6 +138,13 @@ export async function POST(request: Request) {
       seoDescription: String(value.seoDescription ?? ""),
       instagramUrl: String(value.instagramUrl ?? ""),
       facebookUrl: String(value.facebookUrl ?? ""),
+      launchSplash: {
+        enabled: (value.launchSplash as Record<string, unknown> | undefined)?.enabled !== false,
+        eyebrow: String((value.launchSplash as Record<string, unknown> | undefined)?.eyebrow ?? "New online shop"),
+        title: String((value.launchSplash as Record<string, unknown> | undefined)?.title ?? "Coming\nsoon."),
+        description: String((value.launchSplash as Record<string, unknown> | undefined)?.description ?? "Original designs, printed locally and made to travel. The new Made in Maia shop is almost here."),
+        shoulderTagLabel: String((value.launchSplash as Record<string, unknown> | undefined)?.shoulderTagLabel ?? "Try the shoulder tag"),
+      },
       navigation: Array.isArray(value.navigation)
         ? value.navigation.flatMap((entry) => {
             if (!entry || typeof entry !== "object") return [];

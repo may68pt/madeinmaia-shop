@@ -116,6 +116,13 @@ type SiteSettings = {
   seoDescription: string;
   instagramUrl: string;
   facebookUrl: string;
+  launchSplash: {
+    enabled: boolean;
+    eyebrow: string;
+    title: string;
+    description: string;
+    shoulderTagLabel: string;
+  };
   navigation: NavigationItem[];
   terms: string;
   privacy: string;
@@ -220,6 +227,13 @@ const initialSettings: SiteSettings = {
   seoDescription: "T-shirts desenhadas e impressas na Maia.",
   instagramUrl: "",
   facebookUrl: "",
+  launchSplash: {
+    enabled: true,
+    eyebrow: "New online shop",
+    title: "Coming\nsoon.",
+    description: "Original designs, printed locally and made to travel. The new Made in Maia shop is almost here.",
+    shoulderTagLabel: "Try the shoulder tag",
+  },
   navigation: DEFAULT_NAVIGATION,
   terms: "",
   privacy: "",
@@ -539,6 +553,7 @@ export default function Studio() {
       setSettings({
         ...initialSettings,
         ...data.settings,
+        launchSplash: { ...initialSettings.launchSplash, ...data.settings.launchSplash },
         theme: { ...initialSettings.theme, ...data.settings.theme },
         productCatalog: {
           colors: data.settings.productCatalog?.colors ?? DEFAULT_COLORS,
@@ -1387,6 +1402,26 @@ export default function Studio() {
                   </div>
                 </section>
               </div>
+              <section className="mt-5 bg-[var(--ink)] p-6 text-white">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-black uppercase">Splash screen</h2>
+                    <p className="mt-1 text-sm text-white/55">Controla a página temporária apresentada em madeinmaia.pt.</p>
+                  </div>
+                  <label className="flex items-center gap-3 text-sm font-bold uppercase"><Switch checked={settings.launchSplash.enabled} onCheckedChange={(enabled) => setSettings({ ...settings, launchSplash: { ...settings.launchSplash, enabled } })} />{settings.launchSplash.enabled ? "Ativo" : "Loja ativa"}</label>
+                </div>
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  <label className="grid gap-2 text-xs font-bold uppercase"><span>Antetítulo</span><Input className="bg-white text-[var(--ink)]" value={settings.launchSplash.eyebrow} onChange={(event) => setSettings({ ...settings, launchSplash: { ...settings.launchSplash, eyebrow: event.target.value } })} /></label>
+                  <label className="grid gap-2 text-xs font-bold uppercase"><span>Texto do shoulder tag</span><Input className="bg-white text-[var(--ink)]" value={settings.launchSplash.shoulderTagLabel} onChange={(event) => setSettings({ ...settings, launchSplash: { ...settings.launchSplash, shoulderTagLabel: event.target.value } })} /></label>
+                  <label className="grid gap-2 text-xs font-bold uppercase"><span>Título</span><textarea className="min-h-24 border border-white/20 bg-white p-3 text-2xl font-black uppercase text-[var(--ink)]" value={settings.launchSplash.title} onChange={(event) => setSettings({ ...settings, launchSplash: { ...settings.launchSplash, title: event.target.value } })} /></label>
+                  <label className="grid gap-2 text-xs font-bold uppercase"><span>Descrição</span><textarea className="min-h-24 border border-white/20 bg-white p-3 text-[var(--ink)]" value={settings.launchSplash.description} onChange={(event) => setSettings({ ...settings, launchSplash: { ...settings.launchSplash, description: event.target.value } })} /></label>
+                </div>
+                <div className="mt-5 border border-white/15 bg-black/20 p-5">
+                  <p className="text-xs font-black uppercase tracking-[.2em] text-[var(--accent-brand)]">{settings.launchSplash.eyebrow}</p>
+                  <p className="mt-2 whitespace-pre-line text-5xl font-black uppercase leading-[.8] tracking-[-.06em]">{settings.launchSplash.title}</p>
+                  <p className="mt-4 max-w-xl text-sm text-white/60">{settings.launchSplash.description}</p>
+                </div>
+              </section>
               <section className="mt-5 bg-white p-6">
                 <div>
                   <h2 className="text-2xl font-black uppercase">
