@@ -35,10 +35,9 @@ export async function GET(request: Request) {
         ? NextResponse.json({ product })
         : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
     }
-    const [pageList, productList, discoveries, orderList, [settings]] =
-      await Promise.all([
-        db.select().from(pages).orderBy(pages.id),
-        db.select({
+    const results = await Promise.allSettled([
+      db.select().from(pages).orderBy(pages.id),
+      db.select({
           id: products.id,
           slug: products.slug,
           designCode: products.designCode,
@@ -51,11 +50,19 @@ export async function GET(request: Request) {
           colors: products.colors,
           sizes: products.sizes,
           status: products.status,
-        }).from(products),
-        db.select().from(randomContent),
-        db.select().from(orders).orderBy(desc(orders.createdAt)),
-        db.select().from(siteSettings).where(eq(siteSettings.key, "global")),
-      ]);
+      }).from(products),
+      db.select().from(randomContent),
+      db.select().from(orders).orderBy(desc(orders.createdAt)),
+      db.select().from(siteSettings).where(eq(siteSettings.key, "global")),
+    ]);
+    const [pageResult, productResult, discoveryResult, orderResult, settingsResult] = results;
+    const pageList = pageResult.status === "fulfilled" ? pageResult.value : [];
+    const productList = productResult.status === "fulfilled" ? productResult.value : [];
+    const discoveries = discoveryResult.status === "fulfilled" ? discoveryResult.value : [];
+    const orderList = orderResult.status === "fulfilled" ? orderResult.value : [];
+    const settings = settingsResult.status === "fulfilled" ? settingsResult.value[0] : undefined;
+    const resourceNames = ["pages", "products", "random-content", "orders", "settings"];
+    const storageWarnings = results.flatMap((result, index) => result.status === "rejected" ? [resourceNames[index]] : []);
     return NextResponse.json({
       page: pageList.find((page) => page.slug === "inicio") ?? null,
       pages: pageList,
@@ -66,6 +73,7 @@ export async function GET(request: Request) {
       paymentConfigured: Boolean(
         process.env.STRIPE_SECRET_KEY || process.env.PAYMENT_LINK_URL,
       ),
+      storageWarnings,
     });
   } catch {
     return NextResponse.json({

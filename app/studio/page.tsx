@@ -485,6 +485,7 @@ export default function Studio() {
       orders?: Order[];
       paymentConfigured?: boolean;
       settings?: SiteSettings | null;
+      storageWarnings?: string[];
     };
     if (data.pages?.length) {
       const normalizedPages = data.pages.map((page) => ({
@@ -549,6 +550,8 @@ export default function Studio() {
       );
     setOrders(data.orders ?? []);
     setPaymentConfigured(Boolean(data.paymentConfigured));
+    if (data.storageWarnings?.length)
+      toast.warning(`Base de dados incompleta: ${data.storageWarnings.join(", ")}. Os restantes conteúdos continuam disponíveis.`);
     if (data.settings)
       setSettings({
         ...initialSettings,
