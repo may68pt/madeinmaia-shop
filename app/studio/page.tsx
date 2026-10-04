@@ -11,6 +11,7 @@ import {
   Images,
   LayoutTemplate,
   LockKeyhole,
+  Move,
   Monitor,
   Package,
   Palette,
@@ -41,6 +42,8 @@ import { ADULT_SIZES, CATALOG_CATEGORIES, CATALOG_SIZES, DEFAULT_COLORS, DEFAULT
 import { DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as Block, type PageBlockType } from "@/lib/page-blocks";
 import { PageBlock } from "@/components/page-block";
 import { ProductMockup } from "@/components/product-mockup";
+import { ArtworkPlacementEditor } from "@/components/artwork-placement-editor";
+import type { ArtworkPlacements } from "@/lib/artwork-placement";
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
 
 type Discovery = {
@@ -69,6 +72,7 @@ type Product = {
   imageKey: string;
   gallery: string[];
   disabledSupports: string[];
+  artworkPlacements: ArtworkPlacements;
   colors: string[];
   sizes: string[];
   variants: ProductVariant[];
@@ -178,6 +182,7 @@ const initialProducts: Product[] = [
     imageKey: "/products/white-shirt-1.jpg",
     gallery: [],
     disabledSupports: [],
+    artworkPlacements: {},
     colors: ["Branco"],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
@@ -199,6 +204,7 @@ const initialProducts: Product[] = [
     imageKey: "/products/red-shirt-1.jpg",
     gallery: [],
     disabledSupports: [],
+    artworkPlacements: {},
     colors: ["Vermelho"],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
@@ -220,6 +226,7 @@ const initialProducts: Product[] = [
     imageKey: "/products/blue-shirt-1.jpg",
     gallery: [],
     disabledSupports: [],
+    artworkPlacements: {},
     colors: ["Azul"],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
@@ -282,6 +289,7 @@ export default function Studio() {
   const [productImageUploading, setProductImageUploading] = useState<number | null>(null);
   const [productImageDragOver, setProductImageDragOver] = useState<number | null>(null);
   const [expandedProductId, setExpandedProductId] = useState<number | null>(null);
+  const [placementProductId, setPlacementProductId] = useState<number | null>(null);
   const [galleryUrlDrafts, setGalleryUrlDrafts] = useState<Record<number, string>>({});
   const [mediaQuery, setMediaQuery] = useState("");
   const [mediaFilter, setMediaFilter] = useState<"all" | "artwork" | "lifestyle" | "base">("all");
@@ -551,6 +559,7 @@ export default function Studio() {
           imageKey: entry.imageKey ?? "",
           gallery: entry.gallery ?? [],
           disabledSupports: entry.disabledSupports ?? [],
+          artworkPlacements: entry.artworkPlacements ?? {},
           colors: entry.colors ?? [],
           sizes: entry.sizes ?? [],
           variants: (entry.variants ?? []).map((variant) => ({
@@ -620,6 +629,7 @@ export default function Studio() {
       tags: data.product.tags ?? [],
       gallery: data.product.gallery ?? [],
       disabledSupports: data.product.disabledSupports ?? [],
+      artworkPlacements: data.product.artworkPlacements ?? {},
       colors: data.product.colors ?? [],
       sizes: data.product.sizes ?? [],
       variants: data.product.variants ?? [],
@@ -649,6 +659,20 @@ export default function Studio() {
       updateProduct(product.id, { monochrome: product.monochrome });
       toast.error("Não foi possível alterar o modo de impressão.");
     }
+  }
+  async function editProductPlacement(product:Product) {
+    if (product.detailsLoaded || product.id > 1_000_000_000_000) { setPlacementProductId(product.id); return; }
+    const response=await fetch(`/api/studio?productId=${product.id}`,{headers:{"x-studio-key":studioKey}});
+    if(!response.ok){toast.error("Não foi possível carregar o produto.");return;}
+    const data=(await response.json()) as {product:Partial<Product>};
+    setCatalogue((items)=>items.map((item)=>item.id===product.id?{...item,...data.product,artworkPlacements:data.product.artworkPlacements??{},detailsLoaded:true}:item));
+    setPlacementProductId(product.id);
+  }
+  async function saveProductPlacement(product:Product, artworkPlacements:ArtworkPlacements) {
+    updateProduct(product.id,{artworkPlacements});
+    if(product.id>1_000_000_000_000)return;
+    const response=await fetch("/api/studio",{method:"POST",headers:{"content-type":"application/json","x-studio-key":studioKey},body:JSON.stringify({resource:"product-placement",productId:product.id,artworkPlacements})});
+    if(response.ok)toast.success("Posicionamento guardado.");else toast.error("Não foi possível guardar o posicionamento.");
   }
   async function persistProductOrder(next: Product[]) {
     setCatalogue(next.map((product, index) => ({ ...product, sortOrder: index + 1 })));
@@ -1732,6 +1756,7 @@ export default function Studio() {
                         imageKey: "",
                         gallery: [],
                         disabledSupports: [],
+                        artworkPlacements: {},
                         colors: ["Branco"],
                         sizes: ["S", "M", "L"],
                         variants: [],
@@ -1767,6 +1792,7 @@ export default function Studio() {
                         </button>
                         <div className="flex items-center gap-3">
                           <div className="hidden items-center gap-1 lg:flex"><Button type="button" variant="ghost" size="icon" disabled={productIndex === 0} onClick={() => moveProduct(product.id, -1)} aria-label="Subir produto"><ArrowUp className="size-4" /></Button><Button type="button" variant="ghost" size="icon" disabled={productIndex === catalogue.length - 1} onClick={() => moveProduct(product.id, 1)} aria-label="Descer produto"><ArrowDown className="size-4" /></Button></div>
+                          <Button type="button" variant="ghost" size="icon" onClick={() => void editProductPlacement(product)} aria-label="Posicionar design" title="Posicionar design"><Move className="size-4" /></Button>
                           <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.monochrome} onCheckedChange={(checked) => void updateProductMonochrome(product, checked)} /><span className="hidden xl:inline">Mono</span></label>
                           <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.status === "published"} onCheckedChange={(checked) => void updateProductStatus(product, checked)} /><span className="hidden sm:inline">{product.status === "published" ? "Ativo" : "Inativo"}</span></label>
                           <Button type="button" variant="ghost" size="icon" className="text-red-600 hover:text-red-700" onClick={() => void deleteProduct(product)} aria-label="Apagar produto"><Trash2 className="size-4" /></Button>
@@ -1842,6 +1868,7 @@ export default function Studio() {
                   );
                 })}
               </div>
+              {placementProductId !== null && (()=>{const product=catalogue.find((item)=>item.id===placementProductId);return product?<ArtworkPlacementEditor open onOpenChange={(open)=>!open&&setPlacementProductId(null)} name={product.name} artwork={product.imageKey||"/products/white-shirt-1.jpg"} supports={settings.productCatalog.supports.filter((support)=>!product.disabledSupports.includes(support.id))} placements={product.artworkPlacements??{}} onSave={(placements)=>void saveProductPlacement(product,placements)}/>:null;})()}
             </div>
           )}
         </section>

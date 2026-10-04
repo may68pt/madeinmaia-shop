@@ -13,17 +13,18 @@ import { PageBlock } from "@/components/page-block";
 import { LOCALES, UI_STRINGS, translatedName, translatedNavigation, type Locale } from "@/lib/i18n";
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
+import type { ArtworkPlacements } from "@/lib/artwork-placement";
 
-type ShopProduct = { slug: string; name: string; nameTranslations:Record<string,string>; collection: string; tags:string[]; price: string; priceCents: number; image: string; colors: string[]; sizes: string[]; monochrome:boolean; disabledSupports:string[] };
+type ShopProduct = { slug: string; name: string; nameTranslations:Record<string,string>; collection: string; tags:string[]; price: string; priceCents: number; image: string; colors: string[]; sizes: string[]; monochrome:boolean; disabledSupports:string[]; artworkPlacements:ArtworkPlacements };
 
 const defaultProducts: ShopProduct[] = [
-  { slug:"guardiao-zen", name: "Guardian Zen", nameTranslations:{pt:"Guardião Zen"}, collection: "Made in Maia", tags:["Cats"], price: "20,00 €", priceCents: 2000, image: "/products/white-shirt-1.jpg", colors:["White"], sizes:["XS","S","M","L","XL","2XL"], monochrome:true, disabledSupports:[] },
-  { slug:"piramide-digital", name: "Digital Pyramid", nameTranslations:{pt:"Pirâmide Digital"}, collection: "Pop Culture", tags:["Quotes"], price: "20,00 €", priceCents: 2000, image: "/products/red-shirt-1.jpg", colors:["Red"], sizes:["XS","S","M","L","XL","2XL"], monochrome:true, disabledSupports:[] },
-  { slug:"los-robots", name: "Los Robots", nameTranslations:{}, collection: "Music", tags:["Jars"], price: "20,00 €", priceCents: 2000, image: "/products/blue-shirt-1.jpg", colors:["Blue"], sizes:["XS","S","M","L","XL","2XL"], monochrome:false, disabledSupports:[] },
+  { slug:"guardiao-zen", name: "Guardian Zen", nameTranslations:{pt:"Guardião Zen"}, collection: "Made in Maia", tags:["Cats"], price: "20,00 €", priceCents: 2000, image: "/products/white-shirt-1.jpg", colors:["White"], sizes:["XS","S","M","L","XL","2XL"], monochrome:true, disabledSupports:[], artworkPlacements:{} },
+  { slug:"piramide-digital", name: "Digital Pyramid", nameTranslations:{pt:"Pirâmide Digital"}, collection: "Pop Culture", tags:["Quotes"], price: "20,00 €", priceCents: 2000, image: "/products/red-shirt-1.jpg", colors:["Red"], sizes:["XS","S","M","L","XL","2XL"], monochrome:true, disabledSupports:[], artworkPlacements:{} },
+  { slug:"los-robots", name: "Los Robots", nameTranslations:{}, collection: "Music", tags:["Jars"], price: "20,00 €", priceCents: 2000, image: "/products/blue-shirt-1.jpg", colors:["Blue"], sizes:["XS","S","M","L","XL","2XL"], monochrome:false, disabledSupports:[], artworkPlacements:{} },
 ];
 
 const PAGE_SIZE = 24;
-export type ApiProduct = { slug:string; name:string; nameTranslations:Record<string,string>; collection:string; tags:string[]; priceCents:number; imageKey:string|null; colors:string[]; sizes:string[]; monochrome:boolean; disabledSupports?:string[] };
+export type ApiProduct = { slug:string; name:string; nameTranslations:Record<string,string>; collection:string; tags:string[]; priceCents:number; imageKey:string|null; colors:string[]; sizes:string[]; monochrome:boolean; disabledSupports?:string[]; artworkPlacements?:ArtworkPlacements };
 
 function mapProduct(product: ApiProduct): ShopProduct {
   return {
@@ -39,6 +40,7 @@ function mapProduct(product: ApiProduct): ShopProduct {
     sizes: product.sizes?.length ? product.sizes : ["One size"],
     monochrome: product.monochrome === true,
     disabledSupports: product.disabledSupports ?? [],
+    artworkPlacements:product.artworkPlacements??{},
   };
 }
 

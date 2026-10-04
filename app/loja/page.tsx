@@ -55,6 +55,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         sizes:products.sizes,
         monochrome:products.monochrome,
         disabledSupports:products.disabledSupports,
+        artworkPlacements:products.artworkPlacements,
       }).from(products).where(where).orderBy(asc(products.sortOrder), asc(products.id)).limit(PAGE_SIZE).offset(offset),
       db.select({ total:count() }).from(products).where(where),
       db.select().from(pages).where(eq(pages.slug,"inicio")),

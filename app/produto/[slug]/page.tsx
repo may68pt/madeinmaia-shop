@@ -7,15 +7,16 @@ import { products, siteSettings } from "@/db/schema";
 import { ProductPurchase } from "./product-purchase";
 import { ProductDiscovery, type RelatedProduct } from "@/components/product-discovery";
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport } from "@/lib/product-catalog";
+import type { ArtworkPlacements } from "@/lib/artwork-placement";
 
 export const dynamic = "force-dynamic";
 
-type ProductView = { slug:string; name:string; nameTranslations:Record<string,string>; description:string; priceCents:number; collection:string; tags:string[]; imageKey:string; gallery:string[]; disabledSupports:string[]; monochrome:boolean };
+type ProductView = { slug:string; name:string; nameTranslations:Record<string,string>; description:string; priceCents:number; collection:string; tags:string[]; imageKey:string; gallery:string[]; disabledSupports:string[]; monochrome:boolean; artworkPlacements:ArtworkPlacements };
 
 const fallback: ProductView[] = [
-  { slug:"guardiao-zen", name:"Guardian Zen", nameTranslations:{pt:"Guardião Zen"}, description:"A calm presence for noisy days.", priceCents:2000, collection:"Made in Maia", tags:["Cats"], imageKey:"/products/white-shirt-1.jpg", gallery:[], disabledSupports:[], monochrome:true },
-  { slug:"piramide-digital", name:"Digital Pyramid", nameTranslations:{pt:"Pirâmide Digital"}, description:"Geometry, signal and digital culture.", priceCents:2000, collection:"Pop Culture", tags:["Quotes"], imageKey:"/products/red-shirt-1.jpg", gallery:[], disabledSupports:[], monochrome:true },
-  { slug:"los-robots", name:"Los Robots", nameTranslations:{}, description:"A small tribute to the machines that taught us to dance.", priceCents:2000, collection:"Music", tags:["Jars"], imageKey:"/products/blue-shirt-1.jpg", gallery:[], disabledSupports:[], monochrome:false },
+  { slug:"guardiao-zen", name:"Guardian Zen", nameTranslations:{pt:"Guardião Zen"}, description:"A calm presence for noisy days.", priceCents:2000, collection:"Made in Maia", tags:["Cats"], imageKey:"/products/white-shirt-1.jpg", gallery:[], disabledSupports:[], monochrome:true, artworkPlacements:{} },
+  { slug:"piramide-digital", name:"Digital Pyramid", nameTranslations:{pt:"Pirâmide Digital"}, description:"Geometry, signal and digital culture.", priceCents:2000, collection:"Pop Culture", tags:["Quotes"], imageKey:"/products/red-shirt-1.jpg", gallery:[], disabledSupports:[], monochrome:true, artworkPlacements:{} },
+  { slug:"los-robots", name:"Los Robots", nameTranslations:{}, description:"A small tribute to the machines that taught us to dance.", priceCents:2000, collection:"Music", tags:["Jars"], imageKey:"/products/blue-shirt-1.jpg", gallery:[], disabledSupports:[], monochrome:false, artworkPlacements:{} },
 ];
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -48,7 +49,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   try {
     const db = getDb();
     const [[stored], [settings]] = await Promise.all([db.select().from(products).where(eq(products.slug, slug)), db.select().from(siteSettings).where(eq(siteSettings.key,"global"))]);
-    if (stored?.status === "published") product = { slug:stored.slug, name:stored.name, nameTranslations:stored.nameTranslations, description:stored.description, priceCents:stored.priceCents, collection:stored.collection, tags:stored.tags, imageKey:stored.imageKey || "/products/white-shirt-1.jpg", gallery:stored.gallery, disabledSupports:stored.disabledSupports, monochrome:stored.monochrome };
+    if (stored?.status === "published") product = { slug:stored.slug, name:stored.name, nameTranslations:stored.nameTranslations, description:stored.description, priceCents:stored.priceCents, collection:stored.collection, tags:stored.tags, imageKey:stored.imageKey || "/products/white-shirt-1.jpg", gallery:stored.gallery, disabledSupports:stored.disabledSupports, monochrome:stored.monochrome, artworkPlacements:stored.artworkPlacements??{} };
     if (settings?.data.productCatalog) catalog = settings.data.productCatalog;
     if (product) {
       const candidates = await db.select({
@@ -80,5 +81,5 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       url: `https://madeinmaia.pt/produto/${product.slug}`,
     },
   };
-  return <main className="storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><header className="flex items-center justify-between border-b border-white/10 px-5 py-5 lg:px-10"><Link href="/loja" className="flex items-center gap-2 font-black uppercase"><ArrowLeft className="size-4"/>Loja</Link><strong className="text-xl uppercase tracking-[-.05em]">Made in Maia</strong></header><ProductPurchase slug={product.slug} name={product.name} description={product.description} collection={product.collection} image={product.imageKey} gallery={product.gallery} priceCents={product.priceCents} supports={supports} catalogColors={catalog.colors} monochrome={product.monochrome}/><ProductDiscovery related={related} collection={product.tags[0] ?? product.collection}/></main>;
+  return <main className="storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><header className="flex items-center justify-between border-b border-white/10 px-5 py-5 lg:px-10"><Link href="/loja" className="flex items-center gap-2 font-black uppercase"><ArrowLeft className="size-4"/>Loja</Link><strong className="text-xl uppercase tracking-[-.05em]">Made in Maia</strong></header><ProductPurchase slug={product.slug} name={product.name} description={product.description} collection={product.collection} image={product.imageKey} gallery={product.gallery} priceCents={product.priceCents} supports={supports} catalogColors={catalog.colors} monochrome={product.monochrome} artworkPlacements={product.artworkPlacements}/><ProductDiscovery related={related} collection={product.tags[0] ?? product.collection}/></main>;
 }

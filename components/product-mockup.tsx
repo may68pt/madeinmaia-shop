@@ -1,8 +1,9 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { productColorHex } from "@/lib/product-colors";
+import { artworkPlacement, type ArtworkPlacements } from "@/lib/artwork-placement";
 
-export function ProductMockup({ artwork, color, name, priority = false, baseImage, templateImage, supportId = "tshirt-150", printColor = "original" }: { artwork: string; color: string; name: string; priority?: boolean; baseImage?: string; templateImage?: string; supportId?: string; printColor?: "original" | "black" | "white" }) {
+export function ProductMockup({ artwork, color, name, priority = false, baseImage, templateImage, supportId = "tshirt-150", printColor = "original", placements }: { artwork: string; color: string; name: string; priority?: boolean; baseImage?: string; templateImage?: string; supportId?: string; printColor?: "original" | "black" | "white"; placements?:ArtworkPlacements }) {
   const colorHex = productColorHex(color);
   const artworkStyle = printColor === "black"
     ? { filter: "grayscale(1) brightness(0)" }
@@ -13,13 +14,8 @@ export function ProductMockup({ artwork, color, name, priority = false, baseImag
     return <Image src={artwork} alt={`T-shirt ${name}`} fill sizes="(min-width: 1024px) 55vw, 100vw" unoptimized={artwork.startsWith("http")} className="object-cover" priority={priority} />;
 
   if (templateImage) {
-    const printArea = supportId === "tote-bag"
-      ? { top: "40%", left: "29%", width: "42%", height: "32%" }
-      : supportId === "hoodie"
-        ? { top: "27%", left: "34%", width: "32%", height: "27%" }
-        : supportId === "long-sleeve"
-          ? { top: "22%", left: "34%", width: "32%", height: "30%" }
-          : { top: "80px", left: "35%", width: "30%", height: "30%" };
+    const placement = artworkPlacement(supportId, placements);
+    const printArea = { top:`${placement.y}%`,left:`${placement.x}%`,width:`${placement.width}%`,height:`${placement.height}%` };
     const maskStyle = {
       backgroundColor: colorHex,
       maskImage: `url(${templateImage})`,

@@ -48,6 +48,7 @@ export async function GET(request: Request) {
           tags: products.tags,
           imageKey: products.imageKey,
           gallery: products.gallery,
+          artworkPlacements: products.artworkPlacements,
           colors: products.colors,
           sizes: products.sizes,
           sortOrder: products.sortOrder,
@@ -140,6 +141,7 @@ export async function POST(request: Request) {
     blocks?: unknown[];
     status?: string;
     monochrome?: boolean;
+    artworkPlacements?: Record<string,{x:number;y:number;width:number;height:number}>;
     entries?: unknown[];
     replace?: boolean;
   };
@@ -166,6 +168,17 @@ export async function POST(request: Request) {
     return updated.length
       ? NextResponse.json({ ok: true })
       : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
+  }
+  if (body.resource === "product-placement") {
+    if (!Number.isInteger(body.productId) || !body.artworkPlacements || typeof body.artworkPlacements !== "object")
+      return NextResponse.json({ error: "Posicionamento inválido" }, { status: 400 });
+    const placements=Object.fromEntries(Object.entries(body.artworkPlacements).flatMap(([supportId,value])=>{
+      if(!value||typeof value!=="object")return [];
+      const x=Number(value.x),y=Number(value.y),width=Number(value.width),height=Number(value.height);
+      return [x,y,width,height].every(Number.isFinite)?[[supportId,{x,y,width,height}]]:[];
+    }));
+    const updated=await getDb().update(products).set({artworkPlacements:placements,updatedAt:new Date()}).where(eq(products.id,Number(body.productId))).returning({id:products.id});
+    return updated.length?NextResponse.json({ok:true}):NextResponse.json({error:"Produto não encontrado"},{status:404});
   }
   if (body.resource === "product-delete") {
     if (!Number.isInteger(body.productId)) return NextResponse.json({ error: "Produto inválido" }, { status: 400 });
@@ -361,6 +374,7 @@ export async function POST(request: Request) {
           imageKey: value.imageKey ? String(value.imageKey) : null,
           gallery: Array.isArray(value.gallery) ? value.gallery.map(String).filter(Boolean) : [],
           disabledSupports: Array.isArray(value.disabledSupports) ? value.disabledSupports.map(String) : [],
+          artworkPlacements: value.artworkPlacements && typeof value.artworkPlacements === "object" ? value.artworkPlacements as Record<string,{x:number;y:number;width:number;height:number}> : {},
           colors: Array.isArray(value.colors) ? value.colors.map(String) : [],
           sizes: Array.isArray(value.sizes) ? value.sizes.map(String) : [],
           variants: Array.isArray(value.variants)
