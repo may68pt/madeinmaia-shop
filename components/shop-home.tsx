@@ -37,7 +37,7 @@ function mapProduct(product: ApiProduct): ShopProduct {
     image: product.imageKey || "/products/white-shirt-1.jpg",
     colors: product.colors?.length ? product.colors : ["Unique"],
     sizes: product.sizes?.length ? product.sizes : ["One size"],
-    monochrome: product.monochrome !== false,
+    monochrome: product.monochrome === true,
   };
 }
 

@@ -71,6 +71,13 @@
       "when": 1791075600000,
       "tag": "0009_product_order_monochrome",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791079200000,
+      "tag": "0010_default_original_artwork",
+      "breakpoints": true
     }
   ]
 }

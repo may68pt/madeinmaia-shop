@@ -380,7 +380,7 @@ export async function POST(request: Request) {
               })
             : [],
           sortOrder: Math.max(0, Number(value.sortOrder) || 0),
-          monochrome: value.monochrome !== false,
+          monochrome: value.monochrome === true,
           status: value.status === "published" ? "published" : "draft",
           updatedAt: new Date(),
         },

@@ -30,7 +30,7 @@ export const products = pgTable("products", {
     .notNull()
     .default([]),
   sortOrder: integer("sort_order").notNull().default(0),
-  monochrome: boolean("monochrome").notNull().default(true),
+  monochrome: boolean("monochrome").notNull().default(false),
   status: text("status").notNull().default("draft"),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
