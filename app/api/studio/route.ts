@@ -47,6 +47,7 @@ export async function GET(request: Request) {
           collection: products.collection,
           tags: products.tags,
           imageKey: products.imageKey,
+          gallery: products.gallery,
           colors: products.colors,
           sizes: products.sizes,
           status: products.status,
@@ -61,6 +62,38 @@ export async function GET(request: Request) {
     const discoveries = discoveryResult.status === "fulfilled" ? discoveryResult.value : [];
     const orderList = orderResult.status === "fulfilled" ? orderResult.value : [];
     const settings = settingsResult.status === "fulfilled" ? settingsResult.value[0] : undefined;
+    const storedMedia = settings?.data.media ?? [];
+    const mediaByUrl = new Map(storedMedia.filter((item) => item.url).map((item) => [item.url, item]));
+    for (const product of productList) {
+      if (product.imageKey) {
+        const current = mediaByUrl.get(product.imageKey);
+        mediaByUrl.set(product.imageKey, {
+          ...current,
+          url: product.imageKey,
+          alt: current?.alt || `${product.designCode ? `${product.designCode} · ` : ""}${product.name}`,
+          kind: "artwork",
+          productSlug: product.slug,
+          role: "cover",
+        });
+      }
+      for (const url of product.gallery ?? []) {
+        if (!url) continue;
+        const current = mediaByUrl.get(url);
+        mediaByUrl.set(url, {
+          ...current,
+          url,
+          alt: current?.alt || `${product.name} · fotografia`,
+          kind: "lifestyle",
+          productSlug: product.slug,
+          role: "gallery",
+        });
+      }
+    }
+    const indexedMedia = [...mediaByUrl.values()];
+    const indexedSettings = settings ? { ...settings.data, media: indexedMedia } : null;
+    if (settings && JSON.stringify(storedMedia) !== JSON.stringify(indexedMedia)) {
+      await db.update(siteSettings).set({ data: indexedSettings!, updatedAt: new Date() }).where(eq(siteSettings.key, "global")).catch(() => undefined);
+    }
     const resourceNames = ["pages", "products", "random-content", "orders", "settings"];
     const storageWarnings = results.flatMap((result, index) => result.status === "rejected" ? [resourceNames[index]] : []);
     return NextResponse.json({
@@ -69,7 +102,7 @@ export async function GET(request: Request) {
       products: productList,
       randomContent: discoveries,
       orders: orderList,
-      settings: settings?.data ?? null,
+      settings: indexedSettings,
       paymentConfigured: Boolean(
         process.env.STRIPE_SECRET_KEY || process.env.PAYMENT_LINK_URL,
       ),
@@ -221,6 +254,12 @@ export async function POST(request: Request) {
                           (item as Record<string, unknown>).kind,
                         ) as "artwork" | "lifestyle" | "base")
                       : "artwork",
+                    productSlug: (item as Record<string, unknown>).productSlug
+                      ? String((item as Record<string, unknown>).productSlug)
+                      : undefined,
+                    role: ["cover", "gallery", "standalone"].includes(String((item as Record<string, unknown>).role ?? ""))
+                      ? (String((item as Record<string, unknown>).role) as "cover" | "gallery" | "standalone")
+                      : "standalone",
                   },
                 ]
               : [],

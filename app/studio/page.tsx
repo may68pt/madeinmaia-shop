@@ -132,6 +132,8 @@ type SiteSettings = {
     url: string;
     alt: string;
     kind: "artwork" | "lifestyle" | "base";
+    productSlug?: string;
+    role?: "cover" | "gallery" | "standalone";
   }>;
   theme: {
     brandColor: string;
@@ -705,6 +707,11 @@ export default function Studio() {
       const url = await uploadMedia(optimized, "artwork");
       if (url) {
         updateProduct(productId, { imageKey: url });
+        const product = catalogue.find((item) => item.id === productId);
+        setSettings((current) => ({
+          ...current,
+          media: current.media.map((item) => item.url === url ? { ...item, productSlug: product?.slug, role: "cover" as const } : item),
+        }));
         toast.success(optimized.size < file.size ? `PNG otimizado: ${Math.round(file.size / 1024)} KB → ${Math.round(optimized.size / 1024)} KB` : "PNG carregado e preparado.");
       }
     } catch (error) {
@@ -1279,7 +1286,7 @@ export default function Studio() {
                 <div>
                   <p className="text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">Conteúdos</p>
                   <h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">Biblioteca de media</h1>
-                  <p className="mt-3 text-black/60">Carrega os PNG transparentes dos designs e utiliza-os nos produtos.</p>
+                  <p className="mt-3 text-black/60">{settings.media.length} ficheiros indexados. As imagens dos produtos e respetivas fotografias são sincronizadas automaticamente.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <label className="inline-flex h-10 cursor-pointer items-center gap-2 bg-[var(--ink)] px-5 text-sm font-medium text-white">
@@ -1298,7 +1305,7 @@ export default function Studio() {
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {settings.media.map((item, index) => ({ item, index })).filter(({ item }) => {
                   const query = mediaQuery.trim().toLowerCase();
-                  return (mediaFilter === "all" || item.kind === mediaFilter) && (!query || `${item.alt} ${item.url}`.toLowerCase().includes(query));
+                  return (mediaFilter === "all" || item.kind === mediaFilter) && (!query || `${item.alt} ${item.url} ${item.productSlug ?? ""}`.toLowerCase().includes(query));
                 }).map(({ item, index }) => (
                   <article key={`${item.url}-${index}`} className="bg-white p-4">
                     <div className="relative mb-4 aspect-square overflow-hidden bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0]">
@@ -1308,7 +1315,7 @@ export default function Studio() {
                       <Input value={item.url} onChange={(event) => setSettings({ ...settings, media: settings.media.map((entry, i) => i === index ? { ...entry, url: event.target.value } : entry) })} placeholder="https://..." />
                       <Input value={item.alt} onChange={(event) => setSettings({ ...settings, media: settings.media.map((entry, i) => i === index ? { ...entry, alt: event.target.value } : entry) })} placeholder="Nome do design" />
                       <Select value={item.kind ?? "artwork"} onValueChange={(kind) => setSettings({ ...settings, media: settings.media.map((entry, i) => i === index ? { ...entry, kind: kind as "artwork" | "lifestyle" | "base" } : entry) })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="artwork">Design transparente</SelectItem><SelectItem value="lifestyle">Fotografia de moda</SelectItem><SelectItem value="base">Peça sem design</SelectItem></SelectContent></Select>
-                      <Button variant="ghost" className="justify-start rounded-none text-red-600" onClick={() => setSettings({ ...settings, media: settings.media.filter((_, i) => i !== index) })}><Trash2 />Remover da biblioteca</Button>
+                      {item.productSlug ? <p className="rounded-lg bg-black/[.04] px-3 py-2 text-xs font-bold">Ligada a <span className="uppercase">{item.productSlug}</span> · {item.role === "gallery" ? "galeria" : "capa"}</p> : <Button variant="ghost" className="justify-start rounded-none text-red-600" onClick={() => setSettings({ ...settings, media: settings.media.filter((_, i) => i !== index) })}><Trash2 />Remover da biblioteca</Button>}
                     </div>
                   </article>
                 ))}

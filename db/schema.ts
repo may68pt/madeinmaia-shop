@@ -143,6 +143,8 @@ export type SiteSettings = {
     url: string;
     alt: string;
     kind: "artwork" | "lifestyle" | "base";
+    productSlug?: string;
+    role?: "cover" | "gallery" | "standalone";
   }>;
   theme: {
     brandColor: string;
