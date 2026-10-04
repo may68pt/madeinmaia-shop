@@ -22,6 +22,7 @@ import {
   Store,
   Tablet,
   Trash2,
+  UploadCloud,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -268,6 +269,8 @@ export default function Studio() {
   const [paymentConfigured, setPaymentConfigured] = useState(false);
   const [settings, setSettings] = useState(initialSettings);
   const [uploading, setUploading] = useState(false);
+  const [productImageUploading, setProductImageUploading] = useState<number | null>(null);
+  const [productImageDragOver, setProductImageDragOver] = useState<number | null>(null);
   const [expandedProductId, setExpandedProductId] = useState<number | null>(null);
   const [galleryUrlDrafts, setGalleryUrlDrafts] = useState<Record<number, string>>({});
   const [mediaQuery, setMediaQuery] = useState("");
@@ -640,7 +643,28 @@ export default function Studio() {
     } else toast.error("Não foi possível atualizar o estado.");
   }
 
-  async function uploadMedia(file: File) {
+  async function crunchArtworkPng(file: File) {
+    if (file.type !== "image/png") throw new Error("A imagem de capa tem de ser um ficheiro PNG.");
+    if (file.size > 10 * 1024 * 1024) throw new Error("O PNG não pode exceder 10 MB.");
+    const bitmap = await createImageBitmap(file);
+    const maxSide = 2400;
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Não foi possível processar o PNG.");
+    context.clearRect(0, 0, width, height);
+    context.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+    if (!blob) throw new Error("Não foi possível otimizar o PNG.");
+    return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".png", { type: "image/png" });
+  }
+
+  async function uploadMedia(file: File, kind?: "artwork" | "lifestyle" | "base") {
     setUploading(true);
     try {
       const form = new FormData();
@@ -660,15 +684,34 @@ export default function Studio() {
           {
             url: data.url!,
             alt: file.name.replace(/\.[^.]+$/, ""),
-            kind: file.type === "image/png" ? "artwork" : "lifestyle",
+            kind: kind ?? (file.type === "image/png" ? "artwork" : "lifestyle"),
           },
         ],
       }));
       toast.success("Imagem carregada. Guarda a biblioteca para confirmar.");
+      return data.url;
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erro no upload.");
+      return null;
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function uploadProductArtwork(productId: number, file: File) {
+    setProductImageUploading(productId);
+    try {
+      const optimized = await crunchArtworkPng(file);
+      const url = await uploadMedia(optimized, "artwork");
+      if (url) {
+        updateProduct(productId, { imageKey: url });
+        toast.success(optimized.size < file.size ? `PNG otimizado: ${Math.round(file.size / 1024)} KB → ${Math.round(optimized.size / 1024)} KB` : "PNG carregado e preparado.");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível processar o PNG.");
+    } finally {
+      setProductImageUploading(null);
+      setProductImageDragOver(null);
     }
   }
 
@@ -1240,7 +1283,7 @@ export default function Studio() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <label className="inline-flex h-10 cursor-pointer items-center gap-2 bg-[var(--ink)] px-5 text-sm font-medium text-white">
-                    <input type="file" multiple accept="image/png,image/webp,image/jpeg" className="sr-only" disabled={uploading} onChange={(event) => { const files = Array.from(event.target.files ?? []); if (files.length) void Promise.all(files.map(uploadMedia)); event.target.value = ""; }} />
+                    <input type="file" multiple accept="image/png,image/webp,image/jpeg" className="sr-only" disabled={uploading} onChange={(event) => { const files = Array.from(event.target.files ?? []); if (files.length) void Promise.all(files.map((file) => uploadMedia(file))); event.target.value = ""; }} />
                     {uploading ? "A carregar…" : "Carregar imagens"}
                   </label>
                   <Button variant="outline" className="rounded-none" onClick={() => setSettings({ ...settings, media: [...settings.media, { url: "", alt: "", kind: "artwork" }] })}><Plus />Adicionar URL</Button>
@@ -1676,7 +1719,33 @@ export default function Studio() {
                               </div>
                             </div>
                             <div className="space-y-6">
-                              <section><div className="mb-2 flex items-center justify-between"><div><p className="text-xs font-bold uppercase">Imagem de capa</p><p className="text-xs text-black/45">PNG com fundo transparente</p></div>{product.imageKey && <Button type="button" size="sm" variant="ghost" className="text-red-600" onClick={() => updateProduct(product.id, { imageKey: "" })}><Trash2 />Remover</Button>}</div><div className="relative aspect-square overflow-hidden border-2 border-dashed border-black/15 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:24px_24px]">{product.imageKey ? <Image src={product.imageKey} alt={product.name} fill sizes="360px" unoptimized className="object-contain p-5" /> : <span className="grid h-full place-items-center text-sm font-bold text-black/35">Seleciona um design</span>}</div><Input className="mt-2" value={product.imageKey} onChange={(event) => updateProduct(product.id, { imageKey: event.target.value })} placeholder="URL do PNG" />{settings.media.some((item) => item.url && item.kind === "artwork") && <div className="mt-2 flex gap-2 overflow-x-auto pb-2">{settings.media.filter((item) => item.url && item.kind === "artwork").map((item) => <button key={item.url} type="button" title={item.alt} onClick={() => updateProduct(product.id, { imageKey: item.url })} className={`relative size-16 shrink-0 overflow-hidden border-2 bg-white ${product.imageKey === item.url ? "border-[var(--brand)]" : "border-black/10"}`}><Image src={item.url} alt={item.alt || "Design"} fill sizes="64px" unoptimized className="object-contain p-1" /></button>)}</div>}</section>
+                              <section>
+                                <div className="mb-2 flex items-center justify-between">
+                                  <div><p className="text-xs font-bold uppercase">Imagem de capa</p><p className="text-xs text-black/45">Apenas PNG com fundo transparente · otimização automática</p></div>
+                                  {product.imageKey && <Button type="button" size="sm" variant="ghost" className="text-red-600" onClick={() => updateProduct(product.id, { imageKey: "" })}><Trash2 />Remover</Button>}
+                                </div>
+                                {product.imageKey ? (
+                                  <div className="relative aspect-square overflow-hidden border-2 border-black/10 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:24px_24px]">
+                                    <Image src={product.imageKey} alt={product.name} fill sizes="360px" unoptimized className="object-contain p-5" />
+                                  </div>
+                                ) : (
+                                  <label
+                                    className={`group grid aspect-square cursor-pointer place-items-center overflow-hidden border-2 border-dashed text-center transition ${productImageDragOver === product.id ? "border-[var(--brand)] bg-orange-50" : "border-black/20 bg-black/[.025] hover:border-[var(--brand)] hover:bg-orange-50/50"}`}
+                                    onDragEnter={(event) => { event.preventDefault(); setProductImageDragOver(product.id); }}
+                                    onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; setProductImageDragOver(product.id); }}
+                                    onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setProductImageDragOver(null); }}
+                                    onDrop={(event) => { event.preventDefault(); const file = event.dataTransfer.files[0]; if (file) void uploadProductArtwork(product.id, file); }}
+                                  >
+                                    <input type="file" accept="image/png,.png" className="sr-only" disabled={productImageUploading === product.id} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadProductArtwork(product.id, file); event.target.value = ""; }} />
+                                    <span className="px-8">
+                                      <UploadCloud className="mx-auto size-11 text-black/25 transition group-hover:text-[var(--brand)]" />
+                                      <strong className="mt-4 block text-sm uppercase">{productImageUploading === product.id ? "A otimizar e carregar…" : "Larga aqui o PNG"}</strong>
+                                      <span className="mt-2 block text-xs text-black/45">ou clica para escolher · máximo 10 MB</span>
+                                    </span>
+                                  </label>
+                                )}
+                                {settings.media.some((item) => item.url && item.kind === "artwork") && <div className="mt-2 flex gap-2 overflow-x-auto pb-2">{settings.media.filter((item) => item.url && item.kind === "artwork").map((item) => <button key={item.url} type="button" title={item.alt} onClick={() => updateProduct(product.id, { imageKey: item.url })} className={`relative size-16 shrink-0 overflow-hidden border-2 bg-white ${product.imageKey === item.url ? "border-[var(--brand)]" : "border-black/10"}`}><Image src={item.url} alt={item.alt || "Design"} fill sizes="64px" unoptimized className="object-contain p-1" /></button>)}</div>}
+                              </section>
                               <section><p className="text-xs font-bold uppercase">Outras fotografias</p><p className="mt-1 text-xs text-black/45">Moda, detalhes e contexto.</p>{product.gallery.length > 0 && <div className="mt-3 grid grid-cols-2 gap-2">{product.gallery.map((photo, index) => <div key={`${photo}-${index}`} className="group relative aspect-[4/3] overflow-hidden bg-[#eee]"><Image src={photo} alt="" fill sizes="180px" unoptimized className="object-cover" /><Button type="button" size="icon" variant="destructive" className="absolute right-2 top-2 size-8 opacity-90" onClick={() => updateProduct(product.id, { gallery: product.gallery.filter((_, itemIndex) => itemIndex !== index) })}><Trash2 className="size-4" /></Button></div>)}</div>}<div className="mt-3 flex gap-2"><Input value={galleryUrlDrafts[product.id] ?? ""} onChange={(event) => setGalleryUrlDrafts((drafts) => ({ ...drafts, [product.id]: event.target.value }))} placeholder="URL de outra fotografia" /><Button type="button" variant="outline" onClick={() => { const url = (galleryUrlDrafts[product.id] ?? "").trim(); if (!url) return; updateProduct(product.id, { gallery: [...product.gallery, url] }); setGalleryUrlDrafts((drafts) => ({ ...drafts, [product.id]: "" })); }}><Plus /></Button></div>{settings.media.some((item) => item.kind === "lifestyle" && item.url) && <div className="mt-2 flex gap-2 overflow-x-auto">{settings.media.filter((item) => item.kind === "lifestyle" && item.url).map((item) => <button key={item.url} type="button" title={item.alt} onClick={() => !product.gallery.includes(item.url) && updateProduct(product.id, { gallery: [...product.gallery, item.url] })} className="relative size-16 shrink-0 overflow-hidden border border-black/10 bg-white"><Image src={item.url} alt={item.alt || "Fotografia"} fill sizes="64px" unoptimized className="object-cover" /></button>)}</div>}</section>
                               <Button variant="outline" className="w-full rounded-none" asChild><Link href={`/produto/${product.slug}`} target="_blank"><Eye />Ver produto</Link></Button>
                             </div>
