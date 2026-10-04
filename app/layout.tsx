@@ -63,9 +63,9 @@ export default async function RootLayout({
     "--brand": theme.brandColor,
     "--accent-brand": theme.accentColor,
     "--ink": theme.darkColor,
-    "--paper": theme.backgroundColor,
+    "--paper": "#0d0d0c",
     "--primary": theme.brandColor,
-    "--background": theme.backgroundColor,
+    "--background": "#0d0d0c",
     "--foreground": "#f4f3ef",
     "--surface": "#181816",
   } as CSSProperties;
