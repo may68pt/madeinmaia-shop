@@ -1774,9 +1774,9 @@ export default function Studio() {
                         </div>
                       </div>
                       {isOpen && product.detailsLoaded && (
-                        <div className="border-t border-black/10 p-5">
-                          <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
-                            <div className="grid content-start gap-4 md:grid-cols-2">
+                        <div className="min-w-0 border-t border-black/10 p-5">
+                          <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+                            <div className="grid min-w-0 content-start gap-4 md:grid-cols-2">
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Número do design</span><Input value={product.designCode} onChange={(event) => updateProduct(product.id, { designCode: event.target.value })} onBlur={(event) => { const digits = event.target.value.replace(/\D/g, "").slice(-4); updateProduct(product.id, { designCode: `MiM_${digits.padStart(4, "0")}` }); }} placeholder="MiM_0000" /></label>
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Nome</span><Input value={product.name} onChange={(event) => updateProduct(product.id, { name: event.target.value })} /></label>
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Slug</span><Input value={product.slug} onChange={(event) => updateProduct(product.id, { slug: event.target.value })} /></label>
@@ -1803,7 +1803,7 @@ export default function Studio() {
                                 </div>
                               </div>
                             </div>
-                            <div className="w-full max-w-[320px] justify-self-center space-y-6 xl:max-w-[360px]">
+                            <div className="min-w-0 w-full max-w-[320px] justify-self-center space-y-6 xl:max-w-[360px]">
                               <section>
                                 <div className="mb-2 flex items-center justify-between">
                                   <div><p className="text-xs font-bold uppercase">Imagem de capa</p><p className="text-xs text-black/45">Apenas PNG com fundo transparente · otimização automática</p></div>
