@@ -1782,6 +1782,10 @@ export default function Studio() {
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Slug</span><Input value={product.slug} onChange={(event) => updateProduct(product.id, { slug: event.target.value })} /></label>
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Preço (€)</span><Input type="number" min="0" step="0.01" value={(product.priceCents / 100).toFixed(2)} onChange={(event) => updateProduct(product.id, { priceCents: Math.round(Number(event.target.value) * 100) })} /></label>
                               <label className="grid gap-1 text-xs font-bold uppercase md:col-span-2"><span>Tags de pesquisa</span><Input value={product.tags.join(", ")} onChange={(event) => updateProduct(product.id, { tags: event.target.value.split(",").map((value) => value.trim()).filter(Boolean) })} placeholder="Cats, Quotes, Jars" /></label>
+                              <label className="flex cursor-pointer items-center justify-between gap-5 rounded-2xl border border-black/10 bg-[#f7f7f4] p-4 md:col-span-2">
+                                <span><strong className="block text-sm uppercase">Design monocromático</strong><span className="mt-1 block text-xs font-normal text-black/50">Ativa a escolha de impressão preta ou branca e o filtro CSS do design. Mantém desligado para preservar todas as cores do PNG.</span></span>
+                                <Switch aria-label="Design monocromático" checked={product.monochrome} onCheckedChange={(checked) => void updateProductMonochrome(product, checked)} />
+                              </label>
                               <details className="rounded-2xl border border-black/10 p-4 md:col-span-2"><summary className="cursor-pointer text-xs font-black uppercase">Traduções do nome</summary><div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{["pt", "es", "de", "fr"].map((locale) => <label key={locale} className="grid gap-1 text-xs font-bold uppercase"><span>{locale}</span><Input value={product.nameTranslations[locale] ?? ""} onChange={(event) => updateProduct(product.id, { nameTranslations: { ...product.nameTranslations, [locale]: event.target.value } })} placeholder={product.name} /></label>)}</div></details>
                               <div className="md:col-span-2">
                                 <p className="text-xs font-bold uppercase">Suportes disponíveis</p>
@@ -1799,19 +1803,19 @@ export default function Studio() {
                                 </div>
                               </div>
                             </div>
-                            <div className="space-y-6">
+                            <div className="w-full max-w-[320px] justify-self-center space-y-6 xl:max-w-[360px]">
                               <section>
                                 <div className="mb-2 flex items-center justify-between">
                                   <div><p className="text-xs font-bold uppercase">Imagem de capa</p><p className="text-xs text-black/45">Apenas PNG com fundo transparente · otimização automática</p></div>
                                   {product.imageKey && <Button type="button" size="sm" variant="ghost" className="text-red-600" onClick={() => updateProduct(product.id, { imageKey: "" })}><Trash2 />Remover</Button>}
                                 </div>
                                 {product.imageKey ? (
-                                  <div className="relative aspect-square overflow-hidden border-2 border-black/10 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:24px_24px]">
+                                  <div className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden border-2 border-black/10 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:24px_24px] xl:max-w-[360px]">
                                     <Image src={product.imageKey} alt={product.name} fill sizes="360px" unoptimized className="object-contain p-5" />
                                   </div>
                                 ) : (
                                   <label
-                                    className={`group grid aspect-square cursor-pointer place-items-center overflow-hidden border-2 border-dashed text-center transition ${productImageDragOver === product.id ? "border-[var(--brand)] bg-orange-50" : "border-black/20 bg-black/[.025] hover:border-[var(--brand)] hover:bg-orange-50/50"}`}
+                                    className={`group mx-auto grid aspect-square w-full max-w-[320px] cursor-pointer place-items-center overflow-hidden border-2 border-dashed text-center transition xl:max-w-[360px] ${productImageDragOver === product.id ? "border-[var(--brand)] bg-orange-50" : "border-black/20 bg-black/[.025] hover:border-[var(--brand)] hover:bg-orange-50/50"}`}
                                     onDragEnter={(event) => { event.preventDefault(); setProductImageDragOver(product.id); }}
                                     onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; setProductImageDragOver(product.id); }}
                                     onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setProductImageDragOver(null); }}
