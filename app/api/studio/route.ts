@@ -240,6 +240,13 @@ export async function POST(request: Request) {
               label,
               url,
               visible: item.visible !== false,
+              children: Array.isArray(item.children) ? item.children.flatMap((child) => {
+                if (!child || typeof child !== "object") return [];
+                const entry = child as Record<string, unknown>;
+                const childLabel=String(entry.label??"").trim();
+                const childUrl=String(entry.url??"").trim();
+                return childLabel&&childUrl?[{id:String(entry.id??crypto.randomUUID()),label:childLabel,url:childUrl,visible:entry.visible!==false}]:[];
+              }) : [],
             }];
           })
         : DEFAULT_NAVIGATION,
@@ -278,7 +285,8 @@ export async function POST(request: Request) {
               const support = entry as Record<string, unknown>;
               const availability = support.availability && typeof support.availability === "object" ? Object.fromEntries(Object.entries(support.availability as Record<string, unknown>).map(([key, options]) => [key, Array.isArray(options) ? options.map(String) : []])) : undefined;
               if (String(support.id ?? "") === "sunglasses") return [];
-              return [normalizeSupport({ id: String(support.id ?? ""), categoryId: support.categoryId as "apparel" | "bags" | undefined, name: String(support.name ?? ""), variantMode: support.variantMode as "size" | "none" | undefined, sizes: Array.isArray(support.sizes) ? support.sizes.map(String) : undefined, colorIds: Array.isArray(support.colorIds) ? support.colorIds.map(String) : undefined, availability, active: support.active !== false, templateImage: String(support.templateImage ?? ""), mockups: support.mockups && typeof support.mockups === "object" ? Object.fromEntries(Object.entries(support.mockups as Record<string, unknown>).map(([key, url]) => [key, String(url)])) : {} })];
+              const placement=support.defaultPlacement&&typeof support.defaultPlacement==="object"?support.defaultPlacement as Record<string,unknown>:undefined;
+              return [normalizeSupport({ id: String(support.id ?? ""), categoryId: support.categoryId as "apparel" | "bags" | undefined, name: String(support.name ?? ""), variantMode: support.variantMode as "size" | "none" | undefined, sizes: Array.isArray(support.sizes) ? support.sizes.map(String) : undefined, colorIds: Array.isArray(support.colorIds) ? support.colorIds.map(String) : undefined, availability, active: support.active !== false, templateImage: String(support.templateImage ?? ""), mockups: support.mockups && typeof support.mockups === "object" ? Object.fromEntries(Object.entries(support.mockups as Record<string, unknown>).map(([key, url]) => [key, String(url)])) : {}, priceCents:Math.max(0,Number(support.priceCents)||0), defaultPlacement:placement?{x:Number(placement.x)||0,y:Number(placement.y)||0,width:Number(placement.width)||30,height:Number(placement.height)||30}:undefined })];
             })
           : DEFAULT_SUPPORTS,
       },

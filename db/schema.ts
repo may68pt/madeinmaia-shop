@@ -139,6 +139,7 @@ export type SiteSettings = {
     label: string;
     url: string;
     visible: boolean;
+    children?: Array<{ id:string; label:string; url:string; visible:boolean }>;
   }>;
   terms: string;
   privacy: string;

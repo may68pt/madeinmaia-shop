@@ -43,7 +43,7 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
   return <article className="group min-w-0 text-[var(--foreground)]">
     <div className="relative aspect-square overflow-hidden rounded-t-[1.6rem] border border-white/10 bg-[var(--surface)]">
       <Link href={`/produto/${product.slug}`} className="absolute inset-0" aria-label={`Open ${product.name}`}>
-        {slide?.id === "design" ? <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_center,#292925_0,#181816_68%)] p-[10%]"><div className="relative size-full"><Image src={product.image} alt={product.name} fill sizes="(min-width:1024px) 30vw, 90vw" unoptimized={product.image.startsWith("http")} className="object-contain drop-shadow-2xl" style={product.monochrome ? {filter:printColor === "white" ? "grayscale(1) brightness(0) invert(1)" : "grayscale(1) brightness(0)"} : undefined}/></div></div> : <ProductMockup artwork={product.image} color={color?.name ?? "White"} name={product.name} templateImage={slide?.templateImage} supportId={slide?.id} printColor={product.monochrome ? printColor : "original"} placements={product.artworkPlacements} />}
+        {slide?.id === "design" ? <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_center,#292925_0,#181816_68%)] p-[10%]"><div className="relative size-full"><Image src={product.image} alt={product.name} fill sizes="(min-width:1024px) 30vw, 90vw" unoptimized={product.image.startsWith("http")} className="object-contain drop-shadow-2xl" style={product.monochrome ? {filter:printColor === "white" ? "grayscale(1) brightness(0) invert(1)" : "grayscale(1) brightness(0)"} : undefined}/></div></div> : slide && "defaultPlacement" in slide ? <ProductMockup artwork={product.image} color={color?.name ?? "White"} name={product.name} templateImage={slide.templateImage} supportId={slide.id} printColor={product.monochrome ? printColor : "original"} placements={{[slide.id]:slide.defaultPlacement,...product.artworkPlacements}} /> : null}
       </Link>
       <span className="absolute left-4 top-4 rounded-full bg-[var(--accent-brand)] px-3 py-1 text-[11px] font-black uppercase tracking-[.12em] text-[#111]">{label}</span>
       {product.monochrome && <div className="absolute right-4 top-4 z-10 flex gap-2" aria-label={strings.printColour}>
@@ -62,7 +62,7 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
     </div>
     <div className="flex items-start justify-between gap-4 pt-4">
       <div className="min-w-0"><p className="truncate text-xs font-bold uppercase tracking-[.12em] text-white/42">{product.tags.join(" · ")||product.collection}</p><Link href={`/produto/${product.slug}`}><h3 className="mt-1 text-xl font-black uppercase tracking-[-.025em]">{product.name}</h3></Link></div>
-      <strong className="shrink-0 text-lg">{product.price}</strong>
+      <strong className="shrink-0 text-lg">{slide && "priceCents" in slide?`${(slide.priceCents/100).toFixed(2).replace(".",",")} €`:product.price}</strong>
     </div>
   </article>;
 }

@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const color = productCatalog.colors.find((entry)=>entry.name===item.color&&entry.active&&support?.colorIds.includes(entry.id));
     const validOption = support?.variantMode === "none" ? item.size === "Único" : Boolean(color && support && supportOptions(support, color.id).includes(item.size));
     if (!product || !support || !color || !validOption) return [];
-    return [{ ...item, name:product.name, unitPriceCents:product.priceCents }];
+    return [{ ...item, name:product.name, unitPriceCents:support.priceCents }];
   });
   if (orderItems.length !== items.length) return NextResponse.json({ error:"Um produto ou variante deixou de estar disponível." }, { status:409 });
   const subtotalCents = orderItems.reduce((sum,item)=>sum+item.unitPriceCents*item.quantity,0);
