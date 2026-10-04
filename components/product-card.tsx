@@ -50,12 +50,12 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
       </div>}
       {slides.length > 1 && <><button type="button" onClick={()=>changeSlide(-1)} className="absolute left-3 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white backdrop-blur hover:bg-black/70" aria-label={strings.previous}><ChevronLeft/></button><button type="button" onClick={()=>changeSlide(1)} className="absolute right-3 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white backdrop-blur hover:bg-black/70" aria-label={strings.next}><ChevronRight/></button></>}
       <div className="absolute bottom-14 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/55 px-3 py-2 text-[10px] font-black uppercase tracking-[.1em] text-white backdrop-blur" aria-live="polite">{supportIcon}<span>{slide?.name}</span><span className="text-white/45">{slideIndex+1}/{slides.length}</span></div>
-      <div className={`scrollbar-none absolute bottom-4 left-4 z-10 flex snap-x gap-2 overflow-x-auto border-0 bg-transparent p-0 shadow-none ${product.monochrome ? "max-w-[calc(100%-7.5rem)]" : "max-w-[calc(100%-2rem)]"}`} aria-label="Garment colours">
+      {slide?.id !== "design" && <div className="scrollbar-none absolute bottom-4 left-4 right-4 z-10 flex snap-x gap-2 overflow-x-auto border-0 bg-transparent p-0 shadow-none" aria-label={strings.garmentColours}>
           {availableColors.map((item) => <button key={item.id} type="button" onClick={()=>setColorId(item.id)} className="group/swatch relative shrink-0 snap-center py-1" aria-label={item.name} aria-pressed={color?.id===item.id}>
             <span className={`block size-7 rounded-full border-2 transition ${color?.id===item.id?"scale-110 border-white":"border-white/25"}`} style={{backgroundColor:item.hex}} />
             <span role="tooltip" className="pointer-events-none absolute bottom-[calc(100%+.45rem)] left-1/2 z-20 hidden w-max max-w-24 -translate-x-1/2 rounded-lg bg-white px-2 py-1 text-center text-[10px] font-bold leading-tight text-black shadow-xl group-hover/swatch:block group-focus-visible/swatch:block">{item.name}</span>
           </button>)}
-      </div>
+      </div>}
     </div>
     <div className="flex items-start justify-between gap-4 pt-4">
       <div className="min-w-0"><p className="truncate text-xs font-bold uppercase tracking-[.12em] text-white/42">{product.tags.join(" · ")||product.collection}</p><Link href={`/produto/${product.slug}`}><h3 className="mt-1 text-xl font-black uppercase tracking-[-.025em]">{product.name}</h3></Link></div>
