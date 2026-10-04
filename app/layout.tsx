@@ -48,7 +48,7 @@ export default async function RootLayout({
     brandColor: "#ff4f1f",
     accentColor: "#d9ff43",
     darkColor: "#171713",
-    backgroundColor: "#f4f3ef",
+    backgroundColor: "#0d0d0c",
   };
   try {
     const [settings] = await getDb()
@@ -66,7 +66,8 @@ export default async function RootLayout({
     "--paper": theme.backgroundColor,
     "--primary": theme.brandColor,
     "--background": theme.backgroundColor,
-    "--foreground": theme.darkColor,
+    "--foreground": "#f4f3ef",
+    "--surface": "#181816",
   } as CSSProperties;
   return (
     <html lang="en">

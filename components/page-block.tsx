@@ -10,8 +10,10 @@ export function PageBlock({ block, children, locale="en", editor = false, select
   const blockAlign = block.align ?? "left";
   const width = blockWidth === "narrow" ? "max-w-3xl" : blockWidth === "full" ? "max-w-none" : "max-w-[1440px]";
   const spacing = blockSpacing === "compact" ? "py-8" : blockSpacing === "large" ? "py-20" : "py-12";
-  const background = block.background ?? (hero ? "var(--accent-brand)" : block.type === "Banner" ? "var(--ink)" : "transparent");
-  const textColor = block.textColor ?? (block.type === "Banner" ? "white" : "var(--ink)");
+  const storedBackground = block.background ?? (hero ? "var(--accent-brand)" : block.type === "Banner" ? "#050505" : "transparent");
+  const background = storedBackground === "#ffffff" ? "var(--surface)" : storedBackground;
+  const darkContentBlock = ["Produtos", "Coleções", "Texto"].includes(block.type) && ["transparent", "var(--paper)", "var(--surface)"].includes(background);
+  const textColor = darkContentBlock ? "var(--foreground)" : block.textColor ?? (hero ? "#11110f" : "var(--foreground)");
   const copy = locale === "en" ? block : { ...block, ...(block.translations?.[locale] ?? {}) };
   return <section id={block.type === "Produtos" ? "novidades" : block.type === "Coleções" ? "colecoes" : undefined} onClick={onSelect} className={`relative overflow-hidden ${width} ${spacing} ${blockWidth === "full" ? "" : "mx-auto"} ${editor ? `cursor-pointer outline outline-2 outline-offset-[-2px] ${selected ? "outline-[var(--brand)]" : "outline-transparent hover:outline-black/15"}` : ""}`} style={{background,color:textColor}}>
     {block.imageUrl&&<Image src={block.imageUrl} alt="" fill sizes="100vw" unoptimized={block.imageUrl.startsWith("http")} className="object-cover opacity-45"/>}

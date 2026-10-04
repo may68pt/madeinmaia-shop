@@ -23,7 +23,7 @@ export default function CheckoutPage() {
     const form = new FormData(event.currentTarget);
     const customer = Object.fromEntries(["name","email","phone","address","postalCode","city","country"].map((key)=>[key,String(form.get(key)??"")]));
     try {
-      const response = await fetch("/api/checkout",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({customer,items:cart.map(({slug,productType,color,size,quantity})=>({slug,productType:productType||"adult-tshirt",color,size,quantity}))})});
+      const response = await fetch("/api/checkout",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({customer,items:cart.map(({slug,productType,color,printColor,size,quantity})=>({slug,productType:productType||"adult-tshirt",color,printColor:printColor||"black",size,quantity}))})});
       const data = await response.json() as Result & {error?:string};
       if (!response.ok) throw new Error(data.error||"Não foi possível criar a encomenda.");
       setResult(data);

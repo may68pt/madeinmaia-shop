@@ -79,6 +79,7 @@ export const orders = pgTable("orders", {
         slug: string;
         name: string;
         color: string;
+        printColor?: "black" | "white";
         size: string;
         productType: string;
         quantity: number;

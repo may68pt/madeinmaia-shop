@@ -10,6 +10,7 @@ export type CartItem = {
   priceCents: number;
   productType: string;
   color: string;
+  printColor: "black" | "white";
   size: string;
   quantity: number;
 };
@@ -43,7 +44,7 @@ export function useCart() { return useSyncExternalStore(subscribe, readCart, () 
 
 export function addCartItem(item: Omit<CartItem, "key" | "quantity">) {
   const items = readCart();
-  const key = `${item.slug}:${item.productType}:${item.color}:${item.size}`;
+  const key = `${item.slug}:${item.productType}:${item.color}:${item.printColor}:${item.size}`;
   const existing = items.find((entry) => entry.key === key);
   writeCart(existing ? items.map((entry) => entry.key === key ? { ...entry, quantity: Math.min(20, entry.quantity + 1) } : entry) : [...items, { ...item, key, quantity: 1 }]);
 }

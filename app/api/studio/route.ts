@@ -186,7 +186,7 @@ export async function POST(request: Request) {
         ),
         backgroundColor: String(
           (value.theme as Record<string, unknown> | undefined)
-            ?.backgroundColor ?? "#f4f3ef",
+            ?.backgroundColor ?? "#0d0d0c",
         ),
       },
       productCatalog: {

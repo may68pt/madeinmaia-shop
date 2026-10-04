@@ -5,6 +5,7 @@ import { getDb } from "@/db";
 import { pages, products, siteSettings } from "@/db/schema";
 import { DEFAULT_PAGE_BLOCKS, type PageBlock } from "@/lib/page-blocks";
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
+import { DEFAULT_COLORS, type CatalogColor } from "@/lib/product-catalog";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 24;
@@ -29,6 +30,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   let initialTotal = 0;
   let initialBlocks:PageBlock[] = DEFAULT_PAGE_BLOCKS;
   let navigation:NavigationItem[] = DEFAULT_NAVIGATION;
+  let catalogColors:CatalogColor[] = DEFAULT_COLORS;
   try {
     const db = getDb();
     const where = query
@@ -60,6 +62,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     if (storedPage?.status === "published" && Array.isArray(storedPage.blocks))
       initialBlocks = storedPage.blocks as PageBlock[];
     if (settings?.data.navigation?.length) navigation = settings.data.navigation;
+    if (settings?.data.productCatalog?.colors?.length) catalogColors = settings.data.productCatalog.colors;
   } catch {
     /* local fallback inside the client component */
   }
@@ -75,5 +78,5 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       name:product.name,
     })),
   };
-  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData).replace(/</g,"\\u003c")}}/><Home initialProducts={initialProducts} initialTotal={initialTotal} initialBlocks={initialBlocks} initialOffset={offset} initialPage={page} initialQuery={query} navigation={navigation} /></>;
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData).replace(/</g,"\\u003c")}}/><Home initialProducts={initialProducts} initialTotal={initialTotal} initialBlocks={initialBlocks} initialOffset={offset} initialPage={page} initialQuery={query} navigation={navigation} catalogColors={catalogColors} /></>;
 }

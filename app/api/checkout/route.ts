@@ -8,7 +8,7 @@ import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport, supportOptions } fr
 
 const schema = z.object({
   customer: z.object({ name:z.string().trim().min(2), email:z.string().email(), phone:z.string().trim().min(6), address:z.string().trim().min(4), postalCode:z.string().trim().min(4), city:z.string().trim().min(2), country:z.string().trim().min(2) }),
-  items: z.array(z.object({ slug:z.string().min(1), productType:z.string().min(1).default("adult-tshirt"), color:z.string().min(1), size:z.string().min(1), quantity:z.number().int().min(1).max(20) })).min(1),
+  items: z.array(z.object({ slug:z.string().min(1), productType:z.string().min(1).default("adult-tshirt"), color:z.string().min(1), printColor:z.enum(["black","white"]).default("black"), size:z.string().min(1), quantity:z.number().int().min(1).max(20) })).min(1),
 });
 
 const fallback = new Map([
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     try {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
       const origin = new URL(request.url).origin;
-      const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = orderItems.map((item)=>({ quantity:item.quantity, price_data:{ currency:"eur", unit_amount:item.unitPriceCents, product_data:{ name:item.name, description:`${item.productType} · ${item.size} · ${item.color}` } } }));
+      const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = orderItems.map((item)=>({ quantity:item.quantity, price_data:{ currency:"eur", unit_amount:item.unitPriceCents, product_data:{ name:item.name, description:`${item.productType} · ${item.size} · ${item.color} · ${item.printColor} print` } } }));
       if (shippingCents) lineItems.push({ quantity:1, price_data:{ currency:"eur", unit_amount:shippingCents, product_data:{ name:"Envio Portugal" } } });
       const session = await stripe.checkout.sessions.create({ mode:"payment", customer_email:customer.email, line_items:lineItems, success_url:`${origin}/checkout/sucesso?session_id={CHECKOUT_SESSION_ID}`, cancel_url:`${origin}/checkout`, metadata:{ reference }, payment_intent_data:{ metadata:{ reference } } });
       paymentUrl = session.url;
