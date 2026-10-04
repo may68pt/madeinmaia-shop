@@ -34,7 +34,14 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
   const [colorId, setColorId] = useState(availableColors[0]?.id ?? "white");
   const [printColor, setPrintColor] = useState<PrintColor>("black");
   const availableSupports = useMemo(() => supports.filter((support) => support.active && !product.disabledSupports?.includes(support.id)), [product.disabledSupports, supports]);
-  const slides = useMemo(() => [{ id:"design", name:strings.designOnly, templateImage:"" }, ...availableSupports], [availableSupports, strings.designOnly]);
+  const previewSupports = useMemo(() => {
+    const tshirt = availableSupports.find((support) => support.id.startsWith("tshirt-"));
+    return availableSupports.filter((support) => !support.id.startsWith("tshirt-")).concat(tshirt ? [{ ...tshirt, name:"T-shirt" }] : []);
+  }, [availableSupports]);
+  const slides = useMemo(() => {
+    const order = ["tshirt-150", "tshirt-190", "hoodie", "long-sleeve", "tote-bag"];
+    return [{ id:"design", name:strings.designOnly, templateImage:"" }, ...previewSupports.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id))];
+  }, [previewSupports, strings.designOnly]);
   const [slideIndex, setSlideIndex] = useState(0);
   const slide = slides[Math.min(slideIndex, slides.length - 1)] ?? slides[0];
   const color = availableColors.find((item) => item.id === colorId) ?? availableColors[0];
