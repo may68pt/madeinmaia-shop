@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
-import type { PageBlock as PageBlockData } from "@/lib/page-blocks";
+import { localizedBlock, type PageBlock as PageBlockData } from "@/lib/page-blocks";
 
 export function PageBlock({ block, children, locale="en", editor = false, selected = false, onSelect }: { block:PageBlockData; children?:ReactNode; locale?:string; editor?:boolean; selected?:boolean; onSelect?:()=>void }) {
   const hero = block.type === "Hero";
@@ -14,7 +14,7 @@ export function PageBlock({ block, children, locale="en", editor = false, select
   const background = storedBackground === "#ffffff" ? "var(--surface)" : storedBackground;
   const darkContentBlock = ["Produtos", "Coleções", "Texto"].includes(block.type) && ["transparent", "var(--paper)", "var(--surface)"].includes(background);
   const textColor = darkContentBlock ? "var(--foreground)" : block.textColor ?? (hero ? "#11110f" : "var(--foreground)");
-  const copy = locale === "en" ? block : { ...block, ...(block.translations?.[locale] ?? {}) };
+  const copy = localizedBlock(block, locale);
   return <section id={block.type === "Produtos" ? "novidades" : block.type === "Coleções" ? "colecoes" : undefined} onClick={onSelect} className={`relative overflow-hidden ${width} ${spacing} ${blockWidth === "full" ? "" : "mx-auto"} ${editor ? `cursor-pointer outline outline-2 outline-offset-[-2px] ${selected ? "outline-[var(--brand)]" : "outline-transparent hover:outline-black/15"}` : ""}`} style={{background,color:textColor}}>
     {block.imageUrl&&<Image src={block.imageUrl} alt="" fill sizes="100vw" unoptimized={block.imageUrl.startsWith("http")} className="object-cover opacity-45"/>}
     <div className={`relative ${blockWidth === "full" ? "mx-auto max-w-[1440px] px-5 lg:px-10" : "px-5 lg:px-10"} ${blockAlign === "center" ? "text-center" : "text-left"}`}>

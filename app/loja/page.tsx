@@ -5,7 +5,7 @@ import { getDb } from "@/db";
 import { pages, products, siteSettings } from "@/db/schema";
 import { DEFAULT_PAGE_BLOCKS, type PageBlock } from "@/lib/page-blocks";
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
-import { DEFAULT_COLORS, type CatalogColor } from "@/lib/product-catalog";
+import { DEFAULT_COLORS, DEFAULT_SUPPORTS, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 24;
@@ -31,6 +31,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   let initialBlocks:PageBlock[] = DEFAULT_PAGE_BLOCKS;
   let navigation:NavigationItem[] = DEFAULT_NAVIGATION;
   let catalogColors:CatalogColor[] = DEFAULT_COLORS;
+  let catalogSupports:ProductSupport[] = DEFAULT_SUPPORTS;
   try {
     const db = getDb();
     const where = query
@@ -53,6 +54,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         colors:products.colors,
         sizes:products.sizes,
         monochrome:products.monochrome,
+        disabledSupports:products.disabledSupports,
       }).from(products).where(where).orderBy(asc(products.sortOrder), asc(products.id)).limit(PAGE_SIZE).offset(offset),
       db.select({ total:count() }).from(products).where(where),
       db.select().from(pages).where(eq(pages.slug,"inicio")),
@@ -64,6 +66,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       initialBlocks = storedPage.blocks as PageBlock[];
     if (settings?.data.navigation?.length) navigation = settings.data.navigation;
     if (settings?.data.productCatalog?.colors?.length) catalogColors = settings.data.productCatalog.colors;
+    if (settings?.data.productCatalog?.supports?.length) catalogSupports = settings.data.productCatalog.supports;
   } catch {
     /* local fallback inside the client component */
   }
@@ -79,5 +82,5 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       name:product.name,
     })),
   };
-  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData).replace(/</g,"\\u003c")}}/><Home initialProducts={initialProducts} initialTotal={initialTotal} initialBlocks={initialBlocks} initialOffset={offset} initialPage={page} initialQuery={query} navigation={navigation} catalogColors={catalogColors} /></>;
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData).replace(/</g,"\\u003c")}}/><Home initialProducts={initialProducts} initialTotal={initialTotal} initialBlocks={initialBlocks} initialOffset={offset} initialPage={page} initialQuery={query} navigation={navigation} catalogColors={catalogColors} catalogSupports={catalogSupports} /></>;
 }

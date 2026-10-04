@@ -792,11 +792,11 @@ export default function Studio() {
 
   if (!studioKey)
     return (
-      <main className="grid min-h-screen place-items-center bg-[var(--ink)] p-6 text-white">
+      <main className="storefront-dark grid min-h-screen place-items-center bg-[var(--paper)] p-6 text-[var(--foreground)]">
         <Toaster position="bottom-right" />
         <form
           onSubmit={unlock}
-          className="w-full max-w-md bg-[var(--paper)] p-8 text-[var(--ink)]"
+          className="w-full max-w-md border border-white/10 bg-[var(--surface)] p-8 text-[var(--foreground)] shadow-2xl"
         >
           <span className="grid size-12 place-items-center bg-[var(--brand)] text-white">
             <LockKeyhole />
@@ -804,7 +804,7 @@ export default function Studio() {
           <h1 className="mt-6 text-4xl font-black uppercase tracking-[-.055em]">
             Made in Maia Studio
           </h1>
-          <p className="mt-3 text-black/60">
+          <p className="mt-3 text-white/60">
             Introduz a palavra-passe definida no serviço Render.
           </p>
           <label
@@ -818,13 +818,13 @@ export default function Studio() {
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="mt-2 h-12"
+            className="mt-2 h-12 border-white/15 bg-white/5 text-white placeholder:text-white/30"
             autoFocus
             required
           />
           <Button
             type="submit"
-            className="mt-4 h-12 w-full rounded-none bg-[var(--ink)] text-white"
+            className="mt-4 h-12 w-full rounded-none bg-[var(--accent-brand)] font-black text-black hover:bg-[#c8ef39]"
           >
             Entrar no Studio
           </Button>
