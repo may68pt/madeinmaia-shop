@@ -276,6 +276,8 @@ export default function Studio() {
   const [viewport, setViewport] = useState("desktop");
   const [published, setPublished] = useState(false);
   const [studioKey, setStudioKey] = useState("");
+  const [studioUser, setStudioUser] = useState("");
+  const [username, setUsername] = useState("madeinmaia");
   const [password, setPassword] = useState("");
   const [section, setSection] = useState<
     "pages" | "menus" | "products" | "discover" | "orders" | "catalog" | "media" | "settings"
@@ -363,7 +365,7 @@ export default function Studio() {
     if (!page || !window.confirm(`Remover a página “${page.title}”? Esta ação não pode ser anulada.`)) return;
     const response = await fetch("/api/studio", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-studio-key": studioKey },
+      headers: { "content-type": "application/json", "x-studio-user": studioUser, "x-studio-key": studioKey },
       body: JSON.stringify({ resource: "page-delete", reference: currentPageSlug }),
     });
     if (!response.ok) {
@@ -413,6 +415,7 @@ export default function Studio() {
         method: "POST",
         headers: {
           "content-type": "application/json",
+          "x-studio-user": studioUser,
           "x-studio-key": studioKey,
         },
         body: JSON.stringify({ resource: "settings", entries: [settings] }),
@@ -426,6 +429,7 @@ export default function Studio() {
         method: "POST",
         headers: {
           "content-type": "application/json",
+          "x-studio-user": studioUser,
           "x-studio-key": studioKey,
         },
         body: JSON.stringify({ resource: "settings", entries: [settings] }),
@@ -444,6 +448,7 @@ export default function Studio() {
         method: "POST",
         headers: {
           "content-type": "application/json",
+          "x-studio-user": studioUser,
           "x-studio-key": studioKey,
         },
         body: JSON.stringify({ resource: "products", entries: loadedProducts }),
@@ -457,6 +462,7 @@ export default function Studio() {
         method: "POST",
         headers: {
           "content-type": "application/json",
+          "x-studio-user": studioUser,
           "x-studio-key": studioKey,
         },
         body: JSON.stringify({
@@ -473,6 +479,7 @@ export default function Studio() {
       method: "POST",
       headers: {
         "content-type": "application/json",
+        "x-studio-user": studioUser,
         "x-studio-key": studioKey,
       },
       body: JSON.stringify({
@@ -485,18 +492,19 @@ export default function Studio() {
       toast.success(published ? "Página publicada" : "Rascunho guardado");
     }
     else if (response.status === 401) {
+      setStudioUser("");
       setStudioKey("");
-      toast.error("A palavra-passe não é válida.");
+      toast.error("A sessão do Studio deixou de ser válida.");
     } else toast.error("Não foi possível guardar na base de dados.");
   }
 
   async function unlock(event: FormEvent) {
     event.preventDefault();
     const response = await fetch("/api/studio", {
-      headers: { "x-studio-key": password },
+      headers: { "x-studio-user": username.trim(), "x-studio-key": password },
     });
     if (!response.ok) {
-      toast.error("A palavra-passe não é válida.");
+      toast.error("O utilizador ou a palavra-passe não são válidos.");
       return;
     }
     const data = (await response.json()) as {
@@ -593,6 +601,7 @@ export default function Studio() {
         })),
         navigation: data.settings.navigation?.length ? data.settings.navigation : DEFAULT_NAVIGATION,
       });
+    setStudioUser(username.trim());
     setStudioKey(password);
     setPassword("");
   }
@@ -615,7 +624,7 @@ export default function Studio() {
     setExpandedProductId(product.id);
     if (product.detailsLoaded || product.id > 1_000_000_000_000) return;
     const response = await fetch(`/api/studio?productId=${product.id}`, {
-      headers: { "x-studio-key": studioKey },
+      headers: { "x-studio-user": studioUser, "x-studio-key": studioKey },
     });
     if (!response.ok) {
       toast.error("Não foi possível carregar o produto.");
@@ -642,7 +651,7 @@ export default function Studio() {
     if (product.id > 1_000_000_000_000) return;
     const response = await fetch("/api/studio", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-studio-key": studioKey },
+      headers: { "content-type": "application/json", "x-studio-user": studioUser, "x-studio-key": studioKey },
       body: JSON.stringify({ resource: "product-status", productId: product.id, status }),
     });
     if (!response.ok) toast.error("Não foi possível alterar o estado do produto.");
@@ -652,7 +661,7 @@ export default function Studio() {
     if (product.id > 1_000_000_000_000) return;
     const response = await fetch("/api/studio", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-studio-key": studioKey },
+      headers: { "content-type": "application/json", "x-studio-user": studioUser, "x-studio-key": studioKey },
       body: JSON.stringify({ resource: "product-monochrome", productId: product.id, monochrome }),
     });
     if (!response.ok) {
@@ -662,7 +671,7 @@ export default function Studio() {
   }
   async function editProductPlacement(product:Product) {
     if (product.detailsLoaded || product.id > 1_000_000_000_000) { setPlacementProductId(product.id); return; }
-    const response=await fetch(`/api/studio?productId=${product.id}`,{headers:{"x-studio-key":studioKey}});
+    const response=await fetch(`/api/studio?productId=${product.id}`,{headers:{"x-studio-user":studioUser,"x-studio-key":studioKey}});
     if(!response.ok){toast.error("Não foi possível carregar o produto.");return;}
     const data=(await response.json()) as {product:Partial<Product>};
     setCatalogue((items)=>items.map((item)=>item.id===product.id?{...item,...data.product,artworkPlacements:data.product.artworkPlacements??{},detailsLoaded:true}:item));
@@ -671,7 +680,7 @@ export default function Studio() {
   async function saveProductPlacement(product:Product, artworkPlacements:ArtworkPlacements) {
     updateProduct(product.id,{artworkPlacements});
     if(product.id>1_000_000_000_000)return;
-    const response=await fetch("/api/studio",{method:"POST",headers:{"content-type":"application/json","x-studio-key":studioKey},body:JSON.stringify({resource:"product-placement",productId:product.id,artworkPlacements})});
+    const response=await fetch("/api/studio",{method:"POST",headers:{"content-type":"application/json","x-studio-user":studioUser,"x-studio-key":studioKey},body:JSON.stringify({resource:"product-placement",productId:product.id,artworkPlacements})});
     if(response.ok)toast.success("Posicionamento guardado.");else toast.error("Não foi possível guardar o posicionamento.");
   }
   async function persistProductOrder(next: Product[]) {
@@ -680,7 +689,7 @@ export default function Studio() {
     if (!saved.length) return;
     const response = await fetch("/api/studio", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-studio-key": studioKey },
+      headers: { "content-type": "application/json", "x-studio-user": studioUser, "x-studio-key": studioKey },
       body: JSON.stringify({ resource: "product-order", entries: saved.map((product) => product.id) }),
     });
     if (!response.ok) toast.error("Não foi possível guardar a ordem dos produtos.");
@@ -709,7 +718,7 @@ export default function Studio() {
     if (product.id < 1_000_000_000_000) {
       const response = await fetch("/api/studio", {
         method: "POST",
-        headers: { "content-type": "application/json", "x-studio-key": studioKey },
+        headers: { "content-type": "application/json", "x-studio-user": studioUser, "x-studio-key": studioKey },
         body: JSON.stringify({ resource: "product-delete", productId: product.id }),
       });
       if (!response.ok) return toast.error("Não foi possível apagar o produto.");
@@ -723,6 +732,7 @@ export default function Studio() {
       method: "POST",
       headers: {
         "content-type": "application/json",
+        "x-studio-user": studioUser,
         "x-studio-key": studioKey,
       },
       body: JSON.stringify({ resource: "order-status", reference, status }),
@@ -765,7 +775,7 @@ export default function Studio() {
       form.set("file", file);
       const response = await fetch("/api/media/upload", {
         method: "POST",
-        headers: { "x-studio-key": studioKey },
+        headers: { "x-studio-user": studioUser, "x-studio-key": studioKey },
         body: form,
       });
       const data = (await response.json()) as { url?: string; error?: string };
@@ -829,10 +839,12 @@ export default function Studio() {
             Made in Maia Studio
           </h1>
           <p className="mt-3 text-white/60">
-            Introduz a palavra-passe definida no serviço Render.
+            Introduz o utilizador e a palavra-passe definidos para o Studio.
           </p>
+          <label className="mt-7 block text-sm font-semibold" htmlFor="studio-username">Utilizador</label>
+          <Input id="studio-username" type="text" value={username} onChange={(event) => setUsername(event.target.value)} className="mt-2 h-12 border-white/15 bg-white/5 text-white placeholder:text-white/30" autoComplete="username" autoFocus required />
           <label
-            className="mt-7 block text-sm font-semibold"
+            className="mt-4 block text-sm font-semibold"
             htmlFor="studio-password"
           >
             Palavra-passe
@@ -843,7 +855,7 @@ export default function Studio() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className="mt-2 h-12 border-white/15 bg-white/5 text-white placeholder:text-white/30"
-            autoFocus
+            autoComplete="current-password"
             required
           />
           <Button

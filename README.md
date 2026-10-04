@@ -41,6 +41,7 @@ The production resources are defined in `render.yaml`. Commits to the connected 
 
 The Blueprint configures `DATABASE_URL`, `UPLOADS_DIR`, and `UPLOADS_PUBLIC_URL`. Add these secrets in the Render dashboard:
 
+- `STUDIO_USERNAME` — Studio username (defaults to `madeinmaia`)
 - `STUDIO_PASSWORD` — long unique password for the CMS
 - `STRIPE_SECRET_KEY` — optional until Stripe verification is complete
 - `STRIPE_WEBHOOK_SECRET` — optional until the Stripe webhook is created

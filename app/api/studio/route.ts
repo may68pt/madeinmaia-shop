@@ -13,8 +13,9 @@ import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport } from "@/lib/produc
 import { DEFAULT_NAVIGATION } from "@/lib/site-navigation";
 
 function isAuthenticated(request: Request) {
-  const expected = process.env.STUDIO_PASSWORD;
-  return Boolean(expected && request.headers.get("x-studio-key") === expected);
+  const expectedPassword = process.env.STUDIO_PASSWORD;
+  const expectedUser = process.env.STUDIO_USERNAME || "madeinmaia";
+  return Boolean(expectedPassword && request.headers.get("x-studio-user") === expectedUser && request.headers.get("x-studio-key") === expectedPassword);
 }
 
 export async function GET(request: Request) {

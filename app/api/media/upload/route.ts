@@ -9,8 +9,9 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES:Record<string,string> = { "image/jpeg":"jpg", "image/png":"png", "image/webp":"webp" };
 
 function isAuthenticated(request: Request) {
-  const expected = process.env.STUDIO_PASSWORD;
-  return Boolean(expected && request.headers.get("x-studio-key") === expected);
+  const expectedPassword = process.env.STUDIO_PASSWORD;
+  const expectedUser = process.env.STUDIO_USERNAME || "madeinmaia";
+  return Boolean(expectedPassword && request.headers.get("x-studio-user") === expectedUser && request.headers.get("x-studio-key") === expectedPassword);
 }
 
 function uploadDirectory() {

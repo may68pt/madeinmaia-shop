@@ -21,6 +21,8 @@ services:
           property: connectionString
       - key: STUDIO_PASSWORD
         sync: false
+      - key: STUDIO_USERNAME
+        value: madeinmaia
       - key: UPLOADS_DIR
         value: /var/data/uploads
       - key: UPLOADS_PUBLIC_URL
