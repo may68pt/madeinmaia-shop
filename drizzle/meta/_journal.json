@@ -64,6 +64,13 @@
       "when": 1790898060000,
       "tag": "0008_random_content_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791075600000,
+      "tag": "0009_product_order_monochrome",
+      "breakpoints": true
     }
   ]
 }

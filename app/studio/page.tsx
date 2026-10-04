@@ -72,6 +72,8 @@ type Product = {
   colors: string[];
   sizes: string[];
   variants: ProductVariant[];
+  sortOrder: number;
+  monochrome: boolean;
   status: "draft" | "published";
   detailsLoaded: boolean;
 };
@@ -179,6 +181,8 @@ const initialProducts: Product[] = [
     colors: ["Branco"],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
+    sortOrder: 1,
+    monochrome: true,
     status: "published",
     detailsLoaded: true,
   },
@@ -198,6 +202,8 @@ const initialProducts: Product[] = [
     colors: ["Vermelho"],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
+    sortOrder: 2,
+    monochrome: true,
     status: "published",
     detailsLoaded: true,
   },
@@ -217,6 +223,8 @@ const initialProducts: Product[] = [
     colors: ["Azul"],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
+    sortOrder: 3,
+    monochrome: false,
     status: "published",
     detailsLoaded: true,
   },
@@ -278,6 +286,7 @@ export default function Studio() {
   const [mediaQuery, setMediaQuery] = useState("");
   const [mediaFilter, setMediaFilter] = useState<"all" | "artwork" | "lifestyle" | "base">("all");
   const [draggedColorId, setDraggedColorId] = useState<string | null>(null);
+  const [draggedProductId, setDraggedProductId] = useState<number | null>(null);
   const [draggedBlockId, setDraggedBlockId] = useState<number | null>(null);
   const current = useMemo(
     () => blocks.find((block) => block.id === selected) ?? blocks[0],
@@ -529,7 +538,7 @@ export default function Studio() {
       );
     if (data.products?.length)
       setCatalogue(
-        data.products.map((entry) => ({
+        data.products.map((entry, index) => ({
           id: entry.id,
           slug: entry.slug ?? "",
           designCode: entry.designCode ?? "",
@@ -549,6 +558,8 @@ export default function Studio() {
             type: variant.type ?? "adult-tshirt",
             active: variant.active !== false,
           })),
+          sortOrder: entry.sortOrder ?? index + 1,
+          monochrome: entry.monochrome !== false,
           status: entry.status === "published" ? "published" : "draft",
           detailsLoaded: false,
         })),
@@ -625,6 +636,63 @@ export default function Studio() {
       body: JSON.stringify({ resource: "product-status", productId: product.id, status }),
     });
     if (!response.ok) toast.error("Não foi possível alterar o estado do produto.");
+  }
+  async function updateProductMonochrome(product: Product, monochrome: boolean) {
+    updateProduct(product.id, { monochrome });
+    if (product.id > 1_000_000_000_000) return;
+    const response = await fetch("/api/studio", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-studio-key": studioKey },
+      body: JSON.stringify({ resource: "product-monochrome", productId: product.id, monochrome }),
+    });
+    if (!response.ok) {
+      updateProduct(product.id, { monochrome: product.monochrome });
+      toast.error("Não foi possível alterar o modo de impressão.");
+    }
+  }
+  async function persistProductOrder(next: Product[]) {
+    setCatalogue(next.map((product, index) => ({ ...product, sortOrder: index + 1 })));
+    const saved = next.filter((product) => product.id < 1_000_000_000_000);
+    if (!saved.length) return;
+    const response = await fetch("/api/studio", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-studio-key": studioKey },
+      body: JSON.stringify({ resource: "product-order", entries: saved.map((product) => product.id) }),
+    });
+    if (!response.ok) toast.error("Não foi possível guardar a ordem dos produtos.");
+  }
+  function moveProduct(productId: number, direction: -1 | 1) {
+    const index = catalogue.findIndex((product) => product.id === productId);
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= catalogue.length) return;
+    const next = [...catalogue];
+    [next[index], next[target]] = [next[target], next[index]];
+    void persistProductOrder(next);
+  }
+  function dropProduct(targetId: number) {
+    if (draggedProductId === null || draggedProductId === targetId) return setDraggedProductId(null);
+    const source = catalogue.findIndex((product) => product.id === draggedProductId);
+    const target = catalogue.findIndex((product) => product.id === targetId);
+    if (source < 0 || target < 0) return setDraggedProductId(null);
+    const next = [...catalogue];
+    const [moved] = next.splice(source, 1);
+    next.splice(target, 0, moved);
+    setDraggedProductId(null);
+    void persistProductOrder(next);
+  }
+  async function deleteProduct(product: Product) {
+    if (!window.confirm(`Apagar definitivamente “${product.name}”?`)) return;
+    if (product.id < 1_000_000_000_000) {
+      const response = await fetch("/api/studio", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-studio-key": studioKey },
+        body: JSON.stringify({ resource: "product-delete", productId: product.id }),
+      });
+      if (!response.ok) return toast.error("Não foi possível apagar o produto.");
+    }
+    setCatalogue((items) => items.filter((item) => item.id !== product.id));
+    if (expandedProductId === product.id) setExpandedProductId(null);
+    toast.success("Produto apagado");
   }
   async function updateOrderStatus(reference: string, status: string) {
     const response = await fetch("/api/studio", {
@@ -1667,6 +1735,8 @@ export default function Studio() {
                         colors: ["Branco"],
                         sizes: ["S", "M", "L"],
                         variants: [],
+                        sortOrder: 0,
+                        monochrome: true,
                         status: "draft",
                         detailsLoaded: true,
                       },
@@ -1681,11 +1751,12 @@ export default function Studio() {
                 </Button>
               </div>
               <div className="space-y-3">
-                {catalogue.map((product) => {
+                {catalogue.map((product, productIndex) => {
                   const isOpen = expandedProductId === product.id;
                   return (
-                    <article key={product.id} className="overflow-hidden border border-black/10 bg-white shadow-sm">
-                      <div className="grid grid-cols-[72px_1fr_auto] items-center gap-4 p-3 sm:grid-cols-[72px_130px_1fr_auto]">
+                    <article key={product.id} draggable onDragStart={() => setDraggedProductId(product.id)} onDragEnd={() => setDraggedProductId(null)} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); dropProduct(product.id); }} className={`overflow-hidden border bg-white shadow-sm transition ${draggedProductId === product.id ? "border-[var(--brand)] opacity-50" : "border-black/10"}`}>
+                      <div className="grid grid-cols-[32px_64px_1fr_auto] items-center gap-3 p-3 sm:grid-cols-[32px_64px_120px_1fr_auto]">
+                        <GripVertical className="size-5 cursor-grab text-black/30 active:cursor-grabbing" aria-label="Arrastar para reordenar" />
                         <button type="button" onClick={() => void openProduct(product)} className="relative size-16 overflow-hidden border border-black/10 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:16px_16px]">
                           {product.imageKey ? <Image src={product.imageKey} alt="" fill sizes="64px" unoptimized className="object-contain p-1" /> : <Images className="absolute inset-0 m-auto size-5 text-black/25" />}
                         </button>
@@ -1695,7 +1766,10 @@ export default function Studio() {
                           <span className="text-xs text-black/45 sm:hidden">{product.designCode || "MiM_0000"}</span>
                         </button>
                         <div className="flex items-center gap-3">
+                          <div className="hidden items-center gap-1 lg:flex"><Button type="button" variant="ghost" size="icon" disabled={productIndex === 0} onClick={() => moveProduct(product.id, -1)} aria-label="Subir produto"><ArrowUp className="size-4" /></Button><Button type="button" variant="ghost" size="icon" disabled={productIndex === catalogue.length - 1} onClick={() => moveProduct(product.id, 1)} aria-label="Descer produto"><ArrowDown className="size-4" /></Button></div>
+                          <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.monochrome} onCheckedChange={(checked) => void updateProductMonochrome(product, checked)} /><span className="hidden xl:inline">Mono</span></label>
                           <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.status === "published"} onCheckedChange={(checked) => void updateProductStatus(product, checked)} /><span className="hidden sm:inline">{product.status === "published" ? "Ativo" : "Inativo"}</span></label>
+                          <Button type="button" variant="ghost" size="icon" className="text-red-600 hover:text-red-700" onClick={() => void deleteProduct(product)} aria-label="Apagar produto"><Trash2 className="size-4" /></Button>
                           <Button type="button" variant="ghost" size="icon" onClick={() => void openProduct(product)} aria-label={isOpen ? "Fechar produto" : "Abrir produto"}><span className={`text-xl transition-transform ${isOpen ? "rotate-180" : ""}`}>⌄</span></Button>
                         </div>
                       </div>

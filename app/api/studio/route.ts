@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { desc, eq, notInArray } from "drizzle-orm";
+import { asc, desc, eq, notInArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   orders,
@@ -50,8 +50,10 @@ export async function GET(request: Request) {
           gallery: products.gallery,
           colors: products.colors,
           sizes: products.sizes,
+          sortOrder: products.sortOrder,
+          monochrome: products.monochrome,
           status: products.status,
-      }).from(products),
+      }).from(products).orderBy(asc(products.sortOrder), asc(products.id)),
       db.select().from(randomContent),
       db.select().from(orders).orderBy(desc(orders.createdAt)),
       db.select().from(siteSettings).where(eq(siteSettings.key, "global")),
@@ -137,6 +139,7 @@ export async function POST(request: Request) {
     title?: string;
     blocks?: unknown[];
     status?: string;
+    monochrome?: boolean;
     entries?: unknown[];
     replace?: boolean;
   };
@@ -151,6 +154,32 @@ export async function POST(request: Request) {
     return updated.length
       ? NextResponse.json({ ok: true })
       : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
+  }
+  if (body.resource === "product-monochrome") {
+    if (!Number.isInteger(body.productId) || typeof body.monochrome !== "boolean")
+      return NextResponse.json({ error: "Valor inválido" }, { status: 400 });
+    const updated = await getDb()
+      .update(products)
+      .set({ monochrome: body.monochrome, updatedAt: new Date() })
+      .where(eq(products.id, Number(body.productId)))
+      .returning({ id: products.id });
+    return updated.length
+      ? NextResponse.json({ ok: true })
+      : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
+  }
+  if (body.resource === "product-delete") {
+    if (!Number.isInteger(body.productId)) return NextResponse.json({ error: "Produto inválido" }, { status: 400 });
+    const deleted = await getDb().delete(products).where(eq(products.id, Number(body.productId))).returning({ id: products.id });
+    return deleted.length ? NextResponse.json({ ok: true }) : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
+  }
+  if (body.resource === "product-order") {
+    const ids = Array.isArray(body.entries) ? body.entries.map(Number).filter(Number.isInteger) : [];
+    if (!ids.length) return NextResponse.json({ error: "Ordem inválida" }, { status: 400 });
+    const db = getDb();
+    await db.transaction(async (tx) => {
+      for (const [index, id] of ids.entries()) await tx.update(products).set({ sortOrder: index + 1, updatedAt: new Date() }).where(eq(products.id, id));
+    });
+    return NextResponse.json({ ok: true });
   }
   if (body.resource === "page-delete") {
     const slug = String(body.reference ?? "").trim();
@@ -350,6 +379,8 @@ export async function POST(request: Request) {
                 ];
               })
             : [],
+          sortOrder: Math.max(0, Number(value.sortOrder) || 0),
+          monochrome: value.monochrome !== false,
           status: value.status === "published" ? "published" : "draft",
           updatedAt: new Date(),
         },

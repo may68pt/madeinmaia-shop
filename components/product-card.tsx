@@ -15,6 +15,7 @@ export type ProductCardData = {
   price: string;
   image: string;
   colors: string[];
+  monochrome: boolean;
 };
 
 export function ProductCard({ product, catalogColors, label = "New" }: { product: ProductCardData; catalogColors: CatalogColor[]; label?: string }) {
@@ -31,23 +32,18 @@ export function ProductCard({ product, catalogColors, label = "New" }: { product
   return <article className="group min-w-0 text-[var(--foreground)]">
     <div className="relative aspect-[4/5] overflow-hidden rounded-[1.6rem] border border-white/10 bg-[var(--surface)]">
       <Link href={`/produto/${product.slug}`} className="absolute inset-0" aria-label={`Open ${product.name}`}>
-        <ProductMockup artwork={product.image} color={color?.name ?? "White"} name={product.name} templateImage="/mockup-templates/tshirt-neutral-v1.png" printColor={printColor} />
+        <ProductMockup artwork={product.image} color={color?.name ?? "White"} name={product.name} templateImage="/mockup-templates/tshirt-neutral-v1.png" printColor={product.monochrome ? printColor : "original"} />
       </Link>
       <span className="absolute left-4 top-4 rounded-full bg-[var(--accent-brand)] px-3 py-1 text-[11px] font-black uppercase tracking-[.12em] text-[#111]">{label}</span>
-      <div className="absolute inset-x-3 bottom-3 rounded-2xl border border-white/10 bg-[#11110f]/88 p-3 text-white shadow-2xl backdrop-blur-xl">
-        <div className="scrollbar-none flex snap-x gap-2 overflow-x-auto pb-1" aria-label="Garment colours">
+      <div className={`scrollbar-none absolute bottom-4 left-4 z-10 flex snap-x gap-2 overflow-x-auto py-1 ${product.monochrome ? "max-w-[calc(100%-7.5rem)]" : "max-w-[calc(100%-2rem)]"}`} aria-label="Garment colours">
           {availableColors.map((item) => <button key={item.id} type="button" onClick={()=>setColorId(item.id)} className="group/swatch relative shrink-0 snap-center py-1" aria-label={item.name} aria-pressed={color?.id===item.id}>
             <span className={`block size-7 rounded-full border-2 transition ${color?.id===item.id?"scale-110 border-white":"border-white/25"}`} style={{backgroundColor:item.hex}} />
             <span role="tooltip" className="pointer-events-none absolute bottom-[calc(100%+.45rem)] left-1/2 z-20 hidden w-max max-w-24 -translate-x-1/2 rounded-lg bg-white px-2 py-1 text-center text-[10px] font-bold leading-tight text-black shadow-xl group-hover/swatch:block group-focus-visible/swatch:block">{item.name}</span>
           </button>)}
-        </div>
-        <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2">
-          <span className="text-[10px] font-black uppercase tracking-[.13em] text-white/55">Print</span>
-          <div className="flex rounded-full border border-white/15 p-1">
-            {(["black","white"] as PrintColor[]).map((item)=><button key={item} type="button" onClick={()=>setPrintColor(item)} aria-label={`${item} print`} aria-pressed={printColor===item} className={`grid size-7 place-items-center rounded-full transition ${printColor===item?"bg-white/15 ring-1 ring-white":""}`}><span className={`size-4 rounded-full border ${item==="black"?"border-white/25 bg-black":"border-black/20 bg-white"}`}/></button>)}
-          </div>
-        </div>
       </div>
+      {product.monochrome && <div className="absolute bottom-4 right-4 z-10 flex gap-2 py-1" aria-label="Print colour">
+        {(["black","white"] as PrintColor[]).map((item)=><button key={item} type="button" onClick={()=>setPrintColor(item)} aria-label={`${item} print`} aria-pressed={printColor===item} className="group/print relative grid size-7 place-items-center rounded-full"><span className={`size-6 rounded-full border-2 shadow-lg transition ${item==="black"?"bg-black":"bg-white"} ${printColor===item?"scale-110 border-[var(--accent-brand)]":"border-white/50"}`}/><span role="tooltip" className="pointer-events-none absolute bottom-[calc(100%+.45rem)] left-1/2 hidden w-max -translate-x-1/2 rounded-lg bg-white px-2 py-1 text-[10px] font-bold capitalize text-black shadow-xl group-hover/print:block group-focus-visible/print:block">{item} print</span></button>)}
+      </div>}
     </div>
     <div className="flex items-start justify-between gap-4 pt-4">
       <div className="min-w-0"><p className="truncate text-xs font-bold uppercase tracking-[.12em] text-white/42">{product.tags.join(" · ")||product.collection}</p><Link href={`/produto/${product.slug}`}><h3 className="mt-1 text-xl font-black uppercase tracking-[-.025em]">{product.name}</h3></Link></div>

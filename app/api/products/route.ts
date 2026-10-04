@@ -24,7 +24,7 @@ export async function GET(request: Request) {
       : eq(products.status, "published");
     const db = getDb();
     const [catalogue, [{ total }], [page]] = await Promise.all([
-      db.select().from(products).where(filteredWhere).orderBy(asc(products.id)).limit(limit).offset(offset),
+      db.select().from(products).where(filteredWhere).orderBy(asc(products.sortOrder), asc(products.id)).limit(limit).offset(offset),
       db.select({ total: count() }).from(products).where(filteredWhere),
       offset === 0 ? db.select().from(pages).where(eq(pages.slug,"inicio")) : Promise.resolve([]),
     ]);
