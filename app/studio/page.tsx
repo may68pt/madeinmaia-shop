@@ -42,6 +42,7 @@ import { ADULT_SIZES, CATALOG_CATEGORIES, CATALOG_SIZES, DEFAULT_COLORS, DEFAULT
 import { DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as Block, type PageBlockType } from "@/lib/page-blocks";
 import { PageBlock } from "@/components/page-block";
 import { ProductMockup } from "@/components/product-mockup";
+import { SupportIcon } from "@/components/support-icon";
 import { ArtworkPlacementEditor } from "@/components/artwork-placement-editor";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
@@ -925,32 +926,17 @@ export default function Studio() {
       <div className="grid min-h-[calc(100vh-4rem)] grid-cols-[220px_minmax(0,1fr)_310px] max-lg:grid-cols-[72px_minmax(0,1fr)]">
         <aside className="border-r border-black/10 bg-white p-3">
           <nav className="grid gap-2">
-            {[
-              { icon: LayoutTemplate, label: "Páginas", value: "pages" },
-              { icon: GripVertical, label: "Menus", value: "menus" },
-              { icon: Palette, label: "Descobre", value: "discover" },
-              { icon: Package, label: "Produtos", value: "products" },
-              { icon: Store, label: "Tipos e cores", value: "catalog" },
-              { icon: Images, label: "Media", value: "media" },
-              { icon: Store, label: "Encomendas", value: "orders" },
-              { icon: Settings, label: "Definições", value: "settings" },
-            ].map(({ icon: Icon, label, value }) => (
-              <Button
-                key={label}
-                onClick={() => setSection(value as typeof section)}
-                variant={section === value ? "secondary" : "ghost"}
-                className="justify-start rounded-none max-lg:px-3"
-              >
-                <Icon />
-                <span className="max-lg:hidden">{label}</span>
-              </Button>
-            ))}
+            <Button onClick={() => setSection("pages")} variant={section === "pages" ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><LayoutTemplate/><span className="max-lg:hidden">Páginas</span></Button>
+            {section==="pages"&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden"><button className="py-1 text-left text-xs font-bold" onClick={()=>document.getElementById("page-manager")?.scrollIntoView({behavior:"smooth"})}>Todas as páginas</button><button className="py-1 text-left text-xs font-bold text-[var(--brand)]" onClick={addPage}>+ Nova página</button></div>}
+            {[{icon:GripVertical,label:"Menus",value:"menus"},{icon:Palette,label:"Descobre",value:"discover"},{icon:Package,label:"Produtos",value:"products"},{icon:Store,label:"Tipos e cores",value:"catalog"},{icon:Images,label:"Media",value:"media"},{icon:Store,label:"Encomendas",value:"orders"}].map(({icon:Icon,label,value})=><Button key={label} onClick={()=>setSection(value as typeof section)} variant={section===value?"secondary":"ghost"} className="justify-start rounded-none max-lg:px-3"><Icon/><span className="max-lg:hidden">{label}</span></Button>)}
+            <Button onClick={() => setSection("settings")} variant={section === "settings" ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><Settings/><span className="max-lg:hidden">Definições</span></Button>
+            {section==="settings"&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden">{[["settings-general","Geral e SEO"],["settings-splash","Splash screen"],["settings-theme","Theme Builder"]].map(([id,label])=><button key={id} className="py-1 text-left text-xs font-bold" onClick={()=>document.getElementById(id)?.scrollIntoView({behavior:"smooth"})}>{label}</button>)}</div>}
           </nav>
         </aside>
         <section className="min-w-0 p-4 md:p-7">
           {section === "pages" ? (
             <>
-              <div className="mb-4 flex flex-wrap items-center gap-2 bg-white p-3 shadow-sm">
+              <div id="page-manager" className="mb-4 bg-white p-3 shadow-sm"><div className="mb-3 flex items-center justify-between"><strong className="text-xs uppercase tracking-[.12em]">Gestor de páginas · {pageList.length}</strong><Button type="button" size="sm" variant="outline" className="rounded-none" onClick={addPage}><Plus/>Nova página</Button></div><div className="mb-3 flex flex-wrap gap-2">{pageList.map((page)=><button key={page.slug} type="button" onClick={()=>selectPage(page.slug)} className={`border px-3 py-2 text-xs font-bold ${currentPageSlug===page.slug?"border-[var(--brand)] bg-[var(--brand)] text-white":"border-black/10"}`}>{page.title}<span className="ml-2 opacity-50">{page.status}</span></button>)}</div><div className="flex flex-wrap items-center gap-2">
                 <label className="text-xs font-black uppercase tracking-[.12em]">Página</label>
                 <Select value={currentPageSlug} onValueChange={selectPage}>
                   <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
@@ -958,12 +944,11 @@ export default function Studio() {
                     {pageList.map((page) => <SelectItem key={page.slug} value={page.slug}>{page.title}</SelectItem>)}
                   </SelectContent>
                 </Select>
-                <Button type="button" variant="outline" className="rounded-none" onClick={addPage}><Plus />Nova página</Button>
                 {currentPageSlug !== "inicio" && <Button type="button" variant="ghost" className="rounded-none text-red-600" onClick={() => void deleteCurrentPage()}><Trash2 />Remover página</Button>}
                 <Button type="button" variant="ghost" className="ml-auto rounded-none" asChild>
                   <Link href={currentPageSlug === "inicio" ? "/loja" : `/${currentPageSlug}`} target="_blank"><Eye />Abrir página</Link>
                 </Button>
-              </div>
+              </div></div>
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex gap-1 rounded-none bg-white p-1">
                   <Button
@@ -1373,7 +1358,7 @@ export default function Studio() {
                   const activeColors = settings.productCatalog.colors.filter((color) => color.active);
                   const optionPool = support.variantMode === "size" ? CATALOG_SIZES.filter((item) => item !== "Único") : [];
                   const setAllColors = (enabled:boolean) => updateSupport({ colorIds: enabled ? activeColors.map((color) => color.id) : [], availability: enabled ? Object.fromEntries(activeColors.map((color) => [color.id, [...optionPool]])) : {} });
-                  return <details key={support.id} className="rounded-3xl border border-black/10 p-5" open><summary className="cursor-pointer text-xl font-black uppercase">{support.name}</summary><div className="mt-5 grid gap-6">
+                  return <details key={support.id} className="rounded-3xl border border-black/10 p-5" open><summary className="flex cursor-pointer list-none items-center gap-3 text-xl font-black uppercase"><span className="grid size-11 place-items-center rounded-full bg-[#e9e9e4]"><SupportIcon supportId={support.id} size={30}/></span>{support.name}</summary><div className="mt-5 grid gap-6">
                     <div className="grid gap-3 md:grid-cols-[1fr_190px_160px_120px]"><Input value={support.name} onChange={(event) => updateSupport({ name: event.target.value })} /><Select value={support.categoryId} onValueChange={(value) => updateSupport({ categoryId:value as ProductSupport["categoryId"], variantMode:value === "bags" ? "none" : "size", sizes:value === "bags" ? [] : CATALOG_SIZES.filter((item)=>item!=="Único") })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CATALOG_CATEGORIES.map((item)=><SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}</SelectContent></Select><label className="grid gap-1 text-xs font-bold uppercase"><span>Preço base (€)</span><Input type="number" min="0" step="0.01" value={(support.priceCents/100).toFixed(2)} onChange={(event)=>updateSupport({priceCents:Math.round(Number(event.target.value)*100)})}/></label><label className="flex items-center gap-2 text-sm font-bold"><Switch checked={support.active} onCheckedChange={(active) => updateSupport({ active })} />Ativo</label></div>
                     <div className="rounded-2xl border border-black/10 p-4"><div className="mb-3"><p className="text-xs font-black uppercase">Placement padrão do design</p><p className="mt-1 text-sm text-black/50">Aplicado automaticamente a todos os designs. Os ajustes feitos dentro de um produto substituem estes valores apenas nesse produto.</p></div><div className="grid gap-3 sm:grid-cols-4">{([['x','Esquerda (%)'],['y','Topo (%)'],['width','Largura (%)'],['height','Altura (%)']] as const).map(([key,label])=><label key={key} className="grid gap-1 text-xs font-bold uppercase"><span>{label}</span><Input type="number" min="0" max="100" value={support.defaultPlacement[key]} onChange={(event)=>updateSupport({defaultPlacement:{...support.defaultPlacement,[key]:Number(event.target.value)}})}/></label>)}</div></div>
                     <div className="grid gap-4 rounded-2xl bg-[#f5f5f2] p-4 md:grid-cols-[1fr_180px]">
@@ -1438,10 +1423,10 @@ export default function Studio() {
                   Definições
                 </h1>
                 <p className="mt-3 text-black/60">
-                  Marca, SEO, contactos, páginas legais e biblioteca de media.
+                  Marca, SEO, contactos, splash screen, tema e páginas legais.
                 </p>
               </div>
-              <div className="grid gap-5 lg:grid-cols-2">
+              <div id="settings-general" className="grid scroll-mt-20 gap-5 lg:grid-cols-2">
                 <section className="space-y-4 bg-white p-6">
                   <h2 className="text-2xl font-black uppercase">Marca e SEO</h2>
                   <Input
@@ -1561,7 +1546,7 @@ export default function Studio() {
                   </div>
                 </section>
               </div>
-              <section className="mt-5 bg-[var(--ink)] p-6 text-white">
+              <section id="settings-splash" className="mt-5 scroll-mt-20 bg-[var(--ink)] p-6 text-white">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <h2 className="text-2xl font-black uppercase">Splash screen</h2>
@@ -1581,7 +1566,7 @@ export default function Studio() {
                   <p className="mt-4 max-w-xl text-sm text-white/60">{settings.launchSplash.description}</p>
                 </div>
               </section>
-              <section className="mt-5 bg-white p-6">
+              <section id="settings-theme" className="mt-5 scroll-mt-20 bg-white p-6">
                 <div>
                   <h2 className="text-2xl font-black uppercase">
                     Theme Builder
@@ -1643,99 +1628,6 @@ export default function Studio() {
                   <span style={{ background: settings.theme.accentColor }} className="px-5 py-3">
                     Pré-visualização da identidade
                   </span>
-                </div>
-              </section>
-              <section className="mt-5 bg-white p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-black uppercase">
-                      Biblioteca de media
-                    </h2>
-                    <p className="mt-1 text-sm text-black/50">
-                      Carrega para o servidor ou adiciona um URL externo.
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <label className="inline-flex h-9 cursor-pointer items-center gap-2 bg-[var(--ink)] px-4 text-sm font-medium text-white">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="sr-only"
-                        disabled={uploading}
-                        onChange={(event) => {
-                          const file = event.target.files?.[0];
-                          if (file) void uploadMedia(file);
-                          event.target.value = "";
-                        }}
-                      />
-                      {uploading ? "A carregar…" : "Carregar imagem"}
-                    </label>
-                    <Button
-                      variant="outline"
-                      className="rounded-none"
-                      onClick={() =>
-                        setSettings({
-                          ...settings,
-                          media: [
-                            ...settings.media,
-                            { url: "", alt: "", kind: "artwork" },
-                          ],
-                        })
-                      }
-                    >
-                      <Plus />
-                      Adicionar URL
-                    </Button>
-                  </div>
-                </div>
-                <div className="mt-5 grid gap-3">
-                  {settings.media.map((item, index) => (
-                    <div
-                      key={index}
-                      className="grid gap-2 md:grid-cols-[1fr_1fr_44px]"
-                    >
-                      <Input
-                        value={item.url}
-                        onChange={(event) =>
-                          setSettings({
-                            ...settings,
-                            media: settings.media.map((entry, i) =>
-                              i === index
-                                ? { ...entry, url: event.target.value }
-                                : entry,
-                            ),
-                          })
-                        }
-                        placeholder="https://..."
-                      />
-                      <Input
-                        value={item.alt}
-                        onChange={(event) =>
-                          setSettings({
-                            ...settings,
-                            media: settings.media.map((entry, i) =>
-                              i === index
-                                ? { ...entry, alt: event.target.value }
-                                : entry,
-                            ),
-                          })
-                        }
-                        placeholder="Descrição da imagem"
-                      />
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() =>
-                          setSettings({
-                            ...settings,
-                            media: settings.media.filter((_, i) => i !== index),
-                          })
-                        }
-                      >
-                        <Trash2 className="text-red-600" />
-                      </Button>
-                    </div>
-                  ))}
                 </div>
               </section>
             </div>

@@ -3,8 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { ImageIcon, Layers3, Shirt, ShoppingBag } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 import { ProductMockup } from "@/components/product-mockup";
+import { SupportIcon } from "@/components/support-icon";
 import type { CatalogColor, ProductSupport } from "@/lib/product-catalog";
 import type { Locale } from "@/lib/i18n";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
@@ -45,7 +46,7 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
   const [slideIndex, setSlideIndex] = useState(0);
   const slide = slides[Math.min(slideIndex, slides.length - 1)] ?? slides[0];
   const color = availableColors.find((item) => item.id === colorId) ?? availableColors[0];
-  const supportIcon = (id:string) => id === "design" ? <ImageIcon className="size-5"/> : id === "tote-bag" ? <ShoppingBag className="size-5"/> : id === "hoodie" ? <Layers3 className="size-5"/> : <Shirt className="size-5"/>;
+  const supportIcon = (id:string) => id === "design" ? <ImageIcon className="size-5"/> : <SupportIcon supportId={id} size={24}/>;
 
   return <article className="group min-w-0 text-[var(--foreground)]">
     <div className="relative aspect-square overflow-hidden rounded-t-[1.6rem] border border-white/10 bg-[var(--surface)]">
@@ -64,7 +65,7 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
       </div>}
     </div>
     <div className="scrollbar-none flex items-center gap-2 overflow-x-auto rounded-b-[1.6rem] border-x border-b border-white/10 bg-[var(--surface)] px-3 py-3" aria-label={strings.support}>
-      {slides.map((item,index)=><button key={item.id} type="button" onClick={()=>setSlideIndex(index)} aria-label={item.name} aria-pressed={slide?.id===item.id} title={item.name} className={`group/support relative grid size-10 shrink-0 place-items-center rounded-full border transition ${slide?.id===item.id?"border-[var(--accent-brand)] bg-[var(--accent-brand)] text-black":"border-white/15 bg-white/5 text-white/60 hover:border-white/40 hover:text-white"}`}>{supportIcon(item.id)}<span role="tooltip" className="pointer-events-none absolute bottom-[calc(100%+.45rem)] left-1/2 z-30 hidden w-max max-w-28 -translate-x-1/2 rounded-lg bg-white px-2 py-1 text-center text-[10px] font-bold text-black shadow-xl group-hover/support:block group-focus-visible/support:block">{item.name}</span></button>)}
+      {slides.map((item,index)=><button key={item.id} type="button" onClick={()=>setSlideIndex(index)} aria-label={item.name} aria-pressed={slide?.id===item.id} title={item.name} className={`group/support relative grid size-10 shrink-0 place-items-center rounded-full border transition ${slide?.id===item.id?"border-[var(--accent-brand)] bg-[var(--accent-brand)] text-black":"border-white/15 bg-white/80 text-black hover:bg-white"}`}>{supportIcon(item.id)}<span role="tooltip" className="pointer-events-none absolute bottom-[calc(100%+.45rem)] left-1/2 z-30 hidden w-max max-w-28 -translate-x-1/2 rounded-lg bg-white px-2 py-1 text-center text-[10px] font-bold text-black shadow-xl group-hover/support:block group-focus-visible/support:block">{item.name}</span></button>)}
       <span className="ml-auto shrink-0 text-[10px] font-black uppercase tracking-[.1em] text-white/45">{slide?.name}</span>
     </div>
     <div className="flex items-start justify-between gap-4 pt-4">

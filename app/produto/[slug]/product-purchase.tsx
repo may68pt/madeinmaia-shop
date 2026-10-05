@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { Check, Layers3, Shirt, ShoppingBag, Truck } from "lucide-react";
+import { Check, ShoppingBag, Truck } from "lucide-react";
+import { SupportIcon } from "@/components/support-icon";
 import { Button } from "@/components/ui/button";
 import { ProductMockup } from "@/components/product-mockup";
 import { addCartItem } from "@/lib/cart";
@@ -43,9 +44,7 @@ export function ProductPurchase({ slug, name, description, collection, image, ga
     setAdded(true); window.setTimeout(() => setAdded(false), 1800);
   }
   function supportIcon(id: string) {
-    if (id === "tote-bag") return <ShoppingBag className="size-4" />;
-    if (id === "hoodie") return <Layers3 className="size-4" />;
-    return <Shirt className="size-4" />;
+    return <span className="grid size-8 place-items-center rounded-full bg-white"><SupportIcon supportId={id} size={22} /></span>;
   }
 
   if (!support) return <section className="mx-auto max-w-3xl p-12 text-center"><h1 className="text-4xl font-black uppercase">Produto temporariamente indisponível</h1></section>;
