@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { siteSettings } from "@/db/schema";
+import { BrandLogo } from "@/components/brand-logo";
 
 export const dynamic = "force-dynamic";
 const defaults: Record<string, { title: string; body: string }> = {
@@ -34,7 +35,7 @@ export default async function LegalPage({
   }
   return (
     <main className="storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]">
-      <header className="border-b border-white/10 px-5 py-5 lg:px-10">
+      <header className="flex items-center justify-between border-b border-white/10 px-5 py-3 lg:px-10">
         <Link
           href="/"
           className="inline-flex items-center gap-2 font-black uppercase"
@@ -42,6 +43,7 @@ export default async function LegalPage({
           <ArrowLeft className="size-4" />
           Loja
         </Link>
+        <Link href="/loja" aria-label="Made in Maia shop"><BrandLogo className="h-16 w-auto" /></Link>
       </header>
       <article className="mx-auto max-w-3xl px-5 py-16">
         <p className="text-sm font-black uppercase tracking-[.16em] text-[var(--brand)]">

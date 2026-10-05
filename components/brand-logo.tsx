@@ -1,5 +1,5 @@
 import Image from "next/image";
 
 export function BrandLogo({ className = "h-8 w-auto" }: { className?: string }) {
-  return <Image src="/made-in-maia-logo-white.svg" alt="Made in Maia" width={333} height={65} priority className={`mim-brand-logo object-contain ${className}`} />;
+  return <Image src="/madeinmaia-logo-linklabel-web.png" alt="Made in Maia Link Label" width={200} height={237} priority className={`mim-brand-logo object-contain ${className}`} />;
 }

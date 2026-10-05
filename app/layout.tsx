@@ -27,7 +27,6 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     applicationName: "Made in Maia",
     alternates: { canonical: "/" },
-    icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
     openGraph: {
       title,
       description,

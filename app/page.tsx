@@ -5,6 +5,7 @@ import { ArrowUpRight, Camera, Sparkles, Users } from "lucide-react";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { siteSettings } from "@/db/schema";
+import { BrandLogo } from "@/components/brand-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -42,10 +43,7 @@ export default async function ComingSoonPage() {
       <div className="absolute -bottom-44 -left-32 size-[30rem] rounded-full bg-[var(--brand)]/20 blur-3xl" />
       <div className="relative mx-auto flex w-full max-w-[1440px] flex-col justify-between">
         <header className="flex items-center justify-between">
-          <div className="flex items-center gap-3 font-black uppercase tracking-tight">
-            <span className="grid size-12 rotate-3 place-items-center bg-[var(--brand)] text-2xl">M</span>
-            <span className="text-xl">Made in Maia</span>
-          </div>
+          <Link href="/loja" aria-label="Made in Maia shop"><BrandLogo className="h-20 w-auto sm:h-24" /></Link>
           <Link href="/linklabel" className="hidden items-center gap-2 text-sm font-bold uppercase sm:flex">
             <Sparkles className="size-4 text-[var(--accent-brand)]" /> {splash.shoulderTagLabel}
           </Link>

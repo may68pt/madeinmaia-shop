@@ -929,7 +929,7 @@ export default function Studio() {
           <span className="grid size-12 place-items-center bg-[var(--brand)] text-white">
             <LockKeyhole />
           </span>
-          <div className="mt-6"><BrandLogo className="h-9 w-auto max-w-[240px]" /><h1 className="mt-3 text-sm font-black uppercase tracking-[.18em] text-white/55">Studio</h1></div>
+          <div className="mt-6"><BrandLogo className="h-24 w-auto" /><h1 className="mt-3 text-sm font-black uppercase tracking-[.18em] text-white/55">Studio</h1></div>
           <p className="mt-3 text-white/60">
             Introduz o utilizador e a palavra-passe definidos para o Studio.
           </p>
@@ -973,7 +973,7 @@ export default function Studio() {
           href="/"
           className="flex min-w-0 items-center gap-2 font-black uppercase tracking-tight"
         >
-          <BrandLogo className="h-7 w-auto max-w-[145px] sm:h-8 sm:max-w-[190px]" /><span className="hidden text-xs text-white/55 sm:inline">Studio</span>
+          <BrandLogo className="h-14 w-auto sm:h-16" /><span className="hidden text-xs text-white/55 sm:inline">Studio</span>
         </Link>
         <span className="h-6 w-px bg-white/20" />
         <span className="hidden min-w-0 truncate text-sm text-white/65 md:block">
@@ -1083,10 +1083,7 @@ export default function Studio() {
                   {settings.announcement}
                 </div>
                 <div className="flex h-[73px] items-center gap-5 border-b border-black/10 px-5 lg:px-10">
-                  <span className="flex items-center gap-2">
-                    <span className="grid size-10 rotate-3 place-items-center bg-[var(--brand)] text-xl font-black text-white">M</span>
-                    <strong className="text-xl uppercase tracking-[-.055em]">{settings.brandName}</strong>
-                  </span>
+                  <BrandLogo className="h-14 w-auto" />
                   <nav className="ml-auto hidden items-center gap-6 text-sm font-semibold lg:flex">
                     {settings.navigation.filter((item) => item.visible).map((item) => <span key={item.id}>{item.label}</span>)}
                   </nav>
