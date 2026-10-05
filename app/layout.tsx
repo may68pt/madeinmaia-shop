@@ -50,12 +50,14 @@ export default async function RootLayout({
     darkColor: "#171713",
     backgroundColor: "#0d0d0c",
   };
+  let customCss = "";
   try {
     const [settings] = await getDb()
       .select()
       .from(siteSettings)
       .where(eq(siteSettings.key, "global"));
     if (settings?.data.theme) theme = { ...theme, ...settings.data.theme };
+    if (settings?.data.cssFiles) customCss=settings.data.cssFiles.filter((file)=>file.enabled).map((file)=>`/* ${file.name} */\n${file.content}`).join("\n").replace(/<\/style/gi,"/* blocked-style-tag */");
   } catch {
     /* local fallback */
   }
@@ -71,7 +73,7 @@ export default async function RootLayout({
   } as CSSProperties;
   return (
     <html lang="en">
-      <body style={themeStyle}>{children}</body>
+      <body style={themeStyle}>{customCss&&<style id="mim-custom-css" dangerouslySetInnerHTML={{__html:customCss}}/>}{children}</body>
     </html>
   );
 }

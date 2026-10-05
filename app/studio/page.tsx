@@ -50,6 +50,7 @@ import type { ArtworkPlacements } from "@/lib/artwork-placement";
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
 import { BrandLogo } from "@/components/brand-logo";
 import { DefaultPlacementControl } from "@/components/default-placement-control";
+import { CssStudio, type CssFile } from "@/components/css-studio";
 
 type Discovery = {
   id: number;
@@ -140,6 +141,7 @@ type SiteSettings = {
   terms: string;
   privacy: string;
   returns: string;
+  cssFiles: CssFile[];
   media: Array<{
     url: string;
     alt: string;
@@ -265,6 +267,7 @@ const initialSettings: SiteSettings = {
   terms: "",
   privacy: "",
   returns: "",
+  cssFiles: [{ id:"made-in-maia-custom", name:"made-in-maia-custom.css", content:"/* Custom Made in Maia styles */\n", enabled:true }],
   media: [],
   theme: {
     brandColor: "#ff4f1f",
@@ -649,6 +652,7 @@ export default function Studio() {
         ...data.settings,
         launchSplash: { ...initialSettings.launchSplash, ...data.settings.launchSplash },
         theme: { ...initialSettings.theme, ...data.settings.theme },
+        cssFiles: Array.isArray(data.settings.cssFiles) ? data.settings.cssFiles : initialSettings.cssFiles,
         productCatalog: {
           colors: data.settings.productCatalog?.colors ?? DEFAULT_COLORS,
           supports: (data.settings.productCatalog?.supports ?? DEFAULT_SUPPORTS).filter((support) => support.id !== "sunglasses").map(normalizeSupport),
@@ -1020,7 +1024,7 @@ export default function Studio() {
             {section==="blog"&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden"><button className="py-1 text-left text-xs font-bold">Todos os artigos</button><button className="py-1 text-left text-xs font-bold text-[var(--brand)]" onClick={addBlogPost}>+ Novo artigo</button></div>}
             {[{icon:GripVertical,label:"Menus",value:"menus"},{icon:Palette,label:"Link Labels",value:"discover"},{icon:Package,label:"Produtos",value:"products"},{icon:Images,label:"Media",value:"media"},{icon:Store,label:"Encomendas",value:"orders"}].map(({icon:Icon,label,value})=><Button key={label} onClick={()=>setSection(value as typeof section)} variant={section===value?"secondary":"ghost"} className="justify-start rounded-none max-lg:px-3"><Icon/><span className="max-lg:hidden">{label}</span></Button>)}
             <Button onClick={() => setSection("settings")} variant={section === "settings"||section==="catalog" ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><Settings/><span className="max-lg:hidden">Definições</span></Button>
-            {(section==="settings"||section==="catalog")&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden">{[["settings-general","Geral e SEO"],["settings-splash","Splash screen"],["settings-theme","Theme Builder"]].map(([id,label])=><button key={id} className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("settings");setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:"smooth"}),0)}}>{label}</button>)}<button className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("catalog");setTimeout(()=>document.getElementById("catalog-colors")?.scrollIntoView({behavior:"smooth"}),0)}}>Cores e disponibilidade</button><button className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("catalog");setTimeout(()=>document.getElementById("catalog-supports")?.scrollIntoView({behavior:"smooth"}),0)}}>Tipos de produto</button></div>}
+            {(section==="settings"||section==="catalog")&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden">{[["settings-general","Geral e SEO"],["settings-splash","Splash screen"],["settings-theme","Theme Builder"],["settings-css","CSS Studio"]].map(([id,label])=><button key={id} className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("settings");setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:"smooth"}),0)}}>{label}</button>)}<button className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("catalog");setTimeout(()=>document.getElementById("catalog-colors")?.scrollIntoView({behavior:"smooth"}),0)}}>Cores e disponibilidade</button><button className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("catalog");setTimeout(()=>document.getElementById("catalog-supports")?.scrollIntoView({behavior:"smooth"}),0)}}>Tipos de produto</button></div>}
           </nav>
         </aside>
         <section className="min-w-0 p-4 md:p-7">
@@ -1671,6 +1675,7 @@ export default function Studio() {
                   </span>
                 </div>
               </section>
+              <CssStudio files={settings.cssFiles} onChange={(cssFiles)=>setSettings({...settings,cssFiles})}/>
             </div>
           ) : (
             <div className="mx-auto max-w-5xl">

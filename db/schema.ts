@@ -145,6 +145,7 @@ export type SiteSettings = {
   terms: string;
   privacy: string;
   returns: string;
+  cssFiles?: Array<{ id:string; name:string; content:string; enabled:boolean }>;
   media: Array<{
     url: string;
     alt: string;

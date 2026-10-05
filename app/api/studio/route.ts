@@ -255,6 +255,15 @@ export async function POST(request: Request) {
       terms: String(value.terms ?? ""),
       privacy: String(value.privacy ?? ""),
       returns: String(value.returns ?? ""),
+      cssFiles: Array.isArray(value.cssFiles)
+        ? value.cssFiles.slice(0,30).flatMap((file) => {
+            if (!file || typeof file !== "object") return [];
+            const item=file as Record<string,unknown>;
+            const name=String(item.name??"custom.css").replace(/[^a-zA-Z0-9._-]/g,"-").slice(0,80);
+            const content=String(item.content??"").slice(0,200_000).replace(/<\/style/gi,"/* blocked-style-tag */");
+            return [{id:String(item.id??crypto.randomUUID()),name:name.endsWith(".css")?name:`${name}.css`,content,enabled:item.enabled!==false}];
+          })
+        : [],
       theme: {
         brandColor: String(
           (value.theme as Record<string, unknown> | undefined)?.brandColor ??
