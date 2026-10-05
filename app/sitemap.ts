@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: baseUrl, changeFrequency: "weekly", priority: 1 },
     { url: `${baseUrl}/loja`, changeFrequency: "daily", priority: 0.9 },
     { url: `${baseUrl}/marca`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${baseUrl}/blog`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${baseUrl}/shouldertag`, changeFrequency: "daily", priority: 0.6 },
     { url: `${baseUrl}/links`, changeFrequency: "monthly", priority: 0.5 },
   ];
@@ -28,7 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       })),
       ...contentPages.filter((page) => page.slug !== "inicio").map((page) => ({
-        url: `${baseUrl}/${page.slug}`,
+        url: page.slug.startsWith("blog-") ? `${baseUrl}/blog/${page.slug.slice(5)}` : `${baseUrl}/${page.slug}`,
         lastModified: page.updatedAt,
         changeFrequency: "monthly" as const,
         priority: 0.6,

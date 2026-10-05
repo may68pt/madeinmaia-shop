@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   ArrowDown,
   ArrowUp,
+  BookOpen,
   Eye,
   GripVertical,
   Images,
@@ -281,7 +282,7 @@ export default function Studio() {
   const [username, setUsername] = useState("madeinmaia");
   const [password, setPassword] = useState("");
   const [section, setSection] = useState<
-    "pages" | "menus" | "products" | "discover" | "orders" | "catalog" | "media" | "settings"
+    "pages" | "blog" | "menus" | "products" | "discover" | "orders" | "catalog" | "media" | "settings"
   >("pages");
   const [discoveries, setDiscoveries] = useState(initialDiscoveries);
   const [catalogue, setCatalogue] = useState(initialProducts);
@@ -368,6 +369,24 @@ export default function Studio() {
     setBlocks(page.blocks);
     setSelected(page.blocks[0].id);
     setPublished(false);
+  }
+  function addBlogPost() {
+    const number = pageList.filter((page) => page.slug.startsWith("blog-")).length + 1;
+    const page: StudioPage = {
+      slug: `blog-novo-artigo-${number}`,
+      title: "Novo artigo",
+      blocks: [
+        { id:Date.now(), type:"Hero", eyebrow:"Made in Maia Journal", title:"Novo artigo", description:"Escreve aqui o resumo do artigo.", background:"var(--surface)", textColor:"var(--foreground)", width:"content", align:"left", spacing:"large" },
+        { id:Date.now()+1, type:"Texto", eyebrow:"História", title:"Começa aqui", description:"Desenvolve o artigo em blocos. Podes acrescentar imagens, chamadas para ação e reorganizar tudo no editor.", background:"var(--paper)", textColor:"var(--foreground)", width:"narrow", align:"left", spacing:"normal" },
+      ],
+      status: "draft",
+    };
+    setPageList([...pageSnapshot(), page]);
+    setCurrentPageSlug(page.slug);
+    setBlocks(page.blocks);
+    setSelected(page.blocks[0].id);
+    setPublished(false);
+    setSection("pages");
   }
   async function deleteCurrentPage() {
     if (currentPageSlug === "inicio") return;
@@ -609,7 +628,7 @@ export default function Studio() {
           ...item,
           kind: item.kind ?? "artwork",
         })),
-        navigation: data.settings.navigation?.length ? data.settings.navigation : DEFAULT_NAVIGATION,
+        navigation: data.settings.navigation?.length ? [...data.settings.navigation, ...DEFAULT_NAVIGATION.filter((required)=>!data.settings!.navigation.some((item)=>item.id===required.id))] : DEFAULT_NAVIGATION,
       });
     setStudioUser(username.trim());
     setStudioKey(password);
@@ -900,6 +919,8 @@ export default function Studio() {
             ? `Página: ${pageList.find((page) => page.slug === currentPageSlug)?.title ?? "Início"}`
             : section === "menus"
               ? "Navegação principal"
+            : section === "blog"
+              ? "Made in Maia Journal"
             : section === "discover"
               ? "Conteúdo: Descobre"
               : section === "orders"
@@ -937,6 +958,8 @@ export default function Studio() {
           <nav className="grid gap-2">
             <Button onClick={() => setSection("pages")} variant={section === "pages" ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><LayoutTemplate/><span className="max-lg:hidden">Páginas</span></Button>
             {section==="pages"&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden"><button className="py-1 text-left text-xs font-bold" onClick={()=>document.getElementById("page-manager")?.scrollIntoView({behavior:"smooth"})}>Todas as páginas</button><button className="py-1 text-left text-xs font-bold text-[var(--brand)]" onClick={addPage}>+ Nova página</button></div>}
+            <Button onClick={() => setSection("blog")} variant={section === "blog" ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><BookOpen/><span className="max-lg:hidden">Blog</span></Button>
+            {section==="blog"&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden"><button className="py-1 text-left text-xs font-bold">Todos os artigos</button><button className="py-1 text-left text-xs font-bold text-[var(--brand)]" onClick={addBlogPost}>+ Novo artigo</button></div>}
             {[{icon:GripVertical,label:"Menus",value:"menus"},{icon:Palette,label:"Descobre",value:"discover"},{icon:Package,label:"Produtos",value:"products"},{icon:Images,label:"Media",value:"media"},{icon:Store,label:"Encomendas",value:"orders"}].map(({icon:Icon,label,value})=><Button key={label} onClick={()=>setSection(value as typeof section)} variant={section===value?"secondary":"ghost"} className="justify-start rounded-none max-lg:px-3"><Icon/><span className="max-lg:hidden">{label}</span></Button>)}
             <Button onClick={() => setSection("settings")} variant={section === "settings"||section==="catalog" ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><Settings/><span className="max-lg:hidden">Definições</span></Button>
             {(section==="settings"||section==="catalog")&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden">{[["settings-general","Geral e SEO"],["settings-splash","Splash screen"],["settings-theme","Theme Builder"]].map(([id,label])=><button key={id} className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("settings");setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:"smooth"}),0)}}>{label}</button>)}<button className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("catalog");setTimeout(()=>document.getElementById("catalog-colors")?.scrollIntoView({behavior:"smooth"}),0)}}>Cores e disponibilidade</button><button className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("catalog");setTimeout(()=>document.getElementById("catalog-supports")?.scrollIntoView({behavior:"smooth"}),0)}}>Tipos de produto</button></div>}
@@ -945,17 +968,17 @@ export default function Studio() {
         <section className="min-w-0 p-4 md:p-7">
           {section === "pages" ? (
             <>
-              <div id="page-manager" className="mb-4 bg-white p-3 shadow-sm"><div className="mb-3 flex items-center justify-between"><strong className="text-xs uppercase tracking-[.12em]">Gestor de páginas · {pageList.length}</strong><Button type="button" size="sm" variant="outline" className="rounded-none" onClick={addPage}><Plus/>Nova página</Button></div><div className="mb-3 flex flex-wrap gap-2">{pageList.map((page)=><button key={page.slug} type="button" onClick={()=>selectPage(page.slug)} className={`border px-3 py-2 text-xs font-bold ${currentPageSlug===page.slug?"border-[var(--brand)] bg-[var(--brand)] text-white":"border-black/10"}`}>{page.title}<span className="ml-2 opacity-50">{page.status}</span></button>)}</div><div className="flex flex-wrap items-center gap-2">
+              <div id="page-manager" className="mb-4 bg-white p-3 shadow-sm"><div className="mb-3 flex items-center justify-between"><strong className="text-xs uppercase tracking-[.12em]">Gestor de páginas · {pageList.filter((page)=>!page.slug.startsWith("blog-")).length}</strong><Button type="button" size="sm" variant="outline" className="rounded-none" onClick={addPage}><Plus/>Nova página</Button></div><div className="mb-3 flex flex-wrap gap-2">{pageList.filter((page)=>!page.slug.startsWith("blog-")||page.slug===currentPageSlug).map((page)=><button key={page.slug} type="button" onClick={()=>selectPage(page.slug)} className={`border px-3 py-2 text-xs font-bold ${currentPageSlug===page.slug?"border-[var(--brand)] bg-[var(--brand)] text-white":"border-black/10"}`}>{page.title}<span className="ml-2 opacity-50">{page.status}</span></button>)}</div><div className="flex flex-wrap items-center gap-2">
                 <label className="text-xs font-black uppercase tracking-[.12em]">Página</label>
                 <Select value={currentPageSlug} onValueChange={selectPage}>
                   <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {pageList.map((page) => <SelectItem key={page.slug} value={page.slug}>{page.title}</SelectItem>)}
+                    {pageList.filter((page)=>!page.slug.startsWith("blog-")||page.slug===currentPageSlug).map((page) => <SelectItem key={page.slug} value={page.slug}>{page.title}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {currentPageSlug !== "inicio" && <Button type="button" variant="ghost" className="rounded-none text-red-600" onClick={() => void deleteCurrentPage()}><Trash2 />Remover página</Button>}
                 <Button type="button" variant="ghost" className="ml-auto rounded-none" asChild>
-                  <Link href={currentPageSlug === "inicio" ? "/loja" : `/${currentPageSlug}`} target="_blank"><Eye />Abrir página</Link>
+                  <Link href={currentPageSlug === "inicio" ? "/loja" : currentPageSlug.startsWith("blog-") ? `/blog/${currentPageSlug.slice(5)}` : `/${currentPageSlug}`} target="_blank"><Eye />Abrir página</Link>
                 </Button>
               </div></div>
               <div className="mb-4 flex items-center justify-between">
@@ -1380,6 +1403,11 @@ export default function Studio() {
                   </div></details>;
                 })}</div></div>)}</div>
               </section>
+            </div>
+          ) : section === "blog" ? (
+            <div className="mx-auto max-w-6xl">
+              <div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">Conteúdo editorial</p><h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">Blog</h1><p className="mt-3 max-w-2xl text-black/60">Histórias, internet gems, cultura local e artigos feitos pela Made in Maia. Os conteúdos começam como rascunho e só aparecem publicamente depois de os publicares.</p></div><Button type="button" className="rounded-none bg-[var(--ink)] text-white" onClick={addBlogPost}><Plus/>Novo artigo</Button></div>
+              <div className="grid gap-4 md:grid-cols-2">{pageList.filter((page)=>page.slug.startsWith("blog-")).map((page)=>{const hero=page.blocks[0];return <article key={page.slug} className="border border-black/10 bg-white p-5"><div className="flex items-start justify-between gap-4"><div><span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${page.status==="published"?"bg-green-100 text-green-800":"bg-black/5 text-black/50"}`}>{page.status==="published"?"Publicado":"Rascunho"}</span><h2 className="mt-4 text-2xl font-black uppercase tracking-[-.04em]">{page.title}</h2><p className="mt-2 line-clamp-3 text-sm leading-relaxed text-black/55">{hero?.description||"Sem resumo."}</p><p className="mt-4 font-mono text-xs text-black/35">/blog/{page.slug.slice(5)}</p></div><BookOpen className="size-6 shrink-0 text-[var(--brand)]"/></div><div className="mt-5 flex gap-2"><Button type="button" size="sm" variant="outline" onClick={()=>{selectPage(page.slug);setSection("pages")}}>Editar</Button>{page.status==="published"&&<Button type="button" size="sm" variant="ghost" asChild><Link href={`/blog/${page.slug.slice(5)}`} target="_blank"><Eye/>Ver artigo</Link></Button>}</div></article>})}{!pageList.some((page)=>page.slug.startsWith("blog-"))&&<div className="col-span-full border-2 border-dashed border-black/15 bg-white/50 p-12 text-center"><BookOpen className="mx-auto size-10 text-black/25"/><h2 className="mt-4 text-2xl font-black uppercase">O journal começa aqui.</h2><p className="mt-2 text-black/50">Cria o primeiro artigo ou, mais tarde, pede ao agente editorial para preparar um rascunho.</p><Button type="button" className="mt-6 rounded-none" onClick={addBlogPost}><Plus/>Criar primeiro artigo</Button></div>}</div>
             </div>
           ) : section === "media" ? (
             <div className="mx-auto max-w-6xl">

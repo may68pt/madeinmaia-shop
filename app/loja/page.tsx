@@ -65,7 +65,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     initialTotal = total;
     if (storedPage?.status === "published" && Array.isArray(storedPage.blocks))
       initialBlocks = storedPage.blocks as PageBlock[];
-    if (settings?.data.navigation?.length) navigation = settings.data.navigation;
+    if (settings?.data.navigation?.length) navigation = [...settings.data.navigation, ...DEFAULT_NAVIGATION.filter((required)=>!settings.data.navigation.some((item)=>item.id===required.id))];
     if (settings?.data.productCatalog?.colors?.length) catalogColors = settings.data.productCatalog.colors;
     if (settings?.data.productCatalog?.supports?.length) catalogSupports = settings.data.productCatalog.supports;
   } catch {

@@ -14,5 +14,6 @@ export const DEFAULT_NAVIGATION: NavigationItem[] = [
     { id:"collection-jars", label:"Jars", url:"/loja?q=Jars", visible:true },
   ] },
   { id: "discover", label: "Discover", url: "/descobre", visible: true },
+  { id: "blog", label: "Blog", url: "/blog", visible: true },
   { id: "brand", label: "The brand", url: "/marca", visible: true },
 ];
