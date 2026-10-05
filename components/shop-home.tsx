@@ -14,17 +14,20 @@ import { LOCALES, UI_STRINGS, translatedName, translatedNavigation, type Locale 
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
+import { LOCAL_FALLBACK_PRODUCTS } from "@/lib/fallback-products";
+import { BrandLogo } from "@/components/brand-logo";
 
-type ShopProduct = { slug: string; name: string; nameTranslations:Record<string,string>; collection: string; tags:string[]; price: string; priceCents: number; image: string; colors: string[]; sizes: string[]; monochrome:boolean; disabledSupports:string[]; artworkPlacements:ArtworkPlacements };
+type ShopProduct = { slug: string; name: string; nameTranslations:Record<string,string>; collection: string; tags:string[]; price: string; priceCents: number; image: string; colors: string[]; previewColorIds:string[]; sizes: string[]; monochrome:boolean; disabledSupports:string[]; artworkPlacements:ArtworkPlacements };
 
-const defaultProducts: ShopProduct[] = [
-  { slug:"guardiao-zen", name: "Guardian Zen", nameTranslations:{pt:"Guardião Zen"}, collection: "Made in Maia", tags:["Cats"], price: "20,00 €", priceCents: 2000, image: "/products/white-shirt-1.jpg", colors:["White"], sizes:["XS","S","M","L","XL","2XL"], monochrome:true, disabledSupports:[], artworkPlacements:{} },
-  { slug:"piramide-digital", name: "Digital Pyramid", nameTranslations:{pt:"Pirâmide Digital"}, collection: "Pop Culture", tags:["Quotes"], price: "20,00 €", priceCents: 2000, image: "/products/red-shirt-1.jpg", colors:["Red"], sizes:["XS","S","M","L","XL","2XL"], monochrome:true, disabledSupports:[], artworkPlacements:{} },
-  { slug:"los-robots", name: "Los Robots", nameTranslations:{}, collection: "Music", tags:["Jars"], price: "20,00 €", priceCents: 2000, image: "/products/blue-shirt-1.jpg", colors:["Blue"], sizes:["XS","S","M","L","XL","2XL"], monochrome:false, disabledSupports:[], artworkPlacements:{} },
-];
+const defaultProducts: ShopProduct[] = LOCAL_FALLBACK_PRODUCTS.map((product) => ({
+  ...product,
+  previewColorIds: [],
+  image: product.imageKey,
+  price: `${(product.priceCents / 100).toFixed(2).replace(".", ",")} €`,
+}));
 
 const PAGE_SIZE = 24;
-export type ApiProduct = { slug:string; name:string; nameTranslations:Record<string,string>; collection:string; tags:string[]; priceCents:number; imageKey:string|null; colors:string[]; sizes:string[]; monochrome:boolean; disabledSupports?:string[]; artworkPlacements?:ArtworkPlacements };
+export type ApiProduct = { slug:string; name:string; nameTranslations:Record<string,string>; collection:string; tags:string[]; priceCents:number; imageKey:string|null; colors:string[]; previewColorIds?:string[]; sizes:string[]; monochrome:boolean; disabledSupports?:string[]; artworkPlacements?:ArtworkPlacements };
 
 function mapProduct(product: ApiProduct): ShopProduct {
   return {
@@ -37,6 +40,7 @@ function mapProduct(product: ApiProduct): ShopProduct {
     priceCents: product.priceCents,
     image: product.imageKey || "/products/white-shirt-1.jpg",
     colors: product.colors?.length ? product.colors : ["Unique"],
+    previewColorIds: product.previewColorIds ?? [],
     sizes: product.sizes?.length ? product.sizes : ["One size"],
     monochrome: product.monochrome === true,
     disabledSupports: product.disabledSupports ?? [],
@@ -46,12 +50,13 @@ function mapProduct(product: ApiProduct): ShopProduct {
 
 export default function Home({ initialProducts = [], initialTotal = 0, initialBlocks = DEFAULT_PAGE_BLOCKS, initialOffset = 0, initialPage = 1, initialQuery = "", navigation = DEFAULT_NAVIGATION, catalogColors = DEFAULT_COLORS, catalogSupports = DEFAULT_SUPPORTS }: { initialProducts?:ApiProduct[]; initialTotal?:number; initialBlocks?:PageBlockData[]; initialOffset?:number; initialPage?:number; initialQuery?:string; navigation?:NavigationItem[]; catalogColors?:CatalogColor[]; catalogSupports?:ProductSupport[] }) {
   const [query, setQuery] = useState(initialQuery);
-  const [products, setProducts] = useState<ShopProduct[]>(initialProducts.map(mapProduct));
+  const initialCatalogue = initialProducts.length ? initialProducts.map(mapProduct) : defaultProducts;
+  const [products, setProducts] = useState<ShopProduct[]>(initialCatalogue);
   const [blocks, setBlocks] = useState<PageBlockData[]>(withRequiredHomeBlocks(initialBlocks));
   const [locale, setLocale] = useState<Locale>("en");
-  const [hasMore, setHasMore] = useState(initialOffset + initialProducts.length < initialTotal);
+  const [hasMore, setHasMore] = useState(initialProducts.length > 0 && initialOffset + initialProducts.length < initialTotal);
   const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(initialTotal);
+  const [total, setTotal] = useState(initialTotal || initialCatalogue.length);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const firstQueryRun = useRef(true);
   const strings = UI_STRINGS[locale];
@@ -121,15 +126,15 @@ export default function Home({ initialProducts = [], initialTotal = 0, initialBl
   }, []);
 
   return (
-    <main className="storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]">
-      <div className="border-b border-white/10 bg-black px-5 py-2 text-center text-sm font-medium tracking-wide text-white">{strings.announcement}</div>
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-[color:var(--paper)]/90 backdrop-blur-xl">
+    <main id="mim-shop" className="mim-shop storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]">
+      <div id="mim-announcement" className="mim-announcement border-b border-white/10 bg-black px-5 py-2 text-center text-sm font-medium tracking-wide text-white">{strings.announcement}</div>
+      <header id="mim-site-header" className="mim-site-header sticky top-0 z-20 border-b border-white/10 bg-[color:var(--paper)]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1440px] items-center gap-5 px-5 py-4 lg:px-10">
           <Sheet>
             <SheetTrigger asChild><Button variant="ghost" size="icon" className="lg:hidden" aria-label={strings.menu}><Menu /></Button></SheetTrigger>
             <SheetContent side="left" className="storefront-dark border-white/10 bg-[var(--paper)] p-7 text-white"><SheetHeader><SheetTitle className="text-left text-2xl text-white">{strings.explore}</SheetTitle></SheetHeader><nav className="mt-8 grid gap-5 text-lg">{navigation.filter((item) => item.visible).map((item) => <Link key={item.id} href={item.url}>{translatedNavigation(item.id,item.label,locale)}</Link>)}</nav></SheetContent>
           </Sheet>
-          <a href="#" className="mr-auto flex items-center gap-2" aria-label="Made in Maia, início"><span className="grid size-10 rotate-3 place-items-center bg-[var(--brand)] text-xl font-black text-white">M</span><span className="text-xl font-black uppercase tracking-[-0.055em] sm:text-2xl">Made in Maia</span></a>
+          <Link href="/loja" className="mim-site-header__logo mr-auto block min-w-0" aria-label="Made in Maia, início"><BrandLogo className="h-7 w-auto max-w-[150px] sm:h-9 sm:max-w-[210px]" /></Link>
           <nav className="hidden items-center gap-7 text-sm font-semibold lg:flex">{navigation.filter((item) => item.visible).map((item) => <div key={item.id} className="group/nav relative py-5"><Link href={item.url}>{translatedNavigation(item.id,item.label,locale)}</Link>{item.children?.some((child)=>child.visible)&&<div className="invisible absolute left-1/2 top-full z-50 min-w-52 -translate-x-1/2 border border-white/10 bg-[#171715] p-2 opacity-0 shadow-2xl transition group-hover/nav:visible group-hover/nav:opacity-100 group-focus-within/nav:visible group-focus-within/nav:opacity-100">{item.children.filter((child)=>child.visible).map((child)=><Link key={child.id} href={child.url} className="block px-4 py-3 text-sm text-white/70 hover:bg-white/10 hover:text-white">{child.label}</Link>)}</div>}</div>)}</nav>
           <label className="sr-only" htmlFor="language">Language</label><select id="language" value={locale} onChange={(event)=>setLocale(event.target.value as Locale)} className="bg-transparent text-xs font-black uppercase">{LOCALES.map((item)=><option key={item} value={item}>{item}</option>)}</select>
           <Sheet>
@@ -139,8 +144,8 @@ export default function Home({ initialProducts = [], initialTotal = 0, initialBl
         </div>
       </header>
 
-      {blocks.map((block) => <PageBlock key={block.id} block={block} locale={locale}>{block.type === "Produtos" ? <><label className="mb-5 flex h-10 max-w-sm items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 focus-within:border-white/45 sm:mb-8 sm:h-12 sm:gap-3 sm:px-5"><Search className="size-4 sm:size-5"/><span className="sr-only">{strings.search}</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={strings.search} className="min-w-0 w-full bg-transparent text-sm text-white outline-none placeholder:text-white/35 sm:text-base" /></label><div className="grid grid-cols-2 gap-x-2.5 gap-y-6 sm:gap-x-5 sm:gap-y-12 lg:grid-cols-3">{products.map((product) => {const displayName=translatedName(product.name,product.nameTranslations,locale);return <ProductCard key={product.slug} product={{...product,name:displayName}} catalogColors={catalogColors} supports={catalogSupports} label={strings.new} locale={locale} strings={strings} />})}</div>{products.length===0&&!loading&&<div className="border border-dashed border-white/20 py-16 text-center"><SlidersHorizontal className="mx-auto mb-3"/><p>{strings.noDesigns}</p></div>}<div ref={loadMoreRef} className="mt-10 flex min-h-14 flex-col items-center justify-center gap-3"><p className="text-xs font-bold uppercase tracking-[.16em] text-white/45">{products.length} / {total} designs</p>{hasMore&&<Button type="button" variant="outline" disabled={loading} onClick={()=>void loadProducts(query ? products.length : initialOffset + products.length)} className="min-w-44 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">{loading?<><LoaderCircle className="animate-spin"/>{strings.loading}</>:strings.loadMore}</Button>}</div><nav aria-label="Product catalogue pages" className="mt-6 flex items-center justify-center gap-4 text-sm font-bold uppercase"><Link aria-disabled={initialPage<=1} className={initialPage<=1?"pointer-events-none opacity-30":"underline"} href={initialPage<=2?"/loja":`/loja?page=${initialPage-1}`}>{strings.previous}</Link><span>{strings.page} {initialPage}</span>{initialOffset+PAGE_SIZE<total&&<Link className="underline" href={`/loja?page=${initialPage+1}`}>{strings.next}</Link>}</nav></> : block.type === "Coleções" ? <div className="grid gap-3 sm:grid-cols-3">{["Cats","Quotes","Jars"].map((tag)=><button key={tag} onClick={()=>setQuery(tag)} className="rounded-3xl border border-white/10 bg-white/5 px-6 py-8 text-left text-2xl font-black uppercase transition hover:-translate-y-1 hover:border-white/35 hover:bg-white/8">{tag}<span className="mt-2 block text-xs font-normal normal-case text-white/50">{products.filter((product)=>product.tags.includes(tag)).length} designs</span></button>)}</div> : undefined}</PageBlock>)}
-      <footer className="mt-10 border-t border-white/10 bg-[var(--paper)] px-5 py-10 text-white lg:px-10"><div className="mx-auto flex max-w-[1440px] flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"><strong className="text-2xl font-black uppercase tracking-[-.05em]">Made in Maia</strong><nav className="flex flex-wrap gap-5 text-sm text-white/65"><Link href="/legal/terms">{strings.terms}</Link><Link href="/legal/privacy">{strings.privacy}</Link><Link href="/legal/returns">{strings.returns}</Link><Link href="/marca">{strings.brand}</Link></nav></div></footer>
+      {blocks.map((block) => <PageBlock key={block.id} block={block} locale={locale}>{block.type === "Produtos" ? <><label id="mim-product-search" className="mim-product-search mb-5 flex h-10 max-w-sm items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 focus-within:border-white/45 sm:mb-8 sm:h-12 sm:gap-3 sm:px-5"><Search className="size-4 sm:size-5"/><span className="sr-only">{strings.search}</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={strings.search} className="min-w-0 w-full bg-transparent text-sm text-white outline-none placeholder:text-white/35 sm:text-base" /></label><div id="mim-product-grid" className="mim-product-grid grid grid-cols-2 gap-x-2.5 gap-y-6 sm:gap-x-5 sm:gap-y-12 lg:grid-cols-3">{products.map((product) => {const displayName=translatedName(product.name,product.nameTranslations,locale);return <ProductCard key={product.slug} product={{...product,name:displayName}} catalogColors={catalogColors} supports={catalogSupports} label={strings.new} locale={locale} strings={strings} />})}</div>{products.length===0&&!loading&&<div className="mim-product-grid__empty border border-dashed border-white/20 py-16 text-center"><SlidersHorizontal className="mx-auto mb-3"/><p>{strings.noDesigns}</p></div>}<div ref={loadMoreRef} className="mim-product-grid__pagination mt-10 flex min-h-14 flex-col items-center justify-center gap-3"><p className="text-xs font-bold uppercase tracking-[.16em] text-white/45">{products.length} / {total} designs</p>{hasMore&&<Button type="button" variant="outline" disabled={loading} onClick={()=>void loadProducts(query ? products.length : initialOffset + products.length)} className="min-w-44 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">{loading?<><LoaderCircle className="animate-spin"/>{strings.loading}</>:strings.loadMore}</Button>}</div><nav aria-label="Product catalogue pages" className="mim-product-grid__seo-pagination mt-6 flex items-center justify-center gap-4 text-sm font-bold uppercase"><Link aria-disabled={initialPage<=1} className={initialPage<=1?"pointer-events-none opacity-30":"underline"} href={initialPage<=2?"/loja":`/loja?page=${initialPage-1}`}>{strings.previous}</Link><span>{strings.page} {initialPage}</span>{initialOffset+PAGE_SIZE<total&&<Link className="underline" href={`/loja?page=${initialPage+1}`}>{strings.next}</Link>}</nav></> : block.type === "Coleções" ? <div className="mim-featured-collections grid gap-3 sm:grid-cols-3">{["Cats","Quotes","Jars"].map((tag)=><Link key={tag} href={`/colecao/${tag.toLowerCase()}`} className="rounded-3xl border border-white/10 bg-white/5 px-6 py-8 text-left text-2xl font-black uppercase transition hover:-translate-y-1 hover:border-white/35 hover:bg-white/8">{tag}<span className="mt-2 block text-xs font-normal normal-case text-white/50">{products.filter((product)=>product.tags.includes(tag)).length} designs</span></Link>)}</div> : undefined}</PageBlock>)}
+      <footer id="mim-site-footer" className="mim-site-footer mt-10 border-t border-white/10 bg-[var(--paper)] px-5 py-10 text-white lg:px-10"><div className="mx-auto flex max-w-[1440px] flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"><strong className="text-2xl font-black uppercase tracking-[-.05em]">Made in Maia</strong><nav className="flex flex-wrap gap-5 text-sm text-white/65"><Link href="/legal/terms">{strings.terms}</Link><Link href="/legal/privacy">{strings.privacy}</Link><Link href="/legal/returns">{strings.returns}</Link><Link href="/marca">{strings.brand}</Link></nav></div></footer>
     </main>
   );
 }

@@ -52,6 +52,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         priceCents:products.priceCents,
         imageKey:products.imageKey,
         colors:products.colors,
+        previewColorIds:products.previewColorIds,
         sizes:products.sizes,
         monochrome:products.monochrome,
         disabledSupports:products.disabledSupports,

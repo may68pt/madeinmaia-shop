@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { pages, products } from "@/db/schema";
+import { collectionSlug } from "@/lib/collections";
+import { LOCAL_FALLBACK_PRODUCTS } from "@/lib/fallback-products";
 
 export const dynamic = "force-dynamic";
 
@@ -17,11 +19,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
   try {
     const [catalogue, contentPages] = await Promise.all([
-      getDb().select({ slug: products.slug, updatedAt: products.updatedAt }).from(products).where(eq(products.status, "published")),
+      getDb().select({ slug: products.slug, updatedAt: products.updatedAt, collection: products.collection, tags: products.tags }).from(products).where(eq(products.status, "published")),
       getDb().select({ slug: pages.slug, updatedAt: pages.updatedAt }).from(pages).where(eq(pages.status, "published")),
     ]);
+    const taxonomies = [...new Set(catalogue.flatMap((product) => [...product.tags, product.collection]).filter(Boolean))];
     return [
       ...staticPages,
+      ...taxonomies.map((taxonomy) => ({ url: `${baseUrl}/colecao/${collectionSlug(taxonomy)}`, changeFrequency: "weekly" as const, priority: 0.7 })),
       ...catalogue.map((product) => ({
         url: `${baseUrl}/produto/${product.slug}`,
         lastModified: product.updatedAt,
@@ -36,6 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })),
     ];
   } catch {
-    return staticPages;
+    const taxonomies = [...new Set(LOCAL_FALLBACK_PRODUCTS.flatMap((product) => [...product.tags, product.collection]))];
+    return [...staticPages, ...taxonomies.map((taxonomy) => ({ url: `${baseUrl}/colecao/${collectionSlug(taxonomy)}`, changeFrequency: "weekly" as const, priority: 0.7 }))];
   }
 }

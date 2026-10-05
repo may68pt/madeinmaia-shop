@@ -51,6 +51,7 @@ export async function GET(request: Request) {
           gallery: products.gallery,
           artworkPlacements: products.artworkPlacements,
           colors: products.colors,
+          previewColorIds: products.previewColorIds,
           sizes: products.sizes,
           sortOrder: products.sortOrder,
           monochrome: products.monochrome,
@@ -385,6 +386,7 @@ export async function POST(request: Request) {
           disabledSupports: Array.isArray(value.disabledSupports) ? value.disabledSupports.map(String) : [],
           artworkPlacements: value.artworkPlacements && typeof value.artworkPlacements === "object" ? value.artworkPlacements as Record<string,{x:number;y:number;width:number;height:number}> : {},
           colors: Array.isArray(value.colors) ? value.colors.map(String) : [],
+          previewColorIds: Array.isArray(value.previewColorIds) ? value.previewColorIds.map(String).filter(Boolean).slice(0, 3) : [],
           sizes: Array.isArray(value.sizes) ? value.sizes.map(String) : [],
           variants: Array.isArray(value.variants)
             ? value.variants.flatMap((variant) => {

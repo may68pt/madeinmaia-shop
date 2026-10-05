@@ -15,9 +15,11 @@ export function PageBlock({ block, children, locale="en", editor = false, select
   const darkContentBlock = ["Produtos", "Coleções", "Texto"].includes(block.type) && ["transparent", "var(--paper)", "var(--surface)"].includes(background);
   const textColor = darkContentBlock ? "var(--foreground)" : block.textColor ?? (hero ? "#11110f" : "var(--foreground)");
   const copy = localizedBlock(block, locale);
-  return <section id={block.type === "Produtos" ? "novidades" : block.type === "Coleções" ? "colecoes" : undefined} onClick={onSelect} className={`relative overflow-hidden ${width} ${spacing} ${blockWidth === "full" ? "" : "mx-auto"} ${editor ? `cursor-pointer outline outline-2 outline-offset-[-2px] ${selected ? "outline-[var(--brand)]" : "outline-transparent hover:outline-black/15"}` : ""}`} style={{background,color:textColor}}>
+  const blockHook = block.type.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const blockId = block.type === "Produtos" ? "novidades" : block.type === "Coleções" ? "colecoes" : `mim-block-${block.id}`;
+  return <section id={blockId} data-mim-block-id={block.id} onClick={onSelect} className={`mim-page-block mim-page-block--${blockHook} relative overflow-hidden ${width} ${spacing} ${blockWidth === "full" ? "" : "mx-auto"} ${editor ? `cursor-pointer outline outline-2 outline-offset-[-2px] ${selected ? "outline-[var(--brand)]" : "outline-transparent hover:outline-black/15"}` : ""}`} style={{background,color:textColor}}>
     {block.imageUrl&&<Image src={block.imageUrl} alt="" fill sizes="100vw" unoptimized={block.imageUrl.startsWith("http")} className="object-cover opacity-45"/>}
-    <div className={`relative ${blockWidth === "full" ? "mx-auto max-w-[1440px] px-5 lg:px-10" : block.type === "Produtos" ? "px-2.5 sm:px-5 lg:px-10" : "px-5 lg:px-10"} ${blockAlign === "center" ? "text-center" : "text-left"}`}>
+    <div className={`mim-page-block__content relative ${blockWidth === "full" ? "mx-auto max-w-[1440px] px-5 lg:px-10" : block.type === "Produtos" ? "px-2.5 sm:px-5 lg:px-10" : "px-5 lg:px-10"} ${blockAlign === "center" ? "text-center" : "text-left"}`}>
       {copy.eyebrow&&<p className="text-sm font-black uppercase tracking-[.16em] opacity-70">{copy.eyebrow}</p>}
       <h2 className={`${hero ? "mt-5 text-[clamp(3.4rem,8vw,7.8rem)] leading-[.78]" : "mt-3 text-4xl md:text-6xl"} font-black uppercase tracking-[-.065em]`}>{copy.title}</h2>
       {copy.description&&<p className={`${blockAlign === "center" ? "mx-auto" : ""} mt-6 max-w-2xl text-lg leading-relaxed opacity-75`}>{copy.description}</p>}

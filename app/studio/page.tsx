@@ -18,6 +18,7 @@ import {
   Palette,
   Plus,
   Save,
+  Search,
   Settings,
   ShoppingBag,
   Smartphone,
@@ -47,6 +48,8 @@ import { SupportIcon } from "@/components/support-icon";
 import { ArtworkPlacementEditor } from "@/components/artwork-placement-editor";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
+import { BrandLogo } from "@/components/brand-logo";
+import { DefaultPlacementControl } from "@/components/default-placement-control";
 
 type Discovery = {
   id: number;
@@ -76,6 +79,7 @@ type Product = {
   disabledSupports: string[];
   artworkPlacements: ArtworkPlacements;
   colors: string[];
+  previewColorIds: string[];
   sizes: string[];
   variants: ProductVariant[];
   sortOrder: number;
@@ -186,6 +190,7 @@ const initialProducts: Product[] = [
     disabledSupports: [],
     artworkPlacements: {},
     colors: ["Branco"],
+    previewColorIds: [],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
     sortOrder: 1,
@@ -208,6 +213,7 @@ const initialProducts: Product[] = [
     disabledSupports: [],
     artworkPlacements: {},
     colors: ["Vermelho"],
+    previewColorIds: [],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
     sortOrder: 2,
@@ -230,6 +236,7 @@ const initialProducts: Product[] = [
     disabledSupports: [],
     artworkPlacements: {},
     colors: ["Azul"],
+    previewColorIds: [],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variants: [],
     sortOrder: 3,
@@ -286,6 +293,7 @@ export default function Studio() {
   >("pages");
   const [discoveries, setDiscoveries] = useState(initialDiscoveries);
   const [catalogue, setCatalogue] = useState(initialProducts);
+  const [productQuery, setProductQuery] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
   const [paymentConfigured, setPaymentConfigured] = useState(false);
   const [settings, setSettings] = useState(initialSettings);
@@ -313,6 +321,11 @@ export default function Studio() {
   const mediaPageCount=Math.max(1,Math.ceil(filteredMedia.length/12));
   const currentMediaPage=Math.min(mediaPage,mediaPageCount);
   const pagedMedia=filteredMedia.slice((currentMediaPage-1)*12,currentMediaPage*12);
+  const filteredCatalogue = useMemo(() => {
+    const query = productQuery.trim().toLowerCase();
+    if (!query) return catalogue;
+    return catalogue.filter((product) => `${product.name} ${product.designCode} ${product.slug} ${product.collection} ${product.tags.join(" ")}`.toLowerCase().includes(query));
+  }, [catalogue, productQuery]);
 
   function updateBlock(patch: Partial<Block>) {
     setBlocks((items) =>
@@ -598,6 +611,7 @@ export default function Studio() {
           disabledSupports: entry.disabledSupports ?? [],
           artworkPlacements: entry.artworkPlacements ?? {},
           colors: entry.colors ?? [],
+          previewColorIds: entry.previewColorIds ?? [],
           sizes: entry.sizes ?? [],
           variants: (entry.variants ?? []).map((variant) => ({
             ...variant,
@@ -864,9 +878,7 @@ export default function Studio() {
           <span className="grid size-12 place-items-center bg-[var(--brand)] text-white">
             <LockKeyhole />
           </span>
-          <h1 className="mt-6 text-4xl font-black uppercase tracking-[-.055em]">
-            Made in Maia Studio
-          </h1>
+          <div className="mt-6"><BrandLogo className="h-9 w-auto max-w-[240px]" /><h1 className="mt-3 text-sm font-black uppercase tracking-[.18em] text-white/55">Studio</h1></div>
           <p className="mt-3 text-white/60">
             Introduz o utilizador e a palavra-passe definidos para o Studio.
           </p>
@@ -903,18 +915,17 @@ export default function Studio() {
   const width =
     viewport === "mobile" ? "390px" : viewport === "tablet" ? "760px" : "100%";
   return (
-    <main className="min-h-screen bg-[#ecece8] text-[var(--ink)]">
+    <main id="mim-studio" className="mim-studio min-h-screen overflow-x-clip bg-[#ecece8] text-[var(--ink)]">
       <Toaster position="bottom-right" />
-      <header className="flex h-16 items-center gap-4 border-b border-black/10 bg-[var(--ink)] px-5 text-white">
+      <header className="mim-studio__header flex min-h-16 min-w-0 flex-wrap items-center gap-2 border-b border-black/10 bg-[var(--ink)] px-3 py-3 text-white sm:gap-4 sm:px-5">
         <Link
           href="/"
-          className="flex items-center gap-2 font-black uppercase tracking-tight"
+          className="flex min-w-0 items-center gap-2 font-black uppercase tracking-tight"
         >
-          <span className="grid size-8 place-items-center bg-[var(--brand)]">M</span>{" "}
-          Studio
+          <BrandLogo className="h-7 w-auto max-w-[145px] sm:h-8 sm:max-w-[190px]" /><span className="hidden text-xs text-white/55 sm:inline">Studio</span>
         </Link>
         <span className="h-6 w-px bg-white/20" />
-        <span className="text-sm text-white/65">
+        <span className="hidden min-w-0 truncate text-sm text-white/65 md:block">
           {section === "pages"
             ? `Página: ${pageList.find((page) => page.slug === currentPageSlug)?.title ?? "Início"}`
             : section === "menus"
@@ -933,7 +944,7 @@ export default function Studio() {
                   ? "Definições"
                   : "Catálogo"}
         </span>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
           <Button
             variant="ghost"
             className="text-white hover:bg-white/10 hover:text-white"
@@ -941,7 +952,7 @@ export default function Studio() {
           >
             <Link href="/" target="_blank">
               <Eye />
-              Pré-visualizar
+              <span className="hidden lg:inline">Pré-visualizar</span>
             </Link>
           </Button>
           <Button
@@ -949,7 +960,7 @@ export default function Studio() {
             className="rounded-none bg-[var(--accent-brand)] text-black hover:bg-[#c8ef39]"
           >
             <Save />
-            Guardar
+            <span className="hidden sm:inline">Guardar</span>
           </Button>
         </div>
       </header>
@@ -1393,13 +1404,13 @@ export default function Studio() {
                   const setAllColors = (enabled:boolean) => updateSupport({ colorIds: enabled ? activeColors.map((color) => color.id) : [], availability: enabled ? Object.fromEntries(activeColors.map((color) => [color.id, [...optionPool]])) : {} });
                   return <details key={support.id} className="rounded-3xl border border-black/10 p-5" open><summary className="flex cursor-pointer list-none items-center gap-3 text-xl font-black uppercase"><span className="grid size-11 place-items-center rounded-full bg-[#e9e9e4]"><SupportIcon supportId={support.id} size={30}/></span>{support.name}</summary><div className="mt-5 grid gap-6">
                     <div className="grid gap-3 md:grid-cols-[1fr_190px_160px_120px]"><Input value={support.name} onChange={(event) => updateSupport({ name: event.target.value })} /><Select value={support.categoryId} onValueChange={(value) => updateSupport({ categoryId:value as ProductSupport["categoryId"], variantMode:value === "bags" ? "none" : "size", sizes:value === "bags" ? [] : CATALOG_SIZES.filter((item)=>item!=="Único") })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CATALOG_CATEGORIES.map((item)=><SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}</SelectContent></Select><label className="grid gap-1 text-xs font-bold uppercase"><span>Preço base (€)</span><Input type="number" min="0" step="0.01" value={(support.priceCents/100).toFixed(2)} onChange={(event)=>updateSupport({priceCents:Math.round(Number(event.target.value)*100)})}/></label><label className="flex items-center gap-2 text-sm font-bold"><Switch checked={support.active} onCheckedChange={(active) => updateSupport({ active })} />Ativo</label></div>
-                    <div className="rounded-2xl border border-black/10 p-4"><div className="mb-3"><p className="text-xs font-black uppercase">Placement padrão do design</p><p className="mt-1 text-sm text-black/50">Aplicado automaticamente a todos os designs. Os ajustes feitos dentro de um produto substituem estes valores apenas nesse produto.</p></div><div className="grid gap-3 sm:grid-cols-4">{([['x','Esquerda (%)'],['y','Topo (%)'],['width','Largura (%)'],['height','Altura (%)']] as const).map(([key,label])=><label key={key} className="grid gap-1 text-xs font-bold uppercase"><span>{label}</span><Input type="number" min="0" max="100" value={support.defaultPlacement[key]} onChange={(event)=>updateSupport({defaultPlacement:{...support.defaultPlacement,[key]:Number(event.target.value)}})}/></label>)}</div></div>
+                    <div className="mim-support-placement rounded-2xl border border-black/10 p-3 sm:p-4"><div className="mb-4"><p className="text-xs font-black uppercase">Placement padrão do design</p><p className="mt-1 text-sm text-black/50">Arrasta o quadrado sobre o produto. Este placement é aplicado a todos os designs, salvo exceções configuradas no próprio produto.</p></div><div className="grid min-w-0 gap-5 md:grid-cols-[minmax(220px,320px)_minmax(0,1fr)] md:items-start"><DefaultPlacementControl support={support} onChange={(defaultPlacement)=>updateSupport({defaultPlacement})}/><div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-2">{([['x','Esquerda (%)'],['y','Topo (%)'],['width','Largura (%)'],['height','Altura (%)']] as const).map(([key,label])=><label key={key} className="grid min-w-0 gap-1 text-xs font-bold uppercase"><span>{label}</span><Input type="number" min="0" max="100" value={support.defaultPlacement[key]} onChange={(event)=>updateSupport({defaultPlacement:{...support.defaultPlacement,[key]:Number(event.target.value)}})}/></label>)}</div></div></div>
                     <div className="grid gap-4 rounded-2xl bg-[#f5f5f2] p-4 md:grid-cols-[1fr_180px]">
                       <div><p className="text-xs font-black uppercase">Template único para todas as cores</p><p className="mt-1 text-sm text-black/50">PNG branco/cinza com fundo transparente. A loja aplica a cor sem carregar outra fotografia.</p><Input className="mt-3" value={support.templateImage} onChange={(event) => updateSupport({ templateImage: event.target.value })} placeholder="/mockup-templates/tshirt-neutral-v1.png" />{settings.media.some((item) => item.kind === "base" && item.url) && <div className="mt-2 flex flex-wrap gap-2">{settings.media.filter((item) => item.kind === "base" && item.url).map((item) => <Button key={item.url} type="button" size="sm" variant="outline" onClick={() => updateSupport({ templateImage: item.url })}>{item.alt || "Usar template"}</Button>)}</div>}</div>
                       <div className="relative aspect-square overflow-hidden bg-white">{support.templateImage ? <Image src={support.templateImage} alt="Template neutro" fill sizes="180px" unoptimized className="object-contain p-3" /> : <span className="grid h-full place-items-center p-4 text-center text-xs font-bold text-black/35">Sem template — será usado o mockup SVG</span>}</div>
                     </div>
                     {support.variantMode === "none" ? <p className="rounded-2xl bg-[#f5f5f2] p-4 text-sm font-bold">Sem tamanho — o cliente escolhe apenas a cor.</p> : <div><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-black uppercase">Tamanhos base</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={() => updateSupport({ sizes:[...optionPool], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[...optionPool]])) })}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={() => updateSupport({ sizes:[], availability:Object.fromEntries(support.colorIds.map((id)=>[id,[]])) })}>Limpar tudo</Button></div></div><div className="grid gap-3 sm:grid-cols-2">{[{label:"Kids",values:KIDS_SIZES},{label:"Adults",values:ADULT_SIZES}].map((group)=><div key={group.label} className="rounded-2xl border border-black/10 p-4"><p className="mb-3 text-xs font-black uppercase">{group.label}</p><div className="flex flex-wrap gap-2">{group.values.map((option)=>{const enabled=support.sizes.includes(option);return <button key={option} type="button" onClick={()=>updateSupport({sizes:enabled?support.sizes.filter((item)=>item!==option):[...support.sizes,option],availability:enabled?Object.fromEntries(Object.entries(support.availability).map(([colorId,options])=>[colorId,options.filter((item)=>item!==option)])):support.availability})} className={`rounded-full border px-4 py-2 text-sm font-black ${enabled?"border-[var(--brand)] bg-[var(--brand)] text-white":"border-black/15"}`}>{option}</button>})}</div></div>)}</div></div>}
-                    <div><div className="mb-3 flex items-center justify-between gap-3"><p className="text-xs font-black uppercase">Cores e disponibilidade</p><div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={()=>setAllColors(true)}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={()=>setAllColors(false)}>Limpar tudo</Button></div></div><div className="space-y-2">{activeColors.map((color) => { const enabled=support.colorIds.includes(color.id); const availableOptions=support.availability[color.id] ?? []; return <details key={color.id} className={`overflow-hidden rounded-2xl border ${enabled ? "border-black/20" : "border-black/10 opacity-60"}`}><summary className="flex cursor-pointer list-none items-center gap-3 p-3 [&::-webkit-details-marker]:hidden"><span onClick={(event)=>event.stopPropagation()}><Switch checked={enabled} onCheckedChange={(checked)=>updateSupport({ colorIds:checked ? [...support.colorIds,color.id] : support.colorIds.filter((id)=>id!==color.id), availability:{...support.availability,[color.id]:checked?[...support.sizes]:[]} })}/></span><span className="size-5 rounded-full border border-black/10" style={{backgroundColor:color.hex}}/><strong className="flex-1 text-sm">{color.name}</strong></summary><div className="border-t border-black/10 px-3 pb-3 pt-3 pl-12">{!enabled ? <p className="text-xs font-bold text-black/45">Ativa esta cor para gerir a disponibilidade.</p> : support.variantMode === "none" ? <p className="text-xs font-bold text-black/45">Este suporte não tem tamanhos.</p> : <div className="flex flex-wrap gap-2">{support.sizes.map((option)=>{const selected=availableOptions.includes(option);return <button key={option} type="button" onClick={()=>updateSupport({availability:{...support.availability,[color.id]:selected?availableOptions.filter((item)=>item!==option):[...availableOptions,option]}})} className={`rounded-full border px-3 py-1 text-xs font-bold ${selected?"border-[var(--ink)] bg-[var(--ink)] text-white":"border-black/15"}`}>{option}</button>})}</div>}</div></details>})}</div><details className="mt-4 text-sm"><summary className="cursor-pointer font-bold text-black/45">Mockups individuais antigos (fallback)</summary><div className="mt-3 grid gap-2">{activeColors.filter((color)=>support.colorIds.includes(color.id)).map((color)=><label key={color.id} className="grid grid-cols-[120px_1fr] items-center gap-2"><span>{color.name}</span><Input value={support.mockups[color.id]??""} onChange={(event)=>updateSupport({mockups:{...support.mockups,[color.id]:event.target.value}})} placeholder="Foto específica opcional"/></label>)}</div></details></div>
+                    <div className="min-w-0"><div className="mb-3 flex flex-wrap items-center justify-between gap-3"><p className="text-xs font-black uppercase">Cores e disponibilidade</p><div className="flex flex-wrap gap-2"><Button type="button" size="sm" variant="outline" onClick={()=>setAllColors(true)}>Selecionar tudo</Button><Button type="button" size="sm" variant="ghost" onClick={()=>setAllColors(false)}>Limpar tudo</Button></div></div><div className="mim-support-colours flex min-w-0 flex-wrap gap-2">{activeColors.map((color) => { const enabled=support.colorIds.includes(color.id); const availableOptions=support.availability[color.id] ?? []; return <details key={color.id} className={`group/color min-w-0 rounded-2xl border open:basis-full ${enabled ? "border-black/20" : "border-black/10 opacity-60"}`}><summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 [&::-webkit-details-marker]:hidden"><span onClick={(event)=>event.stopPropagation()}><Switch checked={enabled} onCheckedChange={(checked)=>updateSupport({ colorIds:checked ? [...support.colorIds,color.id] : support.colorIds.filter((id)=>id!==color.id), availability:{...support.availability,[color.id]:checked?[...support.sizes]:[]} })}/></span><span className="size-5 shrink-0 rounded-full border border-black/10" style={{backgroundColor:color.hex}}/><strong className="whitespace-nowrap text-xs sm:text-sm">{color.name}</strong></summary><div className="border-t border-black/10 p-3">{!enabled ? <p className="text-xs font-bold text-black/45">Ativa esta cor para gerir a disponibilidade.</p> : support.variantMode === "none" ? <p className="text-xs font-bold text-black/45">Este suporte não tem tamanhos.</p> : <div className="flex flex-wrap gap-2">{support.sizes.map((option)=>{const selected=availableOptions.includes(option);return <button key={option} type="button" onClick={()=>updateSupport({availability:{...support.availability,[color.id]:selected?availableOptions.filter((item)=>item!==option):[...availableOptions,option]}})} className={`rounded-full border px-3 py-1 text-xs font-bold ${selected?"border-[var(--ink)] bg-[var(--ink)] text-white":"border-black/15"}`}>{option}</button>})}</div>}</div></details>})}</div><details className="mt-4 text-sm"><summary className="cursor-pointer font-bold text-black/45">Mockups individuais antigos (fallback)</summary><div className="mt-3 grid min-w-0 gap-2">{activeColors.filter((color)=>support.colorIds.includes(color.id)).map((color)=><label key={color.id} className="grid min-w-0 gap-2 sm:grid-cols-[120px_minmax(0,1fr)] sm:items-center"><span>{color.name}</span><Input className="min-w-0" value={support.mockups[color.id]??""} onChange={(event)=>updateSupport({mockups:{...support.mockups,[color.id]:event.target.value}})} placeholder="Foto específica opcional"/></label>)}</div></details></div>
                   </div></details>;
                 })}</div></div>)}</div>
               </section>
@@ -1700,6 +1711,7 @@ export default function Studio() {
                         disabledSupports: [],
                         artworkPlacements: {},
                         colors: ["Branco"],
+                        previewColorIds: [],
                         sizes: ["S", "M", "L"],
                         variants: [],
                         sortOrder: 0,
@@ -1717,8 +1729,15 @@ export default function Studio() {
                   Novo produto
                 </Button>
               </div>
+              <label className="mim-studio-product-search mb-5 flex h-12 w-full min-w-0 items-center gap-3 border border-black/10 bg-white px-4 shadow-sm focus-within:border-black/35">
+                <Search className="size-5 shrink-0 text-black/40" />
+                <span className="sr-only">Pesquisar produtos</span>
+                <input value={productQuery} onChange={(event)=>setProductQuery(event.target.value)} placeholder="Pesquisar por nome, MiM_0000, slug, coleção ou tag…" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-black/35" />
+                {productQuery && <button type="button" className="shrink-0 text-xs font-black uppercase text-black/45 hover:text-black" onClick={()=>setProductQuery("")}>Limpar</button>}
+              </label>
               <div className="space-y-3">
-                {catalogue.map((product, productIndex) => {
+                {filteredCatalogue.map((product) => {
+                  const productIndex = catalogue.findIndex((item)=>item.id===product.id);
                   const isOpen = expandedProductId === product.id;
                   return (
                     <article key={product.id} draggable onDragStart={() => setDraggedProductId(product.id)} onDragEnd={() => setDraggedProductId(null)} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); dropProduct(product.id); }} className={`overflow-hidden border bg-white shadow-sm transition ${draggedProductId === product.id ? "border-[var(--brand)] opacity-50" : "border-black/10"}`}>
@@ -1753,6 +1772,10 @@ export default function Studio() {
                                 <span><strong className="block text-sm uppercase">Design monocromático</strong><span className="mt-1 block text-xs font-normal text-black/50">Ativa a escolha de impressão preta ou branca e o filtro CSS do design. Mantém desligado para preservar todas as cores do PNG.</span></span>
                                 <Switch aria-label="Design monocromático" checked={product.monochrome} onCheckedChange={(checked) => void updateProductMonochrome(product, checked)} />
                               </label>
+                              <section className="mim-product-preview-colours min-w-0 rounded-2xl border border-black/10 p-4 md:col-span-2">
+                                <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-black uppercase">Fundos do design na listagem</p><p className="mt-1 text-xs text-black/50">Escolhe até três cores de tecido. Sem seleção, a loja escolhe três automaticamente.</p></div>{product.previewColorIds.length>0&&<button type="button" onClick={()=>updateProduct(product.id,{previewColorIds:[]})} className="text-xs font-bold underline">Usar automático</button>}</div>
+                                <div className="mt-4 flex min-w-0 flex-wrap gap-2">{settings.productCatalog.colors.filter((color)=>color.active).map((color)=>{const selected=product.previewColorIds.includes(color.id);const limitReached=!selected&&product.previewColorIds.length>=3;return <button key={color.id} type="button" disabled={limitReached} aria-pressed={selected} onClick={()=>updateProduct(product.id,{previewColorIds:selected?product.previewColorIds.filter((id)=>id!==color.id):[...product.previewColorIds,color.id]})} className={`inline-flex min-w-0 items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold transition ${selected?"border-black bg-black text-white":"border-black/15 bg-white"} ${limitReached?"cursor-not-allowed opacity-35":""}`}><span className="size-5 shrink-0 rounded-full border border-black/15" style={{backgroundColor:color.hex}}/><span className="truncate">{color.name}</span></button>})}</div>
+                              </section>
                               <details className="rounded-2xl border border-black/10 p-4 md:col-span-2"><summary className="cursor-pointer text-xs font-black uppercase">Traduções do nome</summary><div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{["pt", "es", "de", "fr"].map((locale) => <label key={locale} className="grid gap-1 text-xs font-bold uppercase"><span>{locale}</span><Input value={product.nameTranslations[locale] ?? ""} onChange={(event) => updateProduct(product.id, { nameTranslations: { ...product.nameTranslations, [locale]: event.target.value } })} placeholder={product.name} /></label>)}</div></details>
                               <div className="md:col-span-2">
                                 <p className="text-xs font-bold uppercase">Suportes disponíveis</p>
@@ -1808,6 +1831,7 @@ export default function Studio() {
                     </article>
                   );
                 })}
+                {filteredCatalogue.length===0&&<div className="border-2 border-dashed border-black/15 bg-white/50 p-10 text-center"><Search className="mx-auto size-8 text-black/25"/><p className="mt-3 font-black uppercase">Nenhum produto encontrado</p><button type="button" onClick={()=>setProductQuery("")} className="mt-2 text-sm underline">Limpar pesquisa</button></div>}
               </div>
               {placementProductId !== null && (()=>{const product=catalogue.find((item)=>item.id===placementProductId);return product?<ArtworkPlacementEditor open onOpenChange={(open)=>!open&&setPlacementProductId(null)} name={product.name} artwork={product.imageKey||"/products/white-shirt-1.jpg"} supports={settings.productCatalog.supports.filter((support)=>!product.disabledSupports.includes(support.id))} placements={product.artworkPlacements??{}} onSave={(placements)=>void saveProductPlacement(product,placements)}/>:null;})()}
             </div>

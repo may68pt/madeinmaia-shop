@@ -26,6 +26,7 @@ export const products = pgTable("products", {
   disabledSupports: jsonb("disabled_supports").$type<string[]>().notNull().default([]),
   artworkPlacements: jsonb("artwork_placements").$type<ArtworkPlacements>().notNull().default({}),
   colors: jsonb("colors").$type<string[]>().notNull().default([]),
+  previewColorIds: jsonb("preview_color_ids").$type<string[]>().notNull().default([]),
   sizes: jsonb("sizes").$type<string[]>().notNull().default([]),
   variants: jsonb("variants")
     .$type<ProductVariant[]>()

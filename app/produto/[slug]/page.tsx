@@ -8,16 +8,14 @@ import { ProductPurchase } from "./product-purchase";
 import { ProductDiscovery, type RelatedProduct } from "@/components/product-discovery";
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport } from "@/lib/product-catalog";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
+import { LOCAL_FALLBACK_PRODUCTS } from "@/lib/fallback-products";
+import { BrandLogo } from "@/components/brand-logo";
 
 export const dynamic = "force-dynamic";
 
 type ProductView = { slug:string; name:string; nameTranslations:Record<string,string>; description:string; priceCents:number; collection:string; tags:string[]; imageKey:string; gallery:string[]; disabledSupports:string[]; monochrome:boolean; artworkPlacements:ArtworkPlacements };
 
-const fallback: ProductView[] = [
-  { slug:"guardiao-zen", name:"Guardian Zen", nameTranslations:{pt:"Guardião Zen"}, description:"A calm presence for noisy days.", priceCents:2000, collection:"Made in Maia", tags:["Cats"], imageKey:"/products/white-shirt-1.jpg", gallery:[], disabledSupports:[], monochrome:true, artworkPlacements:{} },
-  { slug:"piramide-digital", name:"Digital Pyramid", nameTranslations:{pt:"Pirâmide Digital"}, description:"Geometry, signal and digital culture.", priceCents:2000, collection:"Pop Culture", tags:["Quotes"], imageKey:"/products/red-shirt-1.jpg", gallery:[], disabledSupports:[], monochrome:true, artworkPlacements:{} },
-  { slug:"los-robots", name:"Los Robots", nameTranslations:{}, description:"A small tribute to the machines that taught us to dance.", priceCents:2000, collection:"Music", tags:["Jars"], imageKey:"/products/blue-shirt-1.jpg", gallery:[], disabledSupports:[], monochrome:false, artworkPlacements:{} },
-];
+const fallback: ProductView[] = LOCAL_FALLBACK_PRODUCTS;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -38,6 +36,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   } catch {
     /* local fallback */
   }
+  const localProduct = fallback.find((item) => item.slug === slug);
+  if (localProduct) return {
+    title: localProduct.name,
+    description: localProduct.description,
+    alternates: { canonical: `/produto/${localProduct.slug}` },
+    openGraph: { title: localProduct.name, description: localProduct.description, images: [{ url: localProduct.imageKey, alt: localProduct.name }], type: "website" },
+  };
   return { title: "Product not found", robots: { index: false, follow: false } };
 }
 
@@ -81,5 +86,5 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       url: `https://madeinmaia.pt/produto/${product.slug}`,
     },
   };
-  return <main className="storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><header className="flex items-center justify-between border-b border-white/10 px-5 py-5 lg:px-10"><Link href="/loja" className="flex items-center gap-2 font-black uppercase"><ArrowLeft className="size-4"/>Loja</Link><strong className="text-xl uppercase tracking-[-.05em]">Made in Maia</strong></header><ProductPurchase slug={product.slug} name={product.name} description={product.description} collection={product.collection} image={product.imageKey} gallery={product.gallery} priceCents={product.priceCents} supports={supports} catalogColors={catalog.colors} monochrome={product.monochrome} artworkPlacements={product.artworkPlacements}/><ProductDiscovery related={related} collection={product.tags[0] ?? product.collection}/></main>;
+  return <main id={`mim-product-${product.slug}`} className="mim-product-page storefront-dark min-h-screen overflow-x-clip bg-[var(--paper)] text-[var(--foreground)]"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><header className="mim-product-page__header flex min-w-0 items-center justify-between gap-4 border-b border-white/10 px-4 py-4 sm:px-5 lg:px-10"><Link href="/loja" className="flex shrink-0 items-center gap-2 font-black uppercase"><ArrowLeft className="size-4"/><span className="hidden sm:inline">Loja</span></Link><Link href="/loja" aria-label="Made in Maia shop" className="min-w-0"><BrandLogo className="h-7 w-auto max-w-[170px] sm:h-9 sm:max-w-[230px]" /></Link></header><ProductPurchase slug={product.slug} name={product.name} description={product.description} collection={product.collection} image={product.imageKey} gallery={product.gallery} priceCents={product.priceCents} supports={supports} catalogColors={catalog.colors} monochrome={product.monochrome} artworkPlacements={product.artworkPlacements}/><ProductDiscovery related={related} collection={product.tags[0] ?? product.collection}/></main>;
 }

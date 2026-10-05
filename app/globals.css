@@ -103,6 +103,25 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: "Helvetica Neue", Arial, sans-serif;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+html { max-width: 100%; overflow-x: clip; }
+img, svg, video, canvas { max-width: 100%; }
+:where(main, section, article, header, footer, nav, aside, div, form, fieldset) { min-width: 0; }
+:where(h1, h2, h3, p, a, button, label, legend) { overflow-wrap: anywhere; }
+
+.mim-studio input,
+.mim-studio textarea,
+.mim-studio select { max-width: 100%; min-width: 0; }
+
+@media (max-width: 639px) {
+  .mim-studio h1 { font-size: clamp(2rem, 11vw, 3rem); line-height: .92; }
+  .mim-studio h2 { font-size: clamp(1.35rem, 7vw, 2rem); }
+  .mim-studio section { padding-left: .75rem; padding-right: .75rem; }
+  .mim-studio__header { position: sticky; top: 0; z-index: 80; }
+  .mim-product-card__support-selector { gap: 0; }
 }
 
 .storefront-dark { color-scheme: dark; }
