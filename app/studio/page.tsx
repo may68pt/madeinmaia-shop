@@ -304,6 +304,8 @@ export default function Studio() {
   const [productImageDragOver, setProductImageDragOver] = useState<number | null>(null);
   const [galleryUploading, setGalleryUploading] = useState<number | null>(null);
   const [galleryDragOver, setGalleryDragOver] = useState<number | null>(null);
+  const [linkLabelUploading, setLinkLabelUploading] = useState<number | null>(null);
+  const [linkLabelDragOver, setLinkLabelDragOver] = useState<number | null>(null);
   const [expandedProductId, setExpandedProductId] = useState<number | null>(null);
   const [placementProductId, setPlacementProductId] = useState<number | null>(null);
   const [mediaQuery, setMediaQuery] = useState("");
@@ -525,7 +527,7 @@ export default function Studio() {
           entries: discoveries,
         }),
       });
-      if (response.ok) toast.success("Conteúdos de Descobre guardados");
+      if (response.ok) toast.success("Link Labels guardadas");
       else toast.error("Não foi possível guardar os conteúdos.");
       return;
     }
@@ -858,6 +860,17 @@ export default function Studio() {
     }
   }
 
+  async function uploadLinkLabelMedia(entryId: number, file: File) {
+    setLinkLabelUploading(entryId);
+    try {
+      const url = await uploadMedia(file, "lifestyle");
+      if (url) updateDiscovery(entryId, { mediaUrl: url });
+    } finally {
+      setLinkLabelUploading(null);
+      setLinkLabelDragOver(null);
+    }
+  }
+
   async function uploadProductArtwork(productId: number, file: File) {
     setProductImageUploading(productId);
     try {
@@ -967,7 +980,7 @@ export default function Studio() {
             : section === "blog"
               ? "Made in Maia Journal"
             : section === "discover"
-              ? "Conteúdo: Descobre"
+              ? "Link Labels"
               : section === "orders"
                 ? "Encomendas"
                 : section === "catalog"
@@ -1005,7 +1018,7 @@ export default function Studio() {
             {section==="pages"&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden"><button className="py-1 text-left text-xs font-bold" onClick={()=>document.getElementById("page-manager")?.scrollIntoView({behavior:"smooth"})}>Todas as páginas</button><button className="py-1 text-left text-xs font-bold text-[var(--brand)]" onClick={addPage}>+ Nova página</button></div>}
             <Button onClick={() => setSection("blog")} variant={section === "blog" ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><BookOpen/><span className="max-lg:hidden">Blog</span></Button>
             {section==="blog"&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden"><button className="py-1 text-left text-xs font-bold">Todos os artigos</button><button className="py-1 text-left text-xs font-bold text-[var(--brand)]" onClick={addBlogPost}>+ Novo artigo</button></div>}
-            {[{icon:GripVertical,label:"Menus",value:"menus"},{icon:Palette,label:"Descobre",value:"discover"},{icon:Package,label:"Produtos",value:"products"},{icon:Images,label:"Media",value:"media"},{icon:Store,label:"Encomendas",value:"orders"}].map(({icon:Icon,label,value})=><Button key={label} onClick={()=>setSection(value as typeof section)} variant={section===value?"secondary":"ghost"} className="justify-start rounded-none max-lg:px-3"><Icon/><span className="max-lg:hidden">{label}</span></Button>)}
+            {[{icon:GripVertical,label:"Menus",value:"menus"},{icon:Palette,label:"Link Labels",value:"discover"},{icon:Package,label:"Produtos",value:"products"},{icon:Images,label:"Media",value:"media"},{icon:Store,label:"Encomendas",value:"orders"}].map(({icon:Icon,label,value})=><Button key={label} onClick={()=>setSection(value as typeof section)} variant={section===value?"secondary":"ghost"} className="justify-start rounded-none max-lg:px-3"><Icon/><span className="max-lg:hidden">{label}</span></Button>)}
             <Button onClick={() => setSection("settings")} variant={section === "settings"||section==="catalog" ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><Settings/><span className="max-lg:hidden">Definições</span></Button>
             {(section==="settings"||section==="catalog")&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden">{[["settings-general","Geral e SEO"],["settings-splash","Splash screen"],["settings-theme","Theme Builder"]].map(([id,label])=><button key={id} className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("settings");setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:"smooth"}),0)}}>{label}</button>)}<button className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("catalog");setTimeout(()=>document.getElementById("catalog-colors")?.scrollIntoView({behavior:"smooth"}),0)}}>Cores e disponibilidade</button><button className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("catalog");setTimeout(()=>document.getElementById("catalog-supports")?.scrollIntoView({behavior:"smooth"}),0)}}>Tipos de produto</button></div>}
           </nav>
@@ -1142,18 +1155,18 @@ export default function Studio() {
               <div className="mb-8 flex items-end justify-between gap-4">
                 <div>
                   <p className="text-sm font-black uppercase tracking-[.15em] text-[var(--brand)]">
-                    madeinmaia.pt/descobre
+                    madeinmaia.pt/linklabel
                   </p>
                   <h1 className="mt-2 text-5xl font-black uppercase tracking-[-.055em]">
-                    Conteúdo aleatório
+                    Link Labels
                   </h1>
                   <p className="mt-3 max-w-2xl text-black/60">
-                    Cada leitura do QR escolhe um destes conteúdos ativos. O
-                    peso aumenta a frequência relativa.
+                    Cada peça Made in Maia é uma label com um link. Cada visita
+                    escolhe uma destas experiências ativas; os artigos publicados também entram no sorteio.
                   </p>
                 </div>
                 <Button asChild variant="outline" className="rounded-none">
-                  <Link href="/descobre" target="_blank">
+                  <Link href="/linklabel" target="_blank">
                     <Eye />
                     Testar
                   </Link>
@@ -1217,65 +1230,12 @@ export default function Studio() {
                         <Input value={entry.tags.join(", ")} onChange={(event) => updateDiscovery(entry.id, { tags: event.target.value.split(",").map((tag) => tag.trim()).filter(Boolean) })} placeholder="internet, nostalgia, funny" />
                       </label>
                     </div>
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div>
-                        <label className="mb-1 block text-xs font-bold uppercase">
-                          Conteúdo do artigo / mensagem
-                        </label>
-                        <textarea
-                          value={entry.body}
-                          onChange={(event) =>
-                            updateDiscovery(entry.id, {
-                              body: event.target.value,
-                            })
-                          }
-                          className="min-h-24 w-full border border-input p-3"
-                        />
-                        <p className="mt-1 text-xs text-black/40">Aceita vários parágrafos; no frontend será apresentado como conteúdo editorial.</p>
-                      </div>
-                      <div className="grid gap-3">
-                        <div>
-                          <label className="mb-1 block text-xs font-bold uppercase">Media / embed URL</label>
-                          <Input value={entry.mediaUrl} onChange={(event) => updateDiscovery(entry.id, { mediaUrl: event.target.value })} placeholder="Imagem, GIF, MP4 ou URL do YouTube" />
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-xs font-bold uppercase">
-                            Link de destino
-                          </label>
-                          <Input
-                            value={entry.linkUrl}
-                            onChange={(event) =>
-                              updateDiscovery(entry.id, {
-                                linkUrl: event.target.value,
-                              })
-                            }
-                            placeholder="/marca ou https://..."
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <Input
-                            value={entry.linkLabel}
-                            onChange={(event) =>
-                              updateDiscovery(entry.id, {
-                                linkLabel: event.target.value,
-                              })
-                            }
-                            placeholder="Texto do botão"
-                          />
-                          <Input
-                            type="number"
-                            min="1"
-                            value={entry.weight}
-                            onChange={(event) =>
-                              updateDiscovery(entry.id, {
-                                weight: Number(event.target.value),
-                              })
-                            }
-                            aria-label="Peso"
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    {["image","meme","gif"].includes(entry.type)&&<div className="grid gap-4 md:grid-cols-[1fr_1fr]"><label className={`relative grid min-h-56 cursor-pointer place-items-center overflow-hidden border-2 border-dashed text-center ${linkLabelDragOver===entry.id?"border-[var(--brand)] bg-orange-50":"border-black/15 bg-black/[.025]"}`} onDragEnter={(event)=>{event.preventDefault();setLinkLabelDragOver(entry.id)}} onDragOver={(event)=>event.preventDefault()} onDragLeave={()=>setLinkLabelDragOver(null)} onDrop={(event)=>{event.preventDefault();const file=event.dataTransfer.files[0];if(file)void uploadLinkLabelMedia(entry.id,file)}}>{entry.mediaUrl?<Image src={entry.mediaUrl} alt={entry.title} fill sizes="420px" unoptimized className="object-contain p-3"/>:<span><UploadCloud className="mx-auto size-9 text-black/25"/><strong className="mt-2 block text-xs uppercase">{linkLabelUploading===entry.id?"A carregar…":"Larga aqui a imagem"}</strong><span className="mt-1 block text-[11px] text-black/40">PNG, JPG, WebP ou GIF</span></span>}<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="sr-only" onChange={(event)=>{const file=event.target.files?.[0];if(file)void uploadLinkLabelMedia(entry.id,file);event.target.value=""}}/></label><div><p className="text-xs font-black uppercase">{entry.type==="meme"?"Meme fullscreen":entry.type==="gif"?"GIF fullscreen":"Imagem fullscreen"}</p><p className="mt-2 text-sm text-black/50">O ficheiro ocupa o ecrã; o título e a categoria aparecem discretamente por cima.</p>{entry.mediaUrl&&<Button type="button" variant="outline" className="mt-5 rounded-none" onClick={()=>updateDiscovery(entry.id,{mediaUrl:""})}><Trash2/>Remover media</Button>}</div></div>}
+                    {entry.type==="youtube"&&<div className="grid gap-4 md:grid-cols-2"><label className="grid content-start gap-2 text-xs font-bold uppercase">URL do YouTube<Input value={entry.mediaUrl} onChange={(event)=>updateDiscovery(entry.id,{mediaUrl:event.target.value})} placeholder="https://youtube.com/watch?v=…"/><span className="normal-case font-normal text-black/45">O vídeo é apresentado em fullscreen com controlos nativos.</span></label><div className="aspect-video overflow-hidden bg-black">{entry.mediaUrl?<iframe className="h-full w-full" src={entry.mediaUrl.includes("youtu.be/")?`https://www.youtube-nocookie.com/embed/${entry.mediaUrl.split("youtu.be/")[1]?.split(/[?&]/)[0]}`:`https://www.youtube-nocookie.com/embed/${new URL(entry.mediaUrl,"https://youtube.com").searchParams.get("v")??""}`} title={entry.title} allowFullScreen/>:<div className="grid h-full place-items-center text-xs font-bold uppercase text-white/40">Preview YouTube</div>}</div></div>}
+                    {entry.type==="video"&&<div className="grid gap-4 md:grid-cols-2"><label className="grid content-start gap-2 text-xs font-bold uppercase">URL do vídeo<Input value={entry.mediaUrl} onChange={(event)=>updateDiscovery(entry.id,{mediaUrl:event.target.value})} placeholder="https://…/video.mp4"/><span className="normal-case font-normal text-black/45">MP4/WebM alojado externamente. Reprodução fullscreen.</span></label><div className="aspect-video bg-black">{entry.mediaUrl?<video src={entry.mediaUrl} controls muted className="h-full w-full object-contain"/>:<div className="grid h-full place-items-center text-xs font-bold uppercase text-white/40">Preview vídeo</div>}</div></div>}
+                    {["article","text"].includes(entry.type)&&<div><label className="mb-1 block text-xs font-bold uppercase">{entry.type==="article"?"Artigo / long page":"Mensagem curta"}</label><textarea value={entry.body} onChange={(event)=>updateDiscovery(entry.id,{body:event.target.value})} className={`w-full border border-input p-4 ${entry.type==="article"?"min-h-72":"min-h-28"}`} placeholder={entry.type==="article"?"Escreve o conteúdo editorial…":"Uma ideia curta…"}/><p className="mt-1 text-xs text-black/40">Aceita parágrafos. O texto será o protagonista da experiência.</p></div>}
+                    {entry.type==="link"&&<div className="grid gap-4 rounded-xl bg-[#f4f4f0] p-4 md:grid-cols-2"><label className="grid gap-1 text-xs font-bold uppercase">URL de destino<Input value={entry.linkUrl} onChange={(event)=>updateDiscovery(entry.id,{linkUrl:event.target.value})} placeholder="https://…"/></label><label className="grid gap-1 text-xs font-bold uppercase">Texto do botão<Input value={entry.linkLabel} onChange={(event)=>updateDiscovery(entry.id,{linkLabel:event.target.value})} placeholder="Visitar site"/></label><label className="col-span-full grid gap-1 text-xs font-bold uppercase">Porque vale a pena<textarea value={entry.body} onChange={(event)=>updateDiscovery(entry.id,{body:event.target.value})} className="min-h-24 border border-input p-3"/></label></div>}
+                    <div className="mt-4 grid gap-3 border-t border-black/10 pt-4 md:grid-cols-[1fr_1fr_120px]"><label className="grid gap-1 text-xs font-bold uppercase">Link opcional<Input value={entry.linkUrl} onChange={(event)=>updateDiscovery(entry.id,{linkUrl:event.target.value})} placeholder="/marca ou https://…"/></label><label className="grid gap-1 text-xs font-bold uppercase">Texto do link<Input value={entry.linkLabel} onChange={(event)=>updateDiscovery(entry.id,{linkLabel:event.target.value})} placeholder="Saber mais"/></label><label className="grid gap-1 text-xs font-bold uppercase">Peso<Input type="number" min="1" value={entry.weight} onChange={(event)=>updateDiscovery(entry.id,{weight:Number(event.target.value)})}/></label></div>
                   </article>
                 ))}
               </div>
@@ -1301,7 +1261,7 @@ export default function Studio() {
                 className="mt-5 rounded-none bg-[var(--ink)] text-white"
               >
                 <Plus />
-                Adicionar conteúdo
+                Adicionar Link Label
               </Button>
             </div>
           ) : section === "orders" ? (
@@ -1806,26 +1766,6 @@ export default function Studio() {
                                 <span><strong className="block text-sm uppercase">Design monocromático</strong><span className="mt-1 block text-xs font-normal text-black/50">Ativa a escolha de impressão preta ou branca e o filtro CSS do design. Mantém desligado para preservar todas as cores do PNG.</span></span>
                                 <Switch aria-label="Design monocromático" checked={product.monochrome} onCheckedChange={(checked) => void updateProductMonochrome(product, checked)} />
                               </label>
-                              <section className="mim-product-preview-colours min-w-0 rounded-2xl border border-black/10 p-4 md:col-span-2">
-                                <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-black uppercase">Fundos do design na listagem</p><p className="mt-1 text-xs text-black/50">Escolhe até três cores de tecido. Sem seleção, a loja escolhe três automaticamente.</p></div>{product.previewColorIds.length>0&&<button type="button" onClick={()=>updateProduct(product.id,{previewColorIds:[]})} className="text-xs font-bold underline">Usar automático</button>}</div>
-                                <div className="mt-4 flex min-w-0 flex-wrap gap-2">{settings.productCatalog.colors.filter((color)=>color.active).map((color)=>{const selected=product.previewColorIds.includes(color.id);const limitReached=!selected&&product.previewColorIds.length>=3;return <button key={color.id} type="button" disabled={limitReached} aria-pressed={selected} onClick={()=>updateProduct(product.id,{previewColorIds:selected?product.previewColorIds.filter((id)=>id!==color.id):[...product.previewColorIds,color.id]})} className={`inline-flex min-w-0 items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold transition ${selected?"border-black bg-black text-white":"border-black/15 bg-white"} ${limitReached?"cursor-not-allowed opacity-35":""}`}><span className="size-5 shrink-0 rounded-full border border-black/15" style={{backgroundColor:color.hex}}/><span className="truncate">{color.name}</span></button>})}</div>
-                              </section>
-                              <details className="rounded-2xl border border-black/10 p-4 md:col-span-2"><summary className="cursor-pointer text-xs font-black uppercase">Traduções do nome</summary><div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{["pt", "es", "de", "fr"].map((locale) => <label key={locale} className="grid gap-1 text-xs font-bold uppercase"><span>{locale}</span><Input value={product.nameTranslations[locale] ?? ""} onChange={(event) => updateProduct(product.id, { nameTranslations: { ...product.nameTranslations, [locale]: event.target.value } })} placeholder={product.name} /></label>)}</div></details>
-                              <div className="md:col-span-2">
-                                <p className="text-xs font-bold uppercase">Suportes disponíveis</p>
-                                <p className="mt-1 text-sm text-black/50">Todos ficam ativos por defeito; desativa apenas as exceções.</p>
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                  {settings.productCatalog.supports.filter((support) => support.active).map((support) => {
-                                    const enabled = !product.disabledSupports.includes(support.id);
-                                    return (
-                                      <label key={support.id} className={`inline-flex cursor-pointer items-center gap-3 rounded-full border px-4 py-2 text-sm font-bold transition-colors ${enabled ? "border-black/20 bg-[#f5f5f2]" : "border-black/10 bg-white text-black/45"}`}>
-                                        <span>{support.name}</span>
-                                        <Switch checked={enabled} onCheckedChange={(checked) => updateProduct(product.id, { disabledSupports: checked ? product.disabledSupports.filter((id) => id !== support.id) : [...product.disabledSupports, support.id] })} />
-                                      </label>
-                                    );
-                                  })}
-                                </div>
-                              </div>
                             </div>
                             <div className="min-w-0 w-full max-w-[320px] justify-self-center space-y-6 xl:max-w-[360px]">
                               <section>
@@ -1854,6 +1794,41 @@ export default function Studio() {
                                   </label>
                                 )}
                                 {settings.media.some((item) => item.url && item.kind === "artwork") && <div className="mt-2 flex gap-2 overflow-x-auto pb-2">{settings.media.filter((item) => item.url && item.kind === "artwork").map((item) => <button key={item.url} type="button" title={item.alt} onClick={() => updateProduct(product.id, { imageKey: item.url })} className={`relative size-16 shrink-0 overflow-hidden border-2 bg-white ${product.imageKey === item.url ? "border-[var(--brand)]" : "border-black/10"}`}><Image src={item.url} alt={item.alt || "Design"} fill sizes="64px" unoptimized className="object-contain p-1" /></button>)}</div>}
+                              </section>
+                              <details className="mim-product-translations rounded-2xl border border-black/10 p-4">
+                                <summary className="cursor-pointer text-xs font-black uppercase">Traduções do nome</summary>
+                                <div className="mt-3 grid grid-cols-2 gap-3">
+                                  {(["pt", "es", "de", "fr"] as const).map((locale) => (
+                                    <label key={locale} className="grid min-w-0 gap-1 text-[10px] font-bold uppercase">
+                                      <span>{locale}</span>
+                                      <Input
+                                        value={product.nameTranslations[locale] ?? ""}
+                                        onChange={(event) => updateProduct(product.id, { nameTranslations: { ...product.nameTranslations, [locale]: event.target.value } })}
+                                        placeholder={product.name}
+                                        className="min-w-0"
+                                      />
+                                    </label>
+                                  ))}
+                                </div>
+                              </details>
+                              <section className="mim-product-supports rounded-2xl border border-black/10 p-4">
+                                <p className="text-xs font-black uppercase">Suportes disponíveis</p>
+                                <p className="mt-1 text-xs text-black/45">Desativa apenas as exceções deste design.</p>
+                                <div className="mt-3 grid gap-2">
+                                  {settings.productCatalog.supports.filter((support) => support.active).map((support) => {
+                                    const enabled = !product.disabledSupports.includes(support.id);
+                                    return (
+                                      <label key={support.id} className="flex cursor-pointer items-center gap-3 rounded-full border border-black/10 bg-[#f7f7f4] px-3 py-2">
+                                        <span className="min-w-0 flex-1 truncate text-xs font-bold">{support.name}</span>
+                                        <Switch
+                                          aria-label={`${support.name}: ${enabled ? "ativo" : "inativo"}`}
+                                          checked={enabled}
+                                          onCheckedChange={(checked) => updateProduct(product.id, { disabledSupports: checked ? product.disabledSupports.filter((id) => id !== support.id) : [...product.disabledSupports, support.id] })}
+                                        />
+                                      </label>
+                                    );
+                                  })}
+                                </div>
                               </section>
                               <section className="mim-product-gallery-editor"><p className="text-xs font-bold uppercase">Fotografias do produto</p><p className="mt-1 text-xs text-black/45">Fotografias com modelos, lifestyle, detalhes ou fotografia de estúdio deste produto.</p>{product.gallery.length > 0 && <div className="mt-3 grid grid-cols-2 gap-2">{product.gallery.map((photo, index) => <div key={`${photo}-${index}`} className="group relative aspect-[4/3] overflow-hidden bg-[#eee]"><Image src={photo} alt={`${product.name} · fotografia ${index + 1}`} fill sizes="180px" unoptimized className="object-cover" /><div className="absolute inset-x-1 top-1 flex justify-between gap-1 opacity-95"><div className="flex gap-1"><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===0} onClick={()=>{const gallery=[...product.gallery];[gallery[index-1],gallery[index]]=[gallery[index],gallery[index-1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para trás"><ArrowUp className="size-3"/></Button><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===product.gallery.length-1} onClick={()=>{const gallery=[...product.gallery];[gallery[index+1],gallery[index]]=[gallery[index],gallery[index+1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para a frente"><ArrowDown className="size-3"/></Button></div><Button type="button" size="icon" variant="destructive" className="size-7" onClick={() => updateProduct(product.id, { gallery: product.gallery.filter((_, itemIndex) => itemIndex !== index) })} aria-label="Remover fotografia"><Trash2 className="size-3" /></Button></div></div>)}</div>}<label className={`mt-3 grid min-h-28 cursor-pointer place-items-center border-2 border-dashed p-4 text-center transition ${galleryDragOver===product.id?"border-[var(--brand)] bg-orange-50":"border-black/20 bg-black/[.025] hover:border-[var(--brand)]"}`} onDragEnter={(event)=>{event.preventDefault();setGalleryDragOver(product.id)}} onDragOver={(event)=>{event.preventDefault();event.dataTransfer.dropEffect="copy";setGalleryDragOver(product.id)}} onDragLeave={(event)=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setGalleryDragOver(null)}} onDrop={(event)=>{event.preventDefault();void uploadProductGallery(product.id,Array.from(event.dataTransfer.files));}}><input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={galleryUploading===product.id} onChange={(event)=>{void uploadProductGallery(product.id,Array.from(event.target.files??[]));event.target.value=""}}/><span><UploadCloud className="mx-auto size-8 text-black/25"/><strong className="mt-2 block text-xs uppercase">{galleryUploading===product.id?"A carregar fotografias…":"Adicionar fotografias deste produto"}</strong><span className="mt-1 block text-[11px] text-black/40">JPG, PNG ou WebP · podes selecionar várias</span></span></label></section>
                               <Button variant="outline" className="w-full rounded-none" asChild><Link href={`/produto/${product.slug}`} target="_blank"><Eye />Ver produto</Link></Button>
@@ -2031,7 +2006,7 @@ export default function Studio() {
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-black/65">
               {section === "discover"
-                ? "O QR permanece sempre igual. Ativa, desativa ou altera as surpresas sem reimprimir qualquer peça."
+                ? "O endereço Link Label permanece sempre igual. Ativa, desativa ou altera experiências sem reimprimir qualquer peça."
                 : section === "orders"
                   ? "A mudança de estado é guardada no momento da seleção. Liga o pagamento para automatizar a passagem de pendente para paga."
                   : "Os produtos publicados aparecem na loja. Os rascunhos permanecem apenas no Studio."}

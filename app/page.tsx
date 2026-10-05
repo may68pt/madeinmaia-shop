@@ -46,7 +46,7 @@ export default async function ComingSoonPage() {
             <span className="grid size-12 rotate-3 place-items-center bg-[var(--brand)] text-2xl">M</span>
             <span className="text-xl">Made in Maia</span>
           </div>
-          <Link href="/shouldertag" className="hidden items-center gap-2 text-sm font-bold uppercase sm:flex">
+          <Link href="/linklabel" className="hidden items-center gap-2 text-sm font-bold uppercase sm:flex">
             <Sparkles className="size-4 text-[var(--accent-brand)]" /> {splash.shoulderTagLabel}
           </Link>
         </header>
@@ -68,7 +68,7 @@ export default async function ComingSoonPage() {
             <Link href="/links" aria-label="All Made in Maia links" className="grid size-12 place-items-center rounded-full border border-white/25 hover:bg-white hover:text-[var(--ink)]"><ArrowUpRight /></Link>
           </div>
           <div className="flex flex-wrap gap-5 text-xs font-bold uppercase tracking-[.16em] text-white/55">
-            <Link href="/shouldertag">Random content</Link>
+            <Link href="/linklabel">Link Label</Link>
             <Link href="/marca">About the brand</Link>
           </div>
         </footer>

@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ALLOWED_TYPES:Record<string,string> = { "image/jpeg":"jpg", "image/png":"png", "image/webp":"webp" };
+const ALLOWED_TYPES:Record<string,string> = { "image/jpeg":"jpg", "image/png":"png", "image/webp":"webp", "image/gif":"gif" };
 
 function isAuthenticated(request: Request) {
   const expectedPassword = process.env.STUDIO_PASSWORD;
@@ -27,6 +27,7 @@ function hasValidSignature(bytes:Uint8Array, type:string) {
   if (type === "image/jpeg") return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
   if (type === "image/png") return bytes.slice(0,8).every((value,index)=>value===[0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a][index]);
   if (type === "image/webp") return new TextDecoder().decode(bytes.slice(0,4)) === "RIFF" && new TextDecoder().decode(bytes.slice(8,12)) === "WEBP";
+  if (type === "image/gif") return ["GIF87a","GIF89a"].includes(new TextDecoder().decode(bytes.slice(0,6)));
   return false;
 }
 
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
   if (!isAuthenticated(request)) return NextResponse.json({ error:"Autenticação necessária" }, { status:401 });
   const input = await request.formData();
   const file = input.get("file");
-  if (!(file instanceof File) || !ALLOWED_TYPES[file.type]) return NextResponse.json({ error:"Seleciona uma imagem JPG, PNG ou WebP." }, { status:400 });
+  if (!(file instanceof File) || !ALLOWED_TYPES[file.type]) return NextResponse.json({ error:"Seleciona uma imagem JPG, PNG, WebP ou GIF." }, { status:400 });
   if (file.size > MAX_FILE_SIZE) return NextResponse.json({ error:"A imagem não pode exceder 10 MB." }, { status:413 });
 
   const bytes = new Uint8Array(await file.arrayBuffer());

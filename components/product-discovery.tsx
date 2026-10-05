@@ -19,13 +19,13 @@ export function ProductDiscovery({ related, collection }: { related:RelatedProdu
             <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[.2em] text-[var(--accent-brand)]"><Sparkles className="size-4"/> The shoulder tag</p>
             <h2 className="mt-5 max-w-xl text-5xl font-black uppercase leading-[.84] tracking-[-.06em] sm:text-7xl">The logo never tells the same story twice.</h2>
           </div>
-          <p className="mt-12 max-w-xl text-lg leading-relaxed text-white/65">Scan the Made in Maia symbol on the shoulder. Every visit opens a random story, image, idea or local surprise from our Discover collection.</p>
+          <p className="mt-12 max-w-xl text-lg leading-relaxed text-white/65">Every Made in Maia piece carries a Link Label. Open it and every visit reveals a different story, image, video, idea or local surprise.</p>
         </div>
         <div className="flex min-h-96 flex-col justify-between bg-[var(--accent-brand)] p-8 sm:p-12">
           <div className="grid size-24 rotate-3 place-items-center bg-[var(--brand)] text-5xl font-black text-white">M</div>
           <div>
             <p className="max-w-md text-xl font-bold">One symbol. An endless doorway into Made in Maia.</p>
-            <Link href="/shouldertag" className="mt-7 inline-flex items-center gap-3 bg-[var(--ink)] px-7 py-4 font-black uppercase text-white">Try a random story <RefreshCw className="size-4"/></Link>
+            <Link href="/linklabel" className="mt-7 inline-flex items-center gap-3 bg-[var(--ink)] px-7 py-4 font-black uppercase text-white">Open Link Label <RefreshCw className="size-4"/></Link>
           </div>
         </div>
       </section>
@@ -47,4 +47,3 @@ export function ProductDiscovery({ related, collection }: { related:RelatedProdu
     </>
   );
 }
-

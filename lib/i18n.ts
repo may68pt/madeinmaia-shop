@@ -12,7 +12,7 @@ export const UI_STRINGS: Record<Locale, Record<string, string>> = {
 const NAV_LABELS: Record<string, Partial<Record<Locale,string>>> = {
   new:{pt:"Novidades",es:"Novedades",de:"Neu",fr:"Nouveautés"},
   collections:{pt:"Coleções",es:"Colecciones",de:"Kollektionen",fr:"Collections"},
-  discover:{pt:"Descobre",es:"Descubre",de:"Entdecken",fr:"Découvrir"},
+  discover:{pt:"Link Label",es:"Link Label",de:"Link Label",fr:"Link Label"},
   brand:{pt:"A marca",es:"La marca",de:"Die Marke",fr:"La marque"},
 };
 

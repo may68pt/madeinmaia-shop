@@ -1,6 +1,5 @@
 import { permanentRedirect } from "next/navigation";
 
 export default function LegacyShouderTagPage() {
-  permanentRedirect("/shouldertag");
+  permanentRedirect("/linklabel");
 }
-

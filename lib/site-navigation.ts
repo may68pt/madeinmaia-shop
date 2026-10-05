@@ -13,7 +13,7 @@ export const DEFAULT_NAVIGATION: NavigationItem[] = [
     { id:"collection-quotes", label:"Quotes", url:"/colecao/quotes", visible:true },
     { id:"collection-jars", label:"Jars", url:"/colecao/jars", visible:true },
   ] },
-  { id: "discover", label: "Discover", url: "/descobre", visible: true },
+  { id: "discover", label: "Link Label", url: "/linklabel", visible: true },
   { id: "blog", label: "Blog", url: "/blog", visible: true },
   { id: "brand", label: "The brand", url: "/marca", visible: true },
 ];
