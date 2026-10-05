@@ -275,6 +275,8 @@ const initialSettings: SiteSettings = {
   productCatalog: { colors: DEFAULT_COLORS, supports: DEFAULT_SUPPORTS },
 };
 
+function stableProductBlockOrder(blockId:number,slug:string){return [...`${blockId}-${slug}`].reduce((total,character)=>((total*33)+character.charCodeAt(0))>>>0,5381);}
+
 export default function Studio() {
   const [blocks, setBlocks] = useState(initialBlocks);
   const [pageList, setPageList] = useState<StudioPage[]>([
@@ -300,9 +302,10 @@ export default function Studio() {
   const [uploading, setUploading] = useState(false);
   const [productImageUploading, setProductImageUploading] = useState<number | null>(null);
   const [productImageDragOver, setProductImageDragOver] = useState<number | null>(null);
+  const [galleryUploading, setGalleryUploading] = useState<number | null>(null);
+  const [galleryDragOver, setGalleryDragOver] = useState<number | null>(null);
   const [expandedProductId, setExpandedProductId] = useState<number | null>(null);
   const [placementProductId, setPlacementProductId] = useState<number | null>(null);
-  const [galleryUrlDrafts, setGalleryUrlDrafts] = useState<Record<number, string>>({});
   const [mediaQuery, setMediaQuery] = useState("");
   const [mediaFilter, setMediaFilter] = useState<"all" | "artwork" | "lifestyle" | "base">("all");
   const [mediaPage, setMediaPage] = useState(1);
@@ -326,6 +329,16 @@ export default function Studio() {
     if (!query) return catalogue;
     return catalogue.filter((product) => `${product.name} ${product.designCode} ${product.slug} ${product.collection} ${product.tags.join(" ")}`.toLowerCase().includes(query));
   }, [catalogue, productQuery]);
+  const availableProductTags = useMemo(() => [...new Set(catalogue.flatMap((product)=>[product.collection,...product.tags]).filter(Boolean))].sort((a,b)=>a.localeCompare(b)), [catalogue]);
+  function productsForEditorBlock(block:Block) {
+    let items=catalogue.filter((product)=>product.status==="published");
+    if(block.productSource==="tag"&&block.productTag){const tag=block.productTag.toLowerCase();items=items.filter((product)=>product.collection.toLowerCase()===tag||product.tags.some((item)=>item.toLowerCase()===tag));}
+    if(block.productSource==="selection"&&block.productSlugs?.length){const selected=new Set(block.productSlugs);items=items.filter((product)=>selected.has(product.slug));}
+    if(block.productOrder==="asc")items=[...items].sort((a,b)=>a.name.localeCompare(b.name));
+    if(block.productOrder==="desc")items=[...items].sort((a,b)=>b.name.localeCompare(a.name));
+    if(block.productOrder==="random")items=[...items].sort((a,b)=>stableProductBlockOrder(block.id,a.slug)-stableProductBlockOrder(block.id,b.slug));
+    return items.slice(0,Math.min(64,Math.max(1,block.productLimit??6)));
+  }
 
   function updateBlock(patch: Partial<Block>) {
     setBlocks((items) =>
@@ -867,6 +880,27 @@ export default function Studio() {
     }
   }
 
+  async function uploadProductGallery(productId: number, files: File[]) {
+    if (!files.length) return;
+    setGalleryUploading(productId);
+    try {
+      const uploaded: string[] = [];
+      for (const file of files) {
+        const url = await uploadMedia(file, "lifestyle");
+        if (url) uploaded.push(url);
+      }
+      if (uploaded.length) {
+        const product = catalogue.find((item) => item.id === productId);
+        updateProduct(productId, { gallery: [...(product?.gallery ?? []), ...uploaded] });
+        setSettings((current) => ({ ...current, media: current.media.map((item) => uploaded.includes(item.url) ? { ...item, productSlug: product?.slug, role: "gallery" as const } : item) }));
+        toast.success(`${uploaded.length} fotografia${uploaded.length === 1 ? "" : "s"} adicionada${uploaded.length === 1 ? "" : "s"} ao produto.`);
+      }
+    } finally {
+      setGalleryUploading(null);
+      setGalleryDragOver(null);
+    }
+  }
+
   if (!studioKey)
     return (
       <main className="storefront-dark grid min-h-screen place-items-center bg-[var(--paper)] p-6 text-[var(--foreground)]">
@@ -1045,7 +1079,7 @@ export default function Studio() {
                   {blocks.map((block, index) => (
                     <div key={block.id} className="group relative">
                       <PageBlock block={block} editor selected={selected === block.id} onSelect={() => setSelected(block.id)}>
-                        {block.type === "Produtos" ? <div className="grid gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">{catalogue.filter((product) => product.status === "published").slice(0, 6).map((product) => <article key={product.id} className="text-[var(--ink)]"><div className="relative aspect-[4/5] overflow-hidden bg-white"><ProductMockup artwork={product.imageKey || "/products/white-shirt-1.jpg"} color={product.colors[0] ?? "White"} name={product.name} /><span className="absolute left-4 top-4 bg-[var(--accent-brand)] px-3 py-1 text-xs font-black uppercase">New</span></div><div className="flex items-start justify-between gap-4 pt-4"><div><p className="text-sm opacity-55">{product.tags.join(" · ") || product.collection}</p><h3 className="text-xl font-black uppercase tracking-[-.025em]">{product.name}</h3></div><strong className="text-lg">{(product.priceCents / 100).toFixed(2).replace(".", ",")} €</strong></div></article>)}</div> : block.type === "Coleções" ? <div className="grid gap-3 sm:grid-cols-3">{["Cats", "Quotes", "Jars"].map((tag) => <div key={tag} className="rounded-full border border-black/15 bg-white px-6 py-8 text-left text-2xl font-black uppercase">{tag}<span className="mt-2 block text-xs font-normal normal-case opacity-55">{catalogue.filter((product) => product.status === "published" && product.tags.includes(tag)).length} designs</span></div>)}</div> : undefined}
+                        {block.type === "Produtos" ? <div className="grid gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">{productsForEditorBlock(block).map((product) => <article key={product.id} className="text-[var(--ink)]"><div className="relative aspect-[4/5] overflow-hidden bg-white"><ProductMockup artwork={product.imageKey || "/products/white-shirt-1.jpg"} color={product.colors[0] ?? "White"} name={product.name} /><span className="absolute left-4 top-4 bg-[var(--accent-brand)] px-3 py-1 text-xs font-black uppercase">New</span></div><div className="flex items-start justify-between gap-4 pt-4"><div><p className="text-sm opacity-55">{product.tags.join(" · ") || product.collection}</p><h3 className="text-xl font-black uppercase tracking-[-.025em]">{product.name}</h3></div><strong className="text-lg">{(product.priceCents / 100).toFixed(2).replace(".", ",")} €</strong></div></article>)}</div> : block.type === "Coleções" ? <div className="grid gap-3 sm:grid-cols-3">{["Cats", "Quotes", "Jars"].map((tag) => <div key={tag} className="rounded-full border border-black/15 bg-white px-6 py-8 text-left text-2xl font-black uppercase">{tag}<span className="mt-2 block text-xs font-normal normal-case opacity-55">{catalogue.filter((product) => product.status === "published" && product.tags.includes(tag)).length} designs</span></div>)}</div> : undefined}
                       </PageBlock>
                       <span className="absolute right-4 top-4 inline-flex gap-1 opacity-0 group-hover:opacity-100">
                         <span
@@ -1821,7 +1855,7 @@ export default function Studio() {
                                 )}
                                 {settings.media.some((item) => item.url && item.kind === "artwork") && <div className="mt-2 flex gap-2 overflow-x-auto pb-2">{settings.media.filter((item) => item.url && item.kind === "artwork").map((item) => <button key={item.url} type="button" title={item.alt} onClick={() => updateProduct(product.id, { imageKey: item.url })} className={`relative size-16 shrink-0 overflow-hidden border-2 bg-white ${product.imageKey === item.url ? "border-[var(--brand)]" : "border-black/10"}`}><Image src={item.url} alt={item.alt || "Design"} fill sizes="64px" unoptimized className="object-contain p-1" /></button>)}</div>}
                               </section>
-                              <section><p className="text-xs font-bold uppercase">Outras fotografias</p><p className="mt-1 text-xs text-black/45">Moda, detalhes e contexto.</p>{product.gallery.length > 0 && <div className="mt-3 grid grid-cols-2 gap-2">{product.gallery.map((photo, index) => <div key={`${photo}-${index}`} className="group relative aspect-[4/3] overflow-hidden bg-[#eee]"><Image src={photo} alt="" fill sizes="180px" unoptimized className="object-cover" /><Button type="button" size="icon" variant="destructive" className="absolute right-2 top-2 size-8 opacity-90" onClick={() => updateProduct(product.id, { gallery: product.gallery.filter((_, itemIndex) => itemIndex !== index) })}><Trash2 className="size-4" /></Button></div>)}</div>}<div className="mt-3 flex gap-2"><Input value={galleryUrlDrafts[product.id] ?? ""} onChange={(event) => setGalleryUrlDrafts((drafts) => ({ ...drafts, [product.id]: event.target.value }))} placeholder="URL de outra fotografia" /><Button type="button" variant="outline" onClick={() => { const url = (galleryUrlDrafts[product.id] ?? "").trim(); if (!url) return; updateProduct(product.id, { gallery: [...product.gallery, url] }); setGalleryUrlDrafts((drafts) => ({ ...drafts, [product.id]: "" })); }}><Plus /></Button></div>{settings.media.some((item) => item.kind === "lifestyle" && item.url) && <div className="mt-2 flex gap-2 overflow-x-auto">{settings.media.filter((item) => item.kind === "lifestyle" && item.url).map((item) => <button key={item.url} type="button" title={item.alt} onClick={() => !product.gallery.includes(item.url) && updateProduct(product.id, { gallery: [...product.gallery, item.url] })} className="relative size-16 shrink-0 overflow-hidden border border-black/10 bg-white"><Image src={item.url} alt={item.alt || "Fotografia"} fill sizes="64px" unoptimized className="object-cover" /></button>)}</div>}</section>
+                              <section className="mim-product-gallery-editor"><p className="text-xs font-bold uppercase">Fotografias do produto</p><p className="mt-1 text-xs text-black/45">Fotografias com modelos, lifestyle, detalhes ou fotografia de estúdio deste produto.</p>{product.gallery.length > 0 && <div className="mt-3 grid grid-cols-2 gap-2">{product.gallery.map((photo, index) => <div key={`${photo}-${index}`} className="group relative aspect-[4/3] overflow-hidden bg-[#eee]"><Image src={photo} alt={`${product.name} · fotografia ${index + 1}`} fill sizes="180px" unoptimized className="object-cover" /><div className="absolute inset-x-1 top-1 flex justify-between gap-1 opacity-95"><div className="flex gap-1"><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===0} onClick={()=>{const gallery=[...product.gallery];[gallery[index-1],gallery[index]]=[gallery[index],gallery[index-1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para trás"><ArrowUp className="size-3"/></Button><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===product.gallery.length-1} onClick={()=>{const gallery=[...product.gallery];[gallery[index+1],gallery[index]]=[gallery[index],gallery[index+1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para a frente"><ArrowDown className="size-3"/></Button></div><Button type="button" size="icon" variant="destructive" className="size-7" onClick={() => updateProduct(product.id, { gallery: product.gallery.filter((_, itemIndex) => itemIndex !== index) })} aria-label="Remover fotografia"><Trash2 className="size-3" /></Button></div></div>)}</div>}<label className={`mt-3 grid min-h-28 cursor-pointer place-items-center border-2 border-dashed p-4 text-center transition ${galleryDragOver===product.id?"border-[var(--brand)] bg-orange-50":"border-black/20 bg-black/[.025] hover:border-[var(--brand)]"}`} onDragEnter={(event)=>{event.preventDefault();setGalleryDragOver(product.id)}} onDragOver={(event)=>{event.preventDefault();event.dataTransfer.dropEffect="copy";setGalleryDragOver(product.id)}} onDragLeave={(event)=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setGalleryDragOver(null)}} onDrop={(event)=>{event.preventDefault();void uploadProductGallery(product.id,Array.from(event.dataTransfer.files));}}><input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={galleryUploading===product.id} onChange={(event)=>{void uploadProductGallery(product.id,Array.from(event.target.files??[]));event.target.value=""}}/><span><UploadCloud className="mx-auto size-8 text-black/25"/><strong className="mt-2 block text-xs uppercase">{galleryUploading===product.id?"A carregar fotografias…":"Adicionar fotografias deste produto"}</strong><span className="mt-1 block text-[11px] text-black/40">JPG, PNG ou WebP · podes selecionar várias</span></span></label></section>
                               <Button variant="outline" className="w-full rounded-none" asChild><Link href={`/produto/${product.slug}`} target="_blank"><Eye />Ver produto</Link></Button>
                             </div>
                           </div>
@@ -1873,6 +1907,13 @@ export default function Studio() {
                     </SelectContent>
                   </Select>
                 </div>
+                {current?.type === "Produtos" && <div className="mim-product-block-settings space-y-4 rounded-2xl border border-black/10 bg-[#f7f7f4] p-4">
+                  <p className="text-xs font-black uppercase tracking-[.12em]">Produtos apresentados</p>
+                  <label className="grid gap-1 text-sm font-semibold">Fonte<Select value={current.productSource??"all"} onValueChange={(value)=>updateBlock({productSource:value as Block["productSource"]})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">Todos os produtos</SelectItem><SelectItem value="tag">Por tag ou coleção</SelectItem><SelectItem value="selection">Seleção manual</SelectItem></SelectContent></Select></label>
+                  {current.productSource==="tag"&&<label className="grid gap-1 text-sm font-semibold">Tag ou coleção<Select value={current.productTag||undefined} onValueChange={(productTag)=>updateBlock({productTag})}><SelectTrigger><SelectValue placeholder="Escolher tag"/></SelectTrigger><SelectContent>{availableProductTags.map((tag)=><SelectItem key={tag} value={tag}>{tag}</SelectItem>)}</SelectContent></Select></label>}
+                  {current.productSource==="selection"&&<div><p className="mb-2 text-sm font-semibold">Seleção manual</p><div className="max-h-52 space-y-1 overflow-y-auto border border-black/10 bg-white p-2">{catalogue.filter((product)=>product.status==="published").map((product)=>{const selected=current.productSlugs?.includes(product.slug)??false;return <label key={product.slug} className="flex cursor-pointer items-center gap-2 p-2 text-xs hover:bg-black/[.03]"><input type="checkbox" checked={selected} onChange={()=>updateBlock({productSlugs:selected?(current.productSlugs??[]).filter((slug)=>slug!==product.slug):[...(current.productSlugs??[]),product.slug]})}/><span className="font-mono text-black/40">{product.designCode}</span><span className="min-w-0 flex-1 truncate font-bold">{product.name}</span></label>})}</div></div>}
+                  <div className="grid grid-cols-2 gap-3"><label className="grid gap-1 text-sm font-semibold">Quantidade<Input type="number" min="1" max="64" value={current.productLimit??6} onChange={(event)=>updateBlock({productLimit:Math.min(64,Math.max(1,Number(event.target.value)||1))})}/></label><label className="grid gap-1 text-sm font-semibold">Ordem<Select value={current.productOrder??"asc"} onValueChange={(value)=>updateBlock({productOrder:value as Block["productOrder"]})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="random">Aleatória</SelectItem><SelectItem value="asc">ASC · A–Z</SelectItem><SelectItem value="desc">DESC · Z–A</SelectItem></SelectContent></Select></label></div>
+                </div>}
                 <div><label className="mb-2 block text-sm font-semibold">Antetítulo</label><Input value={current?.eyebrow ?? ""} onChange={(event) => updateBlock({ eyebrow: event.target.value })} /></div>
                 <div>
                   <label className="mb-2 block text-sm font-semibold">

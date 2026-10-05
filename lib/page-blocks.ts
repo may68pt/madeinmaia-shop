@@ -13,6 +13,11 @@ export type PageBlock = {
   align?: "left" | "center";
   spacing?: "compact" | "normal" | "large";
   imageUrl?: string;
+  productSource?: "all" | "tag" | "selection";
+  productTag?: string;
+  productSlugs?: string[];
+  productLimit?: number;
+  productOrder?: "random" | "asc" | "desc";
   translations?: Record<string, Partial<Pick<PageBlock,"title"|"description"|"eyebrow"|"ctaLabel">>>;
 };
 
