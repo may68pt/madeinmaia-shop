@@ -501,7 +501,7 @@ export default function Studio() {
     }
     if (section === "products") {
       const loadedProducts = catalogue.filter((product) => product.detailsLoaded);
-      const response = await fetch("/api/studio", {
+      const [response, mediaResponse] = await Promise.all([fetch("/api/studio", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -509,13 +509,13 @@ export default function Studio() {
           "x-studio-key": studioKey,
         },
         body: JSON.stringify({ resource: "products", entries: loadedProducts }),
-      });
-      if (response.ok) toast.success("Catálogo guardado");
+      }), fetch("/api/studio", { method:"POST", headers:{"content-type":"application/json","x-studio-user":studioUser,"x-studio-key":studioKey}, body:JSON.stringify({resource:"settings",entries:[settings]}) })]);
+      if (response.ok && mediaResponse.ok) toast.success("Catálogo e biblioteca guardados");
       else toast.error("Não foi possível guardar o catálogo.");
       return;
     }
     if (section === "discover") {
-      const response = await fetch("/api/studio", {
+      const [response, mediaResponse] = await Promise.all([fetch("/api/studio", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -526,8 +526,8 @@ export default function Studio() {
           resource: "random-content",
           entries: discoveries,
         }),
-      });
-      if (response.ok) toast.success("Link Labels guardadas");
+      }), fetch("/api/studio", { method:"POST", headers:{"content-type":"application/json","x-studio-user":studioUser,"x-studio-key":studioKey}, body:JSON.stringify({resource:"settings",entries:[settings]}) })]);
+      if (response.ok && mediaResponse.ok) toast.success("Link Labels e biblioteca guardadas");
       else toast.error("Não foi possível guardar os conteúdos.");
       return;
     }

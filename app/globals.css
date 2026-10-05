@@ -122,6 +122,8 @@ img, svg, video, canvas { max-width: 100%; }
   .mim-studio section { padding-left: .75rem; padding-right: .75rem; }
   .mim-studio__header { position: sticky; top: 0; z-index: 80; }
   .mim-product-card__support-selector { gap: 0; }
+  .mim-product-grid { gap: 0; }
+  .mim-page-block--produtos .mim-page-block__content { padding-inline: 0; }
 }
 
 .storefront-dark { color-scheme: dark; }

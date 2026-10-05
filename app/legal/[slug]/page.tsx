@@ -33,8 +33,8 @@ export default async function LegalPage({
     /* fallback */
   }
   return (
-    <main className="min-h-screen bg-[var(--paper)] text-[var(--ink)]">
-      <header className="border-b border-black/10 px-5 py-5 lg:px-10">
+    <main className="storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]">
+      <header className="border-b border-white/10 px-5 py-5 lg:px-10">
         <Link
           href="/"
           className="inline-flex items-center gap-2 font-black uppercase"
@@ -50,7 +50,7 @@ export default async function LegalPage({
         <h1 className="mt-4 text-5xl font-black uppercase tracking-[-.055em] sm:text-7xl">
           {fallback.title}
         </h1>
-        <div className="mt-10 whitespace-pre-wrap text-lg leading-relaxed text-black/70">
+        <div className="mt-10 whitespace-pre-wrap text-lg leading-relaxed text-white/70">
           {body}
         </div>
       </article>
