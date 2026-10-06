@@ -15,5 +15,7 @@ export const DEFAULT_NAVIGATION: NavigationItem[] = [
   ] },
   { id: "discover", label: "Link Label", url: "/linklabel", visible: true },
   { id: "blog", label: "Blog", url: "/blog", visible: true },
+  { id: "swipe", label: "Rate designs", url: "/swipe", visible: true },
+  { id: "account", label: "Account", url: "/conta", visible: true },
   { id: "brand", label: "The brand", url: "/marca", visible: true },
 ];

@@ -7,6 +7,9 @@ import {
   ArrowDown,
   ArrowUp,
   BookOpen,
+  BarChart3,
+  CirclePower,
+  Contrast,
   Eye,
   GripVertical,
   Images,
@@ -1798,7 +1801,7 @@ export default function Studio() {
                       <div className="grid grid-cols-[28px_32px_64px_1fr_auto] items-center gap-3 p-3">
                         <button type="button" aria-label={selectedProductIds.has(product.id)?`Desselecionar ${product.name}`:`Selecionar ${product.name}`} aria-pressed={selectedProductIds.has(product.id)} onClick={()=>toggleProductSelection(product.id)} className={`grid size-6 place-items-center border text-xs font-black transition ${selectedProductIds.has(product.id)?'border-[var(--brand)] bg-[var(--brand)] text-white':'border-white/25 bg-white/5 text-transparent hover:border-white/60'}`}>✓</button>
                         <GripVertical className="size-5 cursor-grab text-black/30 active:cursor-grabbing" aria-label="Arrastar para reordenar" />
-                        <button type="button" onClick={() => void openProduct(product)} className="relative size-16 overflow-hidden border border-black/10 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:16px_16px]">
+                        <button type="button" onClick={() => void openProduct(product)} className="relative size-16 overflow-hidden border border-black/10 bg-white">
                           {product.imageKey ? <Image src={product.imageKey} alt="" fill sizes="64px" unoptimized className="object-contain p-1" /> : <Images className="absolute inset-0 m-auto size-5 text-black/25" />}
                         </button>
                         <button type="button" onClick={() => void openProduct(product)} className="min-w-0 text-left">
@@ -1808,9 +1811,9 @@ export default function Studio() {
                         <div className="flex items-center gap-3">
                           <div className="hidden items-center gap-1 lg:flex"><Button type="button" variant="ghost" size="icon" disabled={productIndex === 0} onClick={() => moveProduct(product.id, -1)} aria-label="Subir produto"><ArrowUp className="size-4" /></Button><Button type="button" variant="ghost" size="icon" disabled={productIndex === catalogue.length - 1} onClick={() => moveProduct(product.id, 1)} aria-label="Descer produto"><ArrowDown className="size-4" /></Button></div>
                           <Button type="button" variant="ghost" size="icon" onClick={() => void editProductPlacement(product)} aria-label="Posicionar design" title="Posicionar design"><Move className="size-4" /></Button>
-                          <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.monochrome} onCheckedChange={(checked) => void updateProductMonochrome(product, checked)} /><span className="hidden xl:inline">Mono</span></label>
-                          <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.onlineSaleEnabled} onCheckedChange={(checked) => void updateProductOnlineSale(product, checked)} /><span className="hidden xl:inline">Online</span></label>
-                          <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.status === "published"} onCheckedChange={(checked) => void updateProductStatus(product, checked)} /><span className="hidden sm:inline">{product.status === "published" ? "Ativo" : "Inativo"}</span></label>
+                          <label title="Design monocromático" className="flex items-center gap-2 text-xs font-bold uppercase"><Contrast className="size-4" aria-hidden/><Switch aria-label="Design monocromático" checked={product.monochrome} onCheckedChange={(checked) => void updateProductMonochrome(product, checked)} /><span className="hidden xl:inline">Mono</span></label>
+                          <label title="Disponível na loja online / dados Dash" className="flex items-center gap-2 text-xs font-bold uppercase"><BarChart3 className="size-4" aria-hidden/><Switch aria-label="Disponível online" checked={product.onlineSaleEnabled} onCheckedChange={(checked) => void updateProductOnlineSale(product, checked)} /><span className="hidden xl:inline">Online</span></label>
+                          <label title={product.status === "published" ? "Produto ativo" : "Produto desativado"} className="flex items-center gap-2 text-xs font-bold uppercase"><CirclePower className="size-4" aria-hidden/><Switch aria-label="Produto ativo" checked={product.status === "published"} onCheckedChange={(checked) => void updateProductStatus(product, checked)} /><span className="hidden sm:inline">{product.status === "published" ? "Ativo" : "Inativo"}</span></label>
                           <Button type="button" variant="ghost" size="icon" className="text-red-600 hover:text-red-700" onClick={() => void deleteProduct(product)} aria-label="Apagar produto"><Trash2 className="size-4" /></Button>
                           <Button type="button" variant="ghost" size="icon" onClick={() => void openProduct(product)} aria-label={isOpen ? "Fechar produto" : "Abrir produto"}><span className={`text-xl transition-transform ${isOpen ? "rotate-180" : ""}`}>⌄</span></Button>
                         </div>

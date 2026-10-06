@@ -6,6 +6,7 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import type { ProductVariant } from "@/lib/product-variants";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
@@ -174,4 +175,28 @@ export const siteSettings = pgTable("site_settings", {
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+});
+
+export const designFeedback = pgTable("design_feedback", {
+  id: serial("id").primaryKey(),
+  productSlug: text("product_slug").notNull(),
+  visitorId: text("visitor_id").notNull(),
+  vote: integer("vote").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [uniqueIndex("design_feedback_visitor_product_idx").on(table.visitorId, table.productSlug)]);
+
+export const userAccounts = pgTable("user_accounts", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  role: text("role").notNull().default("client"),
+  createdAt: timestamp("created_at", { withTimezone:true }).notNull().defaultNow(),
+});
+
+export const userSessions = pgTable("user_sessions", {
+  id: serial("id").primaryKey(),
+  tokenHash: text("token_hash").notNull().unique(),
+  userId: integer("user_id").notNull().references(()=>userAccounts.id,{onDelete:"cascade"}),
+  expiresAt: timestamp("expires_at", { withTimezone:true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone:true }).notNull().defaultNow(),
 });
