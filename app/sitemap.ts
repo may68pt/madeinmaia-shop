@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: baseUrl, changeFrequency: "weekly", priority: 1 },
     { url: `${baseUrl}/loja`, changeFrequency: "daily", priority: 0.9 },
-    { url: `${baseUrl}/colecoes`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${baseUrl}/collections`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${baseUrl}/marca`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/blog`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${baseUrl}/linklabel`, changeFrequency: "daily", priority: 0.6 },
@@ -26,14 +26,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const taxonomies = [...new Set(catalogue.flatMap((product) => [...product.tags, product.collection]).filter(Boolean))];
     return [
       ...staticPages,
-      ...taxonomies.map((taxonomy) => ({ url: `${baseUrl}/colecao/${collectionSlug(taxonomy)}`, changeFrequency: "weekly" as const, priority: 0.7 })),
+      ...taxonomies.map((taxonomy) => ({ url: `${baseUrl}/collections/${collectionSlug(taxonomy)}`, changeFrequency: "weekly" as const, priority: 0.7 })),
       ...catalogue.map((product) => ({
-        url: `${baseUrl}/produto/${product.slug}`,
+        url: `${baseUrl}/designs/${product.slug}`,
         lastModified: product.updatedAt,
         changeFrequency: "weekly" as const,
         priority: 0.8,
       })),
-      ...contentPages.filter((page) => page.slug !== "inicio").map((page) => ({
+      ...contentPages.filter((page) => !["inicio","collection-template"].includes(page.slug)).map((page) => ({
         url: page.slug.startsWith("blog-") ? `${baseUrl}/blog/${page.slug.slice(5)}` : `${baseUrl}/${page.slug}`,
         lastModified: page.updatedAt,
         changeFrequency: "monthly" as const,
@@ -42,6 +42,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
   } catch {
     const taxonomies = [...new Set(LOCAL_FALLBACK_PRODUCTS.flatMap((product) => [...product.tags, product.collection]))];
-    return [...staticPages, ...taxonomies.map((taxonomy) => ({ url: `${baseUrl}/colecao/${collectionSlug(taxonomy)}`, changeFrequency: "weekly" as const, priority: 0.7 }))];
+    return [...staticPages, ...taxonomies.map((taxonomy) => ({ url: `${baseUrl}/collections/${collectionSlug(taxonomy)}`, changeFrequency: "weekly" as const, priority: 0.7 }))];
   }
 }

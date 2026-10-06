@@ -44,7 +44,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast, Toaster } from "sonner";
 import type { ProductVariant } from "@/lib/product-variants";
 import { ADULT_SIZES, CATALOG_CATEGORIES, CATALOG_SIZES, DEFAULT_COLORS, DEFAULT_SUPPORTS, KIDS_SIZES, normalizeSupport, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
-import { DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as Block, type PageBlockType } from "@/lib/page-blocks";
+import { DEFAULT_COLLECTION_TEMPLATE_BLOCKS, DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as Block, type PageBlockType } from "@/lib/page-blocks";
 import { PageBlock } from "@/components/page-block";
 import { ProductMockup } from "@/components/product-mockup";
 import { SupportIcon } from "@/components/support-icon";
@@ -164,6 +164,12 @@ type SiteSettings = {
 };
 
 const initialBlocks: Block[] = DEFAULT_PAGE_BLOCKS;
+const collectionTemplatePage: StudioPage = {
+  slug: "collection-template",
+  title: "Template de coleção",
+  blocks: DEFAULT_COLLECTION_TEMPLATE_BLOCKS,
+  status: "published",
+};
 
 const initialDiscoveries: Discovery[] = [
   {
@@ -295,6 +301,7 @@ export default function Studio() {
   const [blocks, setBlocks] = useState(initialBlocks);
   const [pageList, setPageList] = useState<StudioPage[]>([
     { slug: "inicio", title: "Início", blocks: initialBlocks, status: "draft" },
+    collectionTemplatePage,
   ]);
   const [currentPageSlug, setCurrentPageSlug] = useState("inicio");
   const [selected, setSelected] = useState(1);
@@ -600,6 +607,7 @@ export default function Studio() {
         blocks: page.slug === "inicio" ? withRequiredHomeBlocks(page.blocks) : page.blocks,
         status: page.status === "published" ? "published" as const : "draft" as const,
       }));
+      if (!normalizedPages.some((page) => page.slug === collectionTemplatePage.slug)) normalizedPages.push(collectionTemplatePage);
       const home = normalizedPages.find((page) => page.slug === "inicio") ?? normalizedPages[0];
       setPageList(normalizedPages);
       setCurrentPageSlug(home.slug);
@@ -609,7 +617,7 @@ export default function Studio() {
     } else if (data.page?.blocks?.length) {
       const homeBlocks = withRequiredHomeBlocks(data.page.blocks);
       setBlocks(homeBlocks);
-      setPageList([{ slug: "inicio", title: "Início", blocks: homeBlocks, status: data.page.status === "published" ? "published" : "draft" }]);
+      setPageList([{ slug: "inicio", title: "Início", blocks: homeBlocks, status: data.page.status === "published" ? "published" : "draft" }, collectionTemplatePage]);
       setSelected(homeBlocks[0].id);
       setPublished(data.page.status === "published");
     }
@@ -1123,9 +1131,9 @@ export default function Studio() {
                     {pageList.filter((page)=>!page.slug.startsWith("blog-")||page.slug===currentPageSlug).map((page) => <SelectItem key={page.slug} value={page.slug}>{page.title}</SelectItem>)}
                   </SelectContent>
                 </Select>
-                {currentPageSlug !== "inicio" && <Button type="button" variant="ghost" className="rounded-none text-red-600" onClick={() => void deleteCurrentPage()}><Trash2 />Remover página</Button>}
+                {currentPageSlug !== "inicio" && currentPageSlug !== "collection-template" && <Button type="button" variant="ghost" className="rounded-none text-red-500 hover:bg-red-500/10 hover:text-red-300" onClick={() => void deleteCurrentPage()}><Trash2 />Remover página</Button>}
                 <Button type="button" variant="ghost" className="ml-auto rounded-none" asChild>
-                  <Link href={currentPageSlug === "inicio" ? "/loja" : currentPageSlug.startsWith("blog-") ? `/blog/${currentPageSlug.slice(5)}` : `/${currentPageSlug}`} target="_blank"><Eye />Abrir página</Link>
+                  <Link href={currentPageSlug === "inicio" ? "/loja" : currentPageSlug === "collection-template" ? "/collections/cats" : currentPageSlug.startsWith("blog-") ? `/blog/${currentPageSlug.slice(5)}` : `/${currentPageSlug}`} target="_blank"><Eye />Abrir página</Link>
                 </Button>
               </div></div>
               <div className="mb-4 flex items-center justify-between">
@@ -1936,7 +1944,7 @@ export default function Studio() {
                                 </div>
                               </section>
                               <section className="mim-product-gallery-editor"><p className="text-xs font-bold uppercase">Fotografias do produto</p><p className="mt-1 text-xs text-black/45">Fotografias com modelos, lifestyle, detalhes ou fotografia de estúdio deste produto.</p>{product.gallery.length > 0 && <div className="mt-3 grid grid-cols-2 gap-2">{product.gallery.map((photo, index) => <div key={`${photo}-${index}`} className="group relative aspect-[4/3] overflow-hidden bg-[#eee]"><Image src={photo} alt={`${product.name} · fotografia ${index + 1}`} fill sizes="180px" unoptimized className="object-cover" /><div className="absolute inset-x-1 top-1 flex justify-between gap-1 opacity-95"><div className="flex gap-1"><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===0} onClick={()=>{const gallery=[...product.gallery];[gallery[index-1],gallery[index]]=[gallery[index],gallery[index-1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para trás"><ArrowUp className="size-3"/></Button><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===product.gallery.length-1} onClick={()=>{const gallery=[...product.gallery];[gallery[index+1],gallery[index]]=[gallery[index],gallery[index+1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para a frente"><ArrowDown className="size-3"/></Button></div><Button type="button" size="icon" variant="destructive" className="size-7" onClick={() => updateProduct(product.id, { gallery: product.gallery.filter((_, itemIndex) => itemIndex !== index) })} aria-label="Remover fotografia"><Trash2 className="size-3" /></Button></div></div>)}</div>}<label className={`mt-3 grid min-h-28 cursor-pointer place-items-center border-2 border-dashed p-4 text-center transition ${galleryDragOver===product.id?"border-[var(--brand)] bg-orange-50":"border-black/20 bg-black/[.025] hover:border-[var(--brand)]"}`} onDragEnter={(event)=>{event.preventDefault();setGalleryDragOver(product.id)}} onDragOver={(event)=>{event.preventDefault();event.dataTransfer.dropEffect="copy";setGalleryDragOver(product.id)}} onDragLeave={(event)=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setGalleryDragOver(null)}} onDrop={(event)=>{event.preventDefault();void uploadProductGallery(product.id,Array.from(event.dataTransfer.files));}}><input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={galleryUploading===product.id} onChange={(event)=>{void uploadProductGallery(product.id,Array.from(event.target.files??[]));event.target.value=""}}/><span><UploadCloud className="mx-auto size-8 text-black/25"/><strong className="mt-2 block text-xs uppercase">{galleryUploading===product.id?"A carregar fotografias…":"Adicionar fotografias deste produto"}</strong><span className="mt-1 block text-[11px] text-black/40">JPG, PNG ou WebP · podes selecionar várias</span></span></label></section>
-                              <Button variant="outline" className="w-full rounded-none" asChild><Link href={`/produto/${product.slug}`} target="_blank"><Eye />Ver produto</Link></Button>
+                              <Button variant="outline" className="w-full rounded-none" asChild><Link href={`/designs/${product.slug}`} target="_blank"><Eye />Ver produto</Link></Button>
                             </div>
                           </div>
                           <div className="mt-6 flex flex-col-reverse gap-3 border-t border-black/10 pt-5 sm:flex-row sm:items-center sm:justify-between">

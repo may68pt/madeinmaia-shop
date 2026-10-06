@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       return {
         title: product.name,
         description: product.description || `${product.name}, an original Made in Maia design available on T-shirts, hoodies and tote bags.`,
-        alternates: { canonical: `/produto/${product.slug}` },
+        alternates: { canonical: `/designs/${product.slug}` },
         openGraph: {
           title: product.name,
           description: product.description || "Original Made in Maia design.",
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (localProduct) return {
     title: localProduct.name,
     description: localProduct.description,
-    alternates: { canonical: `/produto/${localProduct.slug}` },
+    alternates: { canonical: `/designs/${localProduct.slug}` },
     openGraph: { title: localProduct.name, description: localProduct.description, images: [{ url: localProduct.imageKey, alt: localProduct.name }], type: "website" },
   };
   return { title: "Product not found", robots: { index: false, follow: false } };
@@ -83,7 +83,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       priceCurrency: "EUR",
       price: (product.priceCents / 100).toFixed(2),
       availability: "https://schema.org/InStock",
-      url: `https://madeinmaia.pt/produto/${product.slug}`,
+      url: `https://madeinmaia.pt/designs/${product.slug}`,
     },
   };
   return <main id={`mim-product-${product.slug}`} className="mim-product-page storefront-dark min-h-screen overflow-x-clip bg-[var(--paper)] text-[var(--foreground)]"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><header className="mim-product-page__header flex min-w-0 items-center justify-between gap-4 border-b border-white/10 px-4 py-3 sm:px-5 lg:px-10"><Link href="/loja" className="flex shrink-0 items-center gap-2 font-black uppercase"><ArrowLeft className="size-4"/><span className="hidden sm:inline">Loja</span></Link><Link href="/loja" aria-label="Made in Maia shop" className="min-w-0"><BrandLogo className="h-16 w-auto" /></Link></header><ProductPurchase slug={product.slug} name={product.name} description={product.description} collection={product.collection} image={product.imageKey} gallery={product.gallery} priceCents={product.priceCents} supports={supports} catalogColors={catalog.colors} monochrome={product.monochrome} artworkPlacements={product.artworkPlacements}/><ProductDiscovery related={related} collection={product.tags[0] ?? product.collection}/></main>;

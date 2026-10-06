@@ -34,6 +34,7 @@ export const BLOCK_COPY: Record<PageBlockType, Record<string,BlockCopy>> = {
 };
 
 export function localizedBlock(block:PageBlock, locale:string):PageBlock {
+  if (locale === "en") return block;
   const stored = block.translations?.[locale];
   if (stored && Object.values(stored).some(Boolean)) return { ...block, ...stored };
   const fallback = BLOCK_COPY[block.type]?.[locale];
@@ -49,6 +50,11 @@ export const DEFAULT_PAGE_BLOCKS: PageBlock[] = [
   { id:5, type:"Logo aleatório", eyebrow:"Link Label", title:"Made in Maia is a label with a link.", description:"Every piece opens a different story, image, video, idea or surprise.", ctaLabel:"Open Link Label", ctaUrl:"/linklabel", background:"var(--accent-brand)", textColor:"var(--ink)", width:"full", align:"center", spacing:"large" },
   { id:6, type:"Localização", eyebrow:"Find us in Porto", title:"The building is part of the story.", description:"Visit Made in Maia at Mercado Ferreira Borges / Hard Club, inside River Market.", ctaLabel:"Open River Market", ctaUrl:"https://rivermarket.pt", background:"#8d2b20", textColor:"#ffffff", width:"full", align:"left", spacing:"large" },
   { id:7, type:"Linktree", eyebrow:"Stay close", title:"Markets, people and new drops.", description:"Follow the project, discover our markets or join the team.", ctaLabel:"Open our links", ctaUrl:"/links", background:"var(--ink)", textColor:"#ffffff", width:"content", align:"center", spacing:"normal" },
+];
+
+export const DEFAULT_COLLECTION_TEMPLATE_BLOCKS: PageBlock[] = [
+  { id:101, type:"Hero", eyebrow:"Collection", title:"{{collection}}", description:"{{count}} designs", background:"var(--surface)", textColor:"var(--foreground)", width:"content", align:"left", spacing:"compact" },
+  { id:102, type:"Produtos", eyebrow:"Browse the collection", title:"Designs in {{collection}}", description:"Choose a design, colour and support.", background:"var(--paper)", textColor:"var(--foreground)", width:"content", align:"left", spacing:"normal" },
 ];
 
 export function withRequiredHomeBlocks(blocks: PageBlock[]) {

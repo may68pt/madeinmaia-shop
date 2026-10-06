@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects(){return [
+    {source:"/produto/:slug",destination:"/designs/:slug",permanent:true},
+    {source:"/colecao/:tag",destination:"/collections/:tag",permanent:true},
+    {source:"/colecoes",destination:"/collections",permanent:true},
+  ]},
   async headers(){return [
     {source:"/:path*",headers:[
       {key:"X-Content-Type-Options",value:"nosniff"},

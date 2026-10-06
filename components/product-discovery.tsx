@@ -38,7 +38,7 @@ export function ProductDiscovery({ related, collection }: { related:RelatedProdu
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {related.map((product) => <article key={product.slug} className="group">
-            <Link href={`/produto/${product.slug}`} className="relative block aspect-[4/5] overflow-hidden bg-white">
+            <Link href={`/designs/${product.slug}`} className="relative block aspect-[4/5] overflow-hidden bg-white">
               <ProductMockup artwork={product.imageKey || "/products/white-shirt-1.jpg"} color="White" name={product.name} />
             </Link>
             <div className="flex items-start justify-between gap-4 pt-4"><div><p className="text-xs uppercase opacity-50">{product.collection}</p><h3 className="text-lg font-black uppercase">{product.name}</h3></div><strong>{(product.priceCents/100).toFixed(2).replace(".",",")} €</strong></div>

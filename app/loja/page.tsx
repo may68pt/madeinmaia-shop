@@ -84,7 +84,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     itemListElement:initialProducts.map((product,index)=>({
       "@type":"ListItem",
       position:offset+index+1,
-      url:`https://madeinmaia.pt/produto/${product.slug}`,
+      url:`https://madeinmaia.pt/designs/${product.slug}`,
       name:product.name,
     })),
   };

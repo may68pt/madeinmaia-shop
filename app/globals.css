@@ -131,12 +131,17 @@ img, svg, video, canvas { max-width: 100%; }
 
 /* Studio is a dark product workspace. These scoped rules also cover legacy
    utility classes while the individual panels are progressively simplified. */
-.mim-studio { color-scheme: dark; --ink: #f4f3ef; --studio-surface: #181816; --studio-raised: #22221f; }
+.mim-studio { color-scheme: dark; --ink: #0d0d0c; --studio-surface: #181816; --studio-raised: #22221f; }
 .mim-studio .bg-white { background-color: var(--studio-surface) !important; }
 .mim-studio .mim-studio-product-thumb,
 .mim-studio .mim-product-artwork-preview { background: #fff !important; color-scheme: light; }
 .mim-studio .bg-\[\#f7f7f4\],
-.mim-studio .bg-\[\#ecece8\] { background-color: var(--studio-raised) !important; }
+.mim-studio .bg-\[\#f4f4f0\],
+.mim-studio .bg-\[\#f3f3ef\],
+.mim-studio .bg-\[\#ecece8\],
+.mim-studio .bg-\[\#e9e9e4\] { background-color: var(--studio-raised) !important; }
+.mim-studio .bg-orange-50,
+.mim-studio .bg-orange-50\/50 { background-color: rgb(255 74 29 / .1) !important; }
 .mim-studio .bg-black\/5,
 .mim-studio .bg-black\/\[\.025\] { background-color: rgb(255 255 255 / .055) !important; }
 .mim-studio .border-black\/10,
