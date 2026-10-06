@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   try {
     const filteredWhere = query
       ? and(
-          eq(products.status, "published"),
+          eq(products.status, "published"), eq(products.onlineSaleEnabled, true),
           or(
             ilike(products.name, `%${query}%`),
             ilike(products.collection, `%${query}%`),
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
             sql`${products.tags}::text ILIKE ${`%${query}%`}`,
           ),
         )
-      : eq(products.status, "published");
+      : and(eq(products.status, "published"), eq(products.onlineSaleEnabled, true));
     const db = getDb();
     const [catalogue, [{ total }], [page]] = await Promise.all([
       db.select().from(products).where(filteredWhere).orderBy(asc(products.sortOrder), asc(products.id)).limit(limit).offset(offset),

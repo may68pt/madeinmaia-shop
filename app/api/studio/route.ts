@@ -18,6 +18,17 @@ function isAuthenticated(request: Request) {
   return Boolean(expectedPassword && request.headers.get("x-studio-user") === expectedUser && request.headers.get("x-studio-key") === expectedPassword);
 }
 
+function removeObsoleteCatalogueCss(content: string) {
+  return content
+    .replace(/\.mim-product-grid\s*\{\s*grid-template-columns:\s*repeat\(4,[^}]+\}/gi, "")
+    .replace(/\.sm\\:gap-xa-5\s*\{[^}]+\}/gi, "")
+    .replace(/\.mim-product-card\s*\{\s*padding:\s*0(?:px)?\s*;?\s*\}/gi, "")
+    .replace(/\.mim-product-card\s+\.sm\\:size-10\s*\{[^}]+\}/gi, "")
+    .replace(/\.mim-page-block--produtos\s+\.mim-page-block__content\s*\{\s*padding-inline:\s*0\s*;?\s*\}/gi, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
 export async function GET(request: Request) {
   if (!isAuthenticated(request))
     return NextResponse.json(
@@ -55,6 +66,8 @@ export async function GET(request: Request) {
           sizes: products.sizes,
           sortOrder: products.sortOrder,
           monochrome: products.monochrome,
+          onlineSaleEnabled: products.onlineSaleEnabled,
+          salesRank: products.salesRank,
           status: products.status,
       }).from(products).orderBy(asc(products.sortOrder), asc(products.id)),
       db.select().from(randomContent),
@@ -95,8 +108,8 @@ export async function GET(request: Request) {
       }
     }
     const indexedMedia = [...mediaByUrl.values()];
-    const indexedSettings = settings ? { ...settings.data, media: indexedMedia } : null;
-    if (settings && JSON.stringify(storedMedia) !== JSON.stringify(indexedMedia)) {
+    const indexedSettings = settings ? { ...settings.data, media: indexedMedia, cssFiles: settings.data.cssFiles?.map((file)=>({ ...file, content: removeObsoleteCatalogueCss(file.content) })) } : null;
+    if (settings && JSON.stringify(settings.data) !== JSON.stringify(indexedSettings)) {
       await db.update(siteSettings).set({ data: indexedSettings!, updatedAt: new Date() }).where(eq(siteSettings.key, "global")).catch(() => undefined);
     }
     const resourceNames = ["pages", "products", "random-content", "orders", "settings"];
@@ -143,6 +156,7 @@ export async function POST(request: Request) {
     blocks?: unknown[];
     status?: string;
     monochrome?: boolean;
+    onlineSaleEnabled?: boolean;
     artworkPlacements?: Record<string,{x:number;y:number;width:number;height:number}>;
     entries?: unknown[];
     replace?: boolean;
@@ -170,6 +184,12 @@ export async function POST(request: Request) {
     return updated.length
       ? NextResponse.json({ ok: true })
       : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
+  }
+  if (body.resource === "product-online-sale") {
+    if (!Number.isInteger(body.productId) || typeof body.onlineSaleEnabled !== "boolean")
+      return NextResponse.json({ error: "Valor inválido" }, { status: 400 });
+    const updated = await getDb().update(products).set({ onlineSaleEnabled: body.onlineSaleEnabled, updatedAt: new Date() }).where(eq(products.id, Number(body.productId))).returning({ id: products.id });
+    return updated.length ? NextResponse.json({ ok: true }) : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
   }
   if (body.resource === "product-placement") {
     if (!Number.isInteger(body.productId) || !body.artworkPlacements || typeof body.artworkPlacements !== "object")
@@ -415,6 +435,8 @@ export async function POST(request: Request) {
             : [],
           sortOrder: Math.max(0, Number(value.sortOrder) || 0),
           monochrome: value.monochrome === true,
+          onlineSaleEnabled: value.onlineSaleEnabled !== false,
+          salesRank: Math.max(0, Number(value.salesRank) || 0),
           status: value.status === "published" ? "published" : "draft",
           updatedAt: new Date(),
         },

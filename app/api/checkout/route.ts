@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import Stripe from "stripe";
 import { getDb } from "@/db";
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   let productCatalog = { colors: DEFAULT_COLORS, supports: DEFAULT_SUPPORTS };
   if (process.env.DATABASE_URL) {
     try {
-      const stored = await getDb().select().from(products).where(inArray(products.slug, slugs));
+      const stored = await getDb().select().from(products).where(and(inArray(products.slug, slugs),eq(products.onlineSaleEnabled,true)));
       const [settings] = await getDb().select().from(siteSettings).where(inArray(siteSettings.key,["global"]));
       if (settings?.data.productCatalog) productCatalog = settings.data.productCatalog;
       for (const product of stored) if (product.status === "published") catalogue.set(product.slug, { name:product.name, priceCents:product.priceCents, colors:product.colors, sizes:product.sizes, disabledSupports:product.disabledSupports });

@@ -61,9 +61,9 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
   const slide = slides[Math.min(slideIndex, slides.length - 1)] ?? slides[0];
   const color = availableColors.find((item) => item.id === colorId) ?? availableColors[0];
   const supportIcon = (id:string) => id === "design" ? <ImageIcon className="size-3 sm:size-5"/> : <span className="[&_img]:size-3 sm:[&_img]:size-6"><SupportIcon supportId={id} size={24}/></span>;
-  const taxonomies = productTaxonomies(product);
+  const taxonomies = productTaxonomies(product).filter((item)=>item.trim().toLowerCase()!=="made in maia");
 
-  return <article id={`mim-product-${product.slug}`} className="mim-product-card group min-w-0 text-[var(--foreground)]">
+  return <article id={`mim-product-${product.slug}`} className="mim-product-card group min-w-0 border border-white/10 text-[var(--foreground)]">
     <div className="mim-product-card__visual relative aspect-square overflow-hidden border border-white/10 bg-[var(--surface)]">
       <Link href={`/produto/${product.slug}`} className="absolute inset-0" aria-label={`Open ${product.name}`}>
         {slide?.id === "design" ? <div className="mim-product-card__design-preview absolute inset-0 grid place-items-center p-[10%] transition-colors duration-500" style={{backgroundColor:designBackground?.hex ?? "#dedbd2",backgroundImage:"radial-gradient(circle at 22% 15%, rgba(255,255,255,.24), transparent 36%), repeating-linear-gradient(118deg, rgba(255,255,255,.035) 0 1px, rgba(0,0,0,.025) 1px 3px)"}}><div className="relative size-full"><Image src={product.image} alt={product.name} fill sizes="(min-width:1024px) 30vw, 90vw" unoptimized={product.image.startsWith("http")} className="object-contain drop-shadow-2xl" style={product.monochrome ? {filter:printColor === "white" ? "grayscale(1) brightness(0) invert(1)" : "grayscale(1) brightness(0)"} : undefined}/></div></div> : slide && "defaultPlacement" in slide ? <ProductMockup artwork={product.image} color={color?.name ?? "White"} name={product.name} templateImage={slide.templateImage} supportId={slide.id} printColor={product.monochrome ? printColor : "original"} placements={{[slide.id]:slide.defaultPlacement,...product.artworkPlacements}} /> : null}

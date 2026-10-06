@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { ProductCard, type ProductCardData } from "@/components/product-card";
 import { getDb } from "@/db";
 import { products, siteSettings } from "@/db/schema";
@@ -37,7 +37,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ tag
   try {
     const db = getDb();
     const [storedProducts, [settings]] = await Promise.all([
-      db.select().from(products).where(eq(products.status, "published")),
+      db.select().from(products).where(and(eq(products.status, "published"),eq(products.onlineSaleEnabled,true))),
       db.select().from(siteSettings).where(eq(siteSettings.key, "global")),
     ]);
     if (storedProducts.length) allProducts = storedProducts.map((product) => ({

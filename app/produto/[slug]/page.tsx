@@ -20,7 +20,7 @@ const fallback: ProductView[] = LOCAL_FALLBACK_PRODUCTS;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   try {
-    const [product] = await getDb().select().from(products).where(eq(products.slug, slug));
+    const [product] = await getDb().select().from(products).where(and(eq(products.slug, slug),eq(products.onlineSaleEnabled,true)));
     if (product?.status === "published")
       return {
         title: product.name,
@@ -53,7 +53,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   let related:RelatedProduct[] = [];
   try {
     const db = getDb();
-    const [[stored], [settings]] = await Promise.all([db.select().from(products).where(eq(products.slug, slug)), db.select().from(siteSettings).where(eq(siteSettings.key,"global"))]);
+    const [[stored], [settings]] = await Promise.all([db.select().from(products).where(and(eq(products.slug, slug),eq(products.onlineSaleEnabled,true))), db.select().from(siteSettings).where(eq(siteSettings.key,"global"))]);
     if (stored?.status === "published") product = { slug:stored.slug, name:stored.name, nameTranslations:stored.nameTranslations, description:stored.description, priceCents:stored.priceCents, collection:stored.collection, tags:stored.tags, imageKey:stored.imageKey || "/products/white-shirt-1.jpg", gallery:stored.gallery, disabledSupports:stored.disabledSupports, monochrome:stored.monochrome, artworkPlacements:stored.artworkPlacements??{} };
     if (settings?.data.productCatalog) catalog = settings.data.productCatalog;
     if (product) {
@@ -64,7 +64,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         priceCents:products.priceCents,
         collection:products.collection,
         tags:products.tags,
-      }).from(products).where(and(eq(products.status,"published"),ne(products.slug,product.slug))).limit(48);
+      }).from(products).where(and(eq(products.status,"published"),eq(products.onlineSaleEnabled,true),ne(products.slug,product.slug))).limit(48);
       const tagMatches = candidates.filter((candidate) => candidate.tags.some((tag) => product?.tags.includes(tag)));
       related = (tagMatches.length ? tagMatches : candidates).slice(0, 4);
     }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { BrandLogo } from "@/components/brand-logo";
 import { getDb } from "@/db";
 import { products } from "@/db/schema";
@@ -22,7 +22,7 @@ type ArchiveProduct = { slug: string; name: string; collection: string; tags: st
 export default async function CollectionsArchivePage() {
   let catalogue: ArchiveProduct[] = LOCAL_FALLBACK_PRODUCTS.map((product) => ({ slug: product.slug, name: product.name, collection: product.collection, tags: product.tags, imageKey: product.imageKey }));
   try {
-    const stored = await getDb().select({ slug: products.slug, name: products.name, collection: products.collection, tags: products.tags, imageKey: products.imageKey }).from(products).where(eq(products.status, "published"));
+    const stored = await getDb().select({ slug: products.slug, name: products.name, collection: products.collection, tags: products.tags, imageKey: products.imageKey }).from(products).where(and(eq(products.status, "published"),eq(products.onlineSaleEnabled,true)));
     if (stored.length) catalogue = stored.map((product) => ({ ...product, imageKey: product.imageKey || "/products/white-shirt-1.jpg" }));
   } catch { /* Local archive uses the real-design fallback catalogue. */ }
 

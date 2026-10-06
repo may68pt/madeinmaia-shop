@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { and, asc, count, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
 import Home, { type ApiProduct } from "@/components/shop-home";
+import type { LivingGridProduct } from "@/components/living-design-grid";
 import { getDb } from "@/db";
 import { pages, products, siteSettings } from "@/db/schema";
 import { DEFAULT_PAGE_BLOCKS, type PageBlock } from "@/lib/page-blocks";
@@ -32,17 +33,18 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   let navigation:NavigationItem[] = DEFAULT_NAVIGATION;
   let catalogColors:CatalogColor[] = DEFAULT_COLORS;
   let catalogSupports:ProductSupport[] = DEFAULT_SUPPORTS;
+  let heroProducts:LivingGridProduct[] = [];
   try {
     const db = getDb();
     const where = query
-      ? and(eq(products.status,"published"),or(
+      ? and(eq(products.status,"published"),eq(products.onlineSaleEnabled,true),or(
           ilike(products.name,`%${query}%`),
           ilike(products.collection,`%${query}%`),
           ilike(products.designCode,`%${query}%`),
           sql`${products.tags}::text ILIKE ${`%${query}%`}`,
         ))
-      : eq(products.status,"published");
-    const [catalogue, [{ total }], [storedPage], [settings]] = await Promise.all([
+      : and(eq(products.status,"published"),eq(products.onlineSaleEnabled,true));
+    const [catalogue, [{ total }], [storedPage], [settings], heroCatalogue] = await Promise.all([
       db.select({
         slug:products.slug,
         name:products.name,
@@ -61,9 +63,11 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       db.select({ total:count() }).from(products).where(where),
       db.select().from(pages).where(eq(pages.slug,"inicio")),
       db.select().from(siteSettings).where(eq(siteSettings.key,"global")),
+      db.select({slug:products.slug,name:products.name,imageKey:products.imageKey,previewColorIds:products.previewColorIds,salesRank:products.salesRank}).from(products).where(and(eq(products.status,"published"),eq(products.onlineSaleEnabled,true))).orderBy(desc(products.salesRank),asc(products.sortOrder),asc(products.id)).limit(120),
     ]);
     initialProducts = catalogue;
     initialTotal = total;
+    heroProducts = heroCatalogue;
     if (storedPage?.status === "published" && Array.isArray(storedPage.blocks))
       initialBlocks = storedPage.blocks as PageBlock[];
     if (settings?.data.navigation?.length) navigation = [...settings.data.navigation, ...DEFAULT_NAVIGATION.filter((required)=>!settings.data.navigation.some((item)=>item.id===required.id))];
@@ -84,5 +88,5 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       name:product.name,
     })),
   };
-  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData).replace(/</g,"\\u003c")}}/><Home initialProducts={initialProducts} initialTotal={initialTotal} initialBlocks={initialBlocks} initialOffset={offset} initialPage={page} initialQuery={query} navigation={navigation} catalogColors={catalogColors} catalogSupports={catalogSupports} /></>;
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData).replace(/</g,"\\u003c")}}/><Home initialProducts={initialProducts} heroProducts={heroProducts} initialTotal={initialTotal} initialBlocks={initialBlocks} initialOffset={offset} initialPage={page} initialQuery={query} navigation={navigation} catalogColors={catalogColors} catalogSupports={catalogSupports} /></>;
 }

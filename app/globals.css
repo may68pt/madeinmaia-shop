@@ -129,6 +129,48 @@ img, svg, video, canvas { max-width: 100%; }
 .storefront-dark { color-scheme: dark; }
 .storefront-dark select option { background: #181816; color: #f4f3ef; }
 
+/* Studio is a dark product workspace. These scoped rules also cover legacy
+   utility classes while the individual panels are progressively simplified. */
+.mim-studio { color-scheme: dark; --ink: #f4f3ef; --studio-surface: #181816; --studio-raised: #22221f; }
+.mim-studio .bg-white { background-color: var(--studio-surface) !important; }
+.mim-studio .bg-\[\#f7f7f4\],
+.mim-studio .bg-\[\#ecece8\] { background-color: var(--studio-raised) !important; }
+.mim-studio .bg-black\/5,
+.mim-studio .bg-black\/\[\.025\] { background-color: rgb(255 255 255 / .055) !important; }
+.mim-studio .border-black\/10,
+.mim-studio .border-black\/15,
+.mim-studio .border-black\/20 { border-color: rgb(255 255 255 / .13) !important; }
+.mim-studio .text-black\/25,
+.mim-studio .text-black\/30,
+.mim-studio .text-black\/35,
+.mim-studio .text-black\/40,
+.mim-studio .text-black\/45,
+.mim-studio .text-black\/50,
+.mim-studio .text-black\/55,
+.mim-studio .text-black\/60 { color: rgb(244 243 239 / .62) !important; }
+.mim-studio input,
+.mim-studio textarea,
+.mim-studio select { background-color: #11110f; border-color: rgb(255 255 255 / .16); color: #f4f3ef; }
+.mim-studio input::placeholder,
+.mim-studio textarea::placeholder { color: rgb(244 243 239 / .38); }
+.mim-studio select option { background: #181816; color: #f4f3ef; }
+.mim-studio aside { background: #141412 !important; border-color: rgb(255 255 255 / .1) !important; }
+.mim-living-grid { border: 1px solid rgb(255 255 255 / .12); }
+.mim-living-grid__tile { border-color: rgb(0 0 0 / .16); }
+@media (prefers-reduced-motion: reduce) { .mim-living-grid__tile img { transition: none; } }
+
+/* Shop catalogue: dense, full-bleed merchandising grid. */
+.mim-page-block--produtos { max-width: none; }
+.mim-page-block--produtos .mim-page-block__content { padding-inline: 0; }
+.mim-page-block--produtos .mim-page-block__content > :not(.mim-product-grid) { margin-inline: 1.25rem; }
+.mim-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 !important; width: 100%; }
+.mim-product-card { padding: 0; border: 1px solid rgb(255 255 255 / .13); }
+.mim-product-card__visual { border: 0; }
+.mim-product-card__support-selector { border-inline: 0; border-bottom: 0; }
+.mim-product-card__details { position: relative; min-height: 4.25rem; border-top: 1px solid rgb(255 255 255 / .13); padding: 5px 5rem 5px 5px !important; }
+.mim-product-card__details > strong { position: absolute; right: 0; bottom: 0; margin: 0; }
+@media (min-width: 768px) { .mim-product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
 html { scroll-behavior: smooth; }
 a, button { transition: opacity .18s ease, background-color .18s ease, color .18s ease; }
 a:hover { opacity: .72; }

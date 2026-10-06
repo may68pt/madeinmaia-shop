@@ -34,6 +34,8 @@ export const products = pgTable("products", {
     .default([]),
   sortOrder: integer("sort_order").notNull().default(0),
   monochrome: boolean("monochrome").notNull().default(false),
+  onlineSaleEnabled: boolean("online_sale_enabled").notNull().default(true),
+  salesRank: integer("sales_rank").notNull().default(0),
   status: text("status").notNull().default("draft"),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()

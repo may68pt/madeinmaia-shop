@@ -85,6 +85,8 @@ type Product = {
   variants: ProductVariant[];
   sortOrder: number;
   monochrome: boolean;
+  onlineSaleEnabled: boolean;
+  salesRank: number;
   status: "draft" | "published";
   detailsLoaded: boolean;
 };
@@ -197,6 +199,8 @@ const initialProducts: Product[] = [
     variants: [],
     sortOrder: 1,
     monochrome: true,
+    onlineSaleEnabled: true,
+    salesRank: 0,
     status: "published",
     detailsLoaded: true,
   },
@@ -220,6 +224,8 @@ const initialProducts: Product[] = [
     variants: [],
     sortOrder: 2,
     monochrome: true,
+    onlineSaleEnabled: true,
+    salesRank: 0,
     status: "published",
     detailsLoaded: true,
   },
@@ -243,6 +249,8 @@ const initialProducts: Product[] = [
     variants: [],
     sortOrder: 3,
     monochrome: false,
+    onlineSaleEnabled: true,
+    salesRank: 0,
     status: "published",
     detailsLoaded: true,
   },
@@ -638,6 +646,8 @@ export default function Studio() {
           })),
           sortOrder: entry.sortOrder ?? index + 1,
           monochrome: entry.monochrome === true,
+          onlineSaleEnabled: entry.onlineSaleEnabled !== false,
+          salesRank: entry.salesRank ?? 0,
           status: entry.status === "published" ? "published" : "draft",
           detailsLoaded: false,
         })),
@@ -729,6 +739,19 @@ export default function Studio() {
     if (!response.ok) {
       updateProduct(product.id, { monochrome: product.monochrome });
       toast.error("Não foi possível alterar o modo de impressão.");
+    }
+  }
+  async function updateProductOnlineSale(product: Product, onlineSaleEnabled: boolean) {
+    updateProduct(product.id, { onlineSaleEnabled });
+    if (product.id > 1_000_000_000_000) return;
+    const response = await fetch("/api/studio", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-studio-user": studioUser, "x-studio-key": studioKey },
+      body: JSON.stringify({ resource: "product-online-sale", productId: product.id, onlineSaleEnabled }),
+    });
+    if (!response.ok) {
+      updateProduct(product.id, { onlineSaleEnabled: product.onlineSaleEnabled });
+      toast.error("Não foi possível alterar a disponibilidade online.");
     }
   }
   async function editProductPlacement(product:Product) {
@@ -966,7 +989,7 @@ export default function Studio() {
   const width =
     viewport === "mobile" ? "390px" : viewport === "tablet" ? "760px" : "100%";
   return (
-    <main id="mim-studio" className="mim-studio min-h-screen overflow-x-clip bg-[#ecece8] text-[var(--ink)]">
+    <main id="mim-studio" className="mim-studio min-h-screen overflow-x-clip bg-[#0d0d0c] text-[#f4f3ef]">
       <Toaster position="bottom-right" />
       <header className="mim-studio__header flex min-h-16 min-w-0 flex-wrap items-center gap-2 border-b border-black/10 bg-[var(--ink)] px-3 py-3 text-white sm:gap-4 sm:px-5">
         <Link
@@ -1712,6 +1735,8 @@ export default function Studio() {
                         variants: [],
                         sortOrder: 0,
                         monochrome: false,
+                        onlineSaleEnabled: true,
+                        salesRank: 0,
                         status: "draft",
                         detailsLoaded: true,
                       },
@@ -1750,6 +1775,7 @@ export default function Studio() {
                           <div className="hidden items-center gap-1 lg:flex"><Button type="button" variant="ghost" size="icon" disabled={productIndex === 0} onClick={() => moveProduct(product.id, -1)} aria-label="Subir produto"><ArrowUp className="size-4" /></Button><Button type="button" variant="ghost" size="icon" disabled={productIndex === catalogue.length - 1} onClick={() => moveProduct(product.id, 1)} aria-label="Descer produto"><ArrowDown className="size-4" /></Button></div>
                           <Button type="button" variant="ghost" size="icon" onClick={() => void editProductPlacement(product)} aria-label="Posicionar design" title="Posicionar design"><Move className="size-4" /></Button>
                           <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.monochrome} onCheckedChange={(checked) => void updateProductMonochrome(product, checked)} /><span className="hidden xl:inline">Mono</span></label>
+                          <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.onlineSaleEnabled} onCheckedChange={(checked) => void updateProductOnlineSale(product, checked)} /><span className="hidden xl:inline">Online</span></label>
                           <label className="flex items-center gap-2 text-xs font-bold uppercase"><Switch checked={product.status === "published"} onCheckedChange={(checked) => void updateProductStatus(product, checked)} /><span className="hidden sm:inline">{product.status === "published" ? "Ativo" : "Inativo"}</span></label>
                           <Button type="button" variant="ghost" size="icon" className="text-red-600 hover:text-red-700" onClick={() => void deleteProduct(product)} aria-label="Apagar produto"><Trash2 className="size-4" /></Button>
                           <Button type="button" variant="ghost" size="icon" onClick={() => void openProduct(product)} aria-label={isOpen ? "Fechar produto" : "Abrir produto"}><span className={`text-xl transition-transform ${isOpen ? "rotate-180" : ""}`}>⌄</span></Button>
@@ -1763,6 +1789,7 @@ export default function Studio() {
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Nome</span><Input value={product.name} onChange={(event) => updateProduct(product.id, { name: event.target.value })} /></label>
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Slug</span><Input value={product.slug} onChange={(event) => updateProduct(product.id, { slug: event.target.value })} /></label>
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Preço (€)</span><Input type="number" min="0" step="0.01" value={(product.priceCents / 100).toFixed(2)} onChange={(event) => updateProduct(product.id, { priceCents: Math.round(Number(event.target.value) * 100) })} /></label>
+                              <label className="grid gap-1 text-xs font-bold uppercase"><span>Ranking de vendas</span><Input type="number" min="0" step="1" value={product.salesRank} onChange={(event) => updateProduct(product.id, { salesRank: Math.max(0, Number(event.target.value) || 0) })} /></label>
                               <label className="grid gap-1 text-xs font-bold uppercase md:col-span-2"><span>Tags de pesquisa</span><Input value={product.tags.join(", ")} onChange={(event) => updateProduct(product.id, { tags: event.target.value.split(",").map((value) => value.trim()).filter(Boolean) })} placeholder="Cats, Quotes, Jars" /></label>
                               <label className="flex cursor-pointer items-center justify-between gap-5 rounded-2xl border border-black/10 bg-[#f7f7f4] p-4 md:col-span-2">
                                 <span><strong className="block text-sm uppercase">Design monocromático</strong><span className="mt-1 block text-xs font-normal text-black/50">Ativa a escolha de impressão preta ou branca e o filtro CSS do design. Mantém desligado para preservar todas as cores do PNG.</span></span>

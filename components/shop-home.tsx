@@ -16,6 +16,7 @@ import { DEFAULT_COLORS, DEFAULT_SUPPORTS, type CatalogColor, type ProductSuppor
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
 import { LOCAL_FALLBACK_PRODUCTS } from "@/lib/fallback-products";
 import { BrandLogo } from "@/components/brand-logo";
+import { LivingDesignGrid, type LivingGridProduct } from "@/components/living-design-grid";
 
 type ShopProduct = { slug: string; name: string; nameTranslations:Record<string,string>; collection: string; tags:string[]; price: string; priceCents: number; image: string; colors: string[]; previewColorIds:string[]; sizes: string[]; monochrome:boolean; disabledSupports:string[]; artworkPlacements:ArtworkPlacements };
 
@@ -49,7 +50,7 @@ function mapProduct(product: ApiProduct): ShopProduct {
   };
 }
 
-export default function Home({ initialProducts = [], initialTotal = 0, initialBlocks = DEFAULT_PAGE_BLOCKS, initialOffset = 0, initialPage = 1, initialQuery = "", navigation = DEFAULT_NAVIGATION, catalogColors = DEFAULT_COLORS, catalogSupports = DEFAULT_SUPPORTS }: { initialProducts?:ApiProduct[]; initialTotal?:number; initialBlocks?:PageBlockData[]; initialOffset?:number; initialPage?:number; initialQuery?:string; navigation?:NavigationItem[]; catalogColors?:CatalogColor[]; catalogSupports?:ProductSupport[] }) {
+export default function Home({ initialProducts = [], heroProducts = [], initialTotal = 0, initialBlocks = DEFAULT_PAGE_BLOCKS, initialOffset = 0, initialPage = 1, initialQuery = "", navigation = DEFAULT_NAVIGATION, catalogColors = DEFAULT_COLORS, catalogSupports = DEFAULT_SUPPORTS }: { initialProducts?:ApiProduct[]; heroProducts?:LivingGridProduct[]; initialTotal?:number; initialBlocks?:PageBlockData[]; initialOffset?:number; initialPage?:number; initialQuery?:string; navigation?:NavigationItem[]; catalogColors?:CatalogColor[]; catalogSupports?:ProductSupport[] }) {
   const [query, setQuery] = useState(initialQuery);
   const initialCatalogue = initialProducts.length ? initialProducts.map(mapProduct) : defaultProducts;
   const [products, setProducts] = useState<ShopProduct[]>(initialCatalogue);
@@ -62,6 +63,7 @@ export default function Home({ initialProducts = [], initialTotal = 0, initialBl
   const firstQueryRun = useRef(true);
   const strings = UI_STRINGS[locale];
   const cart = useCart();
+  const livingGridProducts:LivingGridProduct[] = heroProducts.length ? heroProducts : initialCatalogue.map(({slug,name,image,previewColorIds})=>({slug,name,imageKey:image,previewColorIds}));
 
   useEffect(() => {
     const stored = window.localStorage.getItem("mim-locale") as Locale | null;
@@ -159,6 +161,15 @@ export default function Home({ initialProducts = [], initialTotal = 0, initialBl
           </Sheet>
         </div>
       </header>
+      <section id="mim-living-hero" className="mim-living-hero border-b border-white/10 bg-[#11110f]" aria-labelledby="mim-living-hero-title">
+        <div className="mx-auto max-w-[1440px] px-3 py-5 sm:px-5 lg:px-10 lg:py-8">
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <div><p className="text-xs font-black uppercase tracking-[.24em] text-[var(--brand)]">Made in Maia live</p><h1 id="mim-living-hero-title" className="mt-1 text-2xl font-black uppercase leading-none sm:text-4xl">36 designs. Always moving.</h1></div>
+            <p className="hidden max-w-sm text-right text-sm text-white/50 md:block">Top sellers lead the wall. Every tile opens the design.</p>
+          </div>
+          <LivingDesignGrid products={livingGridProducts} colors={catalogColors}/>
+        </div>
+      </section>
 
       {blocks.map((block) => <PageBlock key={block.id} block={block} locale={locale}>{block.type === "Produtos" ? <><label id="mim-product-search" className="mim-product-search mb-5 flex h-10 max-w-sm items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 focus-within:border-white/45 sm:mb-8 sm:h-12 sm:gap-3 sm:px-5"><Search className="size-4 sm:size-5"/><span className="sr-only">{strings.search}</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={strings.search} className="min-w-0 w-full bg-transparent text-sm text-white outline-none placeholder:text-white/35 sm:text-base" /></label><div id={`mim-product-grid-${block.id}`} className="mim-product-grid grid grid-cols-2 gap-x-2.5 gap-y-6 sm:gap-x-5 sm:gap-y-12 lg:grid-cols-3">{productsForBlock(block).map((product) => {const displayName=translatedName(product.name,product.nameTranslations,locale);return <ProductCard key={product.slug} product={{...product,name:displayName}} catalogColors={catalogColors} supports={catalogSupports} label={strings.new} locale={locale} strings={strings} />})}</div>{productsForBlock(block).length===0&&!loading&&<div className="mim-product-grid__empty border border-dashed border-white/20 py-16 text-center"><SlidersHorizontal className="mx-auto mb-3"/><p>{strings.noDesigns}</p></div>}<div ref={loadMoreRef} className="mim-product-grid__pagination mt-10 flex min-h-14 flex-col items-center justify-center gap-3"><p className="text-xs font-bold uppercase tracking-[.16em] text-white/45">{productsForBlock(block).length} / {total} designs</p>{hasMore&&<Button type="button" variant="outline" disabled={loading} onClick={()=>void loadProducts(query ? products.length : initialOffset + products.length)} className="min-w-44 rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">{loading?<><LoaderCircle className="animate-spin"/>{strings.loading}</>:strings.loadMore}</Button>}</div><nav aria-label="Product catalogue pages" className="mim-product-grid__seo-pagination mt-6 flex items-center justify-center gap-4 text-sm font-bold uppercase"><Link aria-disabled={initialPage<=1} className={initialPage<=1?"pointer-events-none opacity-30":"underline"} href={initialPage<=2?"/loja":`/loja?page=${initialPage-1}`}>{strings.previous}</Link><span>{strings.page} {initialPage}</span>{initialOffset+PAGE_SIZE<total&&<Link className="underline" href={`/loja?page=${initialPage+1}`}>{strings.next}</Link>}</nav></> : block.type === "Coleções" ? <div className="mim-featured-collections grid gap-3 sm:grid-cols-3">{["Cats","Quotes","Jars"].map((tag)=><Link key={tag} href={`/colecao/${tag.toLowerCase()}`} className="rounded-3xl border border-white/10 bg-white/5 px-6 py-8 text-left text-2xl font-black uppercase transition hover:-translate-y-1 hover:border-white/35 hover:bg-white/8">{tag}<span className="mt-2 block text-xs font-normal normal-case text-white/50">{products.filter((product)=>product.tags.includes(tag)).length} designs</span></Link>)}</div> : undefined}</PageBlock>)}
       <footer id="mim-site-footer" className="mim-site-footer mt-10 border-t border-white/10 bg-[var(--paper)] px-5 py-10 text-white lg:px-10"><div className="mx-auto flex max-w-[1440px] flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"><Link href="/loja" aria-label="Made in Maia shop"><BrandLogo className="h-20 w-auto" /></Link><nav className="flex flex-wrap gap-5 text-sm text-white/65"><Link href="/legal/terms">{strings.terms}</Link><Link href="/legal/privacy">{strings.privacy}</Link><Link href="/legal/returns">{strings.returns}</Link><Link href="/marca">{strings.brand}</Link></nav></div></footer>
