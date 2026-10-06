@@ -79,6 +79,10 @@ type Product = {
   priceCents: number;
   collection: string;
   tags: string[];
+  seoTitle: string;
+  seoDescription: string;
+  seoCanonical: string;
+  seoNoIndex: boolean;
   imageKey: string;
   gallery: string[];
   disabledSupports: string[];
@@ -199,6 +203,10 @@ const initialProducts: Product[] = [
     priceCents: 2000,
     collection: "Made in Maia",
     tags: ["Cats"],
+    seoTitle: "",
+    seoDescription: "",
+    seoCanonical: "",
+    seoNoIndex: false,
     imageKey: "/products/white-shirt-1.jpg",
     gallery: [],
     disabledSupports: [],
@@ -224,6 +232,10 @@ const initialProducts: Product[] = [
     priceCents: 2000,
     collection: "Pop Culture",
     tags: ["Quotes"],
+    seoTitle: "",
+    seoDescription: "",
+    seoCanonical: "",
+    seoNoIndex: false,
     imageKey: "/products/red-shirt-1.jpg",
     gallery: [],
     disabledSupports: [],
@@ -249,6 +261,10 @@ const initialProducts: Product[] = [
     priceCents: 2000,
     collection: "Música",
     tags: ["Jars"],
+    seoTitle: "",
+    seoDescription: "",
+    seoCanonical: "",
+    seoNoIndex: false,
     imageKey: "/products/blue-shirt-1.jpg",
     gallery: [],
     disabledSupports: [],
@@ -652,6 +668,10 @@ export default function Studio() {
           priceCents: entry.priceCents ?? 0,
           collection: entry.collection ?? "Made in Maia",
           tags: entry.tags ?? [],
+          seoTitle: entry.seoTitle ?? "",
+          seoDescription: entry.seoDescription ?? "",
+          seoCanonical: entry.seoCanonical ?? "",
+          seoNoIndex: entry.seoNoIndex === true,
           imageKey: entry.imageKey ?? "",
           gallery: entry.gallery ?? [],
           disabledSupports: entry.disabledSupports ?? [],
@@ -728,6 +748,10 @@ export default function Studio() {
       ...data.product,
       nameTranslations: data.product.nameTranslations ?? {},
       tags: data.product.tags ?? [],
+      seoTitle: data.product.seoTitle ?? "",
+      seoDescription: data.product.seoDescription ?? "",
+      seoCanonical: data.product.seoCanonical ?? "",
+      seoNoIndex: data.product.seoNoIndex === true,
       gallery: data.product.gallery ?? [],
       disabledSupports: data.product.disabledSupports ?? [],
       artworkPlacements: data.product.artworkPlacements ?? {},
@@ -1800,6 +1824,10 @@ export default function Studio() {
                         priceCents: 2000,
                         collection: "Made in Maia",
                         tags: [],
+                        seoTitle: "",
+                        seoDescription: "",
+                        seoCanonical: "",
+                        seoNoIndex: false,
                         imageKey: "",
                         gallery: [],
                         disabledSupports: [],
@@ -1867,32 +1895,33 @@ export default function Studio() {
                       </div>
                       {isOpen && product.detailsLoaded && (
                         <div className="min-w-0 border-t border-black/10 p-5">
-                          <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-                            <div className="grid min-w-0 content-start gap-4 md:grid-cols-2">
+                          <div className="grid min-w-0 gap-6">
+                            <div className="grid min-w-0 content-start gap-4 md:grid-cols-2 xl:grid-cols-3">
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Número do design</span><Input value={product.designCode} onChange={(event) => updateProduct(product.id, { designCode: event.target.value })} onBlur={(event) => { const digits = event.target.value.replace(/\D/g, "").slice(-4); updateProduct(product.id, { designCode: `MiM_${digits.padStart(4, "0")}` }); }} placeholder="MiM_0000" /></label>
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Nome</span><Input value={product.name} onChange={(event) => updateProduct(product.id, { name: event.target.value })} /></label>
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Slug</span><Input value={product.slug} onChange={(event) => updateProduct(product.id, { slug: event.target.value })} /></label>
+                              <label className="grid gap-1 text-xs font-bold uppercase md:col-span-2 xl:col-span-3"><span>Descrição do produto</span><textarea rows={3} value={product.description} onChange={(event)=>updateProduct(product.id,{description:event.target.value})} className="min-h-24 w-full resize-y border border-black/15 bg-white px-3 py-2 text-sm font-normal normal-case outline-none transition focus:border-[var(--brand)]" placeholder="Descrição visível na página do produto e usada como fallback de SEO."/></label>
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Preço (€)</span><Input type="number" min="0" step="0.01" value={(product.priceCents / 100).toFixed(2)} onChange={(event) => updateProduct(product.id, { priceCents: Math.round(Number(event.target.value) * 100) })} /></label>
                               <label className="grid gap-1 text-xs font-bold uppercase"><span>Ranking de vendas</span><Input type="number" min="0" step="1" value={product.salesRank} onChange={(event) => updateProduct(product.id, { salesRank: Math.max(0, Number(event.target.value) || 0) })} /></label>
-                              <label className="grid gap-1 text-xs font-bold uppercase md:col-span-2"><span>Tags de pesquisa</span><Input value={product.tags.join(", ")} onChange={(event) => updateProduct(product.id, { tags: event.target.value.split(",").map((value) => value.trim()).filter(Boolean) })} placeholder="Cats, Quotes, Jars" /></label>
-                              <label className="flex cursor-pointer items-center justify-between gap-5 rounded-2xl border border-black/10 bg-[#f7f7f4] p-4 md:col-span-2">
+                              <div className="grid gap-2 text-xs font-bold uppercase md:col-span-2 xl:col-span-3"><span>Tags de pesquisa</span><div className="flex min-h-10 flex-wrap items-center gap-2">{product.tags.map((tag,index)=><span key={`${tag}-${index}`} className="inline-flex h-8 items-center rounded-full border border-black/15 bg-black/[.035] pl-3 pr-1 normal-case"><input aria-label={`Editar tag ${tag}`} value={tag} size={Math.max(4,Math.min(16,tag.length))} onChange={(event)=>{const tags=[...product.tags];tags[index]=event.target.value;updateProduct(product.id,{tags});}} onBlur={()=>updateProduct(product.id,{tags:product.tags.map((item)=>item.trim()).filter(Boolean)})} className="min-w-10 max-w-36 bg-transparent text-xs font-bold outline-none"/><button type="button" aria-label={`Remover tag ${tag}`} onClick={()=>updateProduct(product.id,{tags:product.tags.filter((_,itemIndex)=>itemIndex!==index)})} className="grid size-6 place-items-center rounded-full text-base leading-none text-black/40 transition hover:bg-black/10 hover:text-black">×</button></span>)}<button type="button" onClick={()=>updateProduct(product.id,{tags:[...product.tags,"tag"]})} className="grid size-8 place-items-center rounded-full border border-dashed border-black/25 text-lg text-black/50 transition hover:border-[var(--brand)] hover:text-[var(--brand)]" aria-label="Adicionar tag"><Plus className="size-4"/></button></div></div>
+                              <label className="flex cursor-pointer items-center justify-between gap-5 rounded-2xl border border-black/10 bg-[#f7f7f4] p-4 md:col-span-2 xl:col-span-3">
                                 <span><strong className="block text-sm uppercase">Design monocromático</strong><span className="mt-1 block text-xs font-normal text-black/50">Ativa a escolha de impressão preta ou branca e o filtro CSS do design. Mantém desligado para preservar todas as cores do PNG.</span></span>
                                 <Switch aria-label="Design monocromático" checked={product.monochrome} onCheckedChange={(checked) => void updateProductMonochrome(product, checked)} />
                               </label>
                             </div>
-                            <div className="min-w-0 w-full max-w-[320px] justify-self-center space-y-6 xl:max-w-[360px]">
-                              <section>
+                            <div className="grid min-w-0 gap-6 md:grid-cols-2 md:items-start">
+                              <section className="min-w-0 md:row-span-3">
                                 <div className="mb-2 flex items-center justify-between">
                                   <div><p className="text-xs font-bold uppercase">Imagem de capa</p><p className="text-xs text-black/45">Apenas PNG com fundo transparente · otimização automática</p></div>
                                   {product.imageKey && <Button type="button" size="sm" variant="ghost" className="text-red-600" onClick={() => updateProduct(product.id, { imageKey: "" })}><Trash2 />Remover</Button>}
                                 </div>
                                 {product.imageKey ? (
-                                  <div className="mim-product-artwork-preview relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden border-2 border-black/10 xl:max-w-[360px]">
+                                  <div className="mim-product-artwork-preview relative aspect-square w-full overflow-hidden border-2 border-black/10">
                                     <Image src={product.imageKey} alt={product.name} fill sizes="360px" unoptimized className="object-contain p-5" />
                                   </div>
                                 ) : (
                                   <label
-                                    className={`group mx-auto grid aspect-square w-full max-w-[320px] cursor-pointer place-items-center overflow-hidden border-2 border-dashed text-center transition xl:max-w-[360px] ${productImageDragOver === product.id ? "border-[var(--brand)] bg-orange-50" : "border-black/20 bg-black/[.025] hover:border-[var(--brand)] hover:bg-orange-50/50"}`}
+                                    className={`group grid aspect-square w-full cursor-pointer place-items-center overflow-hidden border-2 border-dashed text-center transition ${productImageDragOver === product.id ? "border-[var(--brand)] bg-orange-50" : "border-black/20 bg-black/[.025] hover:border-[var(--brand)] hover:bg-orange-50/50"}`}
                                     onDragEnter={(event) => { event.preventDefault(); setProductImageDragOver(product.id); }}
                                     onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; setProductImageDragOver(product.id); }}
                                     onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setProductImageDragOver(null); }}
@@ -1908,7 +1937,7 @@ export default function Studio() {
                                 )}
                                 {product.imageKey && <label className={`mt-3 flex min-h-16 cursor-pointer items-center justify-center gap-3 border-2 border-dashed px-4 text-center transition ${productImageDragOver===product.id?"border-[var(--brand)] bg-orange-50":"border-black/20 hover:border-[var(--brand)]"}`} onDragEnter={(event)=>{event.preventDefault();setProductImageDragOver(product.id)}} onDragOver={(event)=>{event.preventDefault();event.dataTransfer.dropEffect="copy";setProductImageDragOver(product.id)}} onDragLeave={(event)=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setProductImageDragOver(null)}} onDrop={(event)=>{event.preventDefault();const file=event.dataTransfer.files[0];if(file)void uploadProductArtwork(product.id,file)}}><input type="file" accept="image/png,.png" className="sr-only" disabled={productImageUploading===product.id} onChange={(event)=>{const file=event.target.files?.[0];if(file)void uploadProductArtwork(product.id,file);event.target.value=""}}/><UploadCloud className="size-5"/><strong className="text-xs uppercase">{productImageUploading===product.id?"A substituir…":"Substituir design PNG"}</strong></label>}
                               </section>
-                              <details className="mim-product-translations rounded-2xl border border-black/10 p-4">
+                              <details className="mim-product-translations rounded-2xl border border-black/10 p-4 md:col-start-1">
                                 <summary className="cursor-pointer text-xs font-black uppercase">Traduções do nome</summary>
                                 <div className="mt-3 grid grid-cols-2 gap-3">
                                   {(["pt", "es", "de", "fr"] as const).map((locale) => (
@@ -1924,12 +1953,12 @@ export default function Studio() {
                                   ))}
                                 </div>
                               </details>
-                              <section className="mim-product-preview-colors rounded-2xl border border-black/10 p-4">
+                              <section className="mim-product-preview-colors rounded-2xl border border-black/10 p-4 md:col-start-2 md:row-start-1">
                                 <p className="text-xs font-black uppercase">Cores da preview na listagem</p>
                                 <p className="mt-1 text-xs text-black/45">Escolhe até três fundos. A loja usa uma destas cores na preview.</p>
                                 <div className="mt-3 flex flex-wrap gap-2">{settings.productCatalog.colors.filter((color)=>color.active).map((color)=>{const selected=product.previewColorIds.includes(color.id);return <button key={color.id} type="button" title={color.name} aria-label={color.name} aria-pressed={selected} onClick={()=>updateProduct(product.id,{previewColorIds:selected?product.previewColorIds.filter((id)=>id!==color.id):[...product.previewColorIds.slice(-2),color.id]})} className={`grid size-9 place-items-center rounded-full border-2 transition ${selected?"scale-110 border-[var(--brand)]":"border-white/20"}`}><span className="size-6 rounded-full border border-black/15" style={{backgroundColor:color.hex}}/></button>})}</div>
                               </section>
-                              <section className="mim-product-supports rounded-2xl border border-black/10 p-4">
+                              <section className="mim-product-supports rounded-2xl border border-black/10 p-4 md:col-start-2 md:row-start-2">
                                 <p className="text-xs font-black uppercase">Suportes disponíveis</p>
                                 <p className="mt-1 text-xs text-black/45">Desativa apenas as exceções deste design.</p>
                                 <div className="mt-3 flex flex-wrap gap-2">
@@ -1948,8 +1977,18 @@ export default function Studio() {
                                   })}
                                 </div>
                               </section>
-                              <section className="mim-product-gallery-editor"><p className="text-xs font-bold uppercase">Fotografias do produto</p><p className="mt-1 text-xs text-black/45">Fotografias com modelos, lifestyle, detalhes ou fotografia de estúdio deste produto.</p>{product.gallery.length > 0 && <div className="mt-3 grid grid-cols-2 gap-2">{product.gallery.map((photo, index) => <div key={`${photo}-${index}`} className="group relative aspect-[4/3] overflow-hidden bg-[#eee]"><Image src={photo} alt={`${product.name} · fotografia ${index + 1}`} fill sizes="180px" unoptimized className="object-cover" /><div className="absolute inset-x-1 top-1 flex justify-between gap-1 opacity-95"><div className="flex gap-1"><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===0} onClick={()=>{const gallery=[...product.gallery];[gallery[index-1],gallery[index]]=[gallery[index],gallery[index-1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para trás"><ArrowUp className="size-3"/></Button><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===product.gallery.length-1} onClick={()=>{const gallery=[...product.gallery];[gallery[index+1],gallery[index]]=[gallery[index],gallery[index+1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para a frente"><ArrowDown className="size-3"/></Button></div><Button type="button" size="icon" variant="destructive" className="size-7" onClick={() => updateProduct(product.id, { gallery: product.gallery.filter((_, itemIndex) => itemIndex !== index) })} aria-label="Remover fotografia"><Trash2 className="size-3" /></Button></div></div>)}</div>}<label className={`mt-3 grid min-h-28 cursor-pointer place-items-center border-2 border-dashed p-4 text-center transition ${galleryDragOver===product.id?"border-[var(--brand)] bg-orange-50":"border-black/20 bg-black/[.025] hover:border-[var(--brand)]"}`} onDragEnter={(event)=>{event.preventDefault();setGalleryDragOver(product.id)}} onDragOver={(event)=>{event.preventDefault();event.dataTransfer.dropEffect="copy";setGalleryDragOver(product.id)}} onDragLeave={(event)=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setGalleryDragOver(null)}} onDrop={(event)=>{event.preventDefault();void uploadProductGallery(product.id,Array.from(event.dataTransfer.files));}}><input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={galleryUploading===product.id} onChange={(event)=>{void uploadProductGallery(product.id,Array.from(event.target.files??[]));event.target.value=""}}/><span><UploadCloud className="mx-auto size-8 text-black/25"/><strong className="mt-2 block text-xs uppercase">{galleryUploading===product.id?"A carregar fotografias…":"Adicionar fotografias deste produto"}</strong><span className="mt-1 block text-[11px] text-black/40">JPG, PNG ou WebP · podes selecionar várias</span></span></label></section>
-                              <Button variant="outline" className="w-full rounded-none" asChild><Link href={`/designs/${product.slug}`} target="_blank"><Eye />Ver produto</Link></Button>
+                              <section className="mim-product-gallery-editor border-t border-black/10 pt-6 md:col-span-2"><p className="text-xs font-bold uppercase">Fotografias do produto</p><p className="mt-1 text-xs text-black/45">Fotografias com modelos, lifestyle, detalhes ou fotografia de estúdio deste produto.</p>{product.gallery.length > 0 && <div className="mt-3 grid grid-cols-2 gap-2">{product.gallery.map((photo, index) => <div key={`${photo}-${index}`} className="group relative aspect-[4/3] overflow-hidden bg-[#eee]"><Image src={photo} alt={`${product.name} · fotografia ${index + 1}`} fill sizes="180px" unoptimized className="object-cover" /><div className="absolute inset-x-1 top-1 flex justify-between gap-1 opacity-95"><div className="flex gap-1"><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===0} onClick={()=>{const gallery=[...product.gallery];[gallery[index-1],gallery[index]]=[gallery[index],gallery[index-1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para trás"><ArrowUp className="size-3"/></Button><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===product.gallery.length-1} onClick={()=>{const gallery=[...product.gallery];[gallery[index+1],gallery[index]]=[gallery[index],gallery[index+1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para a frente"><ArrowDown className="size-3"/></Button></div><Button type="button" size="icon" variant="destructive" className="size-7" onClick={() => updateProduct(product.id, { gallery: product.gallery.filter((_, itemIndex) => itemIndex !== index) })} aria-label="Remover fotografia"><Trash2 className="size-3" /></Button></div></div>)}</div>}<label className={`mt-3 grid min-h-28 cursor-pointer place-items-center border-2 border-dashed p-4 text-center transition ${galleryDragOver===product.id?"border-[var(--brand)] bg-orange-50":"border-black/20 bg-black/[.025] hover:border-[var(--brand)]"}`} onDragEnter={(event)=>{event.preventDefault();setGalleryDragOver(product.id)}} onDragOver={(event)=>{event.preventDefault();event.dataTransfer.dropEffect="copy";setGalleryDragOver(product.id)}} onDragLeave={(event)=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setGalleryDragOver(null)}} onDrop={(event)=>{event.preventDefault();void uploadProductGallery(product.id,Array.from(event.dataTransfer.files));}}><input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={galleryUploading===product.id} onChange={(event)=>{void uploadProductGallery(product.id,Array.from(event.target.files??[]));event.target.value=""}}/><span><UploadCloud className="mx-auto size-8 text-black/25"/><strong className="mt-2 block text-xs uppercase">{galleryUploading===product.id?"A carregar fotografias…":"Adicionar fotografias deste produto"}</strong><span className="mt-1 block text-[11px] text-black/40">JPG, PNG ou WebP · podes selecionar várias</span></span></label></section>
+                              <section className="mim-product-seo-editor space-y-4 border-t border-black/10 pt-6 md:col-span-2">
+                                <div><p className="text-xs font-black uppercase">SEO do produto</p><p className="mt-1 text-xs text-black/45">Controlos essenciais ao estilo Yoast. Se deixares um campo vazio, usamos automaticamente o nome e a descrição do produto.</p></div>
+                                <div className="rounded-2xl border border-black/10 bg-[#f7f7f4] p-4"><p className="truncate text-xs text-green-700">madeinmaia.pt/designs/{product.slug}</p><p className="mt-1 line-clamp-1 text-lg text-[#1a0dab]">{product.seoTitle || product.name}</p><p className="mt-1 line-clamp-2 text-sm leading-5 text-black/60">{product.seoDescription || product.description || `${product.name}, um design original Made in Maia.`}</p></div>
+                                <div className="grid gap-4 md:grid-cols-2">
+                                  <label className="grid gap-1 text-xs font-bold uppercase"><span>Título SEO <small className="font-normal normal-case text-black/40">{product.seoTitle.length}/60</small></span><Input maxLength={80} value={product.seoTitle} onChange={(event)=>updateProduct(product.id,{seoTitle:event.target.value})} placeholder={product.name}/></label>
+                                  <label className="grid gap-1 text-xs font-bold uppercase"><span>URL canónica</span><Input value={product.seoCanonical} onChange={(event)=>updateProduct(product.id,{seoCanonical:event.target.value})} placeholder={`https://madeinmaia.pt/designs/${product.slug}`}/></label>
+                                  <label className="grid gap-1 text-xs font-bold uppercase md:col-span-2"><span>Meta descrição <small className="font-normal normal-case text-black/40">{product.seoDescription.length}/160</small></span><textarea maxLength={220} rows={3} value={product.seoDescription} onChange={(event)=>updateProduct(product.id,{seoDescription:event.target.value})} placeholder={product.description || `Descobre ${product.name}, um design original Made in Maia.`} className="min-h-24 w-full resize-y border border-black/15 bg-white px-3 py-2 text-sm font-normal normal-case outline-none transition focus:border-[var(--brand)]"/></label>
+                                </div>
+                                <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-black/10 p-4"><span><strong className="block text-xs uppercase">Ocultar dos motores de pesquisa</strong><span className="mt-1 block text-xs font-normal text-black/45">Adiciona noindex e nofollow. Usa apenas para produtos que não devem aparecer no Google.</span></span><Switch checked={product.seoNoIndex} onCheckedChange={(checked)=>updateProduct(product.id,{seoNoIndex:checked})} aria-label="Ocultar produto dos motores de pesquisa"/></label>
+                              </section>
+                              <Button variant="outline" className="w-full rounded-none md:col-span-2" asChild><Link href={`/designs/${product.slug}`} target="_blank"><Eye />Ver produto</Link></Button>
                             </div>
                           </div>
                           <div className="mt-6 flex flex-col-reverse gap-3 border-t border-black/10 pt-5 sm:flex-row sm:items-center sm:justify-between">

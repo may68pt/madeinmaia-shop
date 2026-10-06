@@ -23,12 +23,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const [product] = await getDb().select().from(products).where(and(eq(products.slug, slug),eq(products.onlineSaleEnabled,true)));
     if (product?.status === "published")
       return {
-        title: product.name,
-        description: product.description || `${product.name}, an original Made in Maia design available on T-shirts, hoodies and tote bags.`,
-        alternates: { canonical: `/designs/${product.slug}` },
+        title: product.seoTitle || product.name,
+        description: product.seoDescription || product.description || `${product.name}, an original Made in Maia design available on T-shirts, hoodies and tote bags.`,
+        alternates: { canonical: product.seoCanonical || `/designs/${product.slug}` },
+        robots: product.seoNoIndex ? { index: false, follow: false } : { index: true, follow: true },
         openGraph: {
-          title: product.name,
-          description: product.description || "Original Made in Maia design.",
+          title: product.seoTitle || product.name,
+          description: product.seoDescription || product.description || "Original Made in Maia design.",
           images: product.imageKey ? [{ url: product.imageKey, alt: product.name }] : undefined,
           type: "website",
         },
