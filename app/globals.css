@@ -162,6 +162,10 @@ img, svg, video, canvas { max-width: 100%; }
 .mim-studio textarea::placeholder { color: rgb(244 243 239 / .38); }
 .mim-studio select option { background: #181816; color: #f4f3ef; }
 .mim-studio aside { background: #141412 !important; border-color: rgb(255 255 255 / .1) !important; }
+.mim-studio .mim-inline-edit { border-radius: .15rem; transition: box-shadow .15s ease, background-color .15s ease; }
+.mim-studio .mim-inline-edit:hover { box-shadow: 0 0 0 1px rgb(255 255 255 / .28); }
+.mim-studio .mim-inline-edit:focus { background: rgb(0 0 0 / .22); box-shadow: 0 0 0 2px var(--brand); }
+.mim-studio .mim-inline-edit:empty::before { content: attr(data-placeholder); opacity: .38; }
 .mim-living-grid { border: 1px solid rgb(255 255 255 / .12); }
 .mim-living-grid__tile { border-color: rgb(0 0 0 / .16); }
 @media (prefers-reduced-motion: reduce) { .mim-living-grid__tile img { transition: none; } }

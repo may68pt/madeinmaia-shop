@@ -16,6 +16,7 @@ import {
   LayoutTemplate,
   LockKeyhole,
   Move,
+  MoreVertical,
   Monitor,
   Package,
   Palette,
@@ -339,6 +340,7 @@ export default function Studio() {
   const [colorConfigId, setColorConfigId] = useState<string | null>(null);
   const [draggedProductId, setDraggedProductId] = useState<number | null>(null);
   const [draggedBlockId, setDraggedBlockId] = useState<number | null>(null);
+  const [editorSidebarTab, setEditorSidebarTab] = useState<"blocks" | "settings" | "style">("blocks");
   const current = useMemo(
     () => blocks.find((block) => block.id === selected) ?? blocks[0],
     [blocks, selected],
@@ -475,14 +477,14 @@ export default function Studio() {
     ));
     if (nextSlug !== oldSlug) setCurrentPageSlug(nextSlug);
   }
-  function addBlock() {
-    const id = Date.now();
+  function addBlock(type:PageBlockType = "Texto") {
+    const id = Math.max(0, ...blocks.map((block) => block.id)) + 1;
     setBlocks((items) => [
       ...items,
       {
         id,
-        type: "Texto",
-        title: "Novo bloco",
+        type,
+        title: type === "Hero" ? "New hero" : type === "Produtos" ? "Products" : type === "Coleções" ? "Collections" : "New block",
         description: "Escreve aqui o conteúdo desta secção.",
         background: "#ffffff",
         textColor: "var(--ink)",
@@ -492,6 +494,7 @@ export default function Studio() {
       },
     ]);
     setSelected(id);
+    setEditorSidebarTab("settings");
   }
   async function save() {
     if (section === "settings" || section === "catalog" || section === "menus") {
@@ -1184,17 +1187,19 @@ export default function Studio() {
                 </div>
                 <div>
                   {blocks.map((block, index) => (
-                    <div key={block.id} className="group relative">
-                      <PageBlock block={block} editor selected={selected === block.id} onSelect={() => setSelected(block.id)}>
+                    <div key={block.id} className="group relative" onDragOver={(event)=>event.preventDefault()} onDrop={()=>{if(!draggedBlockId||draggedBlockId===block.id)return;const next=[...blocks];const from=next.findIndex((item)=>item.id===draggedBlockId);const to=next.findIndex((item)=>item.id===block.id);const [moved]=next.splice(from,1);next.splice(to,0,moved);setBlocks(next);setDraggedBlockId(null)}}>
+                      <PageBlock block={block} editor selected={selected === block.id} onSelect={() => setSelected(block.id)} onEdit={(patch)=>{setSelected(block.id);setBlocks((items)=>items.map((item)=>item.id===block.id?{...item,...patch}:item))}}>
                         {block.type === "Produtos" ? <div className="grid gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">{productsForEditorBlock(block).map((product) => <article key={product.id} className="text-[var(--ink)]"><div className="relative aspect-[4/5] overflow-hidden bg-white"><ProductMockup artwork={product.imageKey || "/products/white-shirt-1.jpg"} color={product.colors[0] ?? "White"} name={product.name} /><span className="absolute left-4 top-4 bg-[var(--accent-brand)] px-3 py-1 text-xs font-black uppercase">New</span></div><div className="flex items-start justify-between gap-4 pt-4"><div><p className="text-sm opacity-55">{product.tags.join(" · ") || product.collection}</p><h3 className="text-xl font-black uppercase tracking-[-.025em]">{product.name}</h3></div><strong className="text-lg">{(product.priceCents / 100).toFixed(2).replace(".", ",")} €</strong></div></article>)}</div> : block.type === "Coleções" ? <div className="grid gap-3 sm:grid-cols-3">{["Cats", "Quotes", "Jars"].map((tag) => <div key={tag} className="rounded-full border border-black/15 bg-white px-6 py-8 text-left text-2xl font-black uppercase">{tag}<span className="mt-2 block text-xs font-normal normal-case opacity-55">{catalogue.filter((product) => product.status === "published" && product.tags.includes(tag)).length} designs</span></div>)}</div> : undefined}
                       </PageBlock>
-                      <span className="absolute right-4 top-4 inline-flex gap-1 opacity-0 group-hover:opacity-100">
+                      <span className="absolute right-3 top-3 z-20 inline-flex overflow-hidden rounded-full border border-white/15 bg-[#111]/90 text-white opacity-0 shadow-xl transition group-hover:opacity-100 group-focus-within:opacity-100">
+                        <button type="button" draggable onDragStart={()=>setDraggedBlockId(block.id)} onDragEnd={()=>setDraggedBlockId(null)} className="cursor-grab p-2 active:cursor-grabbing" aria-label="Drag block"><GripVertical className="size-4"/></button>
+                        <button type="button" onClick={(event)=>{event.stopPropagation();setSelected(block.id);setEditorSidebarTab("settings")}} className="border-l border-white/15 p-2" aria-label="Block settings"><MoreVertical className="size-4"/></button>
                         <span
                           onClick={(event) => {
                             event.stopPropagation();
                             move(index, -1);
                           }}
-                          className="bg-black/10 p-1"
+                          className="border-l border-white/15 p-2"
                         >
                           <ArrowUp className="size-4" />
                         </span>
@@ -1203,7 +1208,7 @@ export default function Studio() {
                             event.stopPropagation();
                             move(index, 1);
                           }}
-                          className="bg-black/10 p-1"
+                          className="border-l border-white/15 p-2"
                         >
                           <ArrowDown className="size-4" />
                         </span>
@@ -1965,12 +1970,18 @@ export default function Studio() {
         </section>
         {section === "pages" ? (
           <aside className="border-l border-black/10 bg-white p-5 max-lg:hidden">
-            <Tabs defaultValue="content">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="content">Conteúdo</TabsTrigger>
+            <Tabs value={editorSidebarTab} onValueChange={(value)=>setEditorSidebarTab(value as typeof editorSidebarTab)}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="blocks">Blocos</TabsTrigger>
+                <TabsTrigger value="settings">Definições</TabsTrigger>
                 <TabsTrigger value="style">Estilo</TabsTrigger>
               </TabsList>
-              <TabsContent value="content" className="space-y-5 pt-5">
+              <TabsContent value="blocks" className="space-y-5 pt-5">
+                <div><p className="text-xs font-black uppercase tracking-[.12em]">Adicionar bloco</p><p className="mt-2 text-sm text-black/55">Escolhe um tipo. Depois edita o texto diretamente no canvas.</p></div>
+                <div className="grid grid-cols-2 gap-2">{([['Hero',LayoutTemplate],['Produtos',ShoppingBag],['Coleções',GripVertical],['Texto',BookOpen],['Banner',Monitor],['Logo aleatório',Palette],['Linktree',Move],['Localização',Store]] as Array<[PageBlockType,typeof LayoutTemplate]>).map(([type,Icon])=><button key={type} type="button" onClick={()=>addBlock(type)} className="group grid min-h-24 place-items-center gap-2 border border-black/10 bg-black/[.025] p-3 text-center transition hover:border-[var(--brand)] hover:bg-orange-50/50"><Icon className="size-6 text-[var(--brand)]"/><span className="text-xs font-black uppercase">{type}</span></button>)}</div>
+                <div className="border-t border-black/10 pt-5"><p className="flex items-center gap-2 text-sm font-semibold"><GripVertical className="size-4"/>Estrutura da página</p><ol className="mt-3 space-y-2">{blocks.map((block)=><li key={block.id} draggable onDragStart={()=>setDraggedBlockId(block.id)} onDragEnd={()=>setDraggedBlockId(null)} onDragOver={(event)=>event.preventDefault()} onDrop={()=>{if(!draggedBlockId||draggedBlockId===block.id)return;const next=[...blocks];const from=next.findIndex((item)=>item.id===draggedBlockId);const to=next.findIndex((item)=>item.id===block.id);const [moved]=next.splice(from,1);next.splice(to,0,moved);setBlocks(next);setDraggedBlockId(null)}}><button onClick={()=>{setSelected(block.id);setEditorSidebarTab("settings")}} className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm ${selected===block.id?"bg-[var(--brand)] text-white":"bg-black/[.04]"}`}><GripVertical className="size-4 shrink-0 opacity-50"/><span className="min-w-0 truncate">{block.type} · {block.title}</span></button></li>)}</ol></div>
+              </TabsContent>
+              <TabsContent value="settings" className="space-y-5 pt-5">
                 <div className="border-b border-black/10 pb-5">
                   <p className="mb-3 text-xs font-black uppercase tracking-[.12em]">Definições da página</p>
                   <label className="grid gap-1 text-sm font-semibold">Nome no Studio<Input value={pageList.find((page) => page.slug === currentPageSlug)?.title ?? ""} onChange={(event) => updateCurrentPage({ title: event.target.value })} /></label>
@@ -2006,35 +2017,12 @@ export default function Studio() {
                   {current.productSource==="selection"&&<div><p className="mb-2 text-sm font-semibold">Seleção manual</p><div className="max-h-52 space-y-1 overflow-y-auto border border-black/10 bg-white p-2">{catalogue.filter((product)=>product.status==="published").map((product)=>{const selected=current.productSlugs?.includes(product.slug)??false;return <label key={product.slug} className="flex cursor-pointer items-center gap-2 p-2 text-xs hover:bg-black/[.03]"><input type="checkbox" checked={selected} onChange={()=>updateBlock({productSlugs:selected?(current.productSlugs??[]).filter((slug)=>slug!==product.slug):[...(current.productSlugs??[]),product.slug]})}/><span className="font-mono text-black/40">{product.designCode}</span><span className="min-w-0 flex-1 truncate font-bold">{product.name}</span></label>})}</div></div>}
                   <div className="grid grid-cols-2 gap-3"><label className="grid gap-1 text-sm font-semibold">Quantidade<Input type="number" min="1" max="64" value={current.productLimit??6} onChange={(event)=>updateBlock({productLimit:Math.min(64,Math.max(1,Number(event.target.value)||1))})}/></label><label className="grid gap-1 text-sm font-semibold">Ordem<Select value={current.productOrder??"asc"} onValueChange={(value)=>updateBlock({productOrder:value as Block["productOrder"]})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="random">Aleatória</SelectItem><SelectItem value="asc">ASC · A–Z</SelectItem><SelectItem value="desc">DESC · Z–A</SelectItem></SelectContent></Select></label></div>
                 </div>}
-                <div><label className="mb-2 block text-sm font-semibold">Antetítulo</label><Input value={current?.eyebrow ?? ""} onChange={(event) => updateBlock({ eyebrow: event.target.value })} /></div>
-                <div>
-                  <label className="mb-2 block text-sm font-semibold">
-                    Título
-                  </label>
-                  <Input
-                    value={current?.title ?? ""}
-                    onChange={(event) =>
-                      updateBlock({ title: event.target.value })
-                    }
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2"><div><label className="mb-2 block text-sm font-semibold">Texto do botão</label><Input value={current?.ctaLabel ?? ""} onChange={(event) => updateBlock({ ctaLabel:event.target.value })}/></div><div><label className="mb-2 block text-sm font-semibold">Link</label><Input value={current?.ctaUrl ?? ""} onChange={(event) => updateBlock({ ctaUrl:event.target.value })}/></div></div>
+                <div className="border border-white/10 bg-black/[.04] p-3 text-sm leading-relaxed"><strong className="block text-xs uppercase tracking-[.12em]">Conteúdo direto</strong><span className="mt-1 block text-black/55">Título, antetítulo, descrição e texto do botão são editados diretamente no bloco.</span></div>
+                <div><label className="mb-2 block text-sm font-semibold">Link do botão</label><Input value={current?.ctaUrl ?? ""} onChange={(event) => updateBlock({ ctaUrl:event.target.value })}/></div>
                 <div><label className="mb-2 block text-sm font-semibold">Imagem de fundo</label><Input value={current?.imageUrl ?? ""} onChange={(event)=>updateBlock({imageUrl:event.target.value})} placeholder="URL da fotografia do edifício ou banner"/></div>
-                <div>
-                  <label className="mb-2 block text-sm font-semibold">
-                    Descrição
-                  </label>
-                  <textarea
-                    value={current?.description ?? ""}
-                    onChange={(event) =>
-                      updateBlock({ description: event.target.value })
-                    }
-                    className="min-h-28 w-full border border-input p-3 outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
                 <details className="rounded-2xl border border-black/10 p-4"><summary className="cursor-pointer text-sm font-black">Traduções deste bloco</summary><div className="mt-4 space-y-4">{["pt","es","de","fr"].map((locale)=>{const translation=current?.translations?.[locale]??{};const updateTranslation=(patch:Record<string,string>)=>updateBlock({translations:{...(current?.translations??{}),[locale]:{...translation,...patch}}});return <div key={locale} className="rounded-xl bg-[#f5f5f2] p-3"><p className="mb-2 text-xs font-black uppercase">{locale}</p><div className="grid gap-2"><Input value={translation.title??""} onChange={(event)=>updateTranslation({title:event.target.value})} placeholder="Título"/><textarea value={translation.description??""} onChange={(event)=>updateTranslation({description:event.target.value})} placeholder="Descrição" className="min-h-20 border border-input bg-white p-3"/></div></div>})}</div></details>
                 <Button
-                  onClick={addBlock}
+                  onClick={()=>addBlock()}
                   variant="outline"
                   className="w-full rounded-none"
                 >
@@ -2092,24 +2080,6 @@ export default function Studio() {
                 <div><label className="mb-2 block text-sm font-semibold">Espaçamento</label><Select value={current?.spacing ?? "normal"} onValueChange={(value)=>updateBlock({spacing:value as Block["spacing"]})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="compact">Compacto</SelectItem><SelectItem value="normal">Normal</SelectItem><SelectItem value="large">Amplo</SelectItem></SelectContent></Select></div>
               </TabsContent>
             </Tabs>
-            <div className="mt-8 border-t pt-5">
-              <p className="flex items-center gap-2 text-sm font-semibold">
-                <GripVertical className="size-4" />
-                Estrutura da página
-              </p>
-              <ol className="mt-3 space-y-2">
-                {blocks.map((block) => (
-                  <li key={block.id} draggable onDragStart={() => setDraggedBlockId(block.id)} onDragEnd={() => setDraggedBlockId(null)} onDragOver={(event) => event.preventDefault()} onDrop={() => { if (!draggedBlockId || draggedBlockId === block.id) return; const next=[...blocks]; const from=next.findIndex((item)=>item.id===draggedBlockId); const to=next.findIndex((item)=>item.id===block.id); const [moved]=next.splice(from,1); next.splice(to,0,moved); setBlocks(next); setDraggedBlockId(null); }}>
-                    <button
-                      onClick={() => setSelected(block.id)}
-                      className={`flex w-full items-center gap-2 rounded-full px-3 py-2 text-left text-sm ${selected === block.id ? "bg-[#fff0ea] text-[#d33b10]" : "bg-[#f5f5f2]"}`}
-                    >
-                      <GripVertical className="size-4 shrink-0 opacity-40" />{block.type} · {block.title}
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            </div>
           </aside>
         ) : (
           <aside className="border-l border-black/10 bg-[var(--accent-brand)] p-5 max-lg:hidden">
