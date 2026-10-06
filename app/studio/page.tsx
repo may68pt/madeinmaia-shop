@@ -1969,7 +1969,7 @@ export default function Studio() {
           )}
         </section>
         {section === "pages" ? (
-          <aside className="border-l border-black/10 bg-white p-5 max-lg:hidden">
+          <aside className="sticky top-16 h-[calc(100vh-4rem)] self-start overflow-y-auto overscroll-contain border-l border-black/10 bg-white p-5 max-lg:hidden">
             <Tabs value={editorSidebarTab} onValueChange={(value)=>setEditorSidebarTab(value as typeof editorSidebarTab)}>
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="blocks">Blocos</TabsTrigger>
