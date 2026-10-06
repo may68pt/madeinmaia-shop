@@ -1806,7 +1806,7 @@ export default function Studio() {
                     ]);
                     setExpandedProductId(id);
                   }}
-                  className="rounded-none bg-[var(--ink)] text-white"
+                  className="mim-new-product-button rounded-none !bg-[#ff4f1f] !text-white hover:!bg-[#e83f12]"
                 >
                   <Plus />
                   Novo produto
@@ -1836,7 +1836,7 @@ export default function Studio() {
                       <div className="grid grid-cols-[24px_24px_64px_minmax(0,1fr)] items-center gap-2.5 p-3 sm:grid-cols-[28px_28px_72px_minmax(0,1fr)] sm:gap-3">
                         <button type="button" aria-label={selectedProductIds.has(product.id)?`Desselecionar ${product.name}`:`Selecionar ${product.name}`} aria-pressed={selectedProductIds.has(product.id)} onClick={()=>toggleProductSelection(product.id)} className={`row-span-2 grid size-6 place-items-center border text-xs font-black transition ${selectedProductIds.has(product.id)?'border-[var(--brand)] bg-[var(--brand)] text-white':'border-black/20 bg-white text-transparent hover:border-black/50'}`}>✓</button>
                         <GripVertical className="row-span-2 size-5 cursor-grab text-black/30 active:cursor-grabbing" aria-label="Arrastar para reordenar" />
-                        <button type="button" onClick={() => void openProduct(product)} className="relative row-span-2 size-16 overflow-hidden border border-black/10 bg-white sm:size-[72px]">
+                        <button type="button" onClick={() => void openProduct(product)} className="mim-studio-product-thumb relative row-span-2 size-16 overflow-hidden border border-black/10 sm:size-[72px]">
                           {product.imageKey ? <Image src={product.imageKey} alt="" fill sizes="64px" unoptimized className="object-contain p-1" /> : <Images className="absolute inset-0 m-auto size-5 text-black/25" />}
                         </button>
                         <button type="button" onClick={() => void openProduct(product)} className="flex min-w-0 items-baseline gap-2 self-end text-left">
@@ -1874,7 +1874,7 @@ export default function Studio() {
                                   {product.imageKey && <Button type="button" size="sm" variant="ghost" className="text-red-600" onClick={() => updateProduct(product.id, { imageKey: "" })}><Trash2 />Remover</Button>}
                                 </div>
                                 {product.imageKey ? (
-                                  <div className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden border-2 border-black/10 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:24px_24px] xl:max-w-[360px]">
+                                  <div className="mim-product-artwork-preview relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden border-2 border-black/10 xl:max-w-[360px]">
                                     <Image src={product.imageKey} alt={product.name} fill sizes="360px" unoptimized className="object-contain p-5" />
                                   </div>
                                 ) : (
@@ -1893,7 +1893,7 @@ export default function Studio() {
                                     </span>
                                   </label>
                                 )}
-                                {settings.media.some((item) => item.url && item.kind === "artwork") && <div className="mt-2 flex gap-2 overflow-x-auto pb-2">{settings.media.filter((item) => item.url && item.kind === "artwork").map((item) => <button key={item.url} type="button" title={item.alt} onClick={() => updateProduct(product.id, { imageKey: item.url })} className={`relative size-16 shrink-0 overflow-hidden border-2 bg-white ${product.imageKey === item.url ? "border-[var(--brand)]" : "border-black/10"}`}><Image src={item.url} alt={item.alt || "Design"} fill sizes="64px" unoptimized className="object-contain p-1" /></button>)}</div>}
+                                {product.imageKey && <label className={`mt-3 flex min-h-16 cursor-pointer items-center justify-center gap-3 border-2 border-dashed px-4 text-center transition ${productImageDragOver===product.id?"border-[var(--brand)] bg-orange-50":"border-black/20 hover:border-[var(--brand)]"}`} onDragEnter={(event)=>{event.preventDefault();setProductImageDragOver(product.id)}} onDragOver={(event)=>{event.preventDefault();event.dataTransfer.dropEffect="copy";setProductImageDragOver(product.id)}} onDragLeave={(event)=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setProductImageDragOver(null)}} onDrop={(event)=>{event.preventDefault();const file=event.dataTransfer.files[0];if(file)void uploadProductArtwork(product.id,file)}}><input type="file" accept="image/png,.png" className="sr-only" disabled={productImageUploading===product.id} onChange={(event)=>{const file=event.target.files?.[0];if(file)void uploadProductArtwork(product.id,file);event.target.value=""}}/><UploadCloud className="size-5"/><strong className="text-xs uppercase">{productImageUploading===product.id?"A substituir…":"Substituir design PNG"}</strong></label>}
                               </section>
                               <details className="mim-product-translations rounded-2xl border border-black/10 p-4">
                                 <summary className="cursor-pointer text-xs font-black uppercase">Traduções do nome</summary>
@@ -1911,15 +1911,20 @@ export default function Studio() {
                                   ))}
                                 </div>
                               </details>
+                              <section className="mim-product-preview-colors rounded-2xl border border-black/10 p-4">
+                                <p className="text-xs font-black uppercase">Cores da preview na listagem</p>
+                                <p className="mt-1 text-xs text-black/45">Escolhe até três fundos. A loja usa uma destas cores na preview.</p>
+                                <div className="mt-3 flex flex-wrap gap-2">{settings.productCatalog.colors.filter((color)=>color.active).map((color)=>{const selected=product.previewColorIds.includes(color.id);return <button key={color.id} type="button" title={color.name} aria-label={color.name} aria-pressed={selected} onClick={()=>updateProduct(product.id,{previewColorIds:selected?product.previewColorIds.filter((id)=>id!==color.id):[...product.previewColorIds.slice(-2),color.id]})} className={`grid size-9 place-items-center rounded-full border-2 transition ${selected?"scale-110 border-[var(--brand)]":"border-white/20"}`}><span className="size-6 rounded-full border border-black/15" style={{backgroundColor:color.hex}}/></button>})}</div>
+                              </section>
                               <section className="mim-product-supports rounded-2xl border border-black/10 p-4">
                                 <p className="text-xs font-black uppercase">Suportes disponíveis</p>
                                 <p className="mt-1 text-xs text-black/45">Desativa apenas as exceções deste design.</p>
-                                <div className="mt-3 grid gap-2">
+                                <div className="mt-3 flex flex-wrap gap-2">
                                   {settings.productCatalog.supports.filter((support) => support.active).map((support) => {
                                     const enabled = !product.disabledSupports.includes(support.id);
                                     return (
-                                      <label key={support.id} className="flex cursor-pointer items-center gap-3 rounded-full border border-black/10 bg-[#f7f7f4] px-3 py-2">
-                                        <span className="min-w-0 flex-1 truncate text-xs font-bold">{support.name}</span>
+                                      <label key={support.id} className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-black/10 bg-[#f7f7f4] px-3 py-2">
+                                        <span className="whitespace-nowrap text-xs font-bold">{support.name}</span>
                                         <Switch
                                           aria-label={`${support.name}: ${enabled ? "ativo" : "inativo"}`}
                                           checked={enabled}

@@ -42,12 +42,12 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
   const [printColor, setPrintColor] = useState<PrintColor>("black");
   const designPreviewColors = useMemo(() => {
     if (!availableColors.length) return [];
-    const configured = availableColors.filter((color) => product.previewColorIds?.includes(color.id)).slice(0, 3);
+    const configured = (product.previewColorIds ?? []).map((id)=>availableColors.find((color)=>color.id===id)).filter((color):color is CatalogColor=>Boolean(color)).slice(0, 3);
     if (configured.length) return configured;
     const offset = stableColourOffset(product.slug, availableColors.length);
     return Array.from({ length: Math.min(3, availableColors.length) }, (_, index) => availableColors[(offset + index * Math.max(1, Math.floor(availableColors.length / 3))) % availableColors.length]);
   }, [availableColors, product.previewColorIds, product.slug]);
-  const designBackground = designPreviewColors[0];
+  const designBackground = designPreviewColors[stableColourOffset(product.slug, designPreviewColors.length)];
   const availableSupports = useMemo(() => supports.filter((support) => support.active && !product.disabledSupports?.includes(support.id)), [product.disabledSupports, supports]);
   const previewSupports = useMemo(() => {
     const tshirt = availableSupports.find((support) => support.id.startsWith("tshirt-"));

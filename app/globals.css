@@ -133,6 +133,8 @@ img, svg, video, canvas { max-width: 100%; }
    utility classes while the individual panels are progressively simplified. */
 .mim-studio { color-scheme: dark; --ink: #f4f3ef; --studio-surface: #181816; --studio-raised: #22221f; }
 .mim-studio .bg-white { background-color: var(--studio-surface) !important; }
+.mim-studio .mim-studio-product-thumb,
+.mim-studio .mim-product-artwork-preview { background: #fff !important; color-scheme: light; }
 .mim-studio .bg-\[\#f7f7f4\],
 .mim-studio .bg-\[\#ecece8\] { background-color: var(--studio-raised) !important; }
 .mim-studio .bg-black\/5,
