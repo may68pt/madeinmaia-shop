@@ -68,6 +68,6 @@ export default async function CollectionPage({ params }: { params: Promise<{ tag
   return <main id={`mim-collection-${tag}`} className="mim-collection-page storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]">
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
     <header className="mim-collection-page__header flex min-w-0 items-center justify-between gap-4 border-b border-white/10 px-4 py-3 sm:px-5 lg:px-10"><Link href="/loja" className="flex shrink-0 items-center gap-2 font-black uppercase"><ArrowLeft className="size-4"/><span className="hidden sm:inline">Shop</span></Link><Link href="/loja" aria-label="Made in Maia shop" className="min-w-0"><BrandLogo className="h-16 w-auto" /></Link></header>
-    {archiveBlocks.map((block) => <PageBlock key={block.id} block={block}>{block.type === "Hero" ? taxonomyNav : block.type === "Produtos" ? productGrid : undefined}</PageBlock>)}
+    {archiveBlocks.map((block) => <PageBlock key={block.id} block={block} contextTitle={activeName}>{block.type === "Hero" ? taxonomyNav : block.type === "Produtos" ? productGrid : undefined}</PageBlock>)}
   </main>;
 }

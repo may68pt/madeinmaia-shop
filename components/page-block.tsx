@@ -1,9 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import type { ReactNode } from "react";
+import { createElement, type ReactNode } from "react";
 import { localizedBlock, type PageBlock as PageBlockData } from "@/lib/page-blocks";
 
-export function PageBlock({ block, children, locale="en", editor = false, selected = false, onSelect, onEdit }: { block:PageBlockData; children?:ReactNode; locale?:string; editor?:boolean; selected?:boolean; onSelect?:()=>void; onEdit?:(patch:Partial<PageBlockData>)=>void }) {
+export function PageBlock({ block, children, locale="en", editor = false, selected = false, onSelect, onEdit, contextTitle }: { block:PageBlockData; children?:ReactNode; locale?:string; editor?:boolean; selected?:boolean; onSelect?:()=>void; onEdit?:(patch:Partial<PageBlockData>)=>void; contextTitle?:string }) {
   const hero = block.type === "Hero";
   const blockWidth = block.width ?? (hero ? "full" : "content");
   const blockSpacing = block.spacing ?? (hero ? "large" : "normal");
@@ -15,15 +15,16 @@ export function PageBlock({ block, children, locale="en", editor = false, select
   const darkContentBlock = ["Produtos", "Coleções", "Texto"].includes(block.type) && ["transparent", "var(--paper)", "var(--surface)"].includes(background);
   const textColor = darkContentBlock ? "var(--foreground)" : block.textColor ?? (hero ? "#11110f" : "var(--foreground)");
   const copy = localizedBlock(block, locale);
+  const dynamicTitle = block.type === "Post Title";
   const blockHook = block.type.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-");
   const blockId = block.type === "Produtos" ? "novidades" : block.type === "Coleções" ? "colecoes" : `mim-block-${block.id}`;
   return <section id={blockId} data-mim-block-id={block.id} onClick={onSelect} className={`mim-page-block mim-page-block--${blockHook} relative overflow-hidden ${width} ${spacing} ${blockWidth === "full" ? "" : "mx-auto"} ${editor ? `cursor-pointer outline outline-2 outline-offset-[-2px] ${selected ? "outline-[var(--brand)]" : "outline-transparent hover:outline-black/15"}` : ""}`} style={{background,color:textColor}}>
     {block.imageUrl&&<Image src={block.imageUrl} alt="" fill sizes="100vw" unoptimized={block.imageUrl.startsWith("http")} className="object-cover opacity-45"/>}
     <div className={`mim-page-block__content relative ${block.type === "Produtos" ? "w-full px-0" : blockWidth === "full" ? "mx-auto max-w-[1440px] px-5 lg:px-10" : "px-5 lg:px-10"} ${blockAlign === "center" ? "text-center" : "text-left"}`}>
-      {(copy.eyebrow||editor)&&<p contentEditable={editor} suppressContentEditableWarning onBlur={(event)=>editor&&onEdit?.({eyebrow:event.currentTarget.textContent??""})} data-placeholder="Add eyebrow" className="mim-inline-edit text-sm font-black uppercase tracking-[.16em] opacity-70 outline-none">{copy.eyebrow}</p>}
-      <h2 contentEditable={editor} suppressContentEditableWarning onBlur={(event)=>editor&&onEdit?.({title:event.currentTarget.textContent??""})} data-placeholder="Add title" className={`mim-inline-edit ${hero ? "mt-5 text-[clamp(3.4rem,8vw,7.8rem)] leading-[.78]" : "mt-3 text-4xl md:text-6xl"} font-black uppercase tracking-[-.065em] outline-none`}>{copy.title}</h2>
-      {(copy.description||editor)&&<p contentEditable={editor} suppressContentEditableWarning onBlur={(event)=>editor&&onEdit?.({description:event.currentTarget.textContent??""})} data-placeholder="Add description" className={`mim-inline-edit ${blockAlign === "center" ? "mx-auto" : ""} mt-6 max-w-2xl text-lg leading-relaxed opacity-75 outline-none`}>{copy.description}</p>}
-      {(copy.ctaLabel||editor)&&block.ctaUrl&&(editor?<span contentEditable suppressContentEditableWarning onBlur={(event)=>onEdit?.({ctaLabel:event.currentTarget.textContent??""})} data-placeholder="Button label" className="mim-inline-edit mt-8 inline-flex bg-[var(--ink)] px-7 py-4 font-black uppercase text-white outline-none">{copy.ctaLabel}</span>:<Link href={block.ctaUrl} className="mt-8 inline-flex bg-[var(--ink)] px-7 py-4 font-black uppercase text-white">{copy.ctaLabel}</Link>)}
+      {!dynamicTitle&&(copy.eyebrow||editor)&&<p contentEditable={editor} suppressContentEditableWarning onBlur={(event)=>editor&&onEdit?.({eyebrow:event.currentTarget.textContent??""})} data-placeholder="Add eyebrow" className="mim-inline-edit text-sm font-black uppercase tracking-[.16em] opacity-70 outline-none">{copy.eyebrow}</p>}
+      {dynamicTitle ? createElement(block.headingTag??"h1", {className:"mim-dynamic-title font-black",style:{fontSize:block.fontSize?`${block.fontSize}px`:undefined,fontWeight:block.fontWeight??900,letterSpacing:block.letterSpacing?`${block.letterSpacing}px`:undefined}}, contextTitle??(editor?"Current post title":"")) : <h2 contentEditable={editor} suppressContentEditableWarning onBlur={(event)=>editor&&onEdit?.({title:event.currentTarget.textContent??""})} data-placeholder="Add title" className={`mim-inline-edit ${hero ? "mt-5 text-[clamp(3.4rem,8vw,7.8rem)] leading-[.78]" : "mt-3 text-4xl md:text-6xl"} font-black uppercase tracking-[-.065em] outline-none`}>{copy.title}</h2>}
+      {!dynamicTitle&&(copy.description||editor)&&<p contentEditable={editor} suppressContentEditableWarning onBlur={(event)=>editor&&onEdit?.({description:event.currentTarget.textContent??""})} data-placeholder="Add description" className={`mim-inline-edit ${blockAlign === "center" ? "mx-auto" : ""} mt-6 max-w-2xl text-lg leading-relaxed opacity-75 outline-none`}>{copy.description}</p>}
+      {!dynamicTitle&&(copy.ctaLabel||editor)&&block.ctaUrl&&(editor?<span contentEditable suppressContentEditableWarning onBlur={(event)=>onEdit?.({ctaLabel:event.currentTarget.textContent??""})} data-placeholder="Button label" className="mim-inline-edit mt-8 inline-flex bg-[var(--ink)] px-7 py-4 font-black uppercase text-white outline-none">{copy.ctaLabel}</span>:<Link href={block.ctaUrl} className="mt-8 inline-flex bg-[var(--ink)] px-7 py-4 font-black uppercase text-white">{copy.ctaLabel}</Link>)}
       {children&&<div className="mt-8 text-left">{children}</div>}
     </div>
   </section>;

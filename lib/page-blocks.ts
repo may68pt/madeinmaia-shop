@@ -1,4 +1,4 @@
-export type PageBlockType = "Hero" | "Produtos" | "Coleções" | "Logo aleatório" | "Linktree" | "Localização" | "Banner" | "Texto";
+export type PageBlockType = "Hero" | "Produtos" | "Coleções" | "Logo aleatório" | "Linktree" | "Localização" | "Banner" | "Texto" | "Post Title";
 export type PageBlock = {
   id: number;
   type: PageBlockType;
@@ -12,6 +12,10 @@ export type PageBlock = {
   width?: "full" | "content" | "narrow";
   align?: "left" | "center";
   spacing?: "compact" | "normal" | "large";
+  headingTag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div" | "p" | "span";
+  fontSize?: number;
+  fontWeight?: number;
+  letterSpacing?: number;
   imageUrl?: string;
   productSource?: "all" | "tag" | "selection";
   productTag?: string;
@@ -31,6 +35,7 @@ export const BLOCK_COPY: Record<PageBlockType, Record<string,BlockCopy>> = {
   Linktree:{en:{eyebrow:"Stay close",title:"Markets, people and new drops.",description:"Follow the project, discover our markets or join the team.",ctaLabel:"Open our links"},pt:{eyebrow:"Fica por perto",title:"Mercados, pessoas e novidades.",description:"Segue o projeto, descobre os nossos mercados ou junta-te à equipa.",ctaLabel:"Abrir os nossos links"},es:{eyebrow:"Sigue cerca",title:"Mercados, personas y novedades.",description:"Sigue el proyecto, descubre nuestros mercados o únete al equipo.",ctaLabel:"Abrir nuestros enlaces"},de:{eyebrow:"Bleib in Kontakt",title:"Märkte, Menschen und Neuheiten.",description:"Folge dem Projekt, entdecke unsere Märkte oder werde Teil des Teams.",ctaLabel:"Unsere Links öffnen"},fr:{eyebrow:"Restons proches",title:"Marchés, rencontres et nouveautés.",description:"Suivez le projet, découvrez nos marchés ou rejoignez l’équipe.",ctaLabel:"Ouvrir nos liens"}},
   Banner:{en:{eyebrow:"Link Label",title:"A label with a different link every time.",description:"Every Made in Maia piece opens a rotating world of content.",ctaLabel:"Open Link Label"},pt:{eyebrow:"Link Label",title:"Uma label com um link sempre diferente.",description:"Cada peça Made in Maia abre um mundo de conteúdo em rotação.",ctaLabel:"Abrir Link Label"},es:{eyebrow:"Link Label",title:"Una etiqueta con un enlace siempre diferente.",description:"Cada pieza Made in Maia abre un mundo de contenido cambiante.",ctaLabel:"Abrir Link Label"},de:{eyebrow:"Link Label",title:"Ein Label mit immer neuen Links.",description:"Jedes Made-in-Maia-Stück öffnet eine wechselnde Welt voller Inhalte.",ctaLabel:"Link Label öffnen"},fr:{eyebrow:"Link Label",title:"Un label avec un lien toujours différent.",description:"Chaque pièce Made in Maia ouvre un univers de contenus changeants.",ctaLabel:"Ouvrir Link Label"}},
   Texto:{en:{title:"Made in Maia",description:"Original ideas, made locally."},pt:{title:"Made in Maia",description:"Ideias originais, feitas localmente."},es:{title:"Made in Maia",description:"Ideas originales, hechas localmente."},de:{title:"Made in Maia",description:"Originelle Ideen, lokal gemacht."},fr:{title:"Made in Maia",description:"Des idées originales, créées localement."}},
+  "Post Title":{en:{title:"Dynamic post title",description:""},pt:{title:"Título dinâmico",description:""},es:{title:"Título dinámico",description:""},de:{title:"Dynamischer Titel",description:""},fr:{title:"Titre dynamique",description:""}},
 };
 
 export function localizedBlock(block:PageBlock, locale:string):PageBlock {
