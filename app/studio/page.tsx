@@ -320,6 +320,7 @@ export default function Studio() {
   const [productImageDragOver, setProductImageDragOver] = useState<number | null>(null);
   const [galleryUploading, setGalleryUploading] = useState<number | null>(null);
   const [galleryDragOver, setGalleryDragOver] = useState<number | null>(null);
+  const [savingProductId, setSavingProductId] = useState<number | null>(null);
   const [linkLabelUploading, setLinkLabelUploading] = useState<number | null>(null);
   const [linkLabelDragOver, setLinkLabelDragOver] = useState<number | null>(null);
   const [expandedProductId, setExpandedProductId] = useState<number | null>(null);
@@ -775,6 +776,40 @@ export default function Studio() {
     if(product.id>1_000_000_000_000)return;
     const response=await fetch("/api/studio",{method:"POST",headers:{"content-type":"application/json","x-studio-user":studioUser,"x-studio-key":studioKey},body:JSON.stringify({resource:"product-placement",productId:product.id,artworkPlacements})});
     if(response.ok)toast.success("Posicionamento guardado.");else toast.error("Não foi possível guardar o posicionamento.");
+  }
+  async function saveProduct(product: Product) {
+    setSavingProductId(product.id);
+    try {
+      const response = await fetch("/api/studio", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-studio-user": studioUser, "x-studio-key": studioKey },
+        body: JSON.stringify({ resource: "products", entries: [product] }),
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          setStudioUser("");
+          setStudioKey("");
+          toast.error("A sessão do Studio deixou de ser válida.");
+        } else toast.error("Não foi possível guardar o produto.");
+        return;
+      }
+      const result = await response.json() as { products?: { id:number; slug:string }[] };
+      const saved = result.products?.find((item) => item.slug === product.slug);
+      if (saved && saved.id !== product.id) {
+        setCatalogue((items) => items.map((item) => item.id === product.id ? { ...item, id:saved.id } : item));
+        setExpandedProductId((current) => current === product.id ? saved.id : current);
+        setSelectedProductIds((current) => {
+          if (!current.has(product.id)) return current;
+          const next = new Set(current);
+          next.delete(product.id);
+          next.add(saved.id);
+          return next;
+        });
+      }
+      toast.success(`“${product.name}” guardado`);
+    } finally {
+      setSavingProductId(null);
+    }
   }
   async function persistProductOrder(next: Product[]) {
     setCatalogue(next.map((product, index) => ({ ...product, sortOrder: index + 1 })));
@@ -1798,24 +1833,23 @@ export default function Studio() {
                   const isOpen = expandedProductId === product.id;
                   return (
                     <article key={product.id} draggable onDragStart={() => startProductDrag(product.id)} onDragEnd={() => setDraggedProductId(null)} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); dropProduct(product.id); }} className={`overflow-hidden border bg-white shadow-sm transition ${draggedProductId !== null && selectedProductIds.has(product.id) ? "opacity-55" : ""} ${selectedProductIds.has(product.id) ? "border-[var(--brand)] outline outline-2 outline-[var(--brand)]" : "border-black/10"}`}>
-                      <div className="grid grid-cols-[28px_32px_64px_1fr_auto] items-center gap-3 p-3">
-                        <button type="button" aria-label={selectedProductIds.has(product.id)?`Desselecionar ${product.name}`:`Selecionar ${product.name}`} aria-pressed={selectedProductIds.has(product.id)} onClick={()=>toggleProductSelection(product.id)} className={`grid size-6 place-items-center border text-xs font-black transition ${selectedProductIds.has(product.id)?'border-[var(--brand)] bg-[var(--brand)] text-white':'border-white/25 bg-white/5 text-transparent hover:border-white/60'}`}>✓</button>
-                        <GripVertical className="size-5 cursor-grab text-black/30 active:cursor-grabbing" aria-label="Arrastar para reordenar" />
-                        <button type="button" onClick={() => void openProduct(product)} className="relative size-16 overflow-hidden border border-black/10 bg-white">
+                      <div className="grid grid-cols-[24px_24px_64px_minmax(0,1fr)] items-center gap-2.5 p-3 sm:grid-cols-[28px_28px_72px_minmax(0,1fr)] sm:gap-3">
+                        <button type="button" aria-label={selectedProductIds.has(product.id)?`Desselecionar ${product.name}`:`Selecionar ${product.name}`} aria-pressed={selectedProductIds.has(product.id)} onClick={()=>toggleProductSelection(product.id)} className={`row-span-2 grid size-6 place-items-center border text-xs font-black transition ${selectedProductIds.has(product.id)?'border-[var(--brand)] bg-[var(--brand)] text-white':'border-black/20 bg-white text-transparent hover:border-black/50'}`}>✓</button>
+                        <GripVertical className="row-span-2 size-5 cursor-grab text-black/30 active:cursor-grabbing" aria-label="Arrastar para reordenar" />
+                        <button type="button" onClick={() => void openProduct(product)} className="relative row-span-2 size-16 overflow-hidden border border-black/10 bg-white sm:size-[72px]">
                           {product.imageKey ? <Image src={product.imageKey} alt="" fill sizes="64px" unoptimized className="object-contain p-1" /> : <Images className="absolute inset-0 m-auto size-5 text-black/25" />}
                         </button>
-                        <button type="button" onClick={() => void openProduct(product)} className="min-w-0 text-left">
-                          <strong className="block truncate text-lg">{product.name}</strong>
-                          <span className="font-mono text-xs font-black text-black/45">{product.designCode || "MiM_0000"}</span>
+                        <button type="button" onClick={() => void openProduct(product)} className="flex min-w-0 items-baseline gap-2 self-end text-left">
+                          <span className="shrink-0 font-mono text-[11px] font-black uppercase text-black/45 sm:text-xs">{product.designCode || "MiM_0000"}</span>
+                          <strong className="min-w-0 truncate text-sm sm:text-lg">{product.name}</strong>
                         </button>
-                        <div className="flex items-center gap-3">
-                          <div className="hidden items-center gap-1 lg:flex"><Button type="button" variant="ghost" size="icon" disabled={productIndex === 0} onClick={() => moveProduct(product.id, -1)} aria-label="Subir produto"><ArrowUp className="size-4" /></Button><Button type="button" variant="ghost" size="icon" disabled={productIndex === catalogue.length - 1} onClick={() => moveProduct(product.id, 1)} aria-label="Descer produto"><ArrowDown className="size-4" /></Button></div>
+                        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 self-start sm:gap-x-3">
+                          <div className="flex items-center gap-0.5"><Button type="button" variant="ghost" size="icon" className="size-8" disabled={productIndex === 0} onClick={() => moveProduct(product.id, -1)} aria-label="Subir produto"><ArrowUp className="size-4" /></Button><Button type="button" variant="ghost" size="icon" className="size-8" disabled={productIndex === catalogue.length - 1} onClick={() => moveProduct(product.id, 1)} aria-label="Descer produto"><ArrowDown className="size-4" /></Button></div>
                           <Button type="button" variant="ghost" size="icon" onClick={() => void editProductPlacement(product)} aria-label="Posicionar design" title="Posicionar design"><Move className="size-4" /></Button>
                           <label title="Design monocromático" className="flex items-center gap-2 text-xs font-bold uppercase"><Contrast className="size-4" aria-hidden/><Switch aria-label="Design monocromático" checked={product.monochrome} onCheckedChange={(checked) => void updateProductMonochrome(product, checked)} /><span className="hidden xl:inline">Mono</span></label>
                           <label title="Disponível na loja online / dados Dash" className="flex items-center gap-2 text-xs font-bold uppercase"><BarChart3 className="size-4" aria-hidden/><Switch aria-label="Disponível online" checked={product.onlineSaleEnabled} onCheckedChange={(checked) => void updateProductOnlineSale(product, checked)} /><span className="hidden xl:inline">Online</span></label>
                           <label title={product.status === "published" ? "Produto ativo" : "Produto desativado"} className="flex items-center gap-2 text-xs font-bold uppercase"><CirclePower className="size-4" aria-hidden/><Switch aria-label="Produto ativo" checked={product.status === "published"} onCheckedChange={(checked) => void updateProductStatus(product, checked)} /><span className="hidden sm:inline">{product.status === "published" ? "Ativo" : "Inativo"}</span></label>
-                          <Button type="button" variant="ghost" size="icon" className="text-red-600 hover:text-red-700" onClick={() => void deleteProduct(product)} aria-label="Apagar produto"><Trash2 className="size-4" /></Button>
-                          <Button type="button" variant="ghost" size="icon" onClick={() => void openProduct(product)} aria-label={isOpen ? "Fechar produto" : "Abrir produto"}><span className={`text-xl transition-transform ${isOpen ? "rotate-180" : ""}`}>⌄</span></Button>
+                          <Button type="button" variant="ghost" size="icon" className="ml-auto size-8" onClick={() => void openProduct(product)} aria-label={isOpen ? "Fechar produto" : "Abrir produto"}><span className={`text-xl transition-transform ${isOpen ? "rotate-180" : ""}`}>⌄</span></Button>
                         </div>
                       </div>
                       {isOpen && product.detailsLoaded && (
@@ -1899,6 +1933,10 @@ export default function Studio() {
                               <section className="mim-product-gallery-editor"><p className="text-xs font-bold uppercase">Fotografias do produto</p><p className="mt-1 text-xs text-black/45">Fotografias com modelos, lifestyle, detalhes ou fotografia de estúdio deste produto.</p>{product.gallery.length > 0 && <div className="mt-3 grid grid-cols-2 gap-2">{product.gallery.map((photo, index) => <div key={`${photo}-${index}`} className="group relative aspect-[4/3] overflow-hidden bg-[#eee]"><Image src={photo} alt={`${product.name} · fotografia ${index + 1}`} fill sizes="180px" unoptimized className="object-cover" /><div className="absolute inset-x-1 top-1 flex justify-between gap-1 opacity-95"><div className="flex gap-1"><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===0} onClick={()=>{const gallery=[...product.gallery];[gallery[index-1],gallery[index]]=[gallery[index],gallery[index-1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para trás"><ArrowUp className="size-3"/></Button><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===product.gallery.length-1} onClick={()=>{const gallery=[...product.gallery];[gallery[index+1],gallery[index]]=[gallery[index],gallery[index+1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para a frente"><ArrowDown className="size-3"/></Button></div><Button type="button" size="icon" variant="destructive" className="size-7" onClick={() => updateProduct(product.id, { gallery: product.gallery.filter((_, itemIndex) => itemIndex !== index) })} aria-label="Remover fotografia"><Trash2 className="size-3" /></Button></div></div>)}</div>}<label className={`mt-3 grid min-h-28 cursor-pointer place-items-center border-2 border-dashed p-4 text-center transition ${galleryDragOver===product.id?"border-[var(--brand)] bg-orange-50":"border-black/20 bg-black/[.025] hover:border-[var(--brand)]"}`} onDragEnter={(event)=>{event.preventDefault();setGalleryDragOver(product.id)}} onDragOver={(event)=>{event.preventDefault();event.dataTransfer.dropEffect="copy";setGalleryDragOver(product.id)}} onDragLeave={(event)=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setGalleryDragOver(null)}} onDrop={(event)=>{event.preventDefault();void uploadProductGallery(product.id,Array.from(event.dataTransfer.files));}}><input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={galleryUploading===product.id} onChange={(event)=>{void uploadProductGallery(product.id,Array.from(event.target.files??[]));event.target.value=""}}/><span><UploadCloud className="mx-auto size-8 text-black/25"/><strong className="mt-2 block text-xs uppercase">{galleryUploading===product.id?"A carregar fotografias…":"Adicionar fotografias deste produto"}</strong><span className="mt-1 block text-[11px] text-black/40">JPG, PNG ou WebP · podes selecionar várias</span></span></label></section>
                               <Button variant="outline" className="w-full rounded-none" asChild><Link href={`/produto/${product.slug}`} target="_blank"><Eye />Ver produto</Link></Button>
                             </div>
+                          </div>
+                          <div className="mt-6 flex flex-col-reverse gap-3 border-t border-black/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                            <Button type="button" variant="outline" className="rounded-none border-red-300 text-red-700 hover:bg-red-50 hover:text-red-800" onClick={() => void deleteProduct(product)}><Trash2 className="size-4" />Apagar produto</Button>
+                            <Button type="button" className="rounded-none bg-[var(--ink)] text-white hover:bg-black disabled:opacity-55" disabled={savingProductId === product.id} onClick={() => void saveProduct(product)}><Save className="size-4" />{savingProductId === product.id ? "A guardar…" : "Guardar produto"}</Button>
                           </div>
                         </div>
                       )}

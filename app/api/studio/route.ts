@@ -443,16 +443,20 @@ export async function POST(request: Request) {
       ];
     });
     const db = getDb();
-    for (const entry of entries)
-      await db
+    const savedProducts = [];
+    for (const entry of entries) {
+      const [savedProduct] = await db
         .insert(products)
         .values(entry)
-        .onConflictDoUpdate({ target: products.slug, set: entry });
+        .onConflictDoUpdate({ target: products.slug, set: entry })
+        .returning({ id: products.id, slug: products.slug });
+      if (savedProduct) savedProducts.push(savedProduct);
+    }
     if (body.replace && entries.length)
       await db
         .delete(products)
         .where(notInArray(products.slug, entries.map((entry) => entry.slug)));
-    return NextResponse.json({ ok: true, count: entries.length });
+    return NextResponse.json({ ok: true, count: entries.length, products: savedProducts });
   }
   if (body.resource === "pages") {
     if (!Array.isArray(body.entries))
