@@ -12,7 +12,8 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "import:published": "node scripts/import-published-products.mjs",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "seo:products": "node scripts/optimize-product-seo.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
