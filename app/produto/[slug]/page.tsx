@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const [product] = await getDb().select().from(products).where(and(eq(products.slug, slug),eq(products.onlineSaleEnabled,true)));
     if (product?.status === "published")
       return {
-        title: product.seoTitle || product.name,
+        title: { absolute: product.seoTitle || product.name },
         description: product.seoDescription || product.description || `${product.name}, an original Made in Maia design available on T-shirts, hoodies and tote bags.`,
         alternates: { canonical: product.seoCanonical || `/designs/${product.slug}` },
         robots: product.seoNoIndex ? { index: false, follow: false } : { index: true, follow: true },
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
   const localProduct = fallback.find((item) => item.slug === slug);
   if (localProduct) return {
-    title: localProduct.name,
+    title: { absolute: localProduct.name },
     description: localProduct.description,
     alternates: { canonical: `/designs/${localProduct.slug}` },
     openGraph: { title: localProduct.name, description: localProduct.description, images: [{ url: localProduct.imageKey, alt: localProduct.name }], type: "website" },
