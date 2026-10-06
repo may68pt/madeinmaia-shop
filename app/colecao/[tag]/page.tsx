@@ -8,7 +8,7 @@ import { products, siteSettings } from "@/db/schema";
 import { collectionSlug, productTaxonomies } from "@/lib/collections";
 import { LOCAL_FALLBACK_PRODUCTS } from "@/lib/fallback-products";
 import { UI_STRINGS } from "@/lib/i18n";
-import { DEFAULT_COLORS, DEFAULT_SUPPORTS } from "@/lib/product-catalog";
+import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport } from "@/lib/product-catalog";
 import { BrandLogo } from "@/components/brand-logo";
 
 export const dynamic = "force-dynamic";
@@ -47,7 +47,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ tag
       monochrome: product.monochrome, disabledSupports: product.disabledSupports,
       artworkPlacements: product.artworkPlacements ?? {},
     }));
-    if (settings?.data.productCatalog) catalog = settings.data.productCatalog;
+    if (settings?.data.productCatalog) catalog = { ...settings.data.productCatalog, supports: settings.data.productCatalog.supports.map(normalizeSupport) };
   } catch { /* Real-design fallbacks keep local development useful. */ }
 
   const taxonomyNames = [...new Set(allProducts.flatMap(productTaxonomies))].sort((a, b) => a.localeCompare(b));

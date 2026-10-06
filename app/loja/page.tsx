@@ -6,7 +6,7 @@ import { getDb } from "@/db";
 import { pages, products, siteSettings } from "@/db/schema";
 import { DEFAULT_PAGE_BLOCKS, type PageBlock } from "@/lib/page-blocks";
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
-import { DEFAULT_COLORS, DEFAULT_SUPPORTS, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
+import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 24;
@@ -72,7 +72,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       initialBlocks = storedPage.blocks as PageBlock[];
     if (settings?.data.navigation?.length) navigation = [...settings.data.navigation, ...DEFAULT_NAVIGATION.filter((required)=>!settings.data.navigation.some((item)=>item.id===required.id))];
     if (settings?.data.productCatalog?.colors?.length) catalogColors = settings.data.productCatalog.colors;
-    if (settings?.data.productCatalog?.supports?.length) catalogSupports = settings.data.productCatalog.supports;
+    if (settings?.data.productCatalog?.supports?.length) catalogSupports = settings.data.productCatalog.supports.map(normalizeSupport);
   } catch {
     /* local fallback inside the client component */
   }

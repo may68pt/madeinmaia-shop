@@ -44,12 +44,20 @@ const tshirtMockups = Object.fromEntries([
   "white", "black", "grey", "dark-grey", "pastel-yellow", "sand", "orange", "red", "peach", "pink", "purple", "navy-blue", "royal-blue", "aqua-blue", "atol-blue", "pastel-blue", "pastel-green", "kelly-green", "forest-green", "chocolate-brown", "mustard-yellow",
 ].map((id) => [id, `/plain-tshirts/${id}.jpg`]));
 export const DEFAULT_SUPPORTS: ProductSupport[] = [
-  { id:"tshirt-150", categoryId:"apparel", name:"T-shirt 150g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/tshirt-neutral-v1.png", mockups:tshirtMockups, priceCents:2000, defaultPlacement:{x:35,y:22,width:30,height:30} },
-  { id:"tshirt-190", categoryId:"apparel", name:"T-shirt 190g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/tshirt-neutral-v1.png", mockups:tshirtMockups, priceCents:2200, defaultPlacement:{x:35,y:22,width:30,height:30} },
-  { id:"hoodie", categoryId:"apparel", name:"Hoodie 300g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/hoodie-neutral-v1.png", mockups:{}, priceCents:4000, defaultPlacement:{x:34,y:27,width:32,height:27} },
-  { id:"long-sleeve", categoryId:"apparel", name:"Long Sleeve T-shirt", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/long-sleeve-neutral-v1.png", mockups:{}, priceCents:2800, defaultPlacement:{x:34,y:22,width:32,height:30} },
-  { id:"tote-bag", categoryId:"bags", name:"Tote Denim", variantMode:"none", sizes:[], colorIds:["grey","white"], availability:available(["grey","white"],[]), active:true, templateImage:"/mockup-templates/tote-denim-neutral-v1.png", mockups:{}, priceCents:1800, defaultPlacement:{x:29,y:40,width:42,height:32} },
+  { id:"tshirt-150", categoryId:"apparel", name:"T-shirt 150g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/tshirt-neutral-v1.avif", mockups:tshirtMockups, priceCents:2000, defaultPlacement:{x:35,y:22,width:30,height:30} },
+  { id:"tshirt-190", categoryId:"apparel", name:"T-shirt 190g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/tshirt-neutral-v1.avif", mockups:tshirtMockups, priceCents:2200, defaultPlacement:{x:35,y:22,width:30,height:30} },
+  { id:"hoodie", categoryId:"apparel", name:"Hoodie 300g", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/hoodie-neutral-v1.avif", mockups:{}, priceCents:4000, defaultPlacement:{x:34,y:27,width:32,height:27} },
+  { id:"long-sleeve", categoryId:"apparel", name:"Long Sleeve T-shirt", variantMode:"size", sizes:[...kids,...adults], colorIds:allColorIds, availability:available(allColorIds,[...kids,...adults]), active:true, templateImage:"/mockup-templates/long-sleeve-neutral-v1.avif", mockups:{}, priceCents:2800, defaultPlacement:{x:34,y:22,width:32,height:30} },
+  { id:"tote-bag", categoryId:"bags", name:"Tote Denim", variantMode:"none", sizes:[], colorIds:["grey","white"], availability:available(["grey","white"],[]), active:true, templateImage:"/mockup-templates/tote-denim-neutral-v1.avif", mockups:{}, priceCents:1800, defaultPlacement:{x:29,y:40,width:42,height:32} },
 ];
+
+const OPTIMIZED_TEMPLATE_ASSETS: Record<string, string> = Object.fromEntries(
+  DEFAULT_SUPPORTS.map((support) => [support.templateImage.replace(/\.avif$/, ".png"), support.templateImage]),
+);
+
+export function optimizedTemplateAsset(url: string) {
+  return OPTIMIZED_TEMPLATE_ASSETS[url] ?? url;
+}
 
 export function normalizeSupport(value: Partial<ProductSupport>): ProductSupport {
   const fallback = DEFAULT_SUPPORTS.find((support) => support.id === value.id);
@@ -68,7 +76,7 @@ export function normalizeSupport(value: Partial<ProductSupport>): ProductSupport
     colorIds,
     availability,
     active: value.active !== false,
-    templateImage: value.templateImage || fallback?.templateImage || "",
+    templateImage: optimizedTemplateAsset(value.templateImage || fallback?.templateImage || ""),
     mockups: { ...(fallback?.mockups ?? {}), ...Object.fromEntries(Object.entries(value.mockups ?? {}).filter(([,url])=>Boolean(url))) },
     priceCents: Math.max(0, Number(value.priceCents ?? fallback?.priceCents ?? 2000)),
     defaultPlacement: value.defaultPlacement ?? fallback?.defaultPlacement ?? {x:35,y:22,width:30,height:30},
