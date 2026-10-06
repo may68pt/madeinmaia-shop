@@ -307,6 +307,8 @@ export default function Studio() {
   const [discoveries, setDiscoveries] = useState(initialDiscoveries);
   const [catalogue, setCatalogue] = useState(initialProducts);
   const [productQuery, setProductQuery] = useState("");
+  const [productStatusFilter, setProductStatusFilter] = useState<"all" | "active" | "disabled">("all");
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<number>>(() => new Set());
   const [orders, setOrders] = useState<Order[]>([]);
   const [paymentConfigured, setPaymentConfigured] = useState(false);
   const [settings, setSettings] = useState(initialSettings);
@@ -339,9 +341,12 @@ export default function Studio() {
   const pagedMedia=filteredMedia.slice((currentMediaPage-1)*12,currentMediaPage*12);
   const filteredCatalogue = useMemo(() => {
     const query = productQuery.trim().toLowerCase();
-    if (!query) return catalogue;
-    return catalogue.filter((product) => `${product.name} ${product.designCode} ${product.slug} ${product.collection} ${product.tags.join(" ")}`.toLowerCase().includes(query));
-  }, [catalogue, productQuery]);
+    return catalogue.filter((product) => {
+      const statusMatches = productStatusFilter === "all" || (productStatusFilter === "active" ? product.status === "published" : product.status !== "published");
+      const queryMatches = !query || `${product.name} ${product.designCode} ${product.slug} ${product.collection} ${product.tags.join(" ")}`.toLowerCase().includes(query);
+      return statusMatches && queryMatches;
+    });
+  }, [catalogue, productQuery, productStatusFilter]);
   const availableProductTags = useMemo(() => [...new Set(catalogue.flatMap((product)=>[product.collection,...product.tags]).filter(Boolean))].sort((a,b)=>a.localeCompare(b)), [catalogue]);
   function productsForEditorBlock(block:Block) {
     let items=catalogue.filter((product)=>product.status==="published");
@@ -780,21 +785,39 @@ export default function Studio() {
     if (!response.ok) toast.error("Não foi possível guardar a ordem dos produtos.");
   }
   function moveProduct(productId: number, direction: -1 | 1) {
-    const index = catalogue.findIndex((product) => product.id === productId);
-    const target = index + direction;
-    if (index < 0 || target < 0 || target >= catalogue.length) return;
+    const moving = selectedProductIds.has(productId) ? selectedProductIds : new Set([productId]);
     const next = [...catalogue];
-    [next[index], next[target]] = [next[target], next[index]];
+    if (direction === -1) {
+      for (let index = 1; index < next.length; index += 1) {
+        if (moving.has(next[index].id) && !moving.has(next[index - 1].id)) [next[index - 1], next[index]] = [next[index], next[index - 1]];
+      }
+    } else {
+      for (let index = next.length - 2; index >= 0; index -= 1) {
+        if (moving.has(next[index].id) && !moving.has(next[index + 1].id)) [next[index], next[index + 1]] = [next[index + 1], next[index]];
+      }
+    }
     void persistProductOrder(next);
+  }
+  function toggleProductSelection(productId: number) {
+    setSelectedProductIds((current) => {
+      const next = new Set(current);
+      if (next.has(productId)) next.delete(productId); else next.add(productId);
+      return next;
+    });
+  }
+  function startProductDrag(productId: number) {
+    if (!selectedProductIds.has(productId)) setSelectedProductIds(new Set([productId]));
+    setDraggedProductId(productId);
   }
   function dropProduct(targetId: number) {
     if (draggedProductId === null || draggedProductId === targetId) return setDraggedProductId(null);
-    const source = catalogue.findIndex((product) => product.id === draggedProductId);
-    const target = catalogue.findIndex((product) => product.id === targetId);
-    if (source < 0 || target < 0) return setDraggedProductId(null);
-    const next = [...catalogue];
-    const [moved] = next.splice(source, 1);
-    next.splice(target, 0, moved);
+    const movingIds = selectedProductIds.has(draggedProductId) ? selectedProductIds : new Set([draggedProductId]);
+    if (movingIds.has(targetId)) return setDraggedProductId(null);
+    const moved = catalogue.filter((product) => movingIds.has(product.id));
+    const remaining = catalogue.filter((product) => !movingIds.has(product.id));
+    const target = remaining.findIndex((product) => product.id === targetId);
+    if (!moved.length || target < 0) return setDraggedProductId(null);
+    const next = [...remaining.slice(0, target), ...moved, ...remaining.slice(target)];
     setDraggedProductId(null);
     void persistProductOrder(next);
   }
@@ -809,6 +832,7 @@ export default function Studio() {
       if (!response.ok) return toast.error("Não foi possível apagar o produto.");
     }
     setCatalogue((items) => items.filter((item) => item.id !== product.id));
+    setSelectedProductIds((current) => { const next = new Set(current); next.delete(product.id); return next; });
     if (expandedProductId === product.id) setExpandedProductId(null);
     toast.success("Produto apagado");
   }
@@ -1756,13 +1780,23 @@ export default function Studio() {
                 <input value={productQuery} onChange={(event)=>setProductQuery(event.target.value)} placeholder="Pesquisar por nome, MiM_0000, slug, coleção ou tag…" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-black/35" />
                 {productQuery && <button type="button" className="shrink-0 text-xs font-black uppercase text-black/45 hover:text-black" onClick={()=>setProductQuery("")}>Limpar</button>}
               </label>
+              <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <div className="inline-flex border border-white/15 bg-white/5 p-1" aria-label="Filtrar produtos por estado">
+                  {([['all','Todos'],['active','Ativos'],['disabled','Desativados']] as const).map(([value,label])=><button key={value} type="button" aria-pressed={productStatusFilter===value} onClick={()=>setProductStatusFilter(value)} className={`px-4 py-2 text-xs font-black uppercase transition ${productStatusFilter===value?'bg-white text-black':'text-white/60 hover:text-white'}`}>{label}<span className="ml-1.5 opacity-55">{value==='all'?catalogue.length:value==='active'?catalogue.filter((item)=>item.status==='published').length:catalogue.filter((item)=>item.status!=='published').length}</span></button>)}
+                </div>
+                <div className="flex items-center gap-3 text-xs font-bold uppercase text-white/60">
+                  <span>{selectedProductIds.size} selecionado{selectedProductIds.size===1?'':'s'}</span>
+                  {selectedProductIds.size>0&&<button type="button" className="text-white underline underline-offset-4" onClick={()=>setSelectedProductIds(new Set())}>Desselecionar todos</button>}
+                </div>
+              </div>
               <div className="space-y-3">
                 {filteredCatalogue.map((product) => {
                   const productIndex = catalogue.findIndex((item)=>item.id===product.id);
                   const isOpen = expandedProductId === product.id;
                   return (
-                    <article key={product.id} draggable onDragStart={() => setDraggedProductId(product.id)} onDragEnd={() => setDraggedProductId(null)} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); dropProduct(product.id); }} className={`overflow-hidden border bg-white shadow-sm transition ${draggedProductId === product.id ? "border-[var(--brand)] opacity-50" : "border-black/10"}`}>
-                      <div className="grid grid-cols-[32px_64px_1fr_auto] items-center gap-3 p-3">
+                    <article key={product.id} draggable onDragStart={() => startProductDrag(product.id)} onDragEnd={() => setDraggedProductId(null)} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); dropProduct(product.id); }} className={`overflow-hidden border bg-white shadow-sm transition ${draggedProductId !== null && selectedProductIds.has(product.id) ? "opacity-55" : ""} ${selectedProductIds.has(product.id) ? "border-[var(--brand)] outline outline-2 outline-[var(--brand)]" : "border-black/10"}`}>
+                      <div className="grid grid-cols-[28px_32px_64px_1fr_auto] items-center gap-3 p-3">
+                        <button type="button" aria-label={selectedProductIds.has(product.id)?`Desselecionar ${product.name}`:`Selecionar ${product.name}`} aria-pressed={selectedProductIds.has(product.id)} onClick={()=>toggleProductSelection(product.id)} className={`grid size-6 place-items-center border text-xs font-black transition ${selectedProductIds.has(product.id)?'border-[var(--brand)] bg-[var(--brand)] text-white':'border-white/25 bg-white/5 text-transparent hover:border-white/60'}`}>✓</button>
                         <GripVertical className="size-5 cursor-grab text-black/30 active:cursor-grabbing" aria-label="Arrastar para reordenar" />
                         <button type="button" onClick={() => void openProduct(product)} className="relative size-16 overflow-hidden border border-black/10 bg-[linear-gradient(45deg,#eee_25%,transparent_25%),linear-gradient(-45deg,#eee_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#eee_75%),linear-gradient(-45deg,transparent_75%,#eee_75%)] bg-[length:16px_16px]">
                           {product.imageKey ? <Image src={product.imageKey} alt="" fill sizes="64px" unoptimized className="object-contain p-1" /> : <Images className="absolute inset-0 m-auto size-5 text-black/25" />}
@@ -1869,7 +1903,7 @@ export default function Studio() {
                     </article>
                   );
                 })}
-                {filteredCatalogue.length===0&&<div className="border-2 border-dashed border-black/15 bg-white/50 p-10 text-center"><Search className="mx-auto size-8 text-black/25"/><p className="mt-3 font-black uppercase">Nenhum produto encontrado</p><button type="button" onClick={()=>setProductQuery("")} className="mt-2 text-sm underline">Limpar pesquisa</button></div>}
+                {filteredCatalogue.length===0&&<div className="border-2 border-dashed border-black/15 bg-white/50 p-10 text-center"><Search className="mx-auto size-8 text-black/25"/><p className="mt-3 font-black uppercase">Nenhum produto encontrado</p><button type="button" onClick={()=>{setProductQuery("");setProductStatusFilter("all");}} className="mt-2 text-sm underline">Limpar filtros</button></div>}
               </div>
               {placementProductId !== null && (()=>{const product=catalogue.find((item)=>item.id===placementProductId);return product?<ArtworkPlacementEditor open onOpenChange={(open)=>!open&&setPlacementProductId(null)} name={product.name} artwork={product.imageKey||"/products/white-shirt-1.jpg"} supports={settings.productCatalog.supports.filter((support)=>!product.disabledSupports.includes(support.id))} placements={product.artworkPlacements??{}} onSave={(placements)=>void saveProductPlacement(product,placements)}/>:null;})()}
             </div>
