@@ -156,6 +156,9 @@ export async function POST(request: Request) {
     resource?: string;
     productId?: number;
     reference?: string;
+    trackingCode?: string;
+    trackingUrl?: string;
+    internalNotes?: string;
     title?: string;
     blocks?: unknown[];
     status?: string;
@@ -388,6 +391,14 @@ export async function POST(request: Request) {
         { status: 503 },
       );
     }
+  }
+  if(body.resource==="order-details"){
+    const reference=String(body.reference??"").trim();
+    if(!reference)return NextResponse.json({error:"Encomenda inválida"},{status:400});
+    const trackingUrl=String(body.trackingUrl??"").trim();
+    if(trackingUrl&&!/^https:\/\//i.test(trackingUrl))return NextResponse.json({error:"O tracking deve usar HTTPS"},{status:400});
+    const [updated]=await getDb().update(orders).set({trackingCode:String(body.trackingCode??"").trim().slice(0,120),trackingUrl:trackingUrl.slice(0,500),internalNotes:String(body.internalNotes??"").slice(0,5000)}).where(eq(orders.reference,reference)).returning({reference:orders.reference});
+    return updated?NextResponse.json({ok:true}):NextResponse.json({error:"Encomenda não encontrada"},{status:404});
   }
   if (body.resource === "products") {
     if (!Array.isArray(body.entries))

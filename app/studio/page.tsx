@@ -123,6 +123,9 @@ type Order = {
   totalCents: number;
   status: string;
   paymentProvider: string | null;
+  trackingCode: string;
+  trackingUrl: string;
+  internalNotes: string;
   createdAt: string;
 };
 type StudioPage = {
@@ -928,6 +931,10 @@ export default function Studio() {
       toast.success("Estado atualizado");
     } else toast.error("Não foi possível atualizar o estado.");
   }
+  async function saveOrderDetails(order:Order) {
+    const response=await fetch("/api/studio",{method:"POST",headers:{"content-type":"application/json","x-studio-user":studioUser,"x-studio-key":studioKey},body:JSON.stringify({resource:"order-details",reference:order.reference,trackingCode:order.trackingCode,trackingUrl:order.trackingUrl,internalNotes:order.internalNotes})});
+    if(response.ok)toast.success("Detalhes da encomenda guardados");else toast.error("Não foi possível guardar os detalhes.");
+  }
 
   async function crunchArtworkPng(file: File) {
     if (file.type !== "image/png") throw new Error("A imagem de capa tem de ser um ficheiro PNG.");
@@ -1498,6 +1505,12 @@ export default function Studio() {
                             </SelectContent>
                           </Select>
                         </div>
+                      </div>
+                      <div className="mt-5 grid gap-4 border-t border-black/10 pt-5 md:grid-cols-2">
+                        <label className="grid gap-1 text-xs font-bold uppercase"><span>Código de tracking</span><Input value={order.trackingCode??""} onChange={(event)=>setOrders((items)=>items.map((item)=>item.reference===order.reference?{...item,trackingCode:event.target.value}:item))} placeholder="Ex.: CTT123456789PT"/></label>
+                        <label className="grid gap-1 text-xs font-bold uppercase"><span>Link de tracking</span><Input type="url" value={order.trackingUrl??""} onChange={(event)=>setOrders((items)=>items.map((item)=>item.reference===order.reference?{...item,trackingUrl:event.target.value}:item))} placeholder="https://..."/></label>
+                        <label className="grid gap-1 text-xs font-bold uppercase md:col-span-2"><span>Notas internas</span><textarea value={order.internalNotes??""} onChange={(event)=>setOrders((items)=>items.map((item)=>item.reference===order.reference?{...item,internalNotes:event.target.value}:item))} rows={3} className="min-h-24 border border-black/15 bg-white p-3 text-sm font-normal normal-case" placeholder="Produção, embalagem, contacto com o cliente…"/></label>
+                        <Button type="button" className="rounded-none bg-[var(--ink)] text-white md:col-start-2" onClick={()=>void saveOrderDetails(order)}><Save/>Guardar tracking e notas</Button>
                       </div>
                     </article>
                   ))}

@@ -105,6 +105,9 @@ export const orders = pgTable("orders", {
   status: text("status").notNull().default("pending"),
   paymentProvider: text("payment_provider"),
   paymentReference: text("payment_reference"),
+  trackingCode: text("tracking_code").notNull().default(""),
+  trackingUrl: text("tracking_url").notNull().default(""),
+  internalNotes: text("internal_notes").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

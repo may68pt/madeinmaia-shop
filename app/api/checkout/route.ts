@@ -19,6 +19,18 @@ const fallback = new Map([
   ["los-robots", { name:"Los Robots", priceCents:2000, colors:["Azul"], sizes:["XS","S","M","L","XL","XXL"] }],
 ]);
 
+export async function GET(request: Request) {
+  const sessionId = new URL(request.url).searchParams.get("session_id")?.trim() ?? "";
+  if (!sessionId || sessionId.length > 255) return NextResponse.json({ error:"Referência de pagamento inválida." }, { status:400 });
+  if (!process.env.DATABASE_URL) return NextResponse.json({ error:"Resumo indisponível em modo local." }, { status:404 });
+  try {
+    const [order] = await getDb().select({ reference:orders.reference, status:orders.status, items:orders.items, shippingCents:orders.shippingCents, totalCents:orders.totalCents, trackingCode:orders.trackingCode, trackingUrl:orders.trackingUrl }).from(orders).where(eq(orders.paymentReference,sessionId)).limit(1);
+    return order ? NextResponse.json({ order }) : NextResponse.json({ error:"Encomenda não encontrada." }, { status:404 });
+  } catch {
+    return NextResponse.json({ error:"Não foi possível carregar a encomenda." }, { status:503 });
+  }
+}
+
 export async function POST(request: Request) {
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error:"Confirma os dados de entrega e o carrinho." }, { status:400 });
