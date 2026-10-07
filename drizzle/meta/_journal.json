@@ -120,6 +120,13 @@
       "when": 1791408120501,
       "tag": "0016_romantic_chimera",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1791415324714,
+      "tag": "0017_wide_scarlet_witch",
+      "breakpoints": true
     }
   ]
 }
