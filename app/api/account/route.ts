@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
-import { and, desc, eq, gt } from "drizzle-orm";
+import { and, desc, eq, gt, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { orders, userAccounts, userSessions } from "@/db/schema";
 import { createSessionToken, hashPassword, hashSessionToken, verifyPassword } from "@/lib/account-auth";
 
 const COOKIE="mim_session";
-function validOrigin(request:Request){const origin=request.headers.get("origin");return !origin||new URL(origin).host===new URL(request.url).host;}
+function validOrigin(request:Request){
+  const origin=request.headers.get("origin");
+  if(!origin)return true;
+  const forwardedHost=request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const publicHost=forwardedHost||request.headers.get("host")||new URL(request.url).host;
+  try{return new URL(origin).host===publicHost;}catch{return false;}
+}
 function sessionToken(request:Request){const value=request.headers.get("cookie")?.match(/(?:^|; )mim_session=([^;]+)/)?.[1];return value?decodeURIComponent(value):null;}
 
 export async function GET(request:Request){
@@ -15,7 +21,7 @@ export async function GET(request:Request){
     const db=getDb();
     const [user]=await db.select({email:userAccounts.email,role:userAccounts.role}).from(userSessions).innerJoin(userAccounts,eq(userAccounts.id,userSessions.userId)).where(and(eq(userSessions.tokenHash,hashSessionToken(token)),gt(userSessions.expiresAt,new Date()))).limit(1);
     if(!user)return NextResponse.json({user:null,orders:[]});
-    const orderList=await db.select({reference:orders.reference,status:orders.status,items:orders.items,shippingCents:orders.shippingCents,totalCents:orders.totalCents,trackingCode:orders.trackingCode,trackingUrl:orders.trackingUrl,createdAt:orders.createdAt}).from(orders).where(eq(orders.customerEmail,user.email)).orderBy(desc(orders.createdAt));
+    const orderList=await db.select({reference:orders.reference,status:orders.status,items:orders.items,shippingCents:orders.shippingCents,totalCents:orders.totalCents,trackingCode:orders.trackingCode,trackingUrl:orders.trackingUrl,createdAt:orders.createdAt}).from(orders).where(sql`lower(${orders.customerEmail}) = ${user.email}`).orderBy(desc(orders.createdAt));
     return NextResponse.json({user,orders:orderList});
   } catch {
     return NextResponse.json({error:"Could not load your account."},{status:503});

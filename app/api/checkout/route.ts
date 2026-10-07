@@ -34,7 +34,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error:"Confirma os dados de entrega e o carrinho." }, { status:400 });
-  const { customer, items } = parsed.data;
+  const { customer:submittedCustomer, items } = parsed.data;
+  const customer={...submittedCustomer,email:submittedCustomer.email.toLowerCase()};
   const slugs = [...new Set(items.map((item)=>item.slug))];
   const catalogue = new Map<string,{name:string;priceCents:number;colors:string[];sizes:string[];disabledSupports?:string[]}>(process.env.DATABASE_URL ? [] : fallback);
   let productCatalog = { colors: DEFAULT_COLORS, supports: DEFAULT_SUPPORTS };
