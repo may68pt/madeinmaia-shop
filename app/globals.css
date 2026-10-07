@@ -154,14 +154,21 @@ img, svg, video, canvas { max-width: 100%; }
 .mim-studio .text-black\/45,
 .mim-studio .text-black\/50,
 .mim-studio .text-black\/55,
-.mim-studio .text-black\/60 { color: rgb(244 243 239 / .62) !important; }
+.mim-studio .text-black\/60,
+.mim-studio .text-black\/65,
+.mim-studio .text-black\/70,
+.mim-studio .text-black\/75,
+.mim-studio .text-black\/80 { color: rgb(244 243 239 / .68) !important; }
 .mim-studio input,
 .mim-studio textarea,
 .mim-studio select { background-color: #11110f; border-color: rgb(255 255 255 / .16); color: #f4f3ef; }
 .mim-studio input::placeholder,
 .mim-studio textarea::placeholder { color: rgb(244 243 239 / .38); }
 .mim-studio select option { background: #181816; color: #f4f3ef; }
-.mim-studio aside { background: #141412 !important; border-color: rgb(255 255 255 / .1) !important; }
+.mim-studio aside { background: #141412 !important; border-color: rgb(255 255 255 / .1) !important; color: #f4f3ef; }
+.mim-studio aside [data-slot="tabs-list"] { background: #242421; color: rgb(244 243 239 / .65); }
+.mim-studio aside [data-slot="tabs-trigger"][data-state="active"] { background: var(--brand); border-color: var(--brand); color: #fff; }
+.mim-studio aside [data-slot="button"][data-variant="secondary"] { background: var(--brand); color: #fff; }
 .mim-studio .mim-inline-edit { border-radius: .15rem; transition: box-shadow .15s ease, background-color .15s ease; }
 .mim-studio .mim-inline-edit:hover { box-shadow: 0 0 0 1px rgb(255 255 255 / .28); }
 .mim-studio .mim-inline-edit:focus { background: rgb(0 0 0 / .22); box-shadow: 0 0 0 2px var(--brand); }

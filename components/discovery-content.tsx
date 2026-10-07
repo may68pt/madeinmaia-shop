@@ -33,7 +33,7 @@ export function DiscoveryContent({ entry }: { entry: DiscoveryEntry }) {
       )}
       {youtubeUrl && (
         <div className="absolute inset-0 grid place-items-center bg-black">
-          <iframe className="aspect-video h-auto max-h-dvh w-full" src={`${youtubeUrl}?autoplay=1&rel=0`} title={entry.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+          <iframe className="aspect-video h-auto max-h-dvh w-full" src={`${youtubeUrl}?autoplay=1&mute=1&playsinline=1&rel=0`} title={entry.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
         </div>
       )}
       {isEditorial&&<div className="relative z-10 my-auto mx-auto w-full max-w-4xl px-5 py-28 sm:px-10"><p className="text-xs font-black uppercase tracking-[.2em] text-[#d8ff42]">{entry.category}</p><h1 className="mt-4 text-[clamp(3rem,10vw,7.5rem)] font-black uppercase leading-[.82] tracking-[-.07em]">{entry.title}</h1><div className="mt-8 max-w-3xl whitespace-pre-line text-lg leading-relaxed text-white/72 sm:text-2xl">{entry.body}</div>{entry.mediaUrl&&<div className="relative mt-10 aspect-video overflow-hidden rounded-2xl bg-white/5"><Image src={entry.mediaUrl} alt={entry.title} fill sizes="896px" className="object-cover" unoptimized /></div>}</div>}
