@@ -5,8 +5,10 @@ import Stripe from "stripe";
 import { getDb } from "@/db";
 import { orders, products, siteSettings } from "@/db/schema";
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport, supportOptions } from "@/lib/product-catalog";
+import { sendOrderStatusEmail } from "@/lib/order-email";
 
 const schema = z.object({
+  termsAccepted: z.literal(true),
   customer: z.object({ name:z.string().trim().min(2), email:z.string().email(), phone:z.string().trim().min(6), address:z.string().trim().min(4), postalCode:z.string().trim().min(4), city:z.string().trim().min(2), country:z.string().trim().min(2) }),
   items: z.array(z.object({ slug:z.string().min(1), productType:z.string().min(1).default("adult-tshirt"), color:z.string().min(1), printColor:z.enum(["black","white"]).default("black"), size:z.string().min(1), quantity:z.number().int().min(1).max(20) })).min(1),
 });
@@ -48,7 +50,9 @@ export async function POST(request: Request) {
   const reference = `MIM-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0,4).toUpperCase()}`;
   if (process.env.DATABASE_URL) {
     try {
-      await getDb().insert(orders).values({ reference, customerEmail:customer.email, customerName:customer.name, customerPhone:customer.phone, shippingAddress:{ address:customer.address, postalCode:customer.postalCode, city:customer.city, country:customer.country }, items:orderItems, shippingCents, totalCents, status:"pending", paymentProvider:process.env.STRIPE_SECRET_KEY?"stripe":process.env.PAYMENT_LINK_URL?"payment-link":"manual" });
+      const newOrder={ reference, customerEmail:customer.email, customerName:customer.name, customerPhone:customer.phone, shippingAddress:{ address:customer.address, postalCode:customer.postalCode, city:customer.city, country:customer.country }, items:orderItems, shippingCents, totalCents, status:"pending", paymentProvider:process.env.STRIPE_SECRET_KEY?"stripe":process.env.PAYMENT_LINK_URL?"payment-link":"manual" };
+      await getDb().insert(orders).values(newOrder);
+      await sendOrderStatusEmail(newOrder).catch(()=>undefined);
     } catch { return NextResponse.json({ error:"Não foi possível criar a encomenda." }, { status:503 }); }
   }
   let paymentUrl: string | null = null;

@@ -50,4 +50,8 @@ export function addCartItem(item: Omit<CartItem, "key" | "quantity">) {
 }
 
 export function removeCartItem(key: string) { writeCart(readCart().filter((item) => item.key !== key)); }
+export function updateCartQuantity(key:string, quantity:number) {
+  const normalized=Math.max(0,Math.min(20,Math.floor(quantity)||0));
+  writeCart(normalized===0?readCart().filter((item)=>item.key!==key):readCart().map((item)=>item.key===key?{...item,quantity:normalized}:item));
+}
 export function clearCart() { writeCart([]); }

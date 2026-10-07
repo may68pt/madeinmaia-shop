@@ -1490,9 +1490,11 @@ export default function Studio() {
                                 Em preparação
                               </SelectItem>
                               <SelectItem value="shipped">Enviada</SelectItem>
+                              <SelectItem value="completed">Concluída</SelectItem>
                               <SelectItem value="cancelled">
                                 Cancelada
                               </SelectItem>
+                              <SelectItem value="refunded">Reembolsada</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
