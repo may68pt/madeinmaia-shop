@@ -361,7 +361,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
   if (body.resource === "order-status") {
-    const allowed = ["pending", "paid", "preparing", "shipped", "cancelled"];
+    const allowed = ["pending", "paid", "preparing", "shipped", "completed", "cancelled", "refunded"];
     if (!body.reference || !body.status || !allowed.includes(body.status))
       return NextResponse.json({ error: "Estado inválido" }, { status: 400 });
     try {
