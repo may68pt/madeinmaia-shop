@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { and, eq, ne } from "drizzle-orm";
 import { getDb } from "@/db";
 import { products, siteSettings } from "@/db/schema";
@@ -9,7 +8,8 @@ import { ProductDiscovery, type RelatedProduct } from "@/components/product-disc
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport } from "@/lib/product-catalog";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
 import { LOCAL_FALLBACK_PRODUCTS } from "@/lib/fallback-products";
-import { BrandLogo } from "@/components/brand-logo";
+import { StoreHeader } from "@/components/store-header";
+import { DEFAULT_NAVIGATION,type NavigationItem } from "@/lib/site-navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -52,11 +52,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   let product = fallback.find((item)=>item.slug===slug);
   let catalog = { colors: DEFAULT_COLORS, supports: DEFAULT_SUPPORTS };
   let related:RelatedProduct[] = [];
+  let navigation:NavigationItem[]=DEFAULT_NAVIGATION;
   try {
     const db = getDb();
     const [[stored], [settings]] = await Promise.all([db.select().from(products).where(and(eq(products.slug, slug),eq(products.onlineSaleEnabled,true))), db.select().from(siteSettings).where(eq(siteSettings.key,"global"))]);
     if (stored?.status === "published") product = { slug:stored.slug, name:stored.name, nameTranslations:stored.nameTranslations, description:stored.description, priceCents:stored.priceCents, collection:stored.collection, tags:stored.tags, imageKey:stored.imageKey || "/products/white-shirt-1.jpg", gallery:stored.gallery, disabledSupports:stored.disabledSupports, monochrome:stored.monochrome, artworkPlacements:stored.artworkPlacements??{} };
     if (settings?.data.productCatalog) catalog = settings.data.productCatalog;
+    if(settings?.data.navigation?.length)navigation=[...settings.data.navigation,...DEFAULT_NAVIGATION.filter((required)=>!settings.data.navigation.some((item)=>item.id===required.id))];
     if (product) {
       const candidates = await db.select({
         slug:products.slug,
@@ -87,5 +89,5 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       url: `https://madeinmaia.pt/designs/${product.slug}`,
     },
   };
-  return <main id={`mim-product-${product.slug}`} className="mim-product-page storefront-dark min-h-screen overflow-x-clip bg-[var(--paper)] text-[var(--foreground)]"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><header className="mim-product-page__header flex min-w-0 items-center justify-between gap-4 border-b border-white/10 px-4 py-3 sm:px-5 lg:px-10"><Link href="/loja" className="flex shrink-0 items-center gap-2 font-black uppercase"><ArrowLeft className="size-4"/><span className="hidden sm:inline">Loja</span></Link><Link href="/loja" aria-label="Made in Maia shop" className="min-w-0"><BrandLogo className="h-16 w-auto" /></Link></header><ProductPurchase slug={product.slug} name={product.name} description={product.description} collection={product.collection} image={product.imageKey} gallery={product.gallery} priceCents={product.priceCents} supports={supports} catalogColors={catalog.colors} monochrome={product.monochrome} artworkPlacements={product.artworkPlacements}/><ProductDiscovery related={related} collection={product.tags[0] ?? product.collection}/></main>;
+  return <main id={`mim-product-${product.slug}`} className="mim-product-page storefront-dark min-h-screen overflow-x-clip bg-[var(--paper)] text-[var(--foreground)]"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><StoreHeader navigation={navigation}/><ProductPurchase slug={product.slug} name={product.name} description={product.description} collection={product.collection} image={product.imageKey} gallery={product.gallery} priceCents={product.priceCents} supports={supports} catalogColors={catalog.colors} monochrome={product.monochrome} artworkPlacements={product.artworkPlacements}/><ProductDiscovery related={related} collection={product.tags[0] ?? product.collection}/></main>;
 }

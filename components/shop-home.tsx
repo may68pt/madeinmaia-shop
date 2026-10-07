@@ -1,22 +1,20 @@
 "use client";
 
-import Image from "next/image";
 import { ProductCard } from "@/components/product-card";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LoaderCircle, Menu, Search, ShoppingBag, SlidersHorizontal, X } from "lucide-react";
+import { LoaderCircle, Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { removeCartItem, useCart } from "@/lib/cart";
 import { DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as PageBlockData } from "@/lib/page-blocks";
 import { PageBlock } from "@/components/page-block";
-import { LOCALES, UI_STRINGS, translatedName, translatedNavigation, type Locale } from "@/lib/i18n";
+import { LOCALES, UI_STRINGS, translatedName, type Locale } from "@/lib/i18n";
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
 import { LOCAL_FALLBACK_PRODUCTS } from "@/lib/fallback-products";
 import { BrandLogo } from "@/components/brand-logo";
 import { LivingDesignGrid, type LivingGridProduct } from "@/components/living-design-grid";
+import { StoreHeader } from "@/components/store-header";
 
 type ShopProduct = { slug: string; name: string; nameTranslations:Record<string,string>; collection: string; tags:string[]; price: string; priceCents: number; image: string; colors: string[]; previewColorIds:string[]; sizes: string[]; monochrome:boolean; disabledSupports:string[]; artworkPlacements:ArtworkPlacements };
 
@@ -62,7 +60,6 @@ export default function Home({ initialProducts = [], heroProducts = [], initialT
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const firstQueryRun = useRef(true);
   const strings = UI_STRINGS[locale];
-  const cart = useCart();
   const livingGridProducts:LivingGridProduct[] = heroProducts.length ? heroProducts : initialCatalogue.map(({slug,name,image,previewColorIds})=>({slug,name,imageKey:image,previewColorIds}));
 
   useEffect(() => {
@@ -145,22 +142,7 @@ export default function Home({ initialProducts = [], heroProducts = [], initialT
 
   return (
     <main id="mim-shop" className="mim-shop storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]">
-      <div id="mim-announcement" className="mim-announcement border-b border-white/10 bg-black px-5 py-2 text-center text-sm font-medium tracking-wide text-white">{strings.announcement}</div>
-      <header id="mim-site-header" className="mim-site-header sticky top-0 z-20 border-b border-white/10 bg-[color:var(--paper)]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1440px] items-center gap-5 px-5 py-4 lg:px-10">
-          <Sheet>
-            <SheetTrigger asChild><Button variant="ghost" size="icon" className="lg:hidden" aria-label={strings.menu}><Menu /></Button></SheetTrigger>
-            <SheetContent side="left" className="storefront-dark border-white/10 bg-[var(--paper)] p-7 text-white"><SheetHeader><SheetTitle className="text-left text-2xl text-white">{strings.explore}</SheetTitle></SheetHeader><nav className="mt-8 grid gap-5 text-lg">{navigation.filter((item) => item.visible).map((item) => <Link key={item.id} href={item.id==="collections"?"/collections":item.url}>{translatedNavigation(item.id,item.label,locale)}</Link>)}</nav></SheetContent>
-          </Sheet>
-          <Link href="/loja" className="mim-site-header__logo mr-auto block min-w-0" aria-label="Made in Maia, início"><BrandLogo className="h-14 w-auto sm:h-16" /></Link>
-          <nav className="hidden items-center gap-7 text-sm font-semibold lg:flex">{navigation.filter((item) => item.visible).map((item) => <div key={item.id} className="group/nav relative py-5"><Link href={item.id==="collections"?"/collections":item.url}>{translatedNavigation(item.id,item.label,locale)}</Link>{item.children?.some((child)=>child.visible)&&<div className="invisible absolute left-1/2 top-full z-50 min-w-52 -translate-x-1/2 border border-white/10 bg-[#171715] p-2 opacity-0 shadow-2xl transition group-hover/nav:visible group-hover/nav:opacity-100 group-focus-within/nav:visible group-focus-within/nav:opacity-100">{item.children.filter((child)=>child.visible).map((child)=><Link key={child.id} href={child.id.startsWith("collection-")?`/collections/${child.id.slice("collection-".length)}`:child.url} className="block px-4 py-3 text-sm text-white/70 hover:bg-white/10 hover:text-white">{child.label}</Link>)}</div>}</div>)}</nav>
-          <label className="sr-only" htmlFor="language">Language</label><select id="language" value={locale} onChange={(event)=>setLocale(event.target.value as Locale)} className="bg-transparent text-xs font-black uppercase">{LOCALES.map((item)=><option key={item} value={item}>{item}</option>)}</select>
-          <Sheet>
-            <SheetTrigger asChild><Button variant="ghost" className="relative" size="icon" aria-label={strings.viewBag}><ShoppingBag />{cart.length > 0 && <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-[var(--brand)] text-[11px] font-bold text-white">{cart.reduce((sum,item)=>sum+item.quantity,0)}</span>}</Button></SheetTrigger>
-            <SheetContent className="storefront-dark flex flex-col border-white/10 bg-[var(--paper)] p-6 text-white sm:max-w-md"><SheetHeader><SheetTitle className="text-left text-3xl font-black uppercase tracking-tight text-white">{strings.bag}</SheetTitle></SheetHeader><div className="mt-6 flex-1 space-y-3">{cart.length === 0 ? <p className="border border-dashed border-white/20 p-7 text-center text-white/55">{strings.emptyBag}</p> : cart.map((item) => <div key={item.key} className="flex items-center gap-4 bg-white/5 p-3"><div className="relative size-20 overflow-hidden bg-white"><Image src={item.image} alt="" fill sizes="80px" unoptimized={item.image.startsWith("http")} className="object-contain"/></div><div><strong className="uppercase">{item.name}</strong><p className="text-sm text-white/55">{item.size} · {item.color} · {item.printColor || "black"} print · {item.quantity}×</p></div><span className="ml-auto font-bold">{((item.priceCents*item.quantity)/100).toFixed(2).replace(".", ",")} €</span><Button size="icon" variant="ghost" onClick={()=>removeCartItem(item.key)} aria-label={`${strings.remove} ${item.name}`}><X className="size-4"/></Button></div>)}</div><div className="border-t border-white/15 pt-5"><div className="mb-4 flex justify-between text-lg font-bold"><span>Total</span><span>{(cart.reduce((sum,item)=>sum+item.priceCents*item.quantity,0)/100).toFixed(2).replace(".", ",")} €</span></div>{cart.length>0?<Button asChild className="h-13 w-full rounded-none bg-white text-base text-black"><Link href="/checkout">{strings.checkout}</Link></Button>:<Button disabled className="h-13 w-full rounded-none">{strings.checkout}</Button>}<p className="mt-3 text-center text-xs text-white/50">{strings.secureCheckout}</p></div></SheetContent>
-          </Sheet>
-        </div>
-      </header>
+      <StoreHeader navigation={navigation} locale={locale} onLocaleChange={setLocale} announcement/>
       <section id="mim-living-hero" className="mim-living-hero border-b border-white/10 bg-[#11110f]" aria-labelledby="mim-living-hero-title">
         <div className="mx-auto max-w-[1440px] px-3 py-5 sm:px-5 lg:px-10 lg:py-8">
           <div className="mb-4 flex items-end justify-between gap-4">
