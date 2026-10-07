@@ -28,6 +28,22 @@ export async function GET(request:Request){
   }
 }
 
+export async function DELETE(request:Request){
+  if(!validOrigin(request))return NextResponse.json({error:"Invalid origin"},{status:403});
+  const token=sessionToken(request);
+  if(!token)return NextResponse.json({error:"Authentication required"},{status:401});
+  const db=getDb();
+  const [session]=await db.select({userId:userSessions.userId}).from(userSessions).where(and(eq(userSessions.tokenHash,hashSessionToken(token)),gt(userSessions.expiresAt,new Date()))).limit(1);
+  if(!session)return NextResponse.json({error:"Authentication required"},{status:401});
+  await db.transaction(async(transaction)=>{
+    await transaction.delete(userSessions).where(eq(userSessions.userId,session.userId));
+    await transaction.delete(userAccounts).where(eq(userAccounts.id,session.userId));
+  });
+  const response=NextResponse.json({ok:true});
+  response.cookies.set(COOKIE,"",{httpOnly:true,secure:process.env.NODE_ENV==="production",sameSite:"strict",path:"/",maxAge:0});
+  return response;
+}
+
 export async function POST(request:Request){
   if(!validOrigin(request))return NextResponse.json({error:"Invalid origin"},{status:403});
   const body=await request.json().catch(()=>null) as {action?:string;email?:string;password?:string}|null;
