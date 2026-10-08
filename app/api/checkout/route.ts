@@ -19,6 +19,14 @@ const fallback = new Map([
   ["los-robots", { name:"Los Robots", priceCents:2000, colors:["Azul"], sizes:["XS","S","M","L","XL","XXL"] }],
 ]);
 
+function validOrigin(request:Request){
+  const origin=request.headers.get("origin");
+  if(!origin)return true;
+  const forwardedHost=request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const publicHost=forwardedHost||request.headers.get("host")||new URL(request.url).host;
+  try{return new URL(origin).host===publicHost;}catch{return false;}
+}
+
 export async function GET(request: Request) {
   const sessionId = new URL(request.url).searchParams.get("session_id")?.trim() ?? "";
   if (!sessionId || sessionId.length > 255) return NextResponse.json({ error:"Referência de pagamento inválida." }, { status:400 });
@@ -32,7 +40,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const parsed = schema.safeParse(await request.json());
+  if(!validOrigin(request))return NextResponse.json({error:"Origem inválida."},{status:403});
+  if(!process.env.STRIPE_SECRET_KEY&&!process.env.PAYMENT_LINK_URL)return NextResponse.json({error:"O pagamento online está temporariamente indisponível. Tenta novamente mais tarde."},{status:503});
+  const parsed = schema.safeParse(await request.json().catch(()=>null));
   if (!parsed.success) return NextResponse.json({ error:"Confirma os dados de entrega e o carrinho." }, { status:400 });
   const { customer:submittedCustomer, items } = parsed.data;
   const customer={...submittedCustomer,email:submittedCustomer.email.toLowerCase()};
@@ -78,11 +88,15 @@ export async function POST(request: Request) {
       const session = await stripe.checkout.sessions.create({ mode:"payment", customer_email:customer.email, line_items:lineItems, success_url:`${origin}/checkout/sucesso?session_id={CHECKOUT_SESSION_ID}`, cancel_url:`${origin}/checkout`, metadata:{ reference }, payment_intent_data:{ metadata:{ reference } } });
       paymentUrl = session.url;
       if (process.env.DATABASE_URL) await getDb().update(orders).set({ paymentReference:session.id }).where(inArray(orders.reference,[reference]));
-    } catch { return NextResponse.json({ error:"Não foi possível iniciar o pagamento Stripe." }, { status:502 }); }
+    } catch {
+      if(process.env.DATABASE_URL)await getDb().update(orders).set({status:"cancelled"}).where(eq(orders.reference,reference)).catch(()=>undefined);
+      return NextResponse.json({ error:"Não foi possível iniciar o pagamento Stripe. A encomenda não foi cobrada." }, { status:502 });
+    }
   } else if (process.env.PAYMENT_LINK_URL) {
     const url = new URL(process.env.PAYMENT_LINK_URL);
     url.searchParams.set("reference", reference); url.searchParams.set("amount", String(totalCents));
     paymentUrl = url.toString();
   }
+  if(!paymentUrl)return NextResponse.json({error:"O pagamento online está temporariamente indisponível."},{status:503});
   return NextResponse.json({ ok:true, reference, subtotalCents, shippingCents, totalCents, paymentUrl, testMode:!process.env.DATABASE_URL });
 }
