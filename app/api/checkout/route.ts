@@ -6,6 +6,7 @@ import { getDb } from "@/db";
 import { orders, products, siteSettings } from "@/db/schema";
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport, supportOptions } from "@/lib/product-catalog";
 import { sendOrderStatusEmail } from "@/lib/order-email";
+import { calculateShippingCents, isPortugal } from "@/lib/shipping";
 
 const schema = z.object({
   termsAccepted: z.literal(true),
@@ -68,14 +69,13 @@ export async function POST(request: Request) {
   });
   if (orderItems.length !== items.length) return NextResponse.json({ error:"Um produto ou variante deixou de estar disponível." }, { status:409 });
   const subtotalCents = orderItems.reduce((sum,item)=>sum+item.unitPriceCents*item.quantity,0);
-  const shippingCents = subtotalCents >= 4500 ? 0 : 490;
+  const shippingCents = calculateShippingCents(customer.country, subtotalCents);
   const totalCents = subtotalCents + shippingCents;
   const reference = `MIM-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0,4).toUpperCase()}`;
   if (process.env.DATABASE_URL) {
     try {
       const newOrder={ reference, customerEmail:customer.email, customerName:customer.name, customerPhone:customer.phone, shippingAddress:{ address:customer.address, postalCode:customer.postalCode, city:customer.city, country:customer.country }, items:orderItems, shippingCents, totalCents, status:"pending", paymentProvider:process.env.STRIPE_SECRET_KEY?"stripe":process.env.PAYMENT_LINK_URL?"payment-link":"manual" };
       await getDb().insert(orders).values(newOrder);
-      await sendOrderStatusEmail(newOrder).catch(()=>undefined);
     } catch { return NextResponse.json({ error:"Não foi possível criar a encomenda." }, { status:503 }); }
   }
   let paymentUrl: string | null = null;
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
       const origin = new URL(request.url).origin;
       const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = orderItems.map((item)=>({ quantity:item.quantity, price_data:{ currency:"eur", unit_amount:item.unitPriceCents, product_data:{ name:item.name, description:`${item.productType} · ${item.size} · ${item.color} · ${item.printColor} print` } } }));
-      if (shippingCents) lineItems.push({ quantity:1, price_data:{ currency:"eur", unit_amount:shippingCents, product_data:{ name:"Envio Portugal" } } });
+      if (shippingCents) lineItems.push({ quantity:1, price_data:{ currency:"eur", unit_amount:shippingCents, product_data:{ name:isPortugal(customer.country)?"Envio Portugal":"Envio internacional" } } });
       const session = await stripe.checkout.sessions.create({ mode:"payment", customer_email:customer.email, line_items:lineItems, success_url:`${origin}/checkout/sucesso?session_id={CHECKOUT_SESSION_ID}`, cancel_url:`${origin}/checkout`, metadata:{ reference }, payment_intent_data:{ metadata:{ reference } } });
       paymentUrl = session.url;
       if (process.env.DATABASE_URL) await getDb().update(orders).set({ paymentReference:session.id }).where(inArray(orders.reference,[reference]));
@@ -97,6 +97,10 @@ export async function POST(request: Request) {
     url.searchParams.set("reference", reference); url.searchParams.set("amount", String(totalCents));
     paymentUrl = url.toString();
   }
-  if(!paymentUrl)return NextResponse.json({error:"O pagamento online está temporariamente indisponível."},{status:503});
+  if(!paymentUrl){
+    if(process.env.DATABASE_URL)await getDb().update(orders).set({status:"cancelled"}).where(eq(orders.reference,reference)).catch(()=>undefined);
+    return NextResponse.json({error:"O pagamento online está temporariamente indisponível."},{status:503});
+  }
+  if(process.env.DATABASE_URL)await sendOrderStatusEmail({reference,customerEmail:customer.email,customerName:customer.name,customerPhone:customer.phone,shippingAddress:{address:customer.address,postalCode:customer.postalCode,city:customer.city,country:customer.country},items:orderItems,shippingCents,totalCents,status:"pending",paymentProvider:process.env.STRIPE_SECRET_KEY?"stripe":"payment-link"}).catch(()=>undefined);
   return NextResponse.json({ ok:true, reference, subtotalCents, shippingCents, totalCents, paymentUrl, testMode:!process.env.DATABASE_URL });
 }
