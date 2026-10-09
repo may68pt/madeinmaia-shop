@@ -1,0 +1,25 @@
+name: Verify Studio Quality Dashboard
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/studio/**'
+      - 'components/product-quality-dashboard.tsx'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/studio-quality.yml'
+  push:
+    branches: [feature/product-quality-dashboard]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npm run build
