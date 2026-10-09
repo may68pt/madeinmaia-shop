@@ -1874,7 +1874,7 @@ export default function Studio() {
                 setProductQuery("");
                 setProductStatusFilter("all");
                 setExpandedProductId(id);
-                if (product && !product.detailsLoaded) void loadProductDetails(product);
+                if (product) void openProduct(product);
                 setTimeout(() => document.getElementById(`studio-product-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
               }} />
               <label className="mim-studio-product-search mb-5 flex h-12 w-full min-w-0 items-center gap-3 border border-black/10 bg-white px-4 shadow-sm focus-within:border-black/35">
@@ -1897,7 +1897,7 @@ export default function Studio() {
                   const productIndex = catalogue.findIndex((item)=>item.id===product.id);
                   const isOpen = expandedProductId === product.id;
                   return (
-                    <article key={product.id} draggable onDragStart={() => startProductDrag(product.id)} onDragEnd={() => setDraggedProductId(null)} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); dropProduct(product.id); }} className={`overflow-hidden border bg-white shadow-sm transition ${draggedProductId !== null && selectedProductIds.has(product.id) ? "opacity-55" : ""} ${selectedProductIds.has(product.id) ? "border-[var(--brand)] outline outline-2 outline-[var(--brand)]" : "border-black/10"}`}>
+                    <article id={`studio-product-${product.id}`} key={product.id} draggable onDragStart={() => startProductDrag(product.id)} onDragEnd={() => setDraggedProductId(null)} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); dropProduct(product.id); }} className={`overflow-hidden border bg-white shadow-sm transition ${draggedProductId !== null && selectedProductIds.has(product.id) ? "opacity-55" : ""} ${selectedProductIds.has(product.id) ? "border-[var(--brand)] outline outline-2 outline-[var(--brand)]" : "border-black/10"}`}>
                       <div className="grid grid-cols-[24px_24px_64px_minmax(0,1fr)] items-center gap-2.5 p-3 sm:grid-cols-[28px_28px_72px_minmax(0,1fr)] sm:gap-3">
                         <button type="button" aria-label={selectedProductIds.has(product.id)?`Desselecionar ${product.name}`:`Selecionar ${product.name}`} aria-pressed={selectedProductIds.has(product.id)} onClick={()=>toggleProductSelection(product.id)} className={`row-span-2 grid size-6 place-items-center border text-xs font-black transition ${selectedProductIds.has(product.id)?'border-[var(--brand)] bg-[var(--brand)] text-white':'border-black/20 bg-white text-transparent hover:border-black/50'}`}>✓</button>
                         <GripVertical className="row-span-2 size-5 cursor-grab text-black/30 active:cursor-grabbing" aria-label="Arrastar para reordenar" />
