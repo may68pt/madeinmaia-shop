@@ -55,6 +55,7 @@ import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
 import { BrandLogo } from "@/components/brand-logo";
 import { DefaultPlacementControl } from "@/components/default-placement-control";
 import { CssStudio, type CssFile } from "@/components/css-studio";
+import { ProductQualityDashboard } from "@/components/product-quality-dashboard";
 
 type Discovery = {
   id: number;
@@ -1868,6 +1869,14 @@ export default function Studio() {
                   Novo produto
                 </Button>
               </div>
+              <ProductQualityDashboard products={catalogue} onEdit={(id) => {
+                const product = catalogue.find((item) => item.id === id);
+                setProductQuery("");
+                setProductStatusFilter("all");
+                setExpandedProductId(id);
+                if (product && !product.detailsLoaded) void loadProductDetails(product);
+                setTimeout(() => document.getElementById(`studio-product-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+              }} />
               <label className="mim-studio-product-search mb-5 flex h-12 w-full min-w-0 items-center gap-3 border border-black/10 bg-white px-4 shadow-sm focus-within:border-black/35">
                 <Search className="size-5 shrink-0 text-black/40" />
                 <span className="sr-only">Pesquisar produtos</span>
