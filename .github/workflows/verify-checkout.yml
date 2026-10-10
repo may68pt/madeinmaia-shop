@@ -1,0 +1,37 @@
+name: Verify checkout fixes
+on:
+  push:
+    branches:
+      - fix/international-shipping-stripe-order-cleanup
+  pull_request:
+    branches:
+      - main
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Check shipping rules
+        run: |
+          node --experimental-strip-types --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { calculateShippingCents } from './lib/shipping.ts';
+          for (const [country, subtotal, expected] of [
+            ['Portugal', 2000, 490],
+            ['PT', 4500, 0],
+            ['Portugal', 4499, 490],
+            ['Portugal', 5500, 0],
+            ['Spain', 2000, 799],
+            ['Espanha', 4500, 799],
+            ['France', 9000, 799],
+            ['United Kingdom', 3000, 799],
+          ]) assert.equal(calculateShippingCents(country, subtotal), expected, country + ':' + subtotal);
+          console.log('Shipping scenarios pass');
+          NODE
+      - run: npm run build
