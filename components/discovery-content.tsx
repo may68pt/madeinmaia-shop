@@ -21,7 +21,7 @@ function youtubeEmbedUrl(value: string) {
     const id = host.endsWith("youtu.be")
       ? url.pathname.slice(1)
       : url.searchParams.get("v") ?? (url.pathname.startsWith("/embed/") || url.pathname.startsWith("/shorts/") ? url.pathname.split("/")[2] : "");
-    return id && /^[\\w-]{11}$/.test(id) ? `https://www.youtube-nocookie.com/embed/${id}` : null;
+    return id && /^[A-Za-z0-9_-]{11}$/.test(id) ? `https://www.youtube-nocookie.com/embed/${id}` : null;
   } catch {
     return null;
   }
