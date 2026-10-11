@@ -741,6 +741,29 @@ export default function Studio() {
       items.map((item) => (item.id === id ? { ...item, ...patch } : item)),
     );
   }
+  function addLinkLabel() {
+    const id = Date.now();
+    setLinkLabelQuery("");
+    setDiscoveries((items) => [
+      ...items,
+      {
+        id,
+        title: "Nova Link Label",
+        type: "text",
+        body: "Escreve aqui a mensagem.",
+        category: "Internet gem",
+        tags: [],
+        mediaUrl: "",
+        linkUrl: "",
+        linkLabel: "Descobrir",
+        weight: 1,
+        active: true,
+        detailsLoaded: true,
+      },
+    ]);
+    setExpandedLinkLabelId(id);
+    setTimeout(()=>document.getElementById(`link-label-${id}`)?.scrollIntoView({behavior:"smooth",block:"start"}),0);
+  }
   async function openLinkLabel(entry: Discovery) {
     if (expandedLinkLabelId === entry.id) {
       setExpandedLinkLabelId(null);
@@ -1364,12 +1387,7 @@ export default function Studio() {
                     escolhe uma destas experiências ativas; os artigos publicados também entram no sorteio.
                   </p>
                 </div>
-                <Button asChild variant="outline" className="rounded-none">
-                  <Link href="/linklabel" target="_blank">
-                    <Eye />
-                    Testar
-                  </Link>
-                </Button>
+                <div className="flex flex-wrap justify-end gap-2"><Button asChild variant="outline" className="rounded-none"><Link href="/linklabel" target="_blank"><Eye/>Testar aleatório</Link></Button><Button type="button" onClick={addLinkLabel} className="rounded-none bg-[var(--accent-brand)] text-black hover:bg-[#c8ef39]"><Plus/>Nova Link Label</Button></div>
               </div>
               <label className="mb-5 flex h-12 items-center gap-3 border border-white/15 bg-[#151514] px-4 text-white focus-within:border-[var(--brand)]">
                 <Search className="size-4 shrink-0 text-white/45" />
@@ -1381,7 +1399,7 @@ export default function Studio() {
                   const expanded=expandedLinkLabelId===entry.id;
                   const loading=loadingLinkLabelId===entry.id;
                   return (
-                  <article key={entry.id} className="border border-white/10 bg-[#151514] text-white shadow-sm">
+                  <article id={`link-label-${entry.id}`} key={entry.id} className="scroll-mt-20 border border-white/10 bg-[#151514] text-white shadow-sm">
                     <button type="button" onClick={()=>void openLinkLabel(entry)} className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[.04]" aria-expanded={expanded}>
                       <span className={`size-2 shrink-0 rounded-full ${entry.active?"bg-[var(--accent-brand)]":"bg-white/20"}`} />
                       <span className="grid size-8 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.04] text-[var(--accent-brand)]"><LinkLabelTypeIcon type={entry.type} className="size-4"/></span>
@@ -1423,31 +1441,13 @@ export default function Studio() {
                     {["article","text"].includes(entry.type)&&<div><label className="mb-1 block text-xs font-bold uppercase">{entry.type==="article"?"Artigo / long page":"Mensagem curta"}</label><textarea value={entry.body} onChange={(event)=>updateDiscovery(entry.id,{body:event.target.value})} className={`w-full border border-input p-4 ${entry.type==="article"?"min-h-72":"min-h-28"}`} placeholder={entry.type==="article"?"Escreve o conteúdo editorial…":"Uma ideia curta…"}/><p className="mt-1 text-xs text-black/40">Aceita parágrafos. O texto será o protagonista da experiência.</p></div>}
                     {entry.type==="link"&&<div className="grid gap-4 border border-white/10 bg-black/25 p-4 md:grid-cols-2"><div className="col-span-full border-l-2 border-[var(--accent-brand)] pl-3"><p className="text-xs font-black uppercase text-[var(--accent-brand)]">Redirecionamento automático</p><p className="mt-1 text-sm text-white/55">A Link Label mostra uma contagem 3–2–1 e abre este destino automaticamente. O visitante pode abrir imediatamente.</p></div><label className="grid gap-1 text-xs font-bold uppercase">URL de destino<Input value={entry.linkUrl} onChange={(event)=>updateDiscovery(entry.id,{linkUrl:event.target.value})} placeholder="https://…"/></label><label className="grid gap-1 text-xs font-bold uppercase">Nome do destino<Input value={entry.linkLabel} onChange={(event)=>updateDiscovery(entry.id,{linkLabel:event.target.value})} placeholder="Nome do site"/></label><label className="col-span-full grid gap-1 text-xs font-bold uppercase">Introdução opcional<textarea value={entry.body} onChange={(event)=>updateDiscovery(entry.id,{body:event.target.value})} className="min-h-24 border border-input bg-[#0d0d0c] p-3 text-white"/></label></div>}
                     <div className={`mt-4 grid gap-3 border-t border-white/10 pt-4 ${entry.type==="link"?"md:grid-cols-[120px]":"md:grid-cols-[1fr_1fr_120px]"}`}>{entry.type!=="link"&&<><label className="grid gap-1 text-xs font-bold uppercase">Link opcional<Input value={entry.linkUrl} onChange={(event)=>updateDiscovery(entry.id,{linkUrl:event.target.value})} placeholder="/marca ou https://…"/></label><label className="grid gap-1 text-xs font-bold uppercase">Texto do link<Input value={entry.linkLabel} onChange={(event)=>updateDiscovery(entry.id,{linkLabel:event.target.value})} placeholder="Saber mais"/></label></>}<label className="grid gap-1 text-xs font-bold uppercase">Peso<Input type="number" min="1" value={entry.weight} onChange={(event)=>updateDiscovery(entry.id,{weight:Number(event.target.value)})}/></label></div>
-                    <div className="mt-5 flex justify-end border-t border-white/10 pt-5"><Button type="button" onClick={()=>void saveLinkLabel(entry)} disabled={savingLinkLabelId===entry.id} className="rounded-none bg-[var(--accent-brand)] text-black hover:bg-[#c8ef39]"><Save/>{savingLinkLabelId===entry.id?"A guardar…":"Guardar Link Label"}</Button></div>
+                    <div className="mt-5 flex flex-wrap justify-end gap-2 border-t border-white/10 pt-5"><Button asChild={entry.id<1_000_000_000_000} type="button" variant="outline" disabled={entry.id>=1_000_000_000_000} className="rounded-none">{entry.id<1_000_000_000_000?<Link href={`/linklabel?preview=${entry.id}`} target="_blank"><Eye/>Visualizar</Link>:<span><Eye/>Guarda para visualizar</span>}</Button><Button type="button" onClick={()=>void saveLinkLabel(entry)} disabled={savingLinkLabelId===entry.id} className="rounded-none bg-[var(--accent-brand)] text-black hover:bg-[#c8ef39]"><Save/>{savingLinkLabelId===entry.id?"A guardar…":"Guardar Link Label"}</Button></div>
                     </div>}
                   </article>
                 )})}
               </div>
               <Button
-                onClick={() =>
-                  setDiscoveries((items) => [
-                    ...items,
-                    {
-                      id: Date.now(),
-                      title: "Nova surpresa",
-                      type: "text",
-                      body: "Escreve aqui a mensagem.",
-                      category: "Internet gem",
-                      tags: [],
-                      mediaUrl: "",
-                      linkUrl: "",
-                      linkLabel: "Descobrir",
-                      weight: 1,
-                      active: true,
-                      detailsLoaded: true,
-                    },
-                  ])
-                }
+                onClick={addLinkLabel}
                 className="mt-5 rounded-none bg-[var(--ink)] text-white"
               >
                 <Plus />
