@@ -521,6 +521,36 @@ export async function POST(request: Request) {
       });
     return NextResponse.json({ ok: true, count: entries.length });
   }
+  if (body.resource === "random-content-item") {
+    const source = Array.isArray(body.entries) ? body.entries[0] : null;
+    if (!source || typeof source !== "object")
+      return NextResponse.json({ error: "Link Label inválida" }, { status: 400 });
+    const value = source as Record<string, unknown>;
+    const title = String(value.title ?? "").trim();
+    if (!title)
+      return NextResponse.json({ error: "O título é obrigatório" }, { status: 400 });
+    const values = {
+      title,
+      type: String(value.type ?? "text"),
+      body: String(value.body ?? ""),
+      category: String(value.category ?? "Internet gem").trim() || "Internet gem",
+      tags: Array.isArray(value.tags) ? value.tags.map(String).filter(Boolean) : [],
+      mediaUrl: value.mediaUrl ? String(value.mediaUrl) : null,
+      linkUrl: value.linkUrl ? String(value.linkUrl) : null,
+      linkLabel: String(value.linkLabel ?? "Descobrir"),
+      weight: Math.max(1, Number(value.weight) || 1),
+      active: value.active !== false,
+      updatedAt: new Date(),
+    };
+    const id = Number(value.id);
+    const db = getDb();
+    const [linkLabel] = Number.isInteger(id) && id > 0 && id < 1_000_000_000_000
+      ? await db.update(randomContent).set(values).where(eq(randomContent.id, id)).returning()
+      : await db.insert(randomContent).values(values).returning();
+    return linkLabel
+      ? NextResponse.json({ ok: true, linkLabel })
+      : NextResponse.json({ error: "Link Label não encontrada" }, { status: 404 });
+  }
   if (body.resource === "random-content") {
     if (!Array.isArray(body.entries))
       return NextResponse.json({ error: "Conteúdo inválido" }, { status: 400 });
