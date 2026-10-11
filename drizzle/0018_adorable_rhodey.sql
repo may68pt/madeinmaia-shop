@@ -1,0 +1,1 @@
+ALTER TABLE "random_content" ADD COLUMN "media_urls" jsonb DEFAULT '[]'::jsonb NOT NULL;

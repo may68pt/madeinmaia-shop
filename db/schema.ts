@@ -121,6 +121,7 @@ export const randomContent = pgTable("random_content", {
   category: text("category").notNull().default("Internet gem"),
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
   mediaUrl: text("media_url"),
+  mediaUrls: jsonb("media_urls").$type<string[]>().notNull().default([]),
   linkUrl: text("link_url"),
   linkLabel: text("link_label").notNull().default("Descobrir"),
   weight: integer("weight").notNull().default(1),

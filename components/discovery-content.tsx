@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { LinkLabelVideo, LinkLabelYoutube } from "@/components/link-label-video";
+import { LinkLabelCarousel } from "@/components/link-label-carousel";
 
 export type DiscoveryEntry = {
   title: string;
@@ -8,6 +9,7 @@ export type DiscoveryEntry = {
   category: string;
   tags: string[];
   mediaUrl: string | null;
+  mediaUrls?: string[] | null;
 };
 
 function youtubeEmbedUrl(value: string) {
@@ -29,6 +31,7 @@ export function DiscoveryContent({ entry }: { entry: DiscoveryEntry }) {
   return (
     <section className="mim-link-label-entry relative flex min-h-dvh flex-col bg-[#090909]">
       {entry.mediaUrl && isVisual && <div className="absolute inset-0 bg-black"><Image src={entry.mediaUrl} alt={entry.title} fill sizes="100vw" className="object-contain" unoptimized priority /></div>}
+      {entry.type === "carousel" && <LinkLabelCarousel images={entry.mediaUrls??[]} title={entry.title}/>}
       {entry.mediaUrl && entry.type === "video" && (
         <LinkLabelVideo src={entry.mediaUrl} title={entry.title}/>
       )}

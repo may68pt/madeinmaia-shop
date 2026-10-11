@@ -59,6 +59,7 @@ import { DefaultPlacementControl } from "@/components/default-placement-control"
 import { CssStudio, type CssFile } from "@/components/css-studio";
 import { ProductQualityDashboard } from "@/components/product-quality-dashboard";
 import { LinkLabelTypeIcon } from "@/components/link-label-type-icon";
+import { LinkLabelCarouselEditor } from "@/components/link-label-carousel-editor";
 
 type Discovery = {
   id: number;
@@ -68,6 +69,7 @@ type Discovery = {
   category: string;
   tags: string[];
   mediaUrl: string;
+  mediaUrls: string[];
   linkUrl: string;
   linkLabel: string;
   weight: number;
@@ -193,6 +195,7 @@ const initialDiscoveries: Discovery[] = [
     category: "Made in Maia",
     tags: ["local", "surpresa"],
     mediaUrl: "",
+    mediaUrls: [],
     linkUrl: "/marca",
     linkLabel: "Conhecer a marca",
     weight: 1,
@@ -667,6 +670,7 @@ export default function Studio() {
           category: entry.category ?? "Internet gem",
           tags: entry.tags ?? [],
           mediaUrl: entry.mediaUrl ?? "",
+          mediaUrls: entry.mediaUrls ?? [],
           linkUrl: entry.linkUrl ?? "",
           linkLabel: entry.linkLabel ?? "Descobrir",
           weight: entry.weight ?? 1,
@@ -754,6 +758,7 @@ export default function Studio() {
         category: "Internet gem",
         tags: [],
         mediaUrl: "",
+        mediaUrls: [],
         linkUrl: "",
         linkLabel: "Descobrir",
         weight: 1,
@@ -783,6 +788,7 @@ export default function Studio() {
         ...data.linkLabel,
         tags: data.linkLabel.tags ?? [],
         mediaUrl: data.linkLabel.mediaUrl ?? "",
+        mediaUrls: data.linkLabel.mediaUrls ?? [],
         linkUrl: data.linkLabel.linkUrl ?? "",
         linkLabel: data.linkLabel.linkLabel ?? "Descobrir",
         detailsLoaded: true,
@@ -1088,6 +1094,27 @@ export default function Studio() {
     try {
       const url = await uploadMedia(file, "lifestyle");
       if (url) updateDiscovery(entryId, { mediaUrl: url });
+    } finally {
+      setLinkLabelUploading(null);
+      setLinkLabelDragOver(null);
+    }
+  }
+
+  async function uploadLinkLabelCarousel(entryId: number, files: File[]) {
+    if (!files.length) return;
+    setLinkLabelUploading(entryId);
+    try {
+      const urls: string[] = [];
+      for (const file of files) {
+        const url = await uploadMedia(file, "lifestyle");
+        if (url) urls.push(url);
+      }
+      if (urls.length) {
+        setDiscoveries((items) => items.map((item) => item.id === entryId
+          ? { ...item, mediaUrls: [...item.mediaUrls, ...urls] }
+          : item));
+        toast.success(`${urls.length} ${urls.length === 1 ? "imagem adicionada" : "imagens adicionadas"} ao carousel.`);
+      }
     } finally {
       setLinkLabelUploading(null);
       setLinkLabelDragOver(null);
@@ -1420,6 +1447,7 @@ export default function Studio() {
                             <SelectItem value="article">Artigo / long page</SelectItem>
                             <SelectItem value="meme">Meme</SelectItem>
                             <SelectItem value="image">Imagem</SelectItem>
+                            <SelectItem value="carousel">Carousel de imagens</SelectItem>
                             <SelectItem value="gif">GIF</SelectItem>
                             <SelectItem value="video">Vídeo</SelectItem>
                             <SelectItem value="youtube">YouTube embed</SelectItem>
@@ -1436,6 +1464,7 @@ export default function Studio() {
                       </label>
                     </div>
                     {["image","meme","gif"].includes(entry.type)&&<div className="grid gap-4 md:grid-cols-[1fr_1fr]"><label className={`relative grid min-h-56 cursor-pointer place-items-center overflow-hidden border-2 border-dashed text-center ${linkLabelDragOver===entry.id?"border-[var(--brand)] bg-orange-50":"border-black/15 bg-black/[.025]"}`} onDragEnter={(event)=>{event.preventDefault();setLinkLabelDragOver(entry.id)}} onDragOver={(event)=>event.preventDefault()} onDragLeave={()=>setLinkLabelDragOver(null)} onDrop={(event)=>{event.preventDefault();const file=event.dataTransfer.files[0];if(file)void uploadLinkLabelMedia(entry.id,file)}}>{entry.mediaUrl?<Image src={entry.mediaUrl} alt={entry.title} fill sizes="420px" unoptimized className="object-contain p-3"/>:<span><UploadCloud className="mx-auto size-9 text-black/25"/><strong className="mt-2 block text-xs uppercase">{linkLabelUploading===entry.id?"A carregar…":"Larga aqui a imagem"}</strong><span className="mt-1 block text-[11px] text-black/40">PNG, JPG, WebP ou GIF</span></span>}<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="sr-only" onChange={(event)=>{const file=event.target.files?.[0];if(file)void uploadLinkLabelMedia(entry.id,file);event.target.value=""}}/></label><div><p className="text-xs font-black uppercase">{entry.type==="meme"?"Meme fullscreen":entry.type==="gif"?"GIF fullscreen":"Imagem fullscreen"}</p><p className="mt-2 text-sm text-black/50">O ficheiro ocupa o ecrã; o título e a categoria aparecem discretamente por cima.</p>{entry.mediaUrl&&<Button type="button" variant="outline" className="mt-5 rounded-none" onClick={()=>updateDiscovery(entry.id,{mediaUrl:""})}><Trash2/>Remover media</Button>}</div></div>}
+                    {entry.type==="carousel"&&<LinkLabelCarouselEditor title={entry.title} urls={entry.mediaUrls} uploading={linkLabelUploading===entry.id} dragActive={linkLabelDragOver===entry.id} onDragActiveChange={(active)=>setLinkLabelDragOver(active?entry.id:null)} onUpload={(files)=>void uploadLinkLabelCarousel(entry.id,files)} onChange={(mediaUrls)=>updateDiscovery(entry.id,{mediaUrls})}/>}
                     {entry.type==="youtube"&&<div className="grid gap-4 md:grid-cols-2"><label className="grid content-start gap-2 text-xs font-bold uppercase">URL do YouTube<Input value={entry.mediaUrl} onChange={(event)=>updateDiscovery(entry.id,{mediaUrl:event.target.value})} placeholder="https://youtube.com/watch?v=…"/><span className="normal-case font-normal text-black/45">O vídeo começa automaticamente, sem som, em fullscreen.</span></label><div className="aspect-video overflow-hidden bg-black">{entry.mediaUrl?<iframe className="h-full w-full" src={`${entry.mediaUrl.includes("youtu.be/")?`https://www.youtube-nocookie.com/embed/${entry.mediaUrl.split("youtu.be/")[1]?.split(/[?&]/)[0]}`:`https://www.youtube-nocookie.com/embed/${new URL(entry.mediaUrl,"https://youtube.com").searchParams.get("v")??""}`}?autoplay=1&mute=1&playsinline=1&rel=0`} title={entry.title} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen/>:<div className="grid h-full place-items-center text-xs font-bold uppercase text-white/40">Preview YouTube</div>}</div></div>}
                     {entry.type==="video"&&<div className="grid gap-4 md:grid-cols-2"><label className="grid content-start gap-2 text-xs font-bold uppercase">URL do vídeo<Input value={entry.mediaUrl} onChange={(event)=>updateDiscovery(entry.id,{mediaUrl:event.target.value})} placeholder="https://…/video.mp4"/><span className="normal-case font-normal text-black/45">MP4/WebM alojado externamente. Reprodução automática fullscreen.</span></label><div className="aspect-video bg-black">{entry.mediaUrl?<video src={entry.mediaUrl} controls muted autoPlay loop playsInline className="h-full w-full object-contain"/>:<div className="grid h-full place-items-center text-xs font-bold uppercase text-white/40">Preview vídeo</div>}</div></div>}
                     {["article","text"].includes(entry.type)&&<div><label className="mb-1 block text-xs font-bold uppercase">{entry.type==="article"?"Artigo / long page":"Mensagem curta"}</label><textarea value={entry.body} onChange={(event)=>updateDiscovery(entry.id,{body:event.target.value})} className={`w-full border border-input p-4 ${entry.type==="article"?"min-h-72":"min-h-28"}`} placeholder={entry.type==="article"?"Escreve o conteúdo editorial…":"Uma ideia curta…"}/><p className="mt-1 text-xs text-black/40">Aceita parágrafos. O texto será o protagonista da experiência.</p></div>}
