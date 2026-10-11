@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, RefreshCw } from "lucide-react";
+import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { and, eq, like } from "drizzle-orm";
 import { getDb } from "@/db";
 import { pages, randomContent } from "@/db/schema";
@@ -30,5 +30,5 @@ export default async function LinkLabelPage({ searchParams }: { searchParams: Pr
     }
   } catch { entries=[]; }
   const entry=chooseWeighted(entries)??FALLBACK_ENTRY;
-  return <main id="mim-link-label" className="mim-link-label min-h-dvh bg-[#090909] text-white"><header className="mim-link-label__chrome fixed inset-x-0 top-0 z-20 flex items-center justify-between gap-3 p-4 sm:p-6"><Link href="/loja" aria-label="Made in Maia shop"><BrandLogo className="h-16 w-auto sm:h-20" /></Link><Link href={`/linklabel?again=${crypto.randomUUID()}`} aria-label="Load another link label" className="grid size-10 place-items-center rounded-full bg-white/10 text-white backdrop-blur hover:bg-white hover:text-black"><RefreshCw className="size-4"/></Link></header><article className="mim-link-label__content min-h-dvh"><DiscoveryContent entry={entry}/>{entry.type==="link"&&entry.linkUrl?<LinkLabelRedirect href={entry.linkUrl} title={entry.linkLabel||entry.title}/>:entry.linkUrl&&<a href={entry.linkUrl} className="fixed bottom-4 right-4 z-20 inline-flex items-center gap-2 rounded-full bg-white px-4 py-3 text-xs font-black uppercase text-black shadow-2xl sm:bottom-6 sm:right-6">{entry.linkLabel}<ArrowUpRight className="size-4"/></a>}</article></main>;
+  return <main id="mim-link-label" className="mim-link-label min-h-dvh bg-[#090909] text-white"><header className="mim-link-label__chrome fixed inset-x-0 top-0 z-20 flex items-center p-4 sm:p-6"><Link href="/loja" aria-label="Made in Maia shop"><BrandLogo className="h-16 w-auto sm:h-20" /></Link></header><article className="mim-link-label__content min-h-dvh"><DiscoveryContent entry={entry}/>{entry.type==="link"&&entry.linkUrl?<LinkLabelRedirect href={entry.linkUrl} title={entry.linkLabel||entry.title}/>:entry.linkUrl&&<a href={entry.linkUrl} className="fixed bottom-20 right-4 z-20 inline-flex items-center gap-2 rounded-full bg-white px-4 py-3 text-xs font-black uppercase text-black shadow-2xl sm:bottom-24 sm:right-6">{entry.linkLabel}<ArrowUpRight className="size-4"/></a>}<Link href={`/linklabel?again=${crypto.randomUUID()}`} aria-label="Load more Link Label content" className="mim-link-label__load-more fixed bottom-4 right-4 z-30 inline-flex min-h-12 items-center gap-3 rounded-full bg-[#d8ff42] px-5 py-3 text-sm font-black uppercase tracking-[.08em] text-black shadow-[0_12px_40px_rgba(0,0,0,.55)] transition hover:scale-[1.03] hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d8ff42] sm:bottom-6 sm:right-6 sm:px-6">Load more<ArrowDown className="size-4"/></Link></article></main>;
 }
