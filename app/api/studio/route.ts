@@ -47,6 +47,16 @@ export async function GET(request: Request) {
         ? NextResponse.json({ product })
         : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
     }
+    const linkLabelId = Number(new URL(request.url).searchParams.get("linkLabelId"));
+    if (Number.isInteger(linkLabelId) && linkLabelId > 0) {
+      const [linkLabel] = await db
+        .select()
+        .from(randomContent)
+        .where(eq(randomContent.id, linkLabelId));
+      return linkLabel
+        ? NextResponse.json({ linkLabel })
+        : NextResponse.json({ error: "Link Label não encontrada" }, { status: 404 });
+    }
     const results = await Promise.allSettled([
       db.select().from(pages).orderBy(pages.id),
       db.select({
@@ -74,7 +84,12 @@ export async function GET(request: Request) {
           salesRank: products.salesRank,
           status: products.status,
       }).from(products).orderBy(asc(products.sortOrder), asc(products.id)),
-      db.select().from(randomContent),
+      db.select({
+        id: randomContent.id,
+        title: randomContent.title,
+        type: randomContent.type,
+        active: randomContent.active,
+      }).from(randomContent).orderBy(asc(randomContent.id)),
       db.select().from(orders).orderBy(desc(orders.createdAt)),
       db.select().from(siteSettings).where(eq(siteSettings.key, "global")),
     ]);
@@ -515,6 +530,8 @@ export async function POST(request: Request) {
       if (!String(value.title ?? "").trim()) return [];
       return [
         {
+          id: Number(value.id),
+          detailsLoaded: value.detailsLoaded === true,
           title: String(value.title),
           type: String(value.type ?? "text"),
           body: String(value.body ?? ""),
@@ -530,8 +547,20 @@ export async function POST(request: Request) {
       ];
     });
     const db = getDb();
-    await db.delete(randomContent);
-    if (entries.length) await db.insert(randomContent).values(entries);
+    const retainedIds = entries
+      .map((entry) => entry.id)
+      .filter((id) => Number.isInteger(id) && id > 0 && id < 1_000_000_000_000);
+    if (retainedIds.length) await db.delete(randomContent).where(notInArray(randomContent.id, retainedIds));
+    else await db.delete(randomContent);
+    for (const entry of entries) {
+      const { id, detailsLoaded, ...values } = entry;
+      if (Number.isInteger(id) && id > 0 && id < 1_000_000_000_000) {
+        const summary = { title: values.title, type: values.type, active: values.active, updatedAt: values.updatedAt };
+        await db.update(randomContent).set(detailsLoaded ? values : summary).where(eq(randomContent.id, id));
+      } else {
+        await db.insert(randomContent).values(values);
+      }
+    }
     return NextResponse.json({ ok: true, count: entries.length });
   }
   if (!body.title || !Array.isArray(body.blocks))

@@ -9,12 +9,14 @@ import {
   BookOpen,
   BarChart3,
   CirclePower,
+  ChevronDown,
   Contrast,
   Eye,
   GripVertical,
   Images,
   LayoutTemplate,
   LockKeyhole,
+  LoaderCircle,
   Move,
   MoreVertical,
   Monitor,
@@ -69,6 +71,7 @@ type Discovery = {
   linkLabel: string;
   weight: number;
   active: boolean;
+  detailsLoaded: boolean;
 };
 type Product = {
   id: number;
@@ -193,6 +196,7 @@ const initialDiscoveries: Discovery[] = [
     linkLabel: "Conhecer a marca",
     weight: 1,
     active: true,
+    detailsLoaded: true,
   },
 ];
 
@@ -336,6 +340,9 @@ export default function Studio() {
     "pages" | "blog" | "menus" | "products" | "discover" | "orders" | "catalog" | "media" | "settings"
   >("pages");
   const [discoveries, setDiscoveries] = useState(initialDiscoveries);
+  const [linkLabelQuery, setLinkLabelQuery] = useState("");
+  const [expandedLinkLabelId, setExpandedLinkLabelId] = useState<number | null>(null);
+  const [loadingLinkLabelId, setLoadingLinkLabelId] = useState<number | null>(null);
   const [catalogue, setCatalogue] = useState(initialProducts);
   const [productQuery, setProductQuery] = useState("");
   const [productStatusFilter, setProductStatusFilter] = useState<"all" | "active" | "disabled">("all");
@@ -380,6 +387,10 @@ export default function Studio() {
       return statusMatches && queryMatches;
     });
   }, [catalogue, productQuery, productStatusFilter]);
+  const filteredDiscoveries = useMemo(() => {
+    const query = linkLabelQuery.trim().toLowerCase();
+    return discoveries.filter((entry) => !query || entry.title.toLowerCase().includes(query));
+  }, [discoveries, linkLabelQuery]);
   const availableProductTags = useMemo(() => [...new Set(catalogue.flatMap((product)=>[product.collection,...product.tags]).filter(Boolean))].sort((a,b)=>a.localeCompare(b)), [catalogue]);
   function productsForEditorBlock(block:Block) {
     let items=catalogue.filter((product)=>product.status==="published");
@@ -658,6 +669,7 @@ export default function Studio() {
           linkLabel: entry.linkLabel ?? "Descobrir",
           weight: entry.weight ?? 1,
           active: entry.active !== false,
+          detailsLoaded: false,
         })),
       );
     if (data.products?.length)
@@ -726,6 +738,36 @@ export default function Studio() {
     setDiscoveries((items) =>
       items.map((item) => (item.id === id ? { ...item, ...patch } : item)),
     );
+  }
+  async function openLinkLabel(entry: Discovery) {
+    if (expandedLinkLabelId === entry.id) {
+      setExpandedLinkLabelId(null);
+      return;
+    }
+    setExpandedLinkLabelId(entry.id);
+    if (entry.detailsLoaded || entry.id > 1_000_000_000_000) return;
+    setLoadingLinkLabelId(entry.id);
+    try {
+      const response = await fetch(`/api/studio?linkLabelId=${entry.id}`, {
+        headers: { "x-studio-user": studioUser, "x-studio-key": studioKey },
+      });
+      if (!response.ok) throw new Error("Não foi possível carregar esta Link Label.");
+      const data = (await response.json()) as { linkLabel: Partial<Discovery> };
+      setDiscoveries((items) => items.map((item) => item.id === entry.id ? {
+        ...item,
+        ...data.linkLabel,
+        tags: data.linkLabel.tags ?? [],
+        mediaUrl: data.linkLabel.mediaUrl ?? "",
+        linkUrl: data.linkLabel.linkUrl ?? "",
+        linkLabel: data.linkLabel.linkLabel ?? "Descobrir",
+        detailsLoaded: true,
+      } : item));
+    } catch (error) {
+      setExpandedLinkLabelId(null);
+      toast.error(error instanceof Error ? error.message : "Não foi possível carregar esta Link Label.");
+    } finally {
+      setLoadingLinkLabelId(null);
+    }
   }
   function updateProduct(id: number, patch: Partial<Product>) {
     setCatalogue((items) =>
@@ -1303,40 +1345,27 @@ export default function Studio() {
                   </Link>
                 </Button>
               </div>
-              <div className="space-y-4">
-                {discoveries.map((entry, index) => (
-                  <article key={entry.id} className="bg-white p-5 shadow-sm">
-                    <div className="mb-4 flex items-center gap-3">
-                      <span className="grid size-8 place-items-center bg-[var(--ink)] text-sm font-black text-white">
-                        {index + 1}
-                      </span>
-                      <Input
-                        value={entry.title}
-                        onChange={(event) =>
-                          updateDiscovery(entry.id, {
-                            title: event.target.value,
-                          })
-                        }
-                        className="h-11 text-lg font-bold"
-                      />
-                      <Switch
-                        checked={entry.active}
-                        onCheckedChange={(active) =>
-                          updateDiscovery(entry.id, { active })
-                        }
-                      />
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() =>
-                          setDiscoveries((items) =>
-                            items.filter((item) => item.id !== entry.id),
-                          )
-                        }
-                        aria-label="Remover"
-                      >
-                        <Trash2 className="text-red-600" />
-                      </Button>
+              <label className="mb-5 flex h-12 items-center gap-3 border border-white/15 bg-[#151514] px-4 text-white focus-within:border-[var(--brand)]">
+                <Search className="size-4 shrink-0 text-white/45" />
+                <input value={linkLabelQuery} onChange={(event)=>setLinkLabelQuery(event.target.value)} className="min-w-0 flex-1 bg-transparent text-sm font-bold outline-none placeholder:text-white/35" placeholder="Pesquisar Link Labels pelo título…" />
+                <span className="text-xs font-black text-white/40">{filteredDiscoveries.length}/{discoveries.length}</span>
+              </label>
+              <div className="space-y-2">
+                {filteredDiscoveries.map((entry) => {
+                  const expanded=expandedLinkLabelId===entry.id;
+                  const loading=loadingLinkLabelId===entry.id;
+                  return (
+                  <article key={entry.id} className="border border-white/10 bg-[#151514] text-white shadow-sm">
+                    <button type="button" onClick={()=>void openLinkLabel(entry)} className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[.04]" aria-expanded={expanded}>
+                      <span className={`size-2 shrink-0 rounded-full ${entry.active?"bg-[var(--accent-brand)]":"bg-white/20"}`} />
+                      <span className="min-w-0 flex-1 truncate text-base font-black">{entry.title}</span>
+                      {loading?<LoaderCircle className="size-5 animate-spin text-white/50"/>:<ChevronDown className={`size-5 text-white/50 transition-transform ${expanded?"rotate-180":""}`}/>}
+                    </button>
+                    {expanded&&entry.detailsLoaded&&<div className="border-t border-white/10 p-5">
+                    <div className="mb-4 flex flex-wrap items-center gap-3">
+                      <Input value={entry.title} onChange={(event)=>updateDiscovery(entry.id,{title:event.target.value})} className="h-11 min-w-64 flex-1 text-lg font-bold" />
+                      <label className="flex items-center gap-2 text-xs font-black uppercase text-white/60"><Switch checked={entry.active} onCheckedChange={(active)=>updateDiscovery(entry.id,{active})}/>Ativa</label>
+                      <Button size="icon" variant="ghost" onClick={()=>setDiscoveries((items)=>items.filter((item)=>item.id!==entry.id))} aria-label="Remover"><Trash2 className="text-red-500"/></Button>
                     </div>
                     <div className="mb-4 grid gap-3 md:grid-cols-3">
                       <label className="grid gap-1 text-xs font-bold uppercase">Formato
@@ -1349,7 +1378,7 @@ export default function Studio() {
                             <SelectItem value="gif">GIF</SelectItem>
                             <SelectItem value="video">Vídeo</SelectItem>
                             <SelectItem value="youtube">YouTube embed</SelectItem>
-                            <SelectItem value="link">Link recomendado</SelectItem>
+                            <SelectItem value="link">Link recomendado · redirect</SelectItem>
                             <SelectItem value="text">Texto curto</SelectItem>
                           </SelectContent>
                         </Select>
@@ -1365,10 +1394,11 @@ export default function Studio() {
                     {entry.type==="youtube"&&<div className="grid gap-4 md:grid-cols-2"><label className="grid content-start gap-2 text-xs font-bold uppercase">URL do YouTube<Input value={entry.mediaUrl} onChange={(event)=>updateDiscovery(entry.id,{mediaUrl:event.target.value})} placeholder="https://youtube.com/watch?v=…"/><span className="normal-case font-normal text-black/45">O vídeo começa automaticamente, sem som, em fullscreen.</span></label><div className="aspect-video overflow-hidden bg-black">{entry.mediaUrl?<iframe className="h-full w-full" src={`${entry.mediaUrl.includes("youtu.be/")?`https://www.youtube-nocookie.com/embed/${entry.mediaUrl.split("youtu.be/")[1]?.split(/[?&]/)[0]}`:`https://www.youtube-nocookie.com/embed/${new URL(entry.mediaUrl,"https://youtube.com").searchParams.get("v")??""}`}?autoplay=1&mute=1&playsinline=1&rel=0`} title={entry.title} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen/>:<div className="grid h-full place-items-center text-xs font-bold uppercase text-white/40">Preview YouTube</div>}</div></div>}
                     {entry.type==="video"&&<div className="grid gap-4 md:grid-cols-2"><label className="grid content-start gap-2 text-xs font-bold uppercase">URL do vídeo<Input value={entry.mediaUrl} onChange={(event)=>updateDiscovery(entry.id,{mediaUrl:event.target.value})} placeholder="https://…/video.mp4"/><span className="normal-case font-normal text-black/45">MP4/WebM alojado externamente. Reprodução automática fullscreen.</span></label><div className="aspect-video bg-black">{entry.mediaUrl?<video src={entry.mediaUrl} controls muted autoPlay loop playsInline className="h-full w-full object-contain"/>:<div className="grid h-full place-items-center text-xs font-bold uppercase text-white/40">Preview vídeo</div>}</div></div>}
                     {["article","text"].includes(entry.type)&&<div><label className="mb-1 block text-xs font-bold uppercase">{entry.type==="article"?"Artigo / long page":"Mensagem curta"}</label><textarea value={entry.body} onChange={(event)=>updateDiscovery(entry.id,{body:event.target.value})} className={`w-full border border-input p-4 ${entry.type==="article"?"min-h-72":"min-h-28"}`} placeholder={entry.type==="article"?"Escreve o conteúdo editorial…":"Uma ideia curta…"}/><p className="mt-1 text-xs text-black/40">Aceita parágrafos. O texto será o protagonista da experiência.</p></div>}
-                    {entry.type==="link"&&<div className="grid gap-4 rounded-xl bg-[#f4f4f0] p-4 md:grid-cols-2"><label className="grid gap-1 text-xs font-bold uppercase">URL de destino<Input value={entry.linkUrl} onChange={(event)=>updateDiscovery(entry.id,{linkUrl:event.target.value})} placeholder="https://…"/></label><label className="grid gap-1 text-xs font-bold uppercase">Texto do botão<Input value={entry.linkLabel} onChange={(event)=>updateDiscovery(entry.id,{linkLabel:event.target.value})} placeholder="Visitar site"/></label><label className="col-span-full grid gap-1 text-xs font-bold uppercase">Porque vale a pena<textarea value={entry.body} onChange={(event)=>updateDiscovery(entry.id,{body:event.target.value})} className="min-h-24 border border-input p-3"/></label></div>}
-                    <div className="mt-4 grid gap-3 border-t border-black/10 pt-4 md:grid-cols-[1fr_1fr_120px]"><label className="grid gap-1 text-xs font-bold uppercase">Link opcional<Input value={entry.linkUrl} onChange={(event)=>updateDiscovery(entry.id,{linkUrl:event.target.value})} placeholder="/marca ou https://…"/></label><label className="grid gap-1 text-xs font-bold uppercase">Texto do link<Input value={entry.linkLabel} onChange={(event)=>updateDiscovery(entry.id,{linkLabel:event.target.value})} placeholder="Saber mais"/></label><label className="grid gap-1 text-xs font-bold uppercase">Peso<Input type="number" min="1" value={entry.weight} onChange={(event)=>updateDiscovery(entry.id,{weight:Number(event.target.value)})}/></label></div>
+                    {entry.type==="link"&&<div className="grid gap-4 border border-white/10 bg-black/25 p-4 md:grid-cols-2"><div className="col-span-full border-l-2 border-[var(--accent-brand)] pl-3"><p className="text-xs font-black uppercase text-[var(--accent-brand)]">Redirecionamento automático</p><p className="mt-1 text-sm text-white/55">A Link Label mostra uma contagem 3–2–1 e abre este destino automaticamente. O visitante pode abrir imediatamente.</p></div><label className="grid gap-1 text-xs font-bold uppercase">URL de destino<Input value={entry.linkUrl} onChange={(event)=>updateDiscovery(entry.id,{linkUrl:event.target.value})} placeholder="https://…"/></label><label className="grid gap-1 text-xs font-bold uppercase">Nome do destino<Input value={entry.linkLabel} onChange={(event)=>updateDiscovery(entry.id,{linkLabel:event.target.value})} placeholder="Nome do site"/></label><label className="col-span-full grid gap-1 text-xs font-bold uppercase">Introdução opcional<textarea value={entry.body} onChange={(event)=>updateDiscovery(entry.id,{body:event.target.value})} className="min-h-24 border border-input bg-[#0d0d0c] p-3 text-white"/></label></div>}
+                    <div className={`mt-4 grid gap-3 border-t border-white/10 pt-4 ${entry.type==="link"?"md:grid-cols-[120px]":"md:grid-cols-[1fr_1fr_120px]"}`}>{entry.type!=="link"&&<><label className="grid gap-1 text-xs font-bold uppercase">Link opcional<Input value={entry.linkUrl} onChange={(event)=>updateDiscovery(entry.id,{linkUrl:event.target.value})} placeholder="/marca ou https://…"/></label><label className="grid gap-1 text-xs font-bold uppercase">Texto do link<Input value={entry.linkLabel} onChange={(event)=>updateDiscovery(entry.id,{linkLabel:event.target.value})} placeholder="Saber mais"/></label></>}<label className="grid gap-1 text-xs font-bold uppercase">Peso<Input type="number" min="1" value={entry.weight} onChange={(event)=>updateDiscovery(entry.id,{weight:Number(event.target.value)})}/></label></div>
+                    </div>}
                   </article>
-                ))}
+                )})}
               </div>
               <Button
                 onClick={() =>
@@ -1386,6 +1416,7 @@ export default function Studio() {
                       linkLabel: "Descobrir",
                       weight: 1,
                       active: true,
+                      detailsLoaded: true,
                     },
                   ])
                 }
