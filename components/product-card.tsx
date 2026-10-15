@@ -9,7 +9,6 @@ import { SupportIcon } from "@/components/support-icon";
 import type { CatalogColor, ProductSupport } from "@/lib/product-catalog";
 import type { Locale } from "@/lib/i18n";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
-import { collectionSlug, productTaxonomies } from "@/lib/collections";
 
 type PrintColor = "black" | "white";
 
@@ -31,7 +30,7 @@ export type ProductCardData = {
   artworkPlacements?:ArtworkPlacements;
 };
 
-export function ProductCard({ product, catalogColors, supports, label = "New", strings, showTaxonomies = true }: { product: ProductCardData; catalogColors: CatalogColor[]; supports: ProductSupport[]; label?: string; locale?:Locale; strings:Record<string,string>; showTaxonomies?:boolean }) {
+export function ProductCard({ product, catalogColors, supports, label = "New", strings }: { product: ProductCardData; catalogColors: CatalogColor[]; supports: ProductSupport[]; label?: string; locale?:Locale; strings:Record<string,string> }) {
   const availableColors = useMemo(() => {
     const active = catalogColors.filter((color) => color.active);
     if (!product.colors.length || product.colors.includes("Unique")) return active;
@@ -61,7 +60,6 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
   const slide = slides[Math.min(slideIndex, slides.length - 1)] ?? slides[0];
   const color = availableColors.find((item) => item.id === colorId) ?? availableColors[0];
   const supportIcon = (id:string) => id === "design" ? <ImageIcon className="size-3 sm:size-5"/> : <span className="[&_img]:size-3 sm:[&_img]:size-6"><SupportIcon supportId={id} size={24}/></span>;
-  const taxonomies = productTaxonomies(product).filter((item)=>item.trim().toLowerCase()!=="made in maia");
 
   return <article id={`mim-product-${product.slug}`} className="mim-product-card group min-w-0 border border-white/10 text-[var(--foreground)]">
     <div className="mim-product-card__visual relative aspect-square overflow-hidden border border-white/10 bg-[var(--surface)]">
@@ -83,7 +81,7 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
       {slides.map((item,index)=><button key={item.id} type="button" onClick={()=>setSlideIndex(index)} aria-label={item.name} aria-pressed={slide?.id===item.id} title={item.name} className={`mim-product-card__support group/support relative grid size-6 place-items-center justify-self-center rounded-full border transition sm:size-10 ${slide?.id===item.id?"border-[var(--accent-brand)] bg-[var(--accent-brand)] text-black":"border-white/15 bg-white/80 text-black hover:bg-white"}`}>{supportIcon(item.id)}<span role="tooltip" className="pointer-events-none absolute bottom-[calc(100%+.45rem)] left-1/2 z-30 hidden w-max max-w-28 -translate-x-1/2 rounded-lg bg-white px-2 py-1 text-center text-[10px] font-bold text-black shadow-xl group-hover/support:block group-focus-visible/support:block">{item.name}</span></button>)}
     </div>
     <div className="mim-product-card__details flex min-w-0 flex-col gap-1 pt-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:pt-4">
-      <div className="min-w-0">{showTaxonomies&&<nav className="mim-product-card__taxonomies flex min-w-0 flex-wrap gap-x-1 text-[8px] font-bold uppercase tracking-[.1em] text-white/42 sm:text-xs sm:tracking-[.12em]">{taxonomies.map((item,index)=><span key={item} className="inline-flex"><Link className="hover:text-white hover:underline" href={`/collections/${collectionSlug(item)}`}>{item}</Link>{index<taxonomies.length-1&&<span className="ml-1">·</span>}</span>)}</nav>}<Link href={`/designs/${product.slug}`}><h3 className="mim-product-card__title mt-0.5 line-clamp-2 text-sm font-black uppercase leading-tight tracking-[-.025em] sm:mt-1 sm:text-xl">{product.name}</h3></Link></div>
+      <div className="min-w-0"><Link href={`/designs/${product.slug}`}><h3 className="mim-product-card__title mt-0.5 line-clamp-2 text-sm font-black uppercase leading-tight tracking-[-.025em] sm:mt-1 sm:text-xl">{product.name}</h3></Link></div>
       <strong className="shrink-0 bg-white px-2 py-1 text-sm text-black sm:px-3 sm:text-lg">{slide && "priceCents" in slide?`${(slide.priceCents/100).toFixed(2).replace(".",",")} €`:product.price}</strong>
     </div>
   </article>;

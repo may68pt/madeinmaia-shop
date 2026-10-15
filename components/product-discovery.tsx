@@ -21,7 +21,7 @@ export type RelatedProduct = {
 };
 
 function RelatedGrid({ products, catalogColors, supports }: { products:RelatedProduct[]; catalogColors:CatalogColor[]; supports:ProductSupport[] }) {
-  return <div className="mim-product-grid grid grid-cols-2 gap-x-2.5 gap-y-6 sm:gap-x-5 sm:gap-y-12 lg:grid-cols-3">{products.map((product)=><ProductCard key={product.slug} product={{slug:product.slug,name:product.name,collection:product.collection,tags:product.tags,price:`${(product.priceCents/100).toFixed(2).replace(".",",")} €`,image:product.imageKey||"/products/white-shirt-1.jpg",colors:product.colors,previewColorIds:product.previewColorIds,monochrome:product.monochrome,disabledSupports:product.disabledSupports,artworkPlacements:product.artworkPlacements}} catalogColors={catalogColors} supports={supports} label="" strings={UI_STRINGS.en} showTaxonomies={false}/>)}</div>;
+  return <div className="mim-product-grid grid grid-cols-2 gap-x-2.5 gap-y-6 sm:gap-x-5 sm:gap-y-12 lg:grid-cols-3">{products.map((product)=><ProductCard key={product.slug} product={{slug:product.slug,name:product.name,collection:product.collection,tags:product.tags,price:`${(product.priceCents/100).toFixed(2).replace(".",",")} €`,image:product.imageKey||"/products/white-shirt-1.jpg",colors:product.colors,previewColorIds:product.previewColorIds,monochrome:product.monochrome,disabledSupports:product.disabledSupports,artworkPlacements:product.artworkPlacements}} catalogColors={catalogColors} supports={supports} label="" strings={UI_STRINGS.en}/>)}</div>;
 }
 
 export function ProductDiscovery({ related, moreProducts, collection, catalogColors, supports }: { related:RelatedProduct[]; moreProducts:RelatedProduct[]; collection:string; catalogColors:CatalogColor[]; supports:ProductSupport[] }) {
