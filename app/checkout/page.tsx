@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { clearCart, removeCartItem, updateCartQuantity, useCart } from "@/lib/cart";
 import { BrandLogo } from "@/components/brand-logo";
+import { trackEvent } from "@/lib/analytics";
 
 type Result = { reference:string; paymentUrl:string|null; testMode:boolean };
 
@@ -24,13 +25,14 @@ export default function CheckoutPage() {
 
   async function submit(event:FormEvent<HTMLFormElement>) {
     event.preventDefault();setLoading(true);setError("");
+    trackEvent("checkout_submit",{metadata:{items:cart.reduce((sum,item)=>sum+item.quantity,0),value:subtotal+shipping}});
     const form=new FormData(event.currentTarget);
     const customer=Object.fromEntries(["name","email","phone","address","postalCode","city","country"].map((key)=>[key,String(form.get(key)??"")]));
     try {
       const response=await fetch("/api/checkout",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({customer,termsAccepted:form.get("termsAccepted")==="on",items:cart.map(({slug,productType,color,printColor,size,quantity})=>({slug,productType:productType||"adult-tshirt",color,printColor:printColor||"black",size,quantity}))})});
       const data=await response.json() as Result&{error?:string};
       if(!response.ok)throw new Error(data.error||"Não foi possível criar a encomenda.");
-      setResult(data);if(data.paymentUrl)window.location.assign(data.paymentUrl);else clearCart();
+      setResult(data);if(data.paymentUrl){trackEvent("checkout_redirect",{metadata:{reference:data.reference,value:subtotal+shipping}});window.location.assign(data.paymentUrl);}else clearCart();
     } catch(reason){setError(reason instanceof Error?reason.message:"Ocorreu um erro.");} finally {setLoading(false);}
   }
 

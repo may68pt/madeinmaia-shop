@@ -3,6 +3,8 @@ import type { CSSProperties } from "react";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { siteSettings } from "@/db/schema";
+import { AnalyticsTracker } from "@/components/analytics-tracker";
+import { Suspense } from "react";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -72,7 +74,7 @@ export default async function RootLayout({
   } as CSSProperties;
   return (
     <html lang="en">
-      <body style={themeStyle}>{customCss&&<style id="mim-custom-css" dangerouslySetInnerHTML={{__html:customCss}}/>}{children}</body>
+      <body style={themeStyle}>{customCss&&<style id="mim-custom-css" dangerouslySetInnerHTML={{__html:customCss}}/>}<Suspense fallback={null}><AnalyticsTracker/></Suspense>{children}</body>
     </html>
   );
 }

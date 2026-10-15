@@ -1,5 +1,6 @@
 import {
   boolean,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -217,3 +218,21 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
   usedAt: timestamp("used_at", { withTimezone:true }),
   createdAt: timestamp("created_at", { withTimezone:true }).notNull().defaultNow(),
 });
+
+export const analyticsEvents = pgTable("analytics_events", {
+  id: serial("id").primaryKey(),
+  eventName: text("event_name").notNull(),
+  visitorId: text("visitor_id").notNull(),
+  sessionId: text("session_id").notNull(),
+  path: text("path").notNull().default("/"),
+  entityType: text("entity_type"),
+  entityId: text("entity_id"),
+  referrerHost: text("referrer_host"),
+  device: text("device").notNull().default("desktop"),
+  metadata: jsonb("metadata").$type<Record<string, string | number | boolean>>().notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone:true }).notNull().defaultNow(),
+}, (table) => [
+  index("analytics_events_created_at_idx").on(table.createdAt),
+  index("analytics_events_name_created_idx").on(table.eventName, table.createdAt),
+  index("analytics_events_entity_created_idx").on(table.entityType, table.entityId, table.createdAt),
+]);

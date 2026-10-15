@@ -9,6 +9,7 @@ import { ProductMockup } from "@/components/product-mockup";
 import { addCartItem } from "@/lib/cart";
 import { ADULT_SIZES, KIDS_SIZES, normalizeSupport, supportOptions, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
+import { trackEvent } from "@/lib/analytics";
 
 type Props = { slug:string; name:string; description:string; collection:string; image:string; gallery:string[]; priceCents:number; supports:ProductSupport[]; catalogColors:CatalogColor[]; monochrome:boolean; artworkPlacements:ArtworkPlacements };
 
@@ -35,15 +36,18 @@ export function ProductPurchase({ slug, name, description, collection, image, ga
     const nextColor = activeColors.find((item) => next?.colorIds.includes(item.id) && (next.variantMode === "none" || supportOptions(next, item.id).length > 0));
     const nextOptions = next && nextColor ? supportOptions(next, nextColor.id) : [];
     setSupportId(id); setColorId(nextColor?.id ?? "white"); setSize(nextOptions[0] ?? "Único");
+    trackEvent("product_configure",{entityType:"product",entityId:slug,metadata:{option:"support",value:id}});
   }
   function chooseColor(id:string) {
     setColorId(id);
     const nextOptions = support ? supportOptions(support, id) : [];
     setSize(nextOptions.includes(size) ? size : nextOptions[0] ?? "Único");
+    trackEvent("product_configure",{entityType:"product",entityId:slug,metadata:{option:"color",value:id}});
   }
   function add() {
     if (!support || !color || (support.variantMode !== "none" && !options.includes(size))) return;
     addCartItem({ slug, name, image, priceCents:support.priceCents, productType:support.id, color:color.name, printColor, size });
+    trackEvent("add_to_cart",{entityType:"product",entityId:slug,metadata:{support:support.id,color:color.name,size,printColor,value:support.priceCents}});
     setAdded(true); window.setTimeout(() => setAdded(false), 1800);
   }
   function supportIcon(id: string) {

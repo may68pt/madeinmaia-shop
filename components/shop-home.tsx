@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LoaderCircle, Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/lib/analytics";
 import { DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as PageBlockData } from "@/lib/page-blocks";
 import { PageBlock } from "@/components/page-block";
 import { LOCALES, UI_STRINGS, translatedName, type Locale } from "@/lib/i18n";
@@ -121,6 +122,8 @@ export default function Home({ initialProducts = [], heroProducts = [], initialT
     const timeout = window.setTimeout(() => void loadProducts(0, true), 250);
     return () => window.clearTimeout(timeout);
   }, [loadProducts]);
+
+  useEffect(()=>{const value=query.trim();if(value.length<2)return;const timeout=window.setTimeout(()=>trackEvent("search",{metadata:{query:value.slice(0,80)}}),700);return()=>window.clearTimeout(timeout);},[query]);
 
   useEffect(() => {
     const target = loadMoreRef.current;

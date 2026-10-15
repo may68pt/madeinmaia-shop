@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 export function LinkLabelRedirect({ href, title }: { href: string; title: string }) {
   const [seconds, setSeconds] = useState(3);
@@ -21,6 +22,7 @@ export function LinkLabelRedirect({ href, title }: { href: string; title: string
       setSeconds((current) => {
         if (current <= 1) {
           window.clearInterval(target);
+          trackEvent("linklabel_action",{entityType:"linklabel",entityId:title,metadata:{action:"automatic_redirect"}});
           window.location.assign(safeHref);
           return 0;
         }
@@ -28,7 +30,7 @@ export function LinkLabelRedirect({ href, title }: { href: string; title: string
       });
     }, 1000);
     return () => window.clearInterval(target);
-  }, [safeHref]);
+  }, [safeHref, title]);
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-20 flex flex-col items-center gap-3 bg-gradient-to-t from-black via-black/90 to-transparent px-5 pb-8 pt-24 text-center sm:pb-10">
@@ -38,7 +40,7 @@ export function LinkLabelRedirect({ href, title }: { href: string; title: string
       <div aria-live="polite" className="text-6xl font-black leading-none text-[#d8ff42]">
         {seconds}
       </div>
-      {safeHref&&<a href={safeHref} className="mt-1 inline-flex items-center gap-2 text-xs font-black uppercase text-white underline decoration-white/35 underline-offset-4 hover:decoration-white">
+      {safeHref&&<a href={safeHref} onClick={()=>trackEvent("linklabel_action",{entityType:"linklabel",entityId:title,metadata:{action:"open_now"}})} className="mt-1 inline-flex items-center gap-2 text-xs font-black uppercase text-white underline decoration-white/35 underline-offset-4 hover:decoration-white">
         Open now <ArrowUpRight className="size-4" />
       </a>}
     </div>

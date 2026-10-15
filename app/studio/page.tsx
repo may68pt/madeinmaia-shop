@@ -60,6 +60,7 @@ import { CssStudio, type CssFile } from "@/components/css-studio";
 import { ProductQualityDashboard } from "@/components/product-quality-dashboard";
 import { LinkLabelTypeIcon } from "@/components/link-label-type-icon";
 import { LinkLabelCarouselEditor } from "@/components/link-label-carousel-editor";
+import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 
 type Discovery = {
   id: number;
@@ -341,7 +342,7 @@ export default function Studio() {
   const [username, setUsername] = useState("madeinmaia");
   const [password, setPassword] = useState("");
   const [section, setSection] = useState<
-    "pages" | "blog" | "menus" | "products" | "discover" | "orders" | "catalog" | "media" | "settings"
+    "pages" | "blog" | "menus" | "products" | "discover" | "orders" | "analytics" | "catalog" | "media" | "settings"
   >("pages");
   const [discoveries, setDiscoveries] = useState(initialDiscoveries);
   const [linkLabelQuery, setLinkLabelQuery] = useState("");
@@ -1233,6 +1234,8 @@ export default function Studio() {
               ? "Link Labels"
               : section === "orders"
                 ? "Encomendas"
+                : section === "analytics"
+                  ? "Analytics"
                 : section === "catalog"
                   ? "Tipos e cores"
                 : section === "media"
@@ -1268,7 +1271,7 @@ export default function Studio() {
             {section==="pages"&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden"><button className="py-1 text-left text-xs font-bold" onClick={()=>document.getElementById("page-manager")?.scrollIntoView({behavior:"smooth"})}>Todas as páginas</button><button className="py-1 text-left text-xs font-bold text-[var(--brand)]" onClick={addPage}>+ Nova página</button></div>}
             <Button onClick={() => setSection("blog")} variant={section === "blog" ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><BookOpen/><span className="max-lg:hidden">Blog</span></Button>
             {section==="blog"&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden"><button className="py-1 text-left text-xs font-bold">Todos os artigos</button><button className="py-1 text-left text-xs font-bold text-[var(--brand)]" onClick={addBlogPost}>+ Novo artigo</button></div>}
-            {[{icon:GripVertical,label:"Menus",value:"menus"},{icon:Palette,label:"Link Labels",value:"discover"},{icon:Package,label:"Produtos",value:"products"},{icon:Images,label:"Media",value:"media"},{icon:Store,label:"Encomendas",value:"orders"}].map(({icon:Icon,label,value})=><Button key={label} onClick={()=>setSection(value as typeof section)} variant={section===value?"secondary":"ghost"} className="justify-start rounded-none max-lg:px-3"><Icon/><span className="max-lg:hidden">{label}</span></Button>)}
+            {[{icon:GripVertical,label:"Menus",value:"menus"},{icon:Palette,label:"Link Labels",value:"discover"},{icon:Package,label:"Produtos",value:"products"},{icon:Images,label:"Media",value:"media"},{icon:Store,label:"Encomendas",value:"orders"},{icon:BarChart3,label:"Analytics",value:"analytics"}].map(({icon:Icon,label,value})=><Button key={label} onClick={()=>setSection(value as typeof section)} variant={section===value?"secondary":"ghost"} className="justify-start rounded-none max-lg:px-3"><Icon/><span className="max-lg:hidden">{label}</span></Button>)}
             <Button onClick={() => setSection("settings")} variant={section === "settings"||section==="catalog" ? "secondary" : "ghost"} className="justify-start rounded-none max-lg:px-3"><Settings/><span className="max-lg:hidden">Definições</span></Button>
             {(section==="settings"||section==="catalog")&&<div className="ml-5 grid gap-1 border-l border-black/10 pl-3 max-lg:hidden">{[["settings-general","Geral e SEO"],["settings-splash","Splash screen"],["settings-theme","Theme Builder"],["settings-css","CSS Studio"]].map(([id,label])=><button key={id} className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("settings");setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:"smooth"}),0)}}>{label}</button>)}<button className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("catalog");setTimeout(()=>document.getElementById("catalog-colors")?.scrollIntoView({behavior:"smooth"}),0)}}>Cores e disponibilidade</button><button className="py-1 text-left text-xs font-bold" onClick={()=>{setSection("catalog");setTimeout(()=>document.getElementById("catalog-supports")?.scrollIntoView({behavior:"smooth"}),0)}}>Tipos de produto</button></div>}
           </nav>
@@ -1483,6 +1486,8 @@ export default function Studio() {
                 Adicionar Link Label
               </Button>
             </div>
+          ) : section === "analytics" ? (
+            <AnalyticsDashboard studioUser={studioUser} studioKey={studioKey}/>
           ) : section === "orders" ? (
             <div className="mx-auto max-w-5xl">
               <div className="mb-8 flex items-end justify-between gap-4">
@@ -2237,15 +2242,19 @@ export default function Studio() {
         ) : (
           <aside className="border-l border-black/10 bg-[var(--accent-brand)] p-5 max-lg:hidden">
             <p className="text-sm font-black uppercase tracking-[.15em]">
-              {section === "orders" ? "Operação" : "Publicação"}
+              {section === "orders" ? "Operação" : section === "analytics" ? "Inteligência" : "Publicação"}
             </p>
             <h2 className="mt-5 text-3xl font-black uppercase tracking-[-.04em]">
               {section === "orders"
                 ? "Acompanha cada encomenda até à entrega."
+                : section === "analytics"
+                  ? "Lê o que as pessoas fazem e transforma sinais em decisões."
                 : "Guardar torna as alterações imediatamente disponíveis."}
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-black/65">
-              {section === "discover"
+              {section === "analytics"
+                ? "Compara períodos, encontra os designs com maior intenção de compra e percebe que Link Labels trazem mais interação."
+                : section === "discover"
                 ? "O endereço Link Label permanece sempre igual. Ativa, desativa ou altera experiências sem reimprimir qualquer peça."
                 : section === "orders"
                   ? "A mudança de estado é guardada no momento da seleção. Liga o pagamento para automatizar a passagem de pendente para paga."
