@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, RefreshCw, Sparkles } from "lucide-react";
-import { ProductMockup } from "@/components/product-mockup";
 import { BrandLogo } from "@/components/brand-logo";
+import { ProductCard } from "@/components/product-card";
+import type { CatalogColor, ProductSupport } from "@/lib/product-catalog";
+import type { ArtworkPlacements } from "@/lib/artwork-placement";
+import { UI_STRINGS } from "@/lib/i18n";
 
 export type RelatedProduct = {
   slug:string;
@@ -9,42 +12,33 @@ export type RelatedProduct = {
   imageKey:string|null;
   priceCents:number;
   collection:string;
+  tags:string[];
+  colors:string[];
+  previewColorIds:string[];
+  monochrome:boolean;
+  disabledSupports:string[];
+  artworkPlacements:ArtworkPlacements;
 };
 
-export function ProductDiscovery({ related, collection }: { related:RelatedProduct[]; collection:string }) {
-  return (
-    <>
-      <section className="mx-auto grid max-w-[1440px] gap-0 px-5 py-14 lg:grid-cols-2 lg:px-10 lg:py-20">
-        <div className="flex min-h-96 flex-col justify-between bg-[var(--ink)] p-8 text-white sm:p-12">
-          <div>
-            <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[.2em] text-[var(--accent-brand)]"><Sparkles className="size-4"/> The shoulder tag</p>
-            <h2 className="mt-5 max-w-xl text-5xl font-black uppercase leading-[.84] tracking-[-.06em] sm:text-7xl">The logo never tells the same story twice.</h2>
-          </div>
-          <p className="mt-12 max-w-xl text-lg leading-relaxed text-white/65">Every Made in Maia piece carries a Link Label. Open it and every visit reveals a different story, image, video, idea or local surprise.</p>
-        </div>
-        <div className="flex min-h-96 flex-col justify-between bg-[var(--accent-brand)] p-8 sm:p-12">
-          <BrandLogo className="h-36 w-auto" />
-          <div>
-            <p className="max-w-md text-xl font-bold">One symbol. An endless doorway into Made in Maia.</p>
-            <Link href="/linklabel" className="mt-7 inline-flex items-center gap-3 bg-[var(--ink)] px-7 py-4 font-black uppercase text-white">Open Link Label <RefreshCw className="size-4"/></Link>
-          </div>
-        </div>
-      </section>
+function RelatedGrid({ products, catalogColors, supports }: { products:RelatedProduct[]; catalogColors:CatalogColor[]; supports:ProductSupport[] }) {
+  return <div className="mim-product-grid grid grid-cols-2 gap-x-2.5 gap-y-6 sm:gap-x-5 sm:gap-y-12 lg:grid-cols-3">{products.map((product)=><ProductCard key={product.slug} product={{slug:product.slug,name:product.name,collection:product.collection,tags:product.tags,price:`${(product.priceCents/100).toFixed(2).replace(".",",")} €`,image:product.imageKey||"/products/white-shirt-1.jpg",colors:product.colors,previewColorIds:product.previewColorIds,monochrome:product.monochrome,disabledSupports:product.disabledSupports,artworkPlacements:product.artworkPlacements}} catalogColors={catalogColors} supports={supports} label="" strings={UI_STRINGS.en} showTaxonomies={false}/>)}</div>;
+}
 
-      {related.length > 0 && <section className="mx-auto max-w-[1440px] px-5 py-14 lg:px-10 lg:py-20">
-        <div className="mb-8 flex items-end justify-between gap-6">
-          <div><p className="text-xs font-black uppercase tracking-[.18em] text-[var(--brand)]">{collection}</p><h2 className="mt-2 text-4xl font-black uppercase tracking-[-.05em] sm:text-6xl">Keep exploring.</h2></div>
-          <Link href={`/loja?q=${encodeURIComponent(collection)}`} className="hidden items-center gap-2 font-black uppercase underline sm:flex">See the collection <ArrowRight className="size-4"/></Link>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {related.map((product) => <article key={product.slug} className="group">
-            <Link href={`/designs/${product.slug}`} className="relative block aspect-[4/5] overflow-hidden bg-white">
-              <ProductMockup artwork={product.imageKey || "/products/white-shirt-1.jpg"} color="White" name={product.name} />
-            </Link>
-            <div className="flex items-start justify-between gap-4 pt-4"><div><p className="text-xs uppercase opacity-50">{product.collection}</p><h3 className="text-lg font-black uppercase">{product.name}</h3></div><strong>{(product.priceCents/100).toFixed(2).replace(".",",")} €</strong></div>
-          </article>)}
-        </div>
-      </section>}
-    </>
-  );
+export function ProductDiscovery({ related, moreProducts, collection, catalogColors, supports }: { related:RelatedProduct[]; moreProducts:RelatedProduct[]; collection:string; catalogColors:CatalogColor[]; supports:ProductSupport[] }) {
+  return <>
+    <section className="mx-auto grid max-w-[1440px] gap-0 px-5 py-14 lg:grid-cols-2 lg:px-10 lg:py-20">
+      <div className="flex min-h-96 flex-col justify-between bg-[var(--ink)] p-8 text-white sm:p-12">
+        <div><p className="flex items-center gap-2 text-xs font-black uppercase tracking-[.2em] text-[var(--accent-brand)]"><Sparkles className="size-4"/> The Link Label</p><h2 className="mt-5 max-w-xl text-5xl font-black uppercase leading-[.84] tracking-[-.06em] sm:text-7xl">The logo never tells the same story twice.</h2></div>
+        <p className="mt-12 max-w-xl text-lg leading-relaxed text-white/65">Every Made in Maia piece carries a Link Label. Open it and every visit reveals a different story, image, video, idea or local surprise.</p>
+      </div>
+      <div className="flex min-h-96 flex-col justify-between bg-[var(--accent-brand)] p-8 text-black sm:p-12">
+        <BrandLogo className="h-36 w-auto" />
+        <div><p className="max-w-md text-xl font-bold text-black">One symbol. An endless doorway into Made in Maia.</p><Link href="/linklabel" className="mt-7 inline-flex items-center gap-3 bg-[var(--ink)] px-7 py-4 font-black uppercase text-white">Open Link Label <RefreshCw className="size-4"/></Link></div>
+      </div>
+    </section>
+
+    {related.length>0&&<section className="py-14 lg:py-20"><div className="mb-8 flex items-end justify-between gap-6 px-5 lg:px-10"><div><p className="text-xs font-black uppercase tracking-[.18em] text-[var(--brand)]">More from {collection}</p><h2 className="mt-2 text-4xl font-black uppercase tracking-[-.05em] sm:text-6xl">More ideas you might wear.</h2></div><Link href={`/loja?q=${encodeURIComponent(collection)}`} className="hidden items-center gap-2 font-black uppercase underline sm:flex">See the collection <ArrowRight className="size-4"/></Link></div><RelatedGrid products={related} catalogColors={catalogColors} supports={supports}/></section>}
+
+    {moreProducts.length>0&&<section className="border-t border-white/10 py-14 lg:py-20"><div className="mb-8 px-5 lg:px-10"><p className="text-xs font-black uppercase tracking-[.18em] text-[var(--brand)]">Still curious?</p><h2 className="mt-2 text-4xl font-black uppercase tracking-[-.05em] sm:text-6xl">Keep looking. The right one is here.</h2></div><RelatedGrid products={moreProducts} catalogColors={catalogColors} supports={supports}/></section>}
+  </>;
 }

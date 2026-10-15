@@ -181,6 +181,7 @@ img, svg, video, canvas { max-width: 100%; }
 .mim-page-block--produtos { max-width: none; }
 .mim-page-block--produtos .mim-page-block__content { padding-inline: 0; }
 .mim-page-block--produtos .mim-page-block__content > :not(.mim-product-grid) { margin-inline: 1.25rem; }
+#mim-shop .mim-page-block--produtos .mim-product-card__taxonomies { display: none; }
 .mim-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 0 !important; width: 100%; }
 .mim-product-card { padding: 0; border: 1px solid rgb(255 255 255 / .13); }
 .mim-product-card { content-visibility: auto; contain-intrinsic-size: auto 620px; contain: layout paint style; }

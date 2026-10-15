@@ -17,6 +17,25 @@ type ProductView = { slug:string; name:string; nameTranslations:Record<string,st
 
 const fallback: ProductView[] = LOCAL_FALLBACK_PRODUCTS;
 
+function fallbackDiscoveryProducts(currentSlug:string, currentTags:string[]) {
+  const candidates:RelatedProduct[] = LOCAL_FALLBACK_PRODUCTS.filter((item)=>item.slug!==currentSlug).map((item)=>({
+    slug:item.slug,
+    name:item.name,
+    imageKey:item.imageKey,
+    priceCents:item.priceCents,
+    collection:item.collection,
+    tags:item.tags,
+    colors:item.colors,
+    previewColorIds:[],
+    monochrome:item.monochrome,
+    disabledSupports:item.disabledSupports,
+    artworkPlacements:item.artworkPlacements,
+  }));
+  const related=candidates.filter((candidate)=>candidate.tags.some((tag)=>currentTags.includes(tag))).slice(0,6);
+  const relatedSlugs=new Set(related.map((candidate)=>candidate.slug));
+  return {related,moreProducts:candidates.filter((candidate)=>!relatedSlugs.has(candidate.slug)).slice(0,6)};
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   try {
@@ -52,6 +71,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   let product = fallback.find((item)=>item.slug===slug);
   let catalog = { colors: DEFAULT_COLORS, supports: DEFAULT_SUPPORTS };
   let related:RelatedProduct[] = [];
+  let moreProducts:RelatedProduct[] = [];
   let navigation:NavigationItem[]=DEFAULT_NAVIGATION;
   try {
     const db = getDb();
@@ -67,11 +87,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         priceCents:products.priceCents,
         collection:products.collection,
         tags:products.tags,
+        colors:products.colors,
+        previewColorIds:products.previewColorIds,
+        monochrome:products.monochrome,
+        disabledSupports:products.disabledSupports,
+        artworkPlacements:products.artworkPlacements,
       }).from(products).where(and(eq(products.status,"published"),eq(products.onlineSaleEnabled,true),ne(products.slug,product.slug))).limit(48);
       const tagMatches = candidates.filter((candidate) => candidate.tags.some((tag) => product?.tags.includes(tag)));
-      related = (tagMatches.length ? tagMatches : candidates).slice(0, 4);
+      related = tagMatches.slice(0, 6).map((candidate)=>({...candidate,artworkPlacements:candidate.artworkPlacements??{}}));
+      const relatedSlugs = new Set(related.map((candidate)=>candidate.slug));
+      moreProducts = candidates.filter((candidate)=>!relatedSlugs.has(candidate.slug)).slice(0, 6).map((candidate)=>({...candidate,artworkPlacements:candidate.artworkPlacements??{}}));
     }
-  } catch { /* local fallback */ }
+  } catch {
+    if(product)({related,moreProducts}=fallbackDiscoveryProducts(product.slug,product.tags));
+  }
   if (!product) return <main className="grid min-h-screen place-items-center bg-[var(--paper)] p-8 text-center"><div><h1 className="text-5xl font-black uppercase">Produto não encontrado</h1><Link href="/loja" className="mt-6 inline-block underline">Voltar à loja</Link></div></main>;
   const supports = catalog.supports.filter((support)=>support.id!=="sunglasses"&&support.active&&!product.disabledSupports.includes(support.id)).map(normalizeSupport);
   const structuredData = {
@@ -89,5 +118,5 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       url: `https://madeinmaia.pt/designs/${product.slug}`,
     },
   };
-  return <main id={`mim-product-${product.slug}`} className="mim-product-page storefront-dark min-h-screen overflow-x-clip bg-[var(--paper)] text-[var(--foreground)]"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><StoreHeader navigation={navigation}/><ProductPurchase slug={product.slug} name={product.name} description={product.description} collection={product.collection} image={product.imageKey} gallery={product.gallery} priceCents={product.priceCents} supports={supports} catalogColors={catalog.colors} monochrome={product.monochrome} artworkPlacements={product.artworkPlacements}/><ProductDiscovery related={related} collection={product.tags[0] ?? product.collection}/></main>;
+  return <main id={`mim-product-${product.slug}`} className="mim-product-page storefront-dark min-h-screen overflow-x-clip bg-[var(--paper)] text-[var(--foreground)]"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><StoreHeader navigation={navigation}/><ProductPurchase slug={product.slug} name={product.name} description={product.description} collection={product.collection} image={product.imageKey} gallery={product.gallery} priceCents={product.priceCents} supports={supports} catalogColors={catalog.colors} monochrome={product.monochrome} artworkPlacements={product.artworkPlacements}/><ProductDiscovery related={related} moreProducts={moreProducts} collection={product.tags[0] ?? product.collection} catalogColors={catalog.colors} supports={supports}/></main>;
 }

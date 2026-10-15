@@ -146,8 +146,8 @@ export default function Home({ initialProducts = [], heroProducts = [], initialT
       <section id="mim-living-hero" className="mim-living-hero border-b border-white/10 bg-[#11110f]" aria-labelledby="mim-living-hero-title">
         <div className="mx-auto max-w-[1440px] px-3 py-5 sm:px-5 lg:px-10 lg:py-8">
           <div className="mb-4 flex items-end justify-between gap-4">
-            <div><p className="text-xs font-black uppercase tracking-[.24em] text-[var(--brand)]">Made in Maia live</p><h1 id="mim-living-hero-title" className="mt-1 text-2xl font-black uppercase leading-none sm:text-4xl">36 designs. Always moving.</h1></div>
-            <p className="hidden max-w-sm text-right text-sm text-white/50 md:block">Top sellers lead the wall. Every tile opens the design.</p>
+            <div><p className="text-xs font-black uppercase tracking-[.24em] text-[var(--brand)]">Find your next favourite</p><h1 id="mim-living-hero-title" className="mt-1 text-2xl font-black uppercase leading-none sm:text-4xl">18 designs. Never the same wall.</h1></div>
+            <p className="hidden max-w-sm text-right text-sm text-white/55 md:block">Tap any design to choose your colour, fit and favourite way to wear it.</p>
           </div>
           <LivingDesignGrid products={livingGridProducts} colors={catalogColors}/>
         </div>
