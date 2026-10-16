@@ -15,7 +15,10 @@ export type AnalyticsEventName =
   | "linklabel_action"
   | "linklabel_next"
   | "collection_view"
-  | "search";
+  | "search"
+  | "engaged_session"
+  | "scroll_depth"
+  | "product_gallery";
 
 type EventOptions = {
   entityType?: "product" | "linklabel" | "collection" | "page";

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 export function LinkLabelVideo({ src, title }: { src: string; title: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -26,6 +27,7 @@ export function LinkLabelVideo({ src, title }: { src: string; title: string }) {
     video.volume = 1;
     setMuted(false);
     void video.play();
+    trackEvent("linklabel_action",{entityType:"linklabel",entityId:title,metadata:{action:"video_sound"}});
   }
 
   return (
@@ -46,6 +48,7 @@ export function LinkLabelYoutube({ src, title }: { src: string; title: string })
     player?.postMessage(JSON.stringify({ event:"command", func:"setVolume", args:[100] }), "https://www.youtube-nocookie.com");
     player?.postMessage(JSON.stringify({ event:"command", func:"playVideo", args:[] }), "https://www.youtube-nocookie.com");
     setSoundRequested(true);
+    trackEvent("linklabel_action",{entityType:"linklabel",entityId:title,metadata:{action:"youtube_sound"}});
   }
 
   return (
