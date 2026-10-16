@@ -18,7 +18,13 @@ export type AnalyticsEventName =
   | "search"
   | "engaged_session"
   | "scroll_depth"
-  | "product_gallery";
+  | "product_gallery"
+  | "product_impression"
+  | "site_click"
+  | "outbound_click"
+  | "page_exit"
+  | "web_vital"
+  | "client_error";
 
 type EventOptions = {
   entityType?: "product" | "linklabel" | "collection" | "page";
