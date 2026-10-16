@@ -17,6 +17,10 @@ export type PageBlock = {
   fontWeight?: number;
   letterSpacing?: number;
   imageUrl?: string;
+  imageAlt?: string;
+  imageCaption?: string;
+  imageCredit?: string;
+  imageCreditUrl?: string;
   productSource?: "all" | "tag" | "selection";
   productTag?: string;
   productSlugs?: string[];

@@ -70,7 +70,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     initialProducts = catalogue;
     initialTotal = total;
     heroProducts = heroCatalogue;
-    featuredPosts = journal.map((post)=>{const hero=(post.blocks as PageBlock[])[0];return{slug:post.slug.slice(5),title:post.title,description:hero?.description||"A Made in Maia Porto guide.",category:hero?.eyebrow||"Porto guide"};});
+    featuredPosts = journal.map((post)=>{const hero=(post.blocks as PageBlock[])[0];return{slug:post.slug.slice(5),title:post.title,description:hero?.description||"A Made in Maia local guide.",category:hero?.eyebrow||"Local guide",image:hero?.imageUrl,imageAlt:hero?.imageAlt};});
     if (storedPage?.status === "published" && Array.isArray(storedPage.blocks))
       initialBlocks = storedPage.blocks as PageBlock[];
     if (settings?.data.navigation?.length) navigation = [...settings.data.navigation, ...DEFAULT_NAVIGATION.filter((required)=>!settings.data.navigation.some((item)=>item.id===required.id))];

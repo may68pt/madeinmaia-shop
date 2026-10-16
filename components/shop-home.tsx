@@ -2,6 +2,7 @@
 
 import { ProductCard } from "@/components/product-card";
 import Link from "next/link";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowUpRight, BookOpen, LoaderCircle, MapPin, Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,7 @@ const defaultProducts: ShopProduct[] = LOCAL_FALLBACK_PRODUCTS.map((product) => 
 const PAGE_SIZE = 24;
 function stableBlockOrder(blockId:number, slug:string) { return [...`${blockId}-${slug}`].reduce((total,character)=>((total*33)+character.charCodeAt(0))>>>0,5381); }
 export type ApiProduct = { slug:string; name:string; nameTranslations:Record<string,string>; collection:string; tags:string[]; priceCents:number; imageKey:string|null; colors:string[]; previewColorIds?:string[]; sizes:string[]; monochrome:boolean; disabledSupports?:string[]; artworkPlacements?:ArtworkPlacements };
-export type FeaturedPost = { slug:string; title:string; description:string; category:string };
+export type FeaturedPost = { slug:string; title:string; description:string; category:string; image?:string; imageAlt?:string };
 
 function mapProduct(product: ApiProduct): ShopProduct {
   return {
@@ -161,10 +162,10 @@ export default function Home({ initialProducts = [], heroProducts = [], featured
       <section id="mim-porto-guide" className="mim-porto-guide border-y border-white/10 bg-[#11110f] px-5 py-16 text-white lg:px-10 lg:py-24">
         <div className="mx-auto max-w-[1440px]">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div><p className="flex items-center gap-2 text-xs font-black uppercase tracking-[.2em] text-[var(--accent-brand)]"><MapPin className="size-4"/>Made in Maia Porto guide</p><h2 className="mt-4 max-w-4xl text-5xl font-black uppercase leading-[.84] tracking-[-.065em] sm:text-7xl">Take a piece of Porto. Know the place behind it.</h2><p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/60">Practical local knowledge, independent places and stories for visitors who want more than the same postcard route.</p></div>
-            <Link href="/blog" className="inline-flex shrink-0 items-center gap-2 border border-white/25 px-6 py-4 text-sm font-black uppercase transition hover:bg-white hover:text-black">Explore the Porto guide<ArrowUpRight className="size-4"/></Link>
+            <div><p className="flex items-center gap-2 text-xs font-black uppercase tracking-[.2em] text-[var(--accent-brand)]"><MapPin className="size-4"/>Made in Maia · Porto & Maia guide</p><h2 className="mt-4 max-w-4xl text-5xl font-black uppercase leading-[.84] tracking-[-.065em] sm:text-7xl">Take a piece of the North. Know the place behind it.</h2><p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/60">Porto routes, Maia heritage, independent places and useful local stories for visitors who want more than the same postcard itinerary.</p></div>
+            <Link href="/blog" className="inline-flex shrink-0 items-center gap-2 border border-white/25 px-6 py-4 text-sm font-black uppercase transition hover:bg-white hover:text-black">Explore the local guide<ArrowUpRight className="size-4"/></Link>
           </div>
-          <div className="mt-12 grid gap-px bg-white/10 md:grid-cols-3">{featuredPosts.slice(0,3).map((post)=><Link key={post.slug} href={`/blog/${post.slug}`} className="group flex min-h-72 flex-col bg-[#11110f] p-6 transition hover:bg-white/[.04] sm:p-8"><p className="flex items-center gap-2 text-xs font-black uppercase tracking-[.14em] text-[var(--brand)]"><BookOpen className="size-4"/>{post.category}</p><h3 className="mt-5 text-3xl font-black uppercase leading-[.92] tracking-[-.045em]">{post.title}</h3><p className="mt-5 line-clamp-4 leading-relaxed text-white/55">{post.description}</p><span className="mt-auto flex items-center gap-2 pt-8 text-sm font-black uppercase">Read the guide<ArrowUpRight className="size-4 transition group-hover:translate-x-1 group-hover:-translate-y-1"/></span></Link>)}</div>
+          <div className="mt-12 grid gap-px bg-white/10 md:grid-cols-3">{featuredPosts.slice(0,3).map((post)=><Link key={post.slug} href={`/blog/${post.slug}`} className="group flex min-h-72 flex-col bg-[#11110f] transition hover:bg-white/[.04]">{post.image&&<div className="relative aspect-[16/10] overflow-hidden"><Image src={post.image} alt={post.imageAlt??post.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition duration-500 group-hover:scale-105"/></div>}<div className="flex flex-1 flex-col p-6 sm:p-8"><p className="flex items-center gap-2 text-xs font-black uppercase tracking-[.14em] text-[var(--brand)]"><BookOpen className="size-4"/>{post.category}</p><h3 className="mt-5 text-3xl font-black uppercase leading-[.92] tracking-[-.045em]">{post.title}</h3><p className="mt-5 line-clamp-4 leading-relaxed text-white/55">{post.description}</p><span className="mt-auto flex items-center gap-2 pt-8 text-sm font-black uppercase">Read the guide<ArrowUpRight className="size-4 transition group-hover:translate-x-1 group-hover:-translate-y-1"/></span></div></Link>)}</div>
         </div>
       </section>
       <footer id="mim-site-footer" className="mim-site-footer mt-10 border-t border-white/10 bg-[var(--paper)] px-5 py-10 text-white lg:px-10"><div className="mx-auto flex max-w-[1440px] flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"><Link href="/loja" aria-label="Made in Maia shop"><BrandLogo className="h-20 w-auto" /></Link><nav className="flex flex-wrap gap-5 text-sm text-white/65"><Link href="/legal/terms">{strings.terms}</Link><Link href="/legal/privacy">{strings.privacy}</Link><Link href="/legal/returns">{strings.returns}</Link><Link href="/marca">{strings.brand}</Link></nav></div></footer>
