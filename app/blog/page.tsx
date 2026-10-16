@@ -9,7 +9,7 @@ import { BrandLogo } from "@/components/brand-logo";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Porto Guide & Journal | Made in Maia",
+  title: "Porto Guide & Journal",
   description: "A practical, independent Porto knowledge base: neighbourhoods, viewpoints, transport, markets, culture and local stories.",
   alternates: { canonical: "/blog" },
 };

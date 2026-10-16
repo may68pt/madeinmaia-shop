@@ -11,7 +11,7 @@ import { BrandLogo } from "@/components/brand-logo";
 
 export const dynamic = "force-dynamic";
 async function getPost(slug:string){const [post]=await getDb().select().from(pages).where(eq(pages.slug,`blog-${slug}`));return post?.status==="published"?post:null;}
-export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{try{const post=await getPost((await params).slug);if(!post)return{};const hero=(post.blocks as PageBlockData[])[0];return{title:`${post.title} | Made in Maia`,description:hero?.description||"A Made in Maia journal story.",alternates:{canonical:`/blog/${(await params).slug}`}};}catch{return{};}}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{try{const post=await getPost((await params).slug);if(!post)return{};const hero=(post.blocks as PageBlockData[])[0];return{title:post.title,description:hero?.description||"A Made in Maia journal story.",alternates:{canonical:`/blog/${(await params).slug}`}};}catch{return{};}}
 
 export default async function BlogPost({params}:{params:Promise<{slug:string}>}){
   let post;try{post=await getPost((await params).slug);}catch{notFound();}if(!post)notFound();
