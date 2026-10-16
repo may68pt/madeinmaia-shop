@@ -8,6 +8,7 @@ export const dynamic="force-dynamic";
 
 const eventNames=["page_view","product_view","product_click","product_configure","add_to_cart","remove_from_cart","cart_open","begin_checkout","checkout_submit","checkout_redirect","linklabel_view","linklabel_action","linklabel_next","collection_view","search","engaged_session","scroll_depth","product_gallery","product_impression","site_click","outbound_click","page_exit","web_vital","client_error"] as const;
 const eventSchema=z.object({eventName:z.enum(eventNames),visitorId:z.string().uuid(),sessionId:z.string().uuid(),path:z.string().max(500),entityType:z.enum(["product","linklabel","collection","page"]).optional(),entityId:z.string().max(160).optional(),referrer:z.string().max(1000).optional(),device:z.enum(["mobile","tablet","desktop"]),metadata:z.record(z.string(),z.union([z.string().max(240),z.number(),z.boolean()])).default({})});
+const eventBatchSchema=z.union([eventSchema,z.array(eventSchema).min(1).max(25)]);
 const requestCounters=new Map<string,{started:number;count:number}>();
 
 function validOrigin(request:Request){const origin=request.headers.get("origin");if(!origin)return true;try{return new URL(origin).host===(request.headers.get("x-forwarded-host")?.split(",")[0]?.trim()||request.headers.get("host")||new URL(request.url).host);}catch{return false;}}
@@ -15,16 +16,16 @@ function authenticated(request:Request){return Boolean(process.env.STUDIO_PASSWO
 
 export async function POST(request:Request){
   if(!validOrigin(request))return NextResponse.json({error:"Invalid origin"},{status:403});
-  if(Number(request.headers.get("content-length")||0)>12_000)return NextResponse.json({error:"Event too large"},{status:413});
-  const parsed=eventSchema.safeParse(await request.json().catch(()=>null));
+  if(Number(request.headers.get("content-length")||0)>48_000)return NextResponse.json({error:"Event batch too large"},{status:413});
+  const parsed=eventBatchSchema.safeParse(await request.json().catch(()=>null));
   if(!parsed.success)return NextResponse.json({error:"Invalid event"},{status:400});
-  const event=parsed.data;
-  if(Object.keys(event.metadata).length>20)return NextResponse.json({error:"Too much metadata"},{status:400});
-  if(event.eventName==="search"&&typeof event.metadata.query==="string")event.metadata.query=event.metadata.query.replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g,"[email]").slice(0,80);
-  const now=Date.now();const counter=requestCounters.get(event.visitorId);if(!counter||now-counter.started>60_000)requestCounters.set(event.visitorId,{started:now,count:1});else{counter.count+=1;if(counter.count>120)return NextResponse.json({error:"Rate limited"},{status:429});}if(requestCounters.size>10_000)requestCounters.clear();
-  let referrerHost:string|null=null;
-  if(event.referrer)try{const host=new URL(event.referrer).hostname;referrerHost=host===new URL(request.url).hostname?"direct/internal":host.slice(0,160);}catch{referrerHost=null;}
-  try{await getDb().insert(analyticsEvents).values({...event,referrerHost});return new NextResponse(null,{status:204});}catch{return NextResponse.json({error:"Analytics unavailable"},{status:503});}
+  const events=Array.isArray(parsed.data)?parsed.data:[parsed.data];
+  if(events.some((event)=>Object.keys(event.metadata).length>20))return NextResponse.json({error:"Too much metadata"},{status:400});
+  const now=Date.now();
+  for(const event of events){const counter=requestCounters.get(event.visitorId);if(!counter||now-counter.started>60_000)requestCounters.set(event.visitorId,{started:now,count:1});else{counter.count+=1;if(counter.count>120)return NextResponse.json({error:"Rate limited"},{status:429});}}
+  if(requestCounters.size>10_000)requestCounters.clear();
+  const values=events.map((event)=>{if(event.eventName==="search"&&typeof event.metadata.query==="string")event.metadata.query=event.metadata.query.replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g,"[email]").slice(0,80);let referrerHost:string|null=null;if(event.referrer)try{const host=new URL(event.referrer).hostname;referrerHost=host===new URL(request.url).hostname?"direct/internal":host.slice(0,160);}catch{referrerHost=null;}return {...event,referrerHost};});
+  try{await getDb().insert(analyticsEvents).values(values);return new NextResponse(null,{status:204});}catch{return NextResponse.json({error:"Analytics unavailable"},{status:503});}
 }
 
 export async function GET(request:Request){

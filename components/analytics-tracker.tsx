@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { trackEvent } from "@/lib/analytics";
+import { flushAnalytics, trackEvent } from "@/lib/analytics";
 
 export function AnalyticsTracker(){
   const pathname=usePathname();
@@ -24,7 +24,7 @@ export function AnalyticsTracker(){
     const measure=()=>{const available=document.documentElement.scrollHeight-window.innerHeight;if(available<=0)return;const depth=Math.round(window.scrollY/available*100);for(const threshold of [50,90])if(depth>=threshold&&!sent.has(threshold)){sent.add(threshold);trackEvent("scroll_depth",{entityType:"page",entityId:pathname,metadata:{depth:threshold}});}};
     window.addEventListener("scroll",measure,{passive:true});
     const click=(event:MouseEvent)=>{const target=event.target instanceof Element?event.target.closest("a,button"):null;if(!target)return;const label=(target.getAttribute("aria-label")||target.textContent||"").trim().replace(/\s+/g," ").slice(0,80);const href=target instanceof HTMLAnchorElement?target.href:"";if(href){try{const url=new URL(href);if(url.host!==window.location.host){trackEvent("outbound_click",{entityType:"page",entityId:pathname,metadata:{host:url.host,label}});return;}trackEvent("site_click",{entityType:"page",entityId:pathname,metadata:{label,destination:url.pathname}});}catch{return;}}else if(label)trackEvent("site_click",{entityType:"page",entityId:pathname,metadata:{label,control:"button"}});};
-    const reportExit=()=>{if(exitReported)return;exitReported=true;trackEvent("page_exit",{entityType:"page",entityId:pathname,metadata:{seconds:Math.max(0,Math.round((Date.now()-started)/1000))}});};
+    const reportExit=()=>{if(exitReported)return;exitReported=true;trackEvent("page_exit",{entityType:"page",entityId:pathname,metadata:{seconds:Math.max(0,Math.round((Date.now()-started)/1000))}});flushAnalytics();};
     window.addEventListener("click",click,{capture:true});
     window.addEventListener("pagehide",reportExit);
     return()=>{window.clearTimeout(engagement);window.removeEventListener("scroll",measure);window.removeEventListener("click",click,{capture:true});window.removeEventListener("pagehide",reportExit);reportExit();};
