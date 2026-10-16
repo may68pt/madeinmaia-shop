@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { desc, like } from "drizzle-orm";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen, Map, Search } from "lucide-react";
 import { getDb } from "@/db";
 import { pages } from "@/db/schema";
 import type { PageBlock } from "@/lib/page-blocks";
@@ -9,20 +9,33 @@ import { BrandLogo } from "@/components/brand-logo";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Journal | Made in Maia",
-  description: "Histórias, cultura local, internet gems e ideias da Made in Maia.",
+  title: "Porto Guide & Journal | Made in Maia",
+  description: "A practical, independent Porto knowledge base: neighbourhoods, viewpoints, transport, markets, culture and local stories.",
   alternates: { canonical: "/blog" },
 };
 
-export default async function BlogPage() {
+function categoryOf(post:typeof pages.$inferSelect){return ((post.blocks as PageBlock[])[0]?.eyebrow||"Made in Maia Journal").trim();}
+
+export default async function BlogPage({searchParams}:{searchParams:Promise<{q?:string;category?:string}>}) {
+  const params=await searchParams;
+  const query=(params.q||"").trim().toLowerCase().slice(0,80);
+  const category=(params.category||"").trim().toLowerCase().slice(0,80);
   let posts: Array<typeof pages.$inferSelect> = [];
   try {
     posts = await getDb().select().from(pages).where(like(pages.slug,"blog-%")).orderBy(desc(pages.updatedAt));
     posts = posts.filter((post)=>post.status==="published");
   } catch { posts = []; }
+  const categories=[...new Set(posts.map(categoryOf))];
+  const visible=posts.filter((post)=>{const hero=(post.blocks as PageBlock[])[0];const haystack=`${post.title} ${hero?.title||""} ${hero?.description||""} ${categoryOf(post)}`.toLowerCase();return(!query||haystack.includes(query))&&(!category||categoryOf(post).toLowerCase()===category);});
+  const listStructured={"@context":"https://schema.org","@type":"CollectionPage",name:"Made in Maia Porto Guide",description:"Independent local knowledge for visitors to Porto.",mainEntity:{"@type":"ItemList",itemListElement:visible.map((post,index)=>({"@type":"ListItem",position:index+1,url:`https://madeinmaia.pt/blog/${post.slug.slice(5)}`,name:post.title}))}};
   return <main className="storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]">
-    <header className="border-b border-white/10"><div className="mx-auto flex max-w-[1440px] items-center px-5 py-3 lg:px-10"><Link href="/loja" aria-label="Made in Maia shop"><BrandLogo className="h-16 w-auto" /></Link><Link href="/loja" className="ml-auto text-sm font-bold uppercase text-white/60">Shop</Link></div></header>
-    <section className="mx-auto max-w-[1440px] px-5 py-16 lg:px-10 lg:py-24"><p className="flex items-center gap-2 text-sm font-black uppercase tracking-[.18em] text-[var(--accent-brand)]"><BookOpen className="size-4"/>Made in Maia Journal</p><h1 className="mt-5 max-w-5xl text-6xl font-black uppercase leading-[.82] tracking-[-.07em] sm:text-8xl">Stories worth wearing.</h1><p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/60">Internet gems, local culture, curious places and the stories behind the designs.</p></section>
-    <section className="mx-auto grid max-w-[1440px] gap-4 px-5 pb-24 sm:grid-cols-2 lg:grid-cols-3 lg:px-10">{posts.map((post)=>{const blocks=post.blocks as PageBlock[];const hero=blocks[0];return <article key={post.slug} className="group flex min-h-80 flex-col border border-white/10 bg-[var(--surface)] p-6 transition hover:-translate-y-1 hover:border-white/30"><p className="text-xs font-black uppercase tracking-[.14em] text-[var(--accent-brand)]">{hero?.eyebrow||"Journal"}</p><h2 className="mt-5 text-3xl font-black uppercase leading-[.95] tracking-[-.05em]">{post.title}</h2><p className="mt-5 line-clamp-4 leading-relaxed text-white/55">{hero?.description||"A Made in Maia story."}</p><Link href={`/blog/${post.slug.slice(5)}`} className="mt-auto inline-flex items-center gap-2 pt-8 text-sm font-black uppercase">Read story<ArrowRight className="size-4 transition group-hover:translate-x-1"/></Link></article>})}{!posts.length&&<div className="col-span-full border border-dashed border-white/20 p-12 text-center"><BookOpen className="mx-auto size-10 text-white/25"/><h2 className="mt-5 text-3xl font-black uppercase">Stories are brewing.</h2><p className="mt-2 text-white/50">The first Made in Maia journal entries are coming soon.</p></div>}</section>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(listStructured).replace(/</g,"\\u003c")}}/>
+    <header className="border-b border-white/10"><div className="mx-auto flex max-w-[1440px] items-center px-5 py-3 lg:px-10"><Link href="/loja" aria-label="Made in Maia shop"><BrandLogo className="h-16 w-auto" /></Link><nav className="ml-auto flex items-center gap-5 text-sm font-bold uppercase text-white/60"><Link href="/loja">Shop</Link><Link href="/linklabel">Link Label</Link></nav></div></header>
+    <section className="border-b border-white/10 bg-[#11110f]"><div className="mx-auto max-w-[1440px] px-5 py-16 lg:px-10 lg:py-24"><p className="flex items-center gap-2 text-sm font-black uppercase tracking-[.18em] text-[var(--accent-brand)]"><Map className="size-4"/>Made in Maia Porto Guide</p><h1 className="mt-5 max-w-6xl text-6xl font-black uppercase leading-[.8] tracking-[-.07em] sm:text-8xl">Know Porto.<br/>Not just the postcard.</h1><p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/60">A growing knowledge base for curious visitors: useful routes, neighbourhood context, architecture, markets, viewpoints and the stories that make the city feel alive.</p></div></section>
+    <section className="mx-auto max-w-[1440px] px-5 py-8 lg:px-10">
+      <form action="/blog" className="flex flex-col gap-3 sm:flex-row"><label className="flex min-h-12 flex-1 items-center gap-3 border border-white/15 bg-white/5 px-4"><Search className="size-4 text-white/45"/><span className="sr-only">Search the Porto guide</span><input name="q" defaultValue={params.q} placeholder="Search places, routes and stories" className="w-full bg-transparent text-white outline-none placeholder:text-white/35"/></label><button className="min-h-12 bg-[var(--brand)] px-6 text-sm font-black uppercase text-white">Search</button></form>
+      <nav aria-label="Guide categories" className="mt-5 flex flex-wrap gap-2"><Link href="/blog" className={`rounded-full border px-4 py-2 text-xs font-black uppercase ${!category?"border-[var(--accent-brand)] text-[var(--accent-brand)]":"border-white/15 text-white/55"}`}>All guides</Link>{categories.map((item)=><Link key={item} href={`/blog?category=${encodeURIComponent(item)}`} className={`rounded-full border px-4 py-2 text-xs font-black uppercase ${category===item.toLowerCase()?"border-[var(--accent-brand)] text-[var(--accent-brand)]":"border-white/15 text-white/55"}`}>{item}</Link>)}</nav>
+    </section>
+    <section className="mx-auto grid max-w-[1440px] gap-px bg-white/10 px-5 pb-24 sm:grid-cols-2 lg:grid-cols-3 lg:px-10">{visible.map((post)=>{const blocks=post.blocks as PageBlock[];const hero=blocks[0];return <article key={post.slug} className="group flex min-h-96 flex-col bg-[var(--paper)] p-6 transition hover:bg-white/[.035] sm:p-8"><p className="text-xs font-black uppercase tracking-[.14em] text-[var(--accent-brand)]">{categoryOf(post)}</p><h2 className="mt-5 text-3xl font-black uppercase leading-[.92] tracking-[-.05em]">{post.title}</h2><p className="mt-5 line-clamp-5 leading-relaxed text-white/55">{hero?.description||"A Made in Maia Porto guide."}</p><Link href={`/blog/${post.slug.slice(5)}`} className="mt-auto inline-flex items-center gap-2 pt-8 text-sm font-black uppercase">Read guide<ArrowRight className="size-4 transition group-hover:translate-x-1"/></Link></article>})}{!visible.length&&<div className="col-span-full bg-[var(--paper)] p-12 text-center"><BookOpen className="mx-auto size-10 text-white/25"/><h2 className="mt-5 text-3xl font-black uppercase">No guide found.</h2><p className="mt-2 text-white/50">Try another place, topic or category.</p><Link href="/blog" className="mt-6 inline-flex border border-white/20 px-5 py-3 text-sm font-black uppercase">See all guides</Link></div>}</section>
   </main>;
 }

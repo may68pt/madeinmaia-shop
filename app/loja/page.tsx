@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
-import Home, { type ApiProduct } from "@/components/shop-home";
+import Home, { type ApiProduct, type FeaturedPost } from "@/components/shop-home";
 import type { LivingGridProduct } from "@/components/living-design-grid";
 import { getDb } from "@/db";
 import { pages, products, siteSettings } from "@/db/schema";
@@ -34,6 +34,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   let catalogColors:CatalogColor[] = DEFAULT_COLORS;
   let catalogSupports:ProductSupport[] = DEFAULT_SUPPORTS;
   let heroProducts:LivingGridProduct[] = [];
+  let featuredPosts:FeaturedPost[] = [];
   try {
     const db = getDb();
     const where = query
@@ -44,7 +45,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
           sql`${products.tags}::text ILIKE ${`%${query}%`}`,
         ))
       : and(eq(products.status,"published"),eq(products.onlineSaleEnabled,true));
-    const [catalogue, [{ total }], [storedPage], [settings], heroCatalogue] = await Promise.all([
+    const [catalogue, [{ total }], [storedPage], [settings], heroCatalogue, journal] = await Promise.all([
       db.select({
         slug:products.slug,
         name:products.name,
@@ -64,10 +65,12 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       db.select().from(pages).where(eq(pages.slug,"inicio")),
       db.select().from(siteSettings).where(eq(siteSettings.key,"global")),
       db.select({slug:products.slug,name:products.name,imageKey:products.imageKey,previewColorIds:products.previewColorIds,salesRank:products.salesRank}).from(products).where(and(eq(products.status,"published"),eq(products.onlineSaleEnabled,true))).orderBy(desc(products.salesRank),asc(products.sortOrder),asc(products.id)).limit(120),
+      db.select().from(pages).where(and(ilike(pages.slug,"blog-%"),eq(pages.status,"published"))).orderBy(desc(pages.updatedAt)).limit(3),
     ]);
     initialProducts = catalogue;
     initialTotal = total;
     heroProducts = heroCatalogue;
+    featuredPosts = journal.map((post)=>{const hero=(post.blocks as PageBlock[])[0];return{slug:post.slug.slice(5),title:post.title,description:hero?.description||"A Made in Maia Porto guide.",category:hero?.eyebrow||"Porto guide"};});
     if (storedPage?.status === "published" && Array.isArray(storedPage.blocks))
       initialBlocks = storedPage.blocks as PageBlock[];
     if (settings?.data.navigation?.length) navigation = [...settings.data.navigation, ...DEFAULT_NAVIGATION.filter((required)=>!settings.data.navigation.some((item)=>item.id===required.id))];
@@ -88,5 +91,5 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       name:product.name,
     })),
   };
-  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData).replace(/</g,"\\u003c")}}/><Home initialProducts={initialProducts} heroProducts={heroProducts} initialTotal={initialTotal} initialBlocks={initialBlocks} initialOffset={offset} initialPage={page} initialQuery={query} navigation={navigation} catalogColors={catalogColors} catalogSupports={catalogSupports} /></>;
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData).replace(/</g,"\\u003c")}}/><Home initialProducts={initialProducts} heroProducts={heroProducts} featuredPosts={featuredPosts} initialTotal={initialTotal} initialBlocks={initialBlocks} initialOffset={offset} initialPage={page} initialQuery={query} navigation={navigation} catalogColors={catalogColors} catalogSupports={catalogSupports} /></>;
 }
