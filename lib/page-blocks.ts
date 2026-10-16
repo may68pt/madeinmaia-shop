@@ -7,6 +7,8 @@ export type PageBlock = {
   eyebrow?: string;
   ctaLabel?: string;
   ctaUrl?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaUrl?: string;
   background?: string;
   textColor?: string;
   width?: "full" | "content" | "narrow";

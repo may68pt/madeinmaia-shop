@@ -162,6 +162,13 @@
       "when": 1792161000000,
       "tag": "0022_river_market_and_editorial_seo",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792242000000,
+      "tag": "0023_maia_activity_map",
+      "breakpoints": true
     }
   ]
 }
