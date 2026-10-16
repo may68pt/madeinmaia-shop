@@ -21,6 +21,9 @@ export type PageBlock = {
   imageCaption?: string;
   imageCredit?: string;
   imageCreditUrl?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
   productSource?: "all" | "tag" | "selection";
   productTag?: string;
   productSlugs?: string[];

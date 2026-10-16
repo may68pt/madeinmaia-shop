@@ -155,6 +155,13 @@
       "when": 1792154735000,
       "tag": "0021_maia_editorial_series",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1792161000000,
+      "tag": "0022_river_market_and_editorial_seo",
+      "breakpoints": true
     }
   ]
 }
