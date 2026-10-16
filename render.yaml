@@ -1,6 +1,7 @@
 services:
   - type: web
     name: madeinmaia-shop
+    branch: main
     runtime: node
     plan: 0.5c-512mb
     buildCommand: npm ci && npm run build

@@ -15,10 +15,12 @@ export type DiscoveryEntry = {
 function youtubeEmbedUrl(value: string) {
   try {
     const url = new URL(value);
-    const id = url.hostname.includes("youtu.be")
+    const host=url.hostname.toLowerCase();
+    if(!["youtube.com","www.youtube.com","m.youtube.com","youtube-nocookie.com","www.youtube-nocookie.com","youtu.be","www.youtu.be"].includes(host))return null;
+    const id = host.endsWith("youtu.be")
       ? url.pathname.slice(1)
-      : url.searchParams.get("v") ?? (url.pathname.startsWith("/embed/") ? url.pathname.split("/")[2] : "");
-    return id && /^[\w-]{6,}$/.test(id) ? `https://www.youtube-nocookie.com/embed/${id}` : null;
+      : url.searchParams.get("v") ?? ((url.pathname.startsWith("/embed/")||url.pathname.startsWith("/shorts/")) ? url.pathname.split("/")[2] : "");
+    return id && /^[A-Za-z0-9_-]{11}$/.test(id) ? `https://www.youtube-nocookie.com/embed/${id}` : null;
   } catch {
     return null;
   }
