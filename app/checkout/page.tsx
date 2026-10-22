@@ -10,10 +10,12 @@ import { clearCart, removeCartItem, updateCartQuantity, useCart } from "@/lib/ca
 import { BrandLogo } from "@/components/brand-logo";
 import { calculateShippingCents } from "@/lib/shipping";
 import { trackEvent } from "@/lib/analytics";
+import { useLocale } from "@/components/locale-provider";
 
 type Result = { reference:string; paymentUrl:string|null; testMode:boolean };
 
 export default function CheckoutPage() {
+  const {strings}=useLocale();
   const cart=useCart();
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
@@ -38,7 +40,7 @@ export default function CheckoutPage() {
     } catch(reason){setError(reason instanceof Error?reason.message:"Ocorreu um erro.");} finally {setLoading(false);}
   }
 
-  if(result)return <main className="grid min-h-screen place-items-center bg-[var(--accent-brand)] p-6 text-[var(--ink)]"><div className="max-w-xl bg-white p-8 text-center sm:p-12"><CheckCircle2 className="mx-auto size-14 text-[var(--brand)]"/><h1 className="mt-6 text-5xl font-black uppercase tracking-[-.06em]">Encomenda recebida</h1><p className="mt-5 text-lg text-black/60">Referência <strong className="text-black">{result.reference}</strong></p>{result.testMode&&<p className="mt-4 bg-[#fff0ea] p-4 text-sm">Modo de teste: a encomenda não foi guardada nem cobrada.</p>}<Button asChild className="mt-8 rounded-none bg-[var(--ink)] text-white"><Link href="/loja">Voltar à loja</Link></Button></div></main>;
+  if(result)return <main className="grid min-h-screen place-items-center bg-[var(--accent-brand)] p-6 text-[var(--ink)]"><div className="max-w-xl bg-white p-8 text-center sm:p-12"><CheckCircle2 className="mx-auto size-14 text-[var(--brand)]"/><h1 className="mt-6 text-5xl font-black uppercase tracking-[-.06em]">{strings.orderReceived}</h1><p className="mt-5 text-lg text-black/60">{strings.reference} <strong className="text-black">{result.reference}</strong></p>{result.testMode&&<p className="mt-4 bg-[#fff0ea] p-4 text-sm">Test mode</p>}<Button asChild className="mt-8 rounded-none bg-[var(--ink)] text-white"><Link href="/loja">{strings.backToShop}</Link></Button></div></main>;
 
   return <main id="mim-checkout" className="mim-checkout storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]">
     <header className="flex items-center justify-between border-b border-white/10 px-5 py-3 lg:px-10"><Link href="/loja" className="flex items-center gap-2 font-black uppercase"><ArrowLeft className="size-4"/>Continuar compras</Link><Link href="/loja" aria-label="Made in Maia shop"><BrandLogo className="h-16 w-auto" /></Link></header>

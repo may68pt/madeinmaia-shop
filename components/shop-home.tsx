@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/lib/analytics";
 import { DEFAULT_PAGE_BLOCKS, withRequiredHomeBlocks, type PageBlock as PageBlockData } from "@/lib/page-blocks";
 import { PageBlock } from "@/components/page-block";
-import { LOCALES, UI_STRINGS, translatedName, type Locale } from "@/lib/i18n";
+import { translatedName } from "@/lib/i18n";
+import { useLocale } from "@/components/locale-provider";
 import { DEFAULT_NAVIGATION, type NavigationItem } from "@/lib/site-navigation";
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, type CatalogColor, type ProductSupport } from "@/lib/product-catalog";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
@@ -56,22 +57,13 @@ export default function Home({ initialProducts = [], heroProducts = [], featured
   const initialCatalogue = initialProducts.length ? initialProducts.map(mapProduct) : defaultProducts;
   const [products, setProducts] = useState<ShopProduct[]>(initialCatalogue);
   const [blocks, setBlocks] = useState<PageBlockData[]>(withRequiredHomeBlocks(initialBlocks));
-  const [locale, setLocale] = useState<Locale>("en");
+  const {locale,strings}=useLocale();
   const [hasMore, setHasMore] = useState(initialProducts.length > 0 && initialOffset + initialProducts.length < initialTotal);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(initialTotal || initialCatalogue.length);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const firstQueryRun = useRef(true);
-  const strings = UI_STRINGS[locale];
   const livingGridProducts:LivingGridProduct[] = heroProducts.length ? heroProducts : initialCatalogue.map(({slug,name,image,previewColorIds})=>({slug,name,imageKey:image,previewColorIds}));
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem("mim-locale") as Locale | null;
-    const browser = navigator.language.toLowerCase().split("-")[0] as Locale;
-    const next = stored && LOCALES.includes(stored) ? stored : LOCALES.includes(browser) ? browser : "en";
-    const frame = window.requestAnimationFrame(() => setLocale(next));
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
 
   function productsForBlock(block: PageBlockData) {
     let items = [...products];
@@ -87,11 +79,6 @@ export default function Home({ initialProducts = [], heroProducts = [], featured
     if (block.productOrder === "random") items.sort((a,b)=>stableBlockOrder(block.id,a.slug)-stableBlockOrder(block.id,b.slug));
     return items.slice(0, Math.min(64, Math.max(1, block.productLimit ?? items.length)));
   }
-
-  useEffect(() => {
-    window.localStorage.setItem("mim-locale", locale);
-    document.documentElement.lang = locale;
-  }, [locale]);
 
   const loadProducts = useCallback(async (offset: number, replace = false) => {
     setLoading(true);
@@ -147,12 +134,12 @@ export default function Home({ initialProducts = [], heroProducts = [], featured
 
   return (
     <main id="mim-shop" className="mim-shop storefront-dark min-h-screen bg-[var(--paper)] text-[var(--foreground)]">
-      <StoreHeader navigation={navigation} locale={locale} onLocaleChange={setLocale} announcement/>
+      <StoreHeader navigation={navigation} announcement/>
       <section id="mim-living-hero" className="mim-living-hero border-b border-white/10 bg-[#11110f]" aria-labelledby="mim-living-hero-title">
         <div className="px-3 py-5 sm:px-5 lg:px-10 lg:py-8">
           <div className="flex items-end justify-between gap-4">
-            <div><p className="text-xs font-black uppercase tracking-[.24em] text-[var(--brand)]">Independent design from Maia</p><h1 id="mim-living-hero-title" className="mt-1 text-2xl font-black uppercase leading-none sm:text-4xl">Porto stories. Made to be worn.</h1></div>
-            <p className="hidden max-w-sm text-right text-sm text-white/55 md:block">Every design starts a conversation. Tap one, choose your colour and wear the story your way.</p>
+            <div><p className="text-xs font-black uppercase tracking-[.24em] text-[var(--brand)]">{strings.heroEyebrow}</p><h1 id="mim-living-hero-title" className="mt-1 text-2xl font-black uppercase leading-none sm:text-4xl">{strings.heroTitle}</h1></div>
+            <p className="hidden max-w-sm text-right text-sm text-white/55 md:block">{strings.heroDescription}</p>
           </div>
         </div>
         <LivingDesignGrid products={livingGridProducts} colors={catalogColors}/>
