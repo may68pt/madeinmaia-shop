@@ -1,0 +1,24 @@
+{
+ "name": "Outrunning Portugal — Rota do Sol",
+ "short_name": "Outrunning PT",
+ "description": "Arcade road trip from Porto to the Algarve.",
+ "start_url": "/outrunning-portugal",
+ "scope": "/outrunning-portugal",
+ "display": "fullscreen",
+ "orientation": "landscape",
+ "background_color": "#120a24",
+ "theme_color": "#2b1055",
+ "icons": [
+  {
+   "src": "/outrunning-portugal/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "/outrunning-portugal/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  }
+ ]
+}

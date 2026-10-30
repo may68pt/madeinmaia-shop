@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     {source:"/produto/:slug",destination:"/designs/:slug",permanent:true},
     {source:"/colecao/:tag",destination:"/collections/:tag",permanent:true},
     {source:"/colecoes",destination:"/collections",permanent:true},
+    {source:"/rota-do-sol",destination:"/outrunning-portugal",permanent:true},
   ]},
   async rewrites(){return {
     beforeFiles:[
@@ -12,8 +13,8 @@ const nextConfig: NextConfig = {
       {source:"/magic-8-ball",destination:"/magic-8-ball/index.html"},
       // Standalone "Flip It" coin toss page (static file in public/coin-flip/)
       {source:"/coin-flip",destination:"/coin-flip/index.html"},
-      // "Rota do Sol" arcade road-trip game (static file in public/rota-do-sol/)
-      {source:"/rota-do-sol",destination:"/rota-do-sol/index.html"},
+      // "Outrunning Portugal — Rota do Sol" arcade road-trip game (static files in public/outrunning-portugal/)
+      {source:"/outrunning-portugal",destination:"/outrunning-portugal/index.html"},
     ],
     afterFiles:[],
     fallback:[],
