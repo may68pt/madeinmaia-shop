@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
     beforeFiles:[
       // Standalone "Ask the 8" magic 8-ball page (static file in public/magic-8-ball/)
       {source:"/magic-8-ball",destination:"/magic-8-ball/index.html"},
+      // Standalone "Flip It" coin toss page (static file in public/coin-flip/)
+      {source:"/coin-flip",destination:"/coin-flip/index.html"},
     ],
     afterFiles:[],
     fallback:[],
