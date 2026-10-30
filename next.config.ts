@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       {source:"/magic-8-ball",destination:"/magic-8-ball/index.html"},
       // Standalone "Flip It" coin toss page (static file in public/coin-flip/)
       {source:"/coin-flip",destination:"/coin-flip/index.html"},
+      // "Rota do Sol" arcade road-trip game (static file in public/rota-do-sol/)
+      {source:"/rota-do-sol",destination:"/rota-do-sol/index.html"},
     ],
     afterFiles:[],
     fallback:[],
