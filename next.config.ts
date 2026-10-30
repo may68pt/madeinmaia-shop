@@ -6,6 +6,14 @@ const nextConfig: NextConfig = {
     {source:"/colecao/:tag",destination:"/collections/:tag",permanent:true},
     {source:"/colecoes",destination:"/collections",permanent:true},
   ]},
+  async rewrites(){return {
+    beforeFiles:[
+      // Standalone "Ask the 8" magic 8-ball page (static file in public/magic-8-ball/)
+      {source:"/magic-8-ball",destination:"/magic-8-ball/index.html"},
+    ],
+    afterFiles:[],
+    fallback:[],
+  }},
   async headers(){return [
     {source:"/:path*",headers:[
       {key:"X-Content-Type-Options",value:"nosniff"},
