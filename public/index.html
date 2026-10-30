@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Made in Maia · AI Boardroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1020;--panel:#181a30;--panel2:#20233f;--line:#2e3260;--ink:#eef0ff;--mute:#9aa0c8;
+  --gpt:#19c37d;--grok:#c9cbe0;--claude:#e07a52;--boss:#ffd23f;--sys:#7c83c9;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:15px}
+button,input,textarea,select{font:inherit}
+.pix{font-family:'Press Start 2P',monospace;letter-spacing:.5px}
+header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#0b0c19;border-bottom:2px solid var(--line);flex-wrap:wrap}
+header h1{font-size:12px;margin:0;line-height:1.5}
+header h1 span{color:var(--boss)}
+.pill{font-size:11px;padding:4px 9px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);white-space:nowrap}
+.pill.running{background:#123b2a;border-color:var(--gpt);color:#8ff0c2}
+.pill.paused{background:#3b3212;border-color:var(--boss);color:var(--boss)}
+.pill.done{background:#2a1f3b;border-color:#a06cff;color:#d4b8ff}
+.spacer{flex:1}
+.budget{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mute)}
+.bar{width:90px;height:8px;background:#000;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gpt),var(--boss),#ff5c5c);transition:width .6s}
+
+/* ---------- scene ---------- */
+.scene{position:relative;height:min(52vh,420px);min-height:300px;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 50% 120%,#2b2f63 0%,transparent 60%),
+    repeating-linear-gradient(0deg,transparent 0 39px,#ffffff08 39px 40px),
+    repeating-linear-gradient(90deg,transparent 0 39px,#ffffff08 39px 40px),
+    linear-gradient(#141633,#0f1020);}
+.window{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:min(70%,420px);height:70px;border:3px solid #2e3260;border-radius:6px;
+  background:linear-gradient(#1b2a5c,#33407a);overflow:hidden}
+.window::after{content:'MAIA';position:absolute;bottom:4px;left:0;right:0;text-align:center;font:8px 'Press Start 2P';color:#ffffff30;letter-spacing:6px}
+.skyline{position:absolute;bottom:0;left:0;right:0;height:38px;
+  background:linear-gradient(90deg,#0d1330 0 8%,transparent 8% 10%,#0d1330 10% 20%,transparent 20% 23%,#0d1330 23% 30%,transparent 30% 34%,#0d1330 34% 52%,transparent 52% 55%,#0d1330 55% 64%,transparent 64% 66%,#0d1330 66% 80%,transparent 80% 83%,#0d1330 83% 100%);
+  clip-path:polygon(0 40%,8% 40%,8% 10%,20% 10%,20% 55%,30% 55%,30% 0,52% 0,52% 35%,64% 35%,64% 15%,80% 15%,80% 45%,100% 45%,100% 100%,0 100%)}
+.table{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);width:min(86%,560px);height:26%;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 35%,#7a4a2c,#4a2a17 70%);box-shadow:0 10px 0 #2c180c,0 18px 30px #0008}
+.table .logo{position:absolute;inset:0;display:grid;place-items:center;font:9px 'Press Start 2P';color:#ffd23fcc;text-shadow:0 2px 0 #0006}
+.notes{position:absolute;left:50%;bottom:16%;transform:translateX(-50%);display:flex;gap:4px;flex-wrap:wrap;justify-content:center;width:40%;pointer-events:none}
+.notes b{width:12px;height:12px;background:var(--boss);transform:rotate(var(--r));box-shadow:0 1px 0 #0006;animation:pop .4s}
+@keyframes pop{from{transform:scale(0)}}
+
+.seat{position:absolute;bottom:22%;width:30%;display:flex;flex-direction:column;align-items:center}
+.seat[data-id=chatgpt]{left:2%}
+.seat[data-id=grok]{left:35%;bottom:30%}
+.seat[data-id=claude]{right:2%}
+.bot{width:clamp(70px,20vw,110px);height:auto;filter:drop-shadow(0 6px 0 #0005);animation:bob 3s ease-in-out infinite;transform-origin:50% 100%;cursor:pointer}
+.seat[data-id=grok] .bot{animation-delay:-1s}.seat[data-id=claude] .bot{animation-delay:-2s}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.seat.thinking .bot{animation:think 1.2s ease-in-out infinite}
+@keyframes think{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.seat.speaking .bot{animation:talk .35s ease-in-out infinite}
+@keyframes talk{50%{transform:translateY(-6px) scale(1.03)}}
+.seat .mouth{transform-box:fill-box;transform-origin:center}
+.seat.speaking .mouth{animation:mouth .18s infinite alternate}
+@keyframes mouth{to{transform:scaleY(2.6)}}
+.eye{animation:blink 4.5s infinite;transform-box:fill-box;transform-origin:center}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.seat.thinking .eye{transform:translateY(-2px)}
+.ring{position:absolute;bottom:-6px;width:70%;height:12px;border-radius:50%;background:transparent;transition:.3s}
+.seat.speaking .ring{background:radial-gradient(ellipse,var(--c) 0%,transparent 70%);opacity:.8}
+.tag{margin-top:6px;font:8px 'Press Start 2P';padding:4px 6px;border-radius:4px;background:#000a;border:1px solid var(--c);color:var(--c);white-space:nowrap}
+.tag small{display:block;margin-top:3px;color:var(--mute);font-size:7px}
+.badge{font:7px 'Press Start 2P';padding:2px 4px;border-radius:3px;margin-left:4px;vertical-align:middle}
+.badge.live{background:#ff3b3b;color:#fff}.badge.demo{background:#555a8a;color:#dde}
+
+.bubble{position:absolute;bottom:100%;margin-bottom:8px;width:max-content;max-width:min(240px,44vw);background:#fff;color:#151730;
+  border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.35;box-shadow:0 4px 0 #0004;opacity:0;transform:translateY(6px) scale(.9);transition:.25s;pointer-events:none;z-index:3}
+.bubble::after{content:'';position:absolute;top:100%;left:50%;margin-left:-7px;border:7px solid transparent;border-top-color:#fff}
+.bubble.show{opacity:1;transform:none}
+.seat[data-id=chatgpt] .bubble{left:4px}.seat[data-id=chatgpt] .bubble::after{left:30%}
+.seat[data-id=claude] .bubble{right:4px}.seat[data-id=claude] .bubble::after{left:70%}
+.bubble.think{font-size:18px;letter-spacing:3px;padding:2px 12px;border-radius:20px}
+.bubble.think span{animation:dot 1s infinite}.bubble.think span:nth-child(2){animation-delay:.2s}.bubble.think span:nth-child(3){animation-delay:.4s}
+@keyframes dot{50%{opacity:.2}}
+.react{position:absolute;top:0;font-size:26px;animation:float 1.6s ease-out forwards;pointer-events:none;z-index:4}
+@keyframes float{from{opacity:1;transform:translateY(0) scale(.6)}to{opacity:0;transform:translateY(-70px) scale(1.3)}}
+
+.bossdesk{position:absolute;left:50%;bottom:0;transform:translateX(-50%);font:8px 'Press Start 2P';color:var(--boss);background:#000a;padding:5px 8px;border-radius:6px 6px 0 0;border:1px solid var(--boss);border-bottom:0}
+.bossbubble{position:absolute;left:50%;bottom:32px;transform:translateX(-50%);background:var(--boss);color:#1a1400;padding:8px 10px;border-radius:10px;font-size:12px;max-width:70%;opacity:0;transition:.3s;z-index:5}
+.bossbubble.show{opacity:1}
+.viewers{position:absolute;right:10px;top:10px;font:8px 'Press Start 2P';color:var(--mute);background:#0008;padding:5px 7px;border-radius:5px}
+.roundbox{position:absolute;left:10px;top:10px;font:8px 'Press Start 2P';color:var(--boss);background:#0008;padding:5px 7px;border-radius:5px}
+
+/* ---------- tabs ---------- */
+nav{display:flex;background:#0b0c19;border-bottom:2px solid var(--line);position:sticky;top:0;z-index:10}
+nav button{flex:1;background:none;border:0;color:var(--mute);padding:12px 4px;font:9px 'Press Start 2P';cursor:pointer;border-bottom:3px solid transparent}
+nav button.on{color:var(--ink);border-bottom-color:var(--boss)}
+nav button .n{color:var(--boss)}
+main{max-width:900px;margin:0 auto;padding:12px}
+.tab{display:none}.tab.on{display:block}
+
+.feed{display:flex;flex-direction:column;gap:10px;padding-bottom:90px}
+.msg{display:flex;gap:10px;animation:slide .3s}
+@keyframes slide{from{opacity:0;transform:translateY(8px)}}
+.msg .av{flex:none;width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font:9px 'Press Start 2P';color:#111;background:var(--c)}
+.msg .body{flex:1;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:8px;padding:8px 10px;min-width:0}
+.msg .who{font-weight:800;font-size:12px;color:var(--c);margin-bottom:3px}
+.msg .who time{font-weight:400;color:var(--mute);margin-left:6px}
+.msg .txt{white-space:pre-wrap;line-height:1.45;overflow-wrap:anywhere}
+.chip{display:inline-block;margin:6px 6px 0 0;font-size:11px;padding:3px 7px;border-radius:5px;background:#ffd23f22;color:var(--boss);border:1px solid #ffd23f55}
+.chip.v{background:#19c37d22;color:#8ff0c2;border-color:#19c37d55}
+.msg.system{justify-content:center}
+.msg.system .body{flex:none;max-width:90%;text-align:center;background:none;border:1px dashed var(--sys);color:var(--sys);font-size:12px}
+.msg.boss .body{background:#2b2610}
+.empty{color:var(--mute);text-align:center;padding:30px 10px;line-height:1.6}
+
+.say{position:fixed;left:0;right:0;bottom:0;background:#0b0c19ee;border-top:2px solid var(--line);padding:10px;display:none;gap:8px;z-index:20}
+.say.on{display:flex}
+.say input{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:10px}
+
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.note{background:#fff7c2;color:#2b2508;border-radius:4px;padding:12px;box-shadow:0 4px 0 #0005;transform:rotate(var(--r));position:relative;animation:pop .4s}
+.note h3{margin:0 0 6px;font-size:14px}
+.note p{margin:0;font-size:13px;line-height:1.4}
+.note .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:11px}
+.note .by{font-weight:800;padding:2px 6px;border-radius:4px;color:#111;background:var(--c)}
+.note .num{position:absolute;top:-8px;left:-8px;font:9px 'Press Start 2P';background:#151730;color:var(--boss);padding:4px 5px;border-radius:4px}
+.note.top{outline:3px solid var(--boss)}
+.note.top::after{content:'👑';position:absolute;top:-16px;right:-6px;font-size:22px}
+.votes{font-size:15px;letter-spacing:1px}
+
+.scores{display:grid;gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:10px;padding:12px}
+.card h3{margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.card .role{color:var(--mute);font-size:12px;margin-bottom:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--panel2);border-radius:8px;padding:8px;text-align:center}
+.stat b{display:block;font:12px 'Press Start 2P';color:var(--c);margin-bottom:5px}
+.stat span{font-size:11px;color:var(--mute)}
+.xp{height:10px;background:#000;border-radius:5px;margin-top:10px;overflow:hidden}
+.xp i{display:block;height:100%;background:var(--c);transition:width .6s}
+.rank{font:10px 'Press Start 2P';color:var(--boss)}
+
+.ctl{display:grid;gap:12px}
+.ctl label{display:block;font-size:12px;color:var(--mute);margin-bottom:5px}
+.ctl input,.ctl textarea,.ctl select{width:100%;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
+.ctl textarea{min-height:90px;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
+.btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:11px 14px;font-weight:700;cursor:pointer}
+.btn.go{background:var(--gpt);color:#04220f;border-color:var(--gpt)}
+.btn.warn{background:#3b3212;border-color:var(--boss);color:var(--boss)}
+.btn.bad{background:#3b1212;border-color:#ff5c5c;color:#ffb3b3}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.help{font-size:12px;color:var(--mute);line-height:1.5;background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:10px}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:#000;border:1px solid var(--boss);color:var(--boss);padding:8px 12px;border-radius:8px;font-size:13px;opacity:0;transition:.3s;z-index:50;pointer-events:none}
+.toast.show{opacity:1}
+@media(min-width:800px){.scores{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <h1 class="pix">MADE IN <span>MAIA</span> · AI BOARDROOM</h1>
+  <span class="pill" id="status">idle</span>
+  <div class="spacer"></div>
+  <div class="budget"><span id="spent">$0.000</span><div class="bar"><i id="budgetbar"></i></div><span id="budget">$1.00</span></div>
+</header>
+
+<section class="scene" id="scene">
+  <div class="window"><div class="skyline"></div></div>
+  <div class="roundbox" id="roundbox">ROUND 0/0</div>
+  <div class="viewers" id="viewers">👀 1</div>
+  <div class="table"><div class="logo">MADE IN MAIA</div></div>
+  <div class="notes" id="notes"></div>
+  <div class="seat" data-id="chatgpt" style="--c:var(--gpt)"><div class="bubble"></div><svg class="bot" viewBox="0 0 100 110"><line x1="50" y1="6" x2="50" y2="20" stroke="#0e7a4f" stroke-width="4"/><circle cx="50" cy="6" r="6" fill="#7dffc0"/><rect x="14" y="18" width="72" height="60" rx="16" fill="#19c37d" stroke="#0e7a4f" stroke-width="4"/><rect x="24" y="30" width="52" height="30" rx="10" fill="#08301f"/><circle class="eye" cx="38" cy="44" r="6" fill="#7dffc0"/><circle class="eye" cx="62" cy="44" r="6" fill="#7dffc0"/><rect class="mouth" x="42" y="66" width="16" height="3" rx="1.5" fill="#08301f"/><rect x="26" y="80" width="48" height="26" rx="8" fill="#13a067"/><rect x="40" y="86" width="20" height="8" rx="3" fill="#7dffc0"/></svg><div class="ring"></div><div class="tag">CHATGPT<span class="badge" data-badge></span><small>The Strategist</small></div></div>
+  <div class="seat" data-id="grok" style="--c:var(--grok)"><div class="bubble"></div><svg class="bot" viewBox="0 0 100 110"><polygon points="44,2 58,2 50,20" fill="#ffd23f"/><polygon points="50,16 88,30 80,76 20,76 12,30" fill="#26283a" stroke="#c9cbe0" stroke-width="4" stroke-linejoin="round"/><polygon class="eye" points="26,40 44,46 26,50" fill="#fff"/><polygon class="eye" points="74,40 56,46 74,50" fill="#fff"/><path class="mouth" d="M36 62 Q50 68 64 60" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="26" y="80" width="48" height="26" rx="4" fill="#3a3d55"/><path d="M46 84 L54 84 L48 94 L56 94 L44 104 L48 96 L42 96Z" fill="#ffd23f"/></svg><div class="ring"></div><div class="tag">GROK<span class="badge" data-badge></span><small>The Provocateur</small></div></div>
+  <div class="seat" data-id="claude" style="--c:var(--claude)"><div class="bubble"></div><svg class="bot" viewBox="0 0 100 110"><path d="M50 4 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" fill="#ffd9c4"/><circle cx="50" cy="50" r="33" fill="#e07a52" stroke="#9c4a2a" stroke-width="4"/><circle class="eye" cx="38" cy="46" r="5.5" fill="#2a1208"/><circle class="eye" cx="62" cy="46" r="5.5" fill="#2a1208"/><circle cx="30" cy="58" r="5" fill="#f4a385"/><circle cx="70" cy="58" r="5" fill="#f4a385"/><rect class="mouth" x="43" y="61" width="14" height="3" rx="1.5" fill="#2a1208"/><rect x="28" y="82" width="44" height="24" rx="12" fill="#c8643f"/><circle cx="50" cy="94" r="5" fill="#ffd9c4"/></svg><div class="ring"></div><div class="tag">CLAUDE<span class="badge" data-badge></span><small>The Builder</small></div></div>
+  <div class="bossbubble" id="bossbubble"></div>
+  <div class="bossdesk">👑 BOSS</div>
+</section>
+
+<nav>
+  <button data-tab="feed" class="on">FEED</button>
+  <button data-tab="ideas">IDEAS <span class="n" id="ideacount"></span></button>
+  <button data-tab="scores">SCORES</button>
+  <button data-tab="control">CONTROL</button>
+</nav>
+
+<main>
+  <section class="tab on" id="tab-feed"><div class="feed" id="feed"></div></section>
+  <section class="tab" id="tab-ideas"><div class="board" id="board"></div></section>
+  <section class="tab" id="tab-scores"><div class="scores" id="scores"></div></section>
+  <section class="tab" id="tab-control">
+    <div class="ctl">
+      <div><label>Boss password</label><input id="pw" type="password" placeholder="BOARDROOM_PASSWORD" autocomplete="current-password"></div>
+      <div><label>Mission for this meeting</label><textarea id="mission"></textarea></div>
+      <div><label>Business brief (what they know about Made in Maia)</label><textarea id="brief" style="min-height:130px"></textarea></div>
+      <div class="row">
+        <div><label>Rounds (each AI speaks once per round)</label><input id="rounds" type="number" min="1" max="10" value="4"></div>
+        <div><label>Budget cap (USD)</label><input id="budgetIn" type="number" min="0.05" step="0.05" value="1"></div>
+        <div><label>Language</label><select id="lang"><option>English</option><option>Portuguese (Portugal)</option></select></div>
+      </div>
+      <div class="row">
+        <button class="btn go" id="start">▶ Start new meeting</button>
+        <button class="btn warn" id="pause">⏸ Pause</button>
+        <button class="btn" id="resume">⏵ Resume</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="extend">➕ One more round</button>
+        <button class="btn bad" id="stop">⏹ End meeting</button>
+        <button class="btn" id="copy">📋 Copy transcript</button>
+      </div>
+      <div class="help" id="help"></div>
+    </div>
+  </section>
+</main>
+
+<form class="say" id="say"><input id="sayText" placeholder="Speak as the Boss… (e.g. Focus on tourists!)" maxlength="1000"><button class="btn go">Say</button></form>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const COLORS = {chatgpt:'var(--gpt)', grok:'var(--grok)', claude:'var(--claude)', boss:'var(--boss)', system:'var(--sys)'};
+const NAMES = {chatgpt:'ChatGPT', grok:'Grok', claude:'Claude', boss:'Boss', system:'System'};
+const INIT = {chatgpt:'GP', grok:'GK', claude:'CL', boss:'👑', system:'⚙'};
+let S = null, seen = new Set(), firstLoad = true, tab = 'feed';
+const store = { get:k=>{try{return localStorage.getItem(k)}catch{return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}} };
+
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2200)}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function rot(n){return ((n*37)%7-3)*0.8+'deg'}
+
+// tabs
+$$('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('nav button').forEach(x=>x.classList.toggle('on',x===b));$$('.tab').forEach(t=>t.classList.toggle('on',t.id==='tab-'+tab));$('#say').classList.toggle('on',tab==='feed');});
+$('#say').classList.add('on');
+
+// live stream
+function connect(){
+  const es = new EventSource('/events');
+  es.onmessage = e => render(JSON.parse(e.data));
+  es.onerror = () => { es.close(); setTimeout(connect, 3000); };
+}
+connect();
+
+function render(s){
+  const prev = S; S = s;
+  const maxT = s.maxTurns, round = Math.min(s.rounds, Math.floor(s.turn/3)+(s.status==='running'?1:0));
+  $('#status').textContent = s.status; $('#status').className = 'pill '+s.status;
+  $('#roundbox').textContent = `ROUND ${s.status==='idle'?0:Math.max(1,round)}/${s.rounds}`;
+  $('#viewers').textContent = '👀 '+s.viewers;
+  $('#spent').textContent = '$'+s.spent.toFixed(3); $('#budget').textContent='$'+s.budget.toFixed(2);
+  $('#budgetbar').style.width = Math.min(100, s.spent/s.budget*100)+'%';
+  if (firstLoad){ $('#mission').value=s.mission; $('#brief').value=s.brief; $('#rounds').value=s.rounds; $('#budgetIn').value=s.budget; $('#lang').value=s.language; $('#pw').value=store.get('br-pw')||''; }
+
+  // seats
+  for (const id of ['chatgpt','grok','claude']){
+    const a = s.agents[id], seat = $(`.seat[data-id=${id}]`), bub = seat.querySelector('.bubble');
+    seat.classList.toggle('thinking', a.status==='thinking');
+    seat.classList.toggle('speaking', a.status==='speaking');
+    const bd = seat.querySelector('[data-badge]'); bd.textContent = a.live?'LIVE':'DEMO'; bd.className='badge '+(a.live?'live':'demo');
+    if (a.status==='thinking'){ bub.className='bubble think show'; bub.innerHTML='<span>•</span><span>•</span><span>•</span>'; }
+    else if (bub.classList.contains('think')){ bub.className='bubble'; }
+  }
+
+  // messages
+  const feed = $('#feed');
+  if (!s.messages.length){ feed.innerHTML = `<div class="empty">The boardroom is quiet.<br>Open <b>CONTROL</b> and press <b>Start new meeting</b>.</div>`; seen.clear(); }
+  else if (prev && prev.id!==s.id){ feed.innerHTML=''; seen.clear(); }
+  if (s.messages.length && feed.querySelector('.empty')) feed.innerHTML='';
+  for (const m of s.messages){
+    if (seen.has(s.id+':'+m.id)) continue; seen.add(s.id+':'+m.id);
+    const el = document.createElement('div'); el.className='msg '+m.from; el.style.setProperty('--c', COLORS[m.from]||'#888');
+    const idea = m.idea ? s.ideas.find(i=>i.n===m.idea) : null;
+    const time = new Date(m.at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    el.innerHTML = m.from==='system' ? `<div class="body">${esc(m.text)}</div>` :
+      `<div class="av">${INIT[m.from]}</div><div class="body"><div class="who">${NAMES[m.from]}<time>${time}</time>${m.demo?' <span class="badge demo">DEMO</span>':''}</div><div class="txt">${esc(m.text)}</div>${idea?`<span class="chip">💡 pinned #${idea.n}: ${esc(idea.title)}</span>`:''}${m.vote?`<span class="chip v">👍 voted #${m.vote}</span>`:''}</div>`;
+    const atBottom = innerHeight + scrollY >= document.body.scrollHeight - 120;
+    feed.appendChild(el);
+    if (!firstLoad){
+      if (atBottom && tab==='feed') el.scrollIntoView({behavior:'smooth', block:'end'});
+      animateMsg(m);
+    }
+  }
+
+  // ideas
+  $('#ideacount').textContent = s.ideas.length ? s.ideas.length : '';
+  $('#notes').innerHTML = s.ideas.map(i=>`<b style="--r:${rot(i.n)}"></b>`).join('');
+  const maxV = Math.max(0, ...s.ideas.map(i=>i.votes.length));
+  const sorted = [...s.ideas].sort((a,b)=>b.votes.length-a.votes.length || a.n-b.n);
+  $('#board').innerHTML = sorted.length ? sorted.map(i=>`<div class="note ${maxV>0&&i.votes.length===maxV?'top':''}" style="--r:${rot(i.n)};--c:${COLORS[i.by]}"><span class="num">#${i.n}</span><h3>${esc(i.title)}</h3><p>${esc(i.desc)}</p><div class="meta"><span class="by">${NAMES[i.by]}</span><span class="votes">${i.votes.map(v=>({chatgpt:'🟢',grok:'⚪',claude:'🟠'})[v]).join('')||'—'}</span></div></div>`).join('')
+    : `<div class="empty">No ideas pinned yet. They appear here as the AIs propose them, and float up as the others vote.</div>`;
+
+  // scores
+  const votesRecv = id => s.ideas.filter(i=>i.by===id).reduce((n,i)=>n+i.votes.length,0);
+  const xp = id => s.agents[id].msgs*2 + s.agents[id].ideas*10 + votesRecv(id)*15;
+  const ranked = ['chatgpt','grok','claude'].sort((a,b)=>xp(b)-xp(a));
+  const maxXp = Math.max(1, ...ranked.map(xp));
+  $('#scores').innerHTML = ranked.map((id,k)=>{const a=s.agents[id];return `<div class="card" style="--c:${COLORS[id]}"><h3><span class="rank">${['🥇','🥈','🥉'][k]}</span>${a.name}<span class="badge ${a.live?'live':'demo'}">${a.live?'LIVE':'DEMO'}</span></h3><div class="role">${a.role} · ${esc(a.model)} · ${a.status}</div><div class="stats"><div class="stat"><b>${xp(id)}</b><span>XP</span></div><div class="stat"><b>${a.ideas}</b><span>ideas</span></div><div class="stat"><b>${votesRecv(id)}</b><span>votes won</span></div><div class="stat"><b>${a.msgs}</b><span>messages</span></div><div class="stat"><b>${((a.tokensIn+a.tokensOut)/1000).toFixed(1)}k</b><span>tokens</span></div><div class="stat"><b>$${a.cost.toFixed(3)}</b><span>spent</span></div></div><div class="xp"><i style="width:${xp(id)/maxXp*100}%"></i></div></div>`}).join('');
+
+  // controls
+  $('#pause').disabled = s.status!=='running';
+  $('#resume').disabled = s.status!=='paused';
+  $('#stop').disabled = !['running','paused'].includes(s.status);
+  const liveN = Object.values(s.agents).filter(a=>a.live).length;
+  $('#help').innerHTML = `${liveN===3?'All three AIs are <b>LIVE</b>.':liveN?`${liveN} of 3 AIs are LIVE; the rest run scripted DEMO lines.`:'All three AIs are in <b>DEMO</b> mode (scripted lines, costs nothing).'} Add <code>OPENAI_API_KEY</code>, <code>XAI_API_KEY</code> and <code>ANTHROPIC_API_KEY</code> in Render → Environment to bring them to life. ${s.passwordRequired?'Controls need the Boss password; anyone with the link can watch.':'⚠️ No BOARDROOM_PASSWORD set — anyone with the link can control the meeting.'}`;
+  firstLoad = false;
+}
+
+function animateMsg(m){
+  if (m.from==='boss'){ const b=$('#bossbubble'); b.textContent=m.text.length>120?m.text.slice(0,117)+'…':m.text; b.classList.add('show'); setTimeout(()=>b.classList.remove('show'),5000); ['chatgpt','grok','claude'].forEach((id,k)=>setTimeout(()=>react(id,['🫡','👀','✍️'][k]),300+k*200)); return; }
+  if (!NAMES[m.from] || m.from==='system') return;
+  const seat = $(`.seat[data-id=${m.from}]`), bub = seat.querySelector('.bubble');
+  const short = m.text.length>150 ? m.text.slice(0,147)+'…' : m.text;
+  bub.className='bubble show'; bub.textContent='';
+  let i=0; clearInterval(bub._t); clearTimeout(bub._h);
+  bub._t=setInterval(()=>{bub.textContent=short.slice(0,i+=3); if(i>=short.length){clearInterval(bub._t); bub._h=setTimeout(()=>bub.classList.remove('show'),3500);}},25);
+  const others = ['chatgpt','grok','claude'].filter(x=>x!==m.from);
+  if (m.idea){ react(m.from,'💡'); others.forEach((o,k)=>setTimeout(()=>react(o,['🤔','👏','🔥','😮'][Math.floor(Math.random()*4)]),700+k*400)); }
+  if (m.voteFor){ setTimeout(()=>react(m.voteFor,'🎉'),600); react(m.from,'👍'); }
+}
+function react(id, emoji){
+  const seat = $(`.seat[data-id=${id}]`); if(!seat) return;
+  const r=document.createElement('div'); r.className='react'; r.textContent=emoji; r.style.left=(30+Math.random()*40)+'%';
+  seat.appendChild(r); setTimeout(()=>r.remove(),1700);
+}
+$$('.bot').forEach(b=>b.onclick=()=>react(b.closest('.seat').dataset.id, ['❤️','😄','⚡','✨'][Math.floor(Math.random()*4)]));
+
+// actions
+async function api(path, body={}){
+  const pw = $('#pw').value; store.set('br-pw', pw);
+  const r = await fetch('/api/'+path, {method:'POST', headers:{'content-type':'application/json','x-boardroom-password':pw}, body:JSON.stringify(body)});
+  if (r.status===401){ toast('🔒 Wrong Boss password (CONTROL tab)'); return false; }
+  if (!r.ok){ toast('Something went wrong'); return false; }
+  return true;
+}
+$('#start').onclick = async()=>{ if(await api('start',{mission:$('#mission').value,brief:$('#brief').value,rounds:$('#rounds').value,budget:$('#budgetIn').value,language:$('#lang').value})){ toast('Meeting started!'); $('nav button[data-tab=feed]').click(); } };
+$('#pause').onclick = ()=>api('pause');
+$('#resume').onclick = ()=>api('resume');
+$('#stop').onclick = ()=>api('stop');
+$('#extend').onclick = async()=>{ if(await api('extend')) toast('One more round added'); };
+$('#say').onsubmit = async e=>{ e.preventDefault(); const t=$('#sayText').value.trim(); if(!t) return; if(await api('say',{text:t})) $('#sayText').value=''; };
+$('#copy').onclick = async()=>{ try{ const t=await (await fetch('/api/transcript')).text(); await navigator.clipboard.writeText(t); toast('Transcript copied'); }catch{ toast('Copy failed'); } };
+</script>
+</body>
+</html>
