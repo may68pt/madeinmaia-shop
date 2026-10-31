@@ -293,7 +293,7 @@ table.hi td.md{font-size:1.1em}
 /* ===== poster-style title ===== */
 #title{background:none;padding:0;display:block;overflow:hidden}
 #title.hidden{display:none!important}
-#scene{position:absolute;inset:0;width:100%;height:100%}
+#scene{position:fixed;inset:0;width:100%;height:100%;z-index:2;display:none}
 .ttop{position:absolute;top:max(4px,env(safe-area-inset-top));left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:clamp(2px,1vmin,8px);pointer-events:none}
 .logo2{font-family:'Racing Sans One','Arial Black',Impact,sans-serif;font-style:italic;line-height:.84;transform:rotate(-3deg) skewX(-6deg);text-align:center;filter:drop-shadow(0 6px 0 rgba(11,4,32,.6))}
 .lw{display:grid;justify-items:center}
@@ -332,11 +332,35 @@ table.hi td.md{font-size:1.1em}
 @keyframes fadeUp2{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translateX(-50%)}}
 @media (max-height:460px){.plist{display:none}.ttop .tip{display:none}.best{display:none}}
 @media (max-aspect-ratio:1/1){.tbc{display:none}.tbl{bottom:auto;top:46%}}
+
+/* centered game menu */
+.ttop{top:max(4px,env(safe-area-inset-top))}
+.menu{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);width:min(86vw,360px);display:flex;flex-direction:column;align-items:stretch;gap:clamp(5px,1.4vmin,10px);padding:clamp(10px,2.4vmin,18px);
+  background:linear-gradient(180deg,rgba(18,6,44,.78),rgba(40,8,60,.72));border:2px solid rgba(255,61,127,.85);border-radius:18px;box-shadow:0 0 0 2px rgba(5,217,232,.5),0 0 34px rgba(255,61,127,.45),inset 0 0 24px rgba(5,217,232,.18);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.menu .press{text-align:center;font-size:clamp(9px,2.2vmin,12px)}
+.mbtn{position:relative;display:flex;align-items:center;gap:.6em;font-style:italic;font-size:clamp(14px,4vmin,24px);padding:.42em .8em;border-radius:12px;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.06);text-align:left;color:#fff;text-shadow:2px 2px 0 #000;transition:transform .12s,background .12s,border-color .12s}
+.mbtn span{width:1.4em;text-align:center;font-style:normal}
+.mbtn small{margin-left:auto;font-size:.45em;letter-spacing:.14em;opacity:.7}
+.mbtn:hover,.mbtn.sel{background:linear-gradient(90deg,rgba(255,61,127,.55),rgba(255,122,26,.35));border-color:#ffd23f;transform:translateX(6px) scale(1.02)}
+.mbtn.sel:before{content:'';position:absolute;left:-14px;top:50%;border:8px solid transparent;border-left-color:#ffd23f;transform:translateY(-50%);animation:blink .6s steps(2) infinite}
+.mbtn.primary{background:linear-gradient(180deg,#ff7a1a,#ff3d7f);border-color:#fff;box-shadow:0 4px 0 #7a1a4a;animation:pulse 1.6s ease-in-out infinite}
+.menu .best{text-align:center;font-size:clamp(10px,2.6vmin,14px)}
+.tipwrap{position:absolute;left:0;right:0;bottom:max(6px,env(safe-area-inset-bottom));display:flex;justify-content:center;pointer-events:none}
+.tbl{bottom:max(26px,calc(env(safe-area-inset-bottom) + 24px))}
+.porto{font-size:clamp(28px,7.5vmin,70px)}
+.plist{letter-spacing:.12em;font-size:clamp(8px,2vmin,13px)}
+#tourMap{width:min(90vw,760px,calc((100vh - 170px) * 1.52));height:auto;border-radius:14px;border:2px solid rgba(178,107,255,.7)}
+.tourlist{font-family:system-ui,sans-serif;font-weight:700;font-size:clamp(9px,2.4vmin,13px);max-width:90vw}.tourlist b{color:#ffd23f}.tourlist span{opacity:.7}
+#title.reveal .menu{animation:menuIn .7s 1.2s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes menuIn{from{opacity:0;transform:translate(-50%,-30%) scale(.85)}to{opacity:1;transform:translate(-50%,-50%)}}
+@media (max-height:460px){.menu{top:62%;width:min(44vw,300px)}.mbtn{padding:.28em .7em}.menu .press,.menu .best{display:none}.tipwrap{display:none}.plist{display:none}.logo2 .l1{font-size:clamp(28px,9vmin,90px)}.logo2 .l2{font-size:clamp(24px,8vmin,80px)}}
+@media (max-aspect-ratio:1/1){.tbl{bottom:auto;top:auto;bottom:40px}}
 </style>
 </head>
 <body>
 <canvas id="game"></canvas>
 <canvas id="fx"></canvas>
+<canvas id="scene"></canvas>
 
 <div id="hud" class="hidden">
   <div class="hb" id="hbL"><div class="lbl">TEMPO</div><div id="time">50</div></div>
@@ -362,21 +386,21 @@ table.hi td.md{font-size:1.1em}
 <div id="intro" class="screen"><canvas id="introC"></canvas><div class="hero" id="hero"><div class="hwrap"><div class="glow"></div><div class="rays"></div><div class="ring"></div><div class="ring r2"></div><i class="spark" style="--r:20.0vmin;--a:0deg;animation-delay:0.00s"></i><i class="spark" style="--r:23.3vmin;--a:36deg;animation-delay:-0.40s"></i><i class="spark" style="--r:18.7vmin;--a:72deg;animation-delay:-0.90s"></i><i class="spark" style="--r:25.3vmin;--a:108deg;animation-delay:-1.30s"></i><i class="spark" style="--r:21.3vmin;--a:144deg;animation-delay:-0.20s"></i><i class="spark" style="--r:20.0vmin;--a:180deg;animation-delay:-1.70s"></i><i class="spark" style="--r:24.7vmin;--a:216deg;animation-delay:-0.60s"></i><i class="spark" style="--r:19.3vmin;--a:252deg;animation-delay:-1.10s"></i><i class="spark" style="--r:23.3vmin;--a:288deg;animation-delay:-2.00s"></i><i class="spark" style="--r:21.3vmin;--a:324deg;animation-delay:-1.50s"></i><div class="hlogo"><svg class="mimlogo" viewBox="0 0 200 237" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Made in Maia"><rect x="3" y="3" width="194" height="231" rx="26" fill="#fff" stroke="#000" stroke-width="4" vector-effect="non-scaling-stroke"/><rect x="15" y="15" width="170" height="170" rx="20" fill="#111"/><rect x="24" y="24" width="152" height="152" rx="10" fill="#fff"/><path d="M30.00 30.00h4.83v4.83h-4.83zM34.83 30.00h4.83v4.83h-4.83zM39.66 30.00h4.83v4.83h-4.83zM44.48 30.00h4.83v4.83h-4.83zM49.31 30.00h4.83v4.83h-4.83zM54.14 30.00h4.83v4.83h-4.83zM58.97 30.00h4.83v4.83h-4.83zM68.62 30.00h4.83v4.83h-4.83zM78.28 30.00h4.83v4.83h-4.83zM87.93 30.00h4.83v4.83h-4.83zM92.76 30.00h4.83v4.83h-4.83zM97.59 30.00h4.83v4.83h-4.83zM102.41 30.00h4.83v4.83h-4.83zM116.90 30.00h4.83v4.83h-4.83zM136.21 30.00h4.83v4.83h-4.83zM141.03 30.00h4.83v4.83h-4.83zM145.86 30.00h4.83v4.83h-4.83zM150.69 30.00h4.83v4.83h-4.83zM155.52 30.00h4.83v4.83h-4.83zM160.34 30.00h4.83v4.83h-4.83zM165.17 30.00h4.83v4.83h-4.83zM30.00 34.83h4.83v4.83h-4.83zM58.97 34.83h4.83v4.83h-4.83zM78.28 34.83h4.83v4.83h-4.83zM83.10 34.83h4.83v4.83h-4.83zM87.93 34.83h4.83v4.83h-4.83zM102.41 34.83h4.83v4.83h-4.83zM116.90 34.83h4.83v4.83h-4.83zM126.55 34.83h4.83v4.83h-4.83zM136.21 34.83h4.83v4.83h-4.83zM165.17 34.83h4.83v4.83h-4.83zM30.00 39.66h4.83v4.83h-4.83zM39.66 39.66h4.83v4.83h-4.83zM44.48 39.66h4.83v4.83h-4.83zM49.31 39.66h4.83v4.83h-4.83zM58.97 39.66h4.83v4.83h-4.83zM68.62 39.66h4.83v4.83h-4.83zM73.45 39.66h4.83v4.83h-4.83zM78.28 39.66h4.83v4.83h-4.83zM83.10 39.66h4.83v4.83h-4.83zM87.93 39.66h4.83v4.83h-4.83zM92.76 39.66h4.83v4.83h-4.83zM112.07 39.66h4.83v4.83h-4.83zM116.90 39.66h4.83v4.83h-4.83zM136.21 39.66h4.83v4.83h-4.83zM145.86 39.66h4.83v4.83h-4.83zM150.69 39.66h4.83v4.83h-4.83zM155.52 39.66h4.83v4.83h-4.83zM165.17 39.66h4.83v4.83h-4.83zM30.00 44.48h4.83v4.83h-4.83zM39.66 44.48h4.83v4.83h-4.83zM44.48 44.48h4.83v4.83h-4.83zM49.31 44.48h4.83v4.83h-4.83zM58.97 44.48h4.83v4.83h-4.83zM73.45 44.48h4.83v4.83h-4.83zM83.10 44.48h4.83v4.83h-4.83zM87.93 44.48h4.83v4.83h-4.83zM102.41 44.48h4.83v4.83h-4.83zM107.24 44.48h4.83v4.83h-4.83zM112.07 44.48h4.83v4.83h-4.83zM116.90 44.48h4.83v4.83h-4.83zM121.72 44.48h4.83v4.83h-4.83zM136.21 44.48h4.83v4.83h-4.83zM145.86 44.48h4.83v4.83h-4.83zM150.69 44.48h4.83v4.83h-4.83zM155.52 44.48h4.83v4.83h-4.83zM165.17 44.48h4.83v4.83h-4.83zM30.00 49.31h4.83v4.83h-4.83zM39.66 49.31h4.83v4.83h-4.83zM44.48 49.31h4.83v4.83h-4.83zM49.31 49.31h4.83v4.83h-4.83zM58.97 49.31h4.83v4.83h-4.83zM78.28 49.31h4.83v4.83h-4.83zM83.10 49.31h4.83v4.83h-4.83zM102.41 49.31h4.83v4.83h-4.83zM107.24 49.31h4.83v4.83h-4.83zM116.90 49.31h4.83v4.83h-4.83zM126.55 49.31h4.83v4.83h-4.83zM136.21 49.31h4.83v4.83h-4.83zM145.86 49.31h4.83v4.83h-4.83zM150.69 49.31h4.83v4.83h-4.83zM155.52 49.31h4.83v4.83h-4.83zM165.17 49.31h4.83v4.83h-4.83zM30.00 54.14h4.83v4.83h-4.83zM58.97 54.14h4.83v4.83h-4.83zM68.62 54.14h4.83v4.83h-4.83zM78.28 54.14h4.83v4.83h-4.83zM83.10 54.14h4.83v4.83h-4.83zM92.76 54.14h4.83v4.83h-4.83zM97.59 54.14h4.83v4.83h-4.83zM107.24 54.14h4.83v4.83h-4.83zM136.21 54.14h4.83v4.83h-4.83zM165.17 54.14h4.83v4.83h-4.83zM30.00 58.97h4.83v4.83h-4.83zM34.83 58.97h4.83v4.83h-4.83zM39.66 58.97h4.83v4.83h-4.83zM44.48 58.97h4.83v4.83h-4.83zM49.31 58.97h4.83v4.83h-4.83zM54.14 58.97h4.83v4.83h-4.83zM58.97 58.97h4.83v4.83h-4.83zM68.62 58.97h4.83v4.83h-4.83zM78.28 58.97h4.83v4.83h-4.83zM87.93 58.97h4.83v4.83h-4.83zM97.59 58.97h4.83v4.83h-4.83zM107.24 58.97h4.83v4.83h-4.83zM116.90 58.97h4.83v4.83h-4.83zM126.55 58.97h4.83v4.83h-4.83zM136.21 58.97h4.83v4.83h-4.83zM141.03 58.97h4.83v4.83h-4.83zM145.86 58.97h4.83v4.83h-4.83zM150.69 58.97h4.83v4.83h-4.83zM155.52 58.97h4.83v4.83h-4.83zM160.34 58.97h4.83v4.83h-4.83zM165.17 58.97h4.83v4.83h-4.83zM73.45 63.79h4.83v4.83h-4.83zM83.10 63.79h4.83v4.83h-4.83zM87.93 63.79h4.83v4.83h-4.83zM92.76 63.79h4.83v4.83h-4.83zM116.90 63.79h4.83v4.83h-4.83zM126.55 63.79h4.83v4.83h-4.83zM30.00 68.62h4.83v4.83h-4.83zM39.66 68.62h4.83v4.83h-4.83zM58.97 68.62h4.83v4.83h-4.83zM63.79 68.62h4.83v4.83h-4.83zM83.10 68.62h4.83v4.83h-4.83zM92.76 68.62h4.83v4.83h-4.83zM102.41 68.62h4.83v4.83h-4.83zM107.24 68.62h4.83v4.83h-4.83zM121.72 68.62h4.83v4.83h-4.83zM141.03 68.62h4.83v4.83h-4.83zM155.52 68.62h4.83v4.83h-4.83zM165.17 68.62h4.83v4.83h-4.83zM34.83 73.45h4.83v4.83h-4.83zM54.14 73.45h4.83v4.83h-4.83zM63.79 73.45h4.83v4.83h-4.83zM73.45 73.45h4.83v4.83h-4.83zM83.10 73.45h4.83v4.83h-4.83zM87.93 73.45h4.83v4.83h-4.83zM107.24 73.45h4.83v4.83h-4.83zM112.07 73.45h4.83v4.83h-4.83zM121.72 73.45h4.83v4.83h-4.83zM126.55 73.45h4.83v4.83h-4.83zM136.21 73.45h4.83v4.83h-4.83zM141.03 73.45h4.83v4.83h-4.83zM160.34 73.45h4.83v4.83h-4.83zM165.17 73.45h4.83v4.83h-4.83zM34.83 78.28h4.83v4.83h-4.83zM39.66 78.28h4.83v4.83h-4.83zM44.48 78.28h4.83v4.83h-4.83zM58.97 78.28h4.83v4.83h-4.83zM73.45 78.28h4.83v4.83h-4.83zM83.10 78.28h4.83v4.83h-4.83zM87.93 78.28h4.83v4.83h-4.83zM92.76 78.28h4.83v4.83h-4.83zM97.59 78.28h4.83v4.83h-4.83zM107.24 78.28h4.83v4.83h-4.83zM121.72 78.28h4.83v4.83h-4.83zM126.55 78.28h4.83v4.83h-4.83zM131.38 78.28h4.83v4.83h-4.83zM145.86 78.28h4.83v4.83h-4.83zM150.69 78.28h4.83v4.83h-4.83zM155.52 78.28h4.83v4.83h-4.83zM165.17 78.28h4.83v4.83h-4.83zM34.83 83.10h4.83v4.83h-4.83zM49.31 83.10h4.83v4.83h-4.83zM83.10 83.10h4.83v4.83h-4.83zM97.59 83.10h4.83v4.83h-4.83zM102.41 83.10h4.83v4.83h-4.83zM107.24 83.10h4.83v4.83h-4.83zM131.38 83.10h4.83v4.83h-4.83zM141.03 83.10h4.83v4.83h-4.83zM150.69 83.10h4.83v4.83h-4.83zM30.00 87.93h4.83v4.83h-4.83zM44.48 87.93h4.83v4.83h-4.83zM49.31 87.93h4.83v4.83h-4.83zM58.97 87.93h4.83v4.83h-4.83zM63.79 87.93h4.83v4.83h-4.83zM68.62 87.93h4.83v4.83h-4.83zM83.10 87.93h4.83v4.83h-4.83zM92.76 87.93h4.83v4.83h-4.83zM97.59 87.93h4.83v4.83h-4.83zM121.72 87.93h4.83v4.83h-4.83zM136.21 87.93h4.83v4.83h-4.83zM141.03 87.93h4.83v4.83h-4.83zM165.17 87.93h4.83v4.83h-4.83zM39.66 92.76h4.83v4.83h-4.83zM49.31 92.76h4.83v4.83h-4.83zM63.79 92.76h4.83v4.83h-4.83zM68.62 92.76h4.83v4.83h-4.83zM73.45 92.76h4.83v4.83h-4.83zM83.10 92.76h4.83v4.83h-4.83zM92.76 92.76h4.83v4.83h-4.83zM97.59 92.76h4.83v4.83h-4.83zM112.07 92.76h4.83v4.83h-4.83zM121.72 92.76h4.83v4.83h-4.83zM126.55 92.76h4.83v4.83h-4.83zM136.21 92.76h4.83v4.83h-4.83zM141.03 92.76h4.83v4.83h-4.83zM160.34 92.76h4.83v4.83h-4.83zM165.17 92.76h4.83v4.83h-4.83zM30.00 97.59h4.83v4.83h-4.83zM34.83 97.59h4.83v4.83h-4.83zM39.66 97.59h4.83v4.83h-4.83zM44.48 97.59h4.83v4.83h-4.83zM49.31 97.59h4.83v4.83h-4.83zM58.97 97.59h4.83v4.83h-4.83zM63.79 97.59h4.83v4.83h-4.83zM68.62 97.59h4.83v4.83h-4.83zM73.45 97.59h4.83v4.83h-4.83zM83.10 97.59h4.83v4.83h-4.83zM87.93 97.59h4.83v4.83h-4.83zM102.41 97.59h4.83v4.83h-4.83zM116.90 97.59h4.83v4.83h-4.83zM121.72 97.59h4.83v4.83h-4.83zM126.55 97.59h4.83v4.83h-4.83zM141.03 97.59h4.83v4.83h-4.83zM145.86 97.59h4.83v4.83h-4.83zM165.17 97.59h4.83v4.83h-4.83zM30.00 102.41h4.83v4.83h-4.83zM39.66 102.41h4.83v4.83h-4.83zM73.45 102.41h4.83v4.83h-4.83zM78.28 102.41h4.83v4.83h-4.83zM87.93 102.41h4.83v4.83h-4.83zM92.76 102.41h4.83v4.83h-4.83zM116.90 102.41h4.83v4.83h-4.83zM121.72 102.41h4.83v4.83h-4.83zM126.55 102.41h4.83v4.83h-4.83zM136.21 102.41h4.83v4.83h-4.83zM141.03 102.41h4.83v4.83h-4.83zM30.00 107.24h4.83v4.83h-4.83zM34.83 107.24h4.83v4.83h-4.83zM39.66 107.24h4.83v4.83h-4.83zM44.48 107.24h4.83v4.83h-4.83zM54.14 107.24h4.83v4.83h-4.83zM58.97 107.24h4.83v4.83h-4.83zM63.79 107.24h4.83v4.83h-4.83zM73.45 107.24h4.83v4.83h-4.83zM83.10 107.24h4.83v4.83h-4.83zM92.76 107.24h4.83v4.83h-4.83zM102.41 107.24h4.83v4.83h-4.83zM107.24 107.24h4.83v4.83h-4.83zM126.55 107.24h4.83v4.83h-4.83zM136.21 107.24h4.83v4.83h-4.83zM141.03 107.24h4.83v4.83h-4.83zM165.17 107.24h4.83v4.83h-4.83zM34.83 112.07h4.83v4.83h-4.83zM39.66 112.07h4.83v4.83h-4.83zM54.14 112.07h4.83v4.83h-4.83zM73.45 112.07h4.83v4.83h-4.83zM83.10 112.07h4.83v4.83h-4.83zM107.24 112.07h4.83v4.83h-4.83zM112.07 112.07h4.83v4.83h-4.83zM121.72 112.07h4.83v4.83h-4.83zM136.21 112.07h4.83v4.83h-4.83zM141.03 112.07h4.83v4.83h-4.83zM155.52 112.07h4.83v4.83h-4.83zM160.34 112.07h4.83v4.83h-4.83zM165.17 112.07h4.83v4.83h-4.83zM30.00 116.90h4.83v4.83h-4.83zM34.83 116.90h4.83v4.83h-4.83zM39.66 116.90h4.83v4.83h-4.83zM44.48 116.90h4.83v4.83h-4.83zM49.31 116.90h4.83v4.83h-4.83zM58.97 116.90h4.83v4.83h-4.83zM68.62 116.90h4.83v4.83h-4.83zM73.45 116.90h4.83v4.83h-4.83zM78.28 116.90h4.83v4.83h-4.83zM92.76 116.90h4.83v4.83h-4.83zM97.59 116.90h4.83v4.83h-4.83zM107.24 116.90h4.83v4.83h-4.83zM112.07 116.90h4.83v4.83h-4.83zM121.72 116.90h4.83v4.83h-4.83zM145.86 116.90h4.83v4.83h-4.83zM150.69 116.90h4.83v4.83h-4.83zM165.17 116.90h4.83v4.83h-4.83zM39.66 121.72h4.83v4.83h-4.83zM44.48 121.72h4.83v4.83h-4.83zM63.79 121.72h4.83v4.83h-4.83zM83.10 121.72h4.83v4.83h-4.83zM97.59 121.72h4.83v4.83h-4.83zM102.41 121.72h4.83v4.83h-4.83zM107.24 121.72h4.83v4.83h-4.83zM131.38 121.72h4.83v4.83h-4.83zM30.00 126.55h4.83v4.83h-4.83zM34.83 126.55h4.83v4.83h-4.83zM39.66 126.55h4.83v4.83h-4.83zM44.48 126.55h4.83v4.83h-4.83zM49.31 126.55h4.83v4.83h-4.83zM58.97 126.55h4.83v4.83h-4.83zM63.79 126.55h4.83v4.83h-4.83zM78.28 126.55h4.83v4.83h-4.83zM92.76 126.55h4.83v4.83h-4.83zM97.59 126.55h4.83v4.83h-4.83zM107.24 126.55h4.83v4.83h-4.83zM121.72 126.55h4.83v4.83h-4.83zM126.55 126.55h4.83v4.83h-4.83zM131.38 126.55h4.83v4.83h-4.83zM136.21 126.55h4.83v4.83h-4.83zM141.03 126.55h4.83v4.83h-4.83zM145.86 126.55h4.83v4.83h-4.83zM150.69 126.55h4.83v4.83h-4.83zM160.34 126.55h4.83v4.83h-4.83zM68.62 131.38h4.83v4.83h-4.83zM73.45 131.38h4.83v4.83h-4.83zM78.28 131.38h4.83v4.83h-4.83zM92.76 131.38h4.83v4.83h-4.83zM97.59 131.38h4.83v4.83h-4.83zM126.55 131.38h4.83v4.83h-4.83zM145.86 131.38h4.83v4.83h-4.83zM150.69 131.38h4.83v4.83h-4.83zM155.52 131.38h4.83v4.83h-4.83zM165.17 131.38h4.83v4.83h-4.83zM30.00 136.21h4.83v4.83h-4.83zM34.83 136.21h4.83v4.83h-4.83zM39.66 136.21h4.83v4.83h-4.83zM44.48 136.21h4.83v4.83h-4.83zM49.31 136.21h4.83v4.83h-4.83zM54.14 136.21h4.83v4.83h-4.83zM58.97 136.21h4.83v4.83h-4.83zM68.62 136.21h4.83v4.83h-4.83zM78.28 136.21h4.83v4.83h-4.83zM83.10 136.21h4.83v4.83h-4.83zM87.93 136.21h4.83v4.83h-4.83zM102.41 136.21h4.83v4.83h-4.83zM107.24 136.21h4.83v4.83h-4.83zM112.07 136.21h4.83v4.83h-4.83zM116.90 136.21h4.83v4.83h-4.83zM126.55 136.21h4.83v4.83h-4.83zM136.21 136.21h4.83v4.83h-4.83zM145.86 136.21h4.83v4.83h-4.83zM165.17 136.21h4.83v4.83h-4.83zM30.00 141.03h4.83v4.83h-4.83zM58.97 141.03h4.83v4.83h-4.83zM73.45 141.03h4.83v4.83h-4.83zM78.28 141.03h4.83v4.83h-4.83zM83.10 141.03h4.83v4.83h-4.83zM92.76 141.03h4.83v4.83h-4.83zM107.24 141.03h4.83v4.83h-4.83zM116.90 141.03h4.83v4.83h-4.83zM121.72 141.03h4.83v4.83h-4.83zM126.55 141.03h4.83v4.83h-4.83zM145.86 141.03h4.83v4.83h-4.83zM160.34 141.03h4.83v4.83h-4.83zM165.17 141.03h4.83v4.83h-4.83zM30.00 145.86h4.83v4.83h-4.83zM39.66 145.86h4.83v4.83h-4.83zM44.48 145.86h4.83v4.83h-4.83zM49.31 145.86h4.83v4.83h-4.83zM58.97 145.86h4.83v4.83h-4.83zM78.28 145.86h4.83v4.83h-4.83zM83.10 145.86h4.83v4.83h-4.83zM87.93 145.86h4.83v4.83h-4.83zM92.76 145.86h4.83v4.83h-4.83zM107.24 145.86h4.83v4.83h-4.83zM121.72 145.86h4.83v4.83h-4.83zM126.55 145.86h4.83v4.83h-4.83zM131.38 145.86h4.83v4.83h-4.83zM136.21 145.86h4.83v4.83h-4.83zM141.03 145.86h4.83v4.83h-4.83zM145.86 145.86h4.83v4.83h-4.83zM150.69 145.86h4.83v4.83h-4.83zM30.00 150.69h4.83v4.83h-4.83zM39.66 150.69h4.83v4.83h-4.83zM44.48 150.69h4.83v4.83h-4.83zM49.31 150.69h4.83v4.83h-4.83zM58.97 150.69h4.83v4.83h-4.83zM73.45 150.69h4.83v4.83h-4.83zM92.76 150.69h4.83v4.83h-4.83zM102.41 150.69h4.83v4.83h-4.83zM107.24 150.69h4.83v4.83h-4.83zM121.72 150.69h4.83v4.83h-4.83zM131.38 150.69h4.83v4.83h-4.83zM145.86 150.69h4.83v4.83h-4.83zM150.69 150.69h4.83v4.83h-4.83zM155.52 150.69h4.83v4.83h-4.83zM160.34 150.69h4.83v4.83h-4.83zM30.00 155.52h4.83v4.83h-4.83zM39.66 155.52h4.83v4.83h-4.83zM44.48 155.52h4.83v4.83h-4.83zM49.31 155.52h4.83v4.83h-4.83zM58.97 155.52h4.83v4.83h-4.83zM68.62 155.52h4.83v4.83h-4.83zM78.28 155.52h4.83v4.83h-4.83zM83.10 155.52h4.83v4.83h-4.83zM87.93 155.52h4.83v4.83h-4.83zM97.59 155.52h4.83v4.83h-4.83zM102.41 155.52h4.83v4.83h-4.83zM116.90 155.52h4.83v4.83h-4.83zM121.72 155.52h4.83v4.83h-4.83zM131.38 155.52h4.83v4.83h-4.83zM145.86 155.52h4.83v4.83h-4.83zM160.34 155.52h4.83v4.83h-4.83zM165.17 155.52h4.83v4.83h-4.83zM30.00 160.34h4.83v4.83h-4.83zM58.97 160.34h4.83v4.83h-4.83zM83.10 160.34h4.83v4.83h-4.83zM87.93 160.34h4.83v4.83h-4.83zM107.24 160.34h4.83v4.83h-4.83zM126.55 160.34h4.83v4.83h-4.83zM141.03 160.34h4.83v4.83h-4.83zM150.69 160.34h4.83v4.83h-4.83zM30.00 165.17h4.83v4.83h-4.83zM34.83 165.17h4.83v4.83h-4.83zM39.66 165.17h4.83v4.83h-4.83zM44.48 165.17h4.83v4.83h-4.83zM49.31 165.17h4.83v4.83h-4.83zM54.14 165.17h4.83v4.83h-4.83zM58.97 165.17h4.83v4.83h-4.83zM68.62 165.17h4.83v4.83h-4.83zM73.45 165.17h4.83v4.83h-4.83zM83.10 165.17h4.83v4.83h-4.83zM97.59 165.17h4.83v4.83h-4.83zM102.41 165.17h4.83v4.83h-4.83zM107.24 165.17h4.83v4.83h-4.83zM126.55 165.17h4.83v4.83h-4.83zM136.21 165.17h4.83v4.83h-4.83zM150.69 165.17h4.83v4.83h-4.83zM165.17 165.17h4.83v4.83h-4.83z" fill="#111" shape-rendering="crispEdges"/><text x="100" y="221" text-anchor="middle" textLength="170" lengthAdjust="spacingAndGlyphs" font-family="Oswald,'Bebas Neue','Arial Narrow',Impact,sans-serif" font-weight="700" font-size="31" fill="#111">MADE IN MAIA</text></svg><div class="shine"></div></div><div class="flare"></div></div><div class="pres">APRESENTA</div><div class="pres2">uma road trip arcade · Porto ➜ Algarve</div></div><div class="skip">toca para saltar ▸</div></div></div>
 
 <div id="title" class="screen hidden">
-  <canvas id="scene"></canvas>
   <div class="flashfx"></div><div class="burst"></div>
   <div class="ttop">
     <div class="logo2"><div class="lw l1"><span class="k">OUTRUNNING</span><span class="w">OUTRUNNING</span><span class="f">OUTRUNNING</span><span class="sh">OUTRUNNING</span></div><div class="lw l2"><span class="k">PORTUGAL</span><span class="w">PORTUGAL</span><span class="f">PORTUGAL</span><span class="sh">PORTUGAL</span></div></div>
     <div class="ribbon">ROTA DO SOL · PORTO SUNSET STAGE</div>
-    <div class="tip" id="tip"></div>
-  </div>
-  <div class="tbl"><div class="porto">Porto</div><div class="plist">RIVER<br>BRIDGES<br>SUNSETS<br>GOOD ROADS</div></div>
-  <div class="tbc"><canvas id="euroStrip" width="520" height="130"></canvas><div class="etxt">EURO TOUR<small>START &amp; FINISH IN PORTUGAL</small></div></div>
-  <div class="tbr">
+    </div>
+  <div class="tbl"><div class="porto">Porto</div><div class="plist">RIVER · BRIDGES · SUNSETS · GOOD ROADS</div></div>
+  <div class="menu" id="menu">
     <div class="press">▶ PRESS START ◀</div>
-    <button class="big" id="playBtn">JOGAR <small>PLAY</small></button>
-    <div class="opts"><button class="opt" id="setBtn">⚙️ Definições</button><button class="opt" id="hiBtn">🏆 Recordes</button></div>
+    <button class="mbtn primary" id="playBtn"><span>▶</span>JOGAR<small>PLAY</small></button>
+    <button class="mbtn" id="tourBtn"><span>🗺️</span>EURO TOUR<small>MAPA</small></button>
+    <button class="mbtn" id="setBtn"><span>⚙️</span>DEFINIÇÕES<small>SETTINGS</small></button>
+    <button class="mbtn" id="hiBtn"><span>🏆</span>RECORDES<small>HIGH SCORES</small></button>
     <div class="best">RECORDE: <span id="bestScore">0</span></div>
   </div>
+  <div class="tipwrap"><div class="tip" id="tip"></div></div>
   <div class="hidden"><span id="ticker"></span><span id="keysHint"></span><canvas id="euroMap" width="10" height="10"></canvas></div>
 </div>
 <div id="radio" class="screen hidden">
@@ -433,6 +457,13 @@ table.hi td.md{font-size:1.1em}
     <div class="set"><b>Efeitos 🔊</b><input type="range" min="0" max="100" step="5" id="volS"></div>
   </div>
   <button class="big" id="setBack">OK</button>
+</div>
+
+<div id="tour" class="screen hidden">
+  <h2>EURO TOUR<small>START &amp; FINISH IN PORTUGAL</small></h2>
+  <canvas id="tourMap" width="760" height="500"></canvas>
+  <div class="tourlist"><b>1 · PORTUGAL</b> disponível ✓ · <span>2 · Espanha · 3 · França · 4 · Itália · 5 · Suíça · 6 · Alemanha · 7 · Holanda · 8 · Bélgica · 9 · Reino Unido</span> · em breve</div>
+  <button class="big" id="tourBack">VOLTAR</button>
 </div>
 <div id="hiscore" class="screen hidden">
   <h2>RECORDES<small>HIGH SCORES · TOP 10</small></h2>
@@ -2240,7 +2271,7 @@ function commitScore(){if(!pendingScore)return -1;const n=ini.join('');store.set
 // ------------------------------------------------------------------ flow / UI
 const isTouch=matchMedia('(pointer:coarse)').matches||'ontouchstart' in window;
 if(isTouch)$('keysHint').textContent='Pedais à esquerda · volante à direita · ou inclina o telemóvel 📱';
-function show(id){['intro','title','radio','pause','over','hiscore','settings'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
+function show(id){['intro','title','radio','pause','over','hiscore','settings','tour'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
 function setStation(i){settings.station=i;store.set('station',i);const S=SONGS[i];$('np').textContent='♫ A TOCAR: '+S.name+' — '+S.desc+' · Outrunning Portugal Rádio ♫';$('lcdF').textContent=S.freq+' FM';$('lcdN').textContent=S.name;$('radioName').textContent=S.name;document.querySelectorAll('.preset').forEach((b,k)=>b.classList.toggle('sel',k===i));}
 SONGS.forEach((S,i)=>{const b=document.createElement('button');b.className='preset';b.innerHTML=`<b>${S.freq}</b>${S.name}<br><span style="opacity:.7;font-family:system-ui;font-weight:600">${S.desc}</span>`;b.onclick=()=>{aInit();setStation(i);musicStart(i);};$('presets').appendChild(b);});
 $('playBtn').onclick=()=>{aInit();sfx('click');
@@ -2286,7 +2317,7 @@ function showEnd(win){
 
 
 // ------------------------------------------------------------------ animated Porto sunset title scene (looping)
-const SC=$('scene'),sg2=SC.getContext('2d');
+const SC=$('scene'),sg2=SC.getContext('2d');let sceneT0=-1e9;
 let sunCv=null,sceneData=null;
 function sceneInit(){
   const r=150;sunCv=mk(r*2+8,r*2+8,(q,w,h)=>{const g1=q.createLinearGradient(0,0,0,h);g1.addColorStop(0,'#fff6b0');g1.addColorStop(.45,'#ffb347');g1.addColorStop(1,'#ff3d6d');q.fillStyle=g1;q.beginPath();q.arc(w/2,h/2,r,0,7);q.fill();
@@ -2306,16 +2337,18 @@ function person2(g,x,y,s,col,hair,t,walk){g.save();g.translate(x,y);g.scale(s,s)
 function drawScene(now){
   if(!sunCv)sceneInit();
   const dpr=Math.min(1.5,devicePixelRatio||1),w=Math.round(innerWidth*dpr),h=Math.round(innerHeight*dpr);if(SC.width!==w||SC.height!==h){SC.width=w;SC.height=h;}
-  const g=sg2,t=now/1000,s=Math.max(w/1600,h/900),ox=(w-1600*s)/2,oy=h-900*s;
-  g.setTransform(s,0,0,s,ox,oy);
+  const g=sg2,t=now/1000,s=Math.min(w/1640,h/920),ox=(w-1600*s)/2,oy=(h-900*s)*0.62;
+  const zp=clamp((now-sceneT0)/2600,0,1),Z=1+1.6*Math.pow(1-zp,3),FX0=800,FY0=470;
+  g.setTransform(1,0,0,1,0,0);g.fillStyle='#ffc46a';g.fillRect(0,0,w,h);
+  g.setTransform(s*Z,0,0,s*Z,ox+(FX0-FX0*Z)*s,oy+(FY0-FY0*Z)*s);
   const HZ=560,D=sceneData;
   // sky
-  const sk=g.createLinearGradient(0,-200,0,HZ);sk.addColorStop(0,'#1a0840');sk.addColorStop(.35,'#5a1f84');sk.addColorStop(.62,'#c43d86');sk.addColorStop(.85,'#ff7a4a');sk.addColorStop(1,'#ffc46a');g.fillStyle=sk;g.fillRect(-400,-400,2400,HZ+400);
-  for(let i=0;i<40;i++){g.globalAlpha=(0.3+0.7*Math.abs(Math.sin(t*1.5+i)))*0.7;g.fillStyle='#fff';g.fillRect((i*397)%1600,(i*131)%180-150,2,2);}g.globalAlpha=1;
-  for(const c of D.clouds){const x=mod(c.x+t*c.s,2000)-200;cloud(g,x,c.y,c.w);}
+  const sk=g.createLinearGradient(0,-200,0,HZ);sk.addColorStop(0,'#1a0840');sk.addColorStop(.35,'#5a1f84');sk.addColorStop(.62,'#c43d86');sk.addColorStop(.85,'#ff7a4a');sk.addColorStop(1,'#ffc46a');g.fillStyle=sk;g.fillRect(-900,-900,3400,HZ+900);
+  for(let i=0;i<70;i++){g.globalAlpha=(0.3+0.7*Math.abs(Math.sin(t*1.5+i)))*0.7;g.fillStyle='#fff';g.fillRect((i*397)%2800-600,(i*131)%400-420,2,2);}g.globalAlpha=1;
+  for(const c of D.clouds){const x=mod(c.x+t*c.s,2800)-600;cloud(g,x,c.y,c.w);}
   // sun with heat shimmer
   const sx=800,sy=500,sh=sunCv.height;const gl=g.createRadialGradient(sx,sy,60,sx,sy,420);gl.addColorStop(0,'rgba(255,170,90,.75)');gl.addColorStop(1,'rgba(255,90,140,0)');g.fillStyle=gl;g.fillRect(sx-420,sy-420,840,840);
-  g.save();g.beginPath();g.rect(0,-400,1600,HZ+400);g.clip();
+  g.save();g.beginPath();g.rect(-900,-900,3400,HZ+900);g.clip();
   for(let y=0;y<sh;y+=3){const k=y/sh,dx=Math.sin(y*0.09+t*5)*(1+k*4)+Math.sin(y*0.031-t*2.3)*k*2;g.drawImage(sunCv,0,y,sunCv.width,3,sx-sunCv.width/2+dx,sy-sh/2+y,sunCv.width,3);}
   g.restore();
   // plane + contrail (generic airliner, Portuguese-colour tail)
@@ -2326,10 +2359,10 @@ function drawScene(now){
   // seagulls
   g.strokeStyle='#fff8f0';g.lineWidth=3;for(let i=0;i<5;i++){const bx=mod(200+i*290+t*(22+i*4),1900)-150,by=300+((i*71)%120)+Math.sin(t*0.8+i)*12,f=Math.sin(t*7+i*2)*9;g.beginPath();g.moveTo(bx-16,by-f);g.quadraticCurveTo(bx-7,by-6,bx,by);g.quadraticCurveTo(bx+7,by-6,bx+16,by-f);g.stroke();}
   // hills with houses (twinkling windows)
-  g.fillStyle='#3a2050';g.beginPath();g.moveTo(-100,HZ+10);g.lineTo(-100,380);g.quadraticCurveTo(220,330,430,440);g.quadraticCurveTo(520,500,600,HZ+10);g.fill();
+  g.fillStyle='#3a2050';g.beginPath();g.moveTo(-900,HZ+10);g.lineTo(-900,330);g.lineTo(-100,360);g.quadraticCurveTo(220,330,430,440);g.quadraticCurveTo(520,500,600,HZ+10);g.fill();
   g.fillStyle='#2f4a3a';for(let i=0;i<30;i++)circ(g,(i*53)%560,400+((i*37)%140),14,'#2f4a3a');
   for(const [x,y,ww,hh,c,ph] of D.lh){g.fillStyle=c;g.fillRect(x,y,ww,hh);g.fillStyle='#b5532f';g.fillRect(x-1,y-3,ww+2,4);if(Math.sin(t*0.7+ph)>-.2){g.fillStyle='#ffd27a';g.fillRect(x+3,y+3,3,3);}}
-  g.fillStyle='#3a2050';g.beginPath();g.moveTo(1000,HZ+10);g.lineTo(1080,470);g.quadraticCurveTo(1300,260,1700,170);g.lineTo(1700,HZ+10);g.fill();
+  g.fillStyle='#3a2050';g.beginPath();g.moveTo(1000,HZ+10);g.lineTo(1080,470);g.quadraticCurveTo(1300,260,1700,170);g.lineTo(2500,120);g.lineTo(2500,HZ+10);g.fill();
   for(const [x,y,ww,hh,c,ph] of D.rh){g.fillStyle=c;g.fillRect(x,y,ww,hh);g.fillStyle='#b5532f';poly(g,[x-3,y,x+ww/2,y-12,x+ww+3,y],'#b5532f');g.fillStyle=Math.sin(t*0.6+ph)>0?'#ffd27a':'#5a4a6a';g.fillRect(x+6,y+8,8,10);g.fillRect(x+ww-16,y+8,8,10);}
   // tower on the hill
   {const tx=1440,ty=140;g.fillStyle='#e8d6b0';g.fillRect(tx-14,ty,28,170);g.fillRect(tx-18,ty+60,36,8);g.fillStyle='#c9b48a';g.fillRect(tx+6,ty,8,170);g.beginPath();g.ellipse(tx,ty,14,16,0,Math.PI,0);g.fillStyle='#e8d6b0';g.fill();g.fillRect(tx-1,ty-30,2,16);g.fillStyle='#4a3a2a';rr(g,tx-5,ty+20,10,18,5);g.fill();}
@@ -2345,7 +2378,7 @@ function drawScene(now){
    for(let i=0;i<3;i++){const cx2=mod(t*60+i*420,1300)+200;g.fillStyle=['#ffd23f','#e63946','#fff'][i];g.fillRect(cx2,288,18,7);}
   }
   // river
-  const rv=g.createLinearGradient(0,HZ,0,780);rv.addColorStop(0,'#c0507a');rv.addColorStop(.25,'#5a2a8a');rv.addColorStop(1,'#1e1450');g.fillStyle=rv;g.fillRect(-100,HZ,1200,260);
+  const rv=g.createLinearGradient(0,HZ,0,780);rv.addColorStop(0,'#c0507a');rv.addColorStop(.25,'#5a2a8a');rv.addColorStop(1,'#1e1450');g.fillStyle=rv;g.fillRect(-900,HZ,2000,300);
   g.save();g.globalAlpha=0.22;g.translate(0,2*HZ+30);g.scale(1,-0.45);g.fillStyle='#2a1a4a';g.fillRect(220,296,1160,16);g.restore();
   for(let y=HZ+4;y<770;y+=6){const k=(y-HZ)/210,ww=(150-k*60)*(0.55+0.45*Math.sin(t*3.2+y*0.7)),x=800+Math.sin(t*2+y*0.15)*8*(1+k*3);g.globalAlpha=0.75*(1-k*0.6);g.fillStyle=(y/6|0)%2?'#ffd27a':'#ff6a8a';g.fillRect(x-ww/2,y,ww,3);}
   g.globalAlpha=1;
@@ -2354,36 +2387,36 @@ function drawScene(now){
   {const bx=200+Math.sin(t*0.12)*60,by=640+Math.sin(t*1.6)*3,rt=Math.sin(t*1.3)*0.04;g.save();g.translate(bx,by);g.rotate(rt);poly(g,[-46,0,46,0,34,14,-34,14],'#f4f1ea');g.fillStyle='#6b4a2b';g.fillRect(-2,-90,4,90);poly(g,[2,-88,2,-4,52,-4],'#fff');poly(g,[-2,-80,-2,-6,-40,-6],'#ffd6e0');g.restore();
    const rbx=330+Math.sin(t*0.08+1)*90,rby=705+Math.sin(t*1.2+1)*3;g.save();g.translate(rbx,rby);g.rotate(Math.sin(t*1.1)*0.03);poly(g,[-60,0,60,0,46,16,-46,16],'#5a3a22');g.fillStyle='#3a2416';g.fillRect(-2,-70,4,70);g.fillStyle='#efe3c4';g.fillRect(-26,-66,52,52);g.fillStyle='#a33';g.fillRect(-26,-46,52,6);g.restore();}
   // promenade + balustrade (left)
-  g.fillStyle='#b8968a';g.beginPath();g.moveTo(-100,770);g.lineTo(700,600);g.lineTo(760,606);g.lineTo(330,900);g.lineTo(-100,900);g.fill();
-  g.fillStyle='#d8b8a8';g.beginPath();g.moveTo(-100,770);g.lineTo(700,600);g.lineTo(706,606);g.lineTo(-100,780);g.fill();
-  for(let i=0;i<14;i++){const u=i/13,x=lerp(-60,690,u),y=lerp(760,600,u),hh=lerp(70,16,u),ww=lerp(26,6,u);g.fillStyle='#e8d6c8';g.fillRect(x-ww/2,y-hh,ww,hh);g.fillStyle='#c8a898';g.fillRect(x-ww/2,y-hh,ww,hh*0.18);}
-  g.strokeStyle='#2a1a2a';g.lineWidth=3;g.beginPath();g.moveTo(-60,712);g.lineTo(690,588);g.moveTo(-60,738);g.lineTo(690,594);g.stroke();
-  for(let i=0;i<60;i++){const u=i/59,x=lerp(-60,690,u),y1=lerp(712,588,u),y2=lerp(760,600,u);g.lineWidth=lerp(3,1,u);g.beginPath();g.moveTo(x,y1);g.lineTo(x,y2);g.stroke();}
+  g.fillStyle='#b8968a';g.beginPath();g.moveTo(-900,940);g.lineTo(700,600);g.lineTo(760,606);g.lineTo(150,1300);g.lineTo(-900,1300);g.fill();
+  g.fillStyle='#d8b8a8';g.beginPath();g.moveTo(-900,940);g.lineTo(700,600);g.lineTo(706,606);g.lineTo(-900,952);g.fill();
+  for(let i=0;i<20;i++){const u=i/19,x=lerp(-560,690,u),y=lerp(866,600,u),hh=lerp(70,16,u),ww=lerp(26,6,u);g.fillStyle='#e8d6c8';g.fillRect(x-ww/2,y-hh,ww,hh);g.fillStyle='#c8a898';g.fillRect(x-ww/2,y-hh,ww,hh*0.18);}
+  g.strokeStyle='#2a1a2a';g.lineWidth=3;g.beginPath();g.moveTo(-560,808);g.lineTo(690,588);g.moveTo(-560,836);g.lineTo(690,594);g.stroke();
+  for(let i=0;i<80;i++){const u=i/79,x=lerp(-560,690,u),y1=lerp(808,588,u),y2=lerp(866,600,u);g.lineWidth=lerp(3,1,u);g.beginPath();g.moveTo(x,y1);g.lineTo(x,y2);g.stroke();}
   // walkers on the promenade (slow loop, walking away)
   for(let i=0;i<2;i++){const u=mod(t/26+i*0.08,1),x=lerp(300,690,u)+i*24,y=lerp(800,612,u),sc=lerp(1.5,0.35,u);g.globalAlpha=u>0.92?(1-u)/0.08:1;person2(g,x,y,sc,i?'#ffb3c1':'#2e86de',i?'#5a3520':'#2b1a10',t+i,true);}g.globalAlpha=1;
   // road
-  {const rd=g.createLinearGradient(0,600,0,900);rd.addColorStop(0,'#5a4a6a');rd.addColorStop(1,'#2e2638');g.fillStyle=rd;g.beginPath();g.moveTo(760,604);g.quadraticCurveTo(560,760,330,900);g.lineTo(1380,900);g.quadraticCurveTo(1100,740,880,604);g.fill();
+  {const rd=g.createLinearGradient(0,600,0,900);rd.addColorStop(0,'#5a4a6a');rd.addColorStop(1,'#2e2638');g.fillStyle=rd;g.beginPath();g.moveTo(760,604);g.quadraticCurveTo(560,760,330,900);g.lineTo(150,1300);g.lineTo(1650,1300);g.lineTo(1380,900);g.quadraticCurveTo(1100,740,880,604);g.fill();
    g.fillStyle='rgba(255,140,120,.18)';g.beginPath();g.moveTo(800,604);g.quadraticCurveTo(760,760,700,900);g.lineTo(900,900);g.quadraticCurveTo(850,760,830,604);g.fill();
    const ph=(t*0.9)%1;for(let k=0;k<10;k++){const u=(k+ph)/10;const u2=u+0.04;if(u2>1)continue;const y1=604+(900-604)*u*u,y2=604+(900-604)*u2*u2,x1=822+(840-822)*u+Math.sin(u*2)*4,x2=822+(840-822)*u2;g.strokeStyle='#ffd23f';g.lineWidth=lerp(2,12,u);g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();}}
   // right side: riverside houses, café, lamps
-  const bl=[[880,600,950,540,'#f4e1c8'],[940,620,1030,520,'#e8c4a8'],[1010,646,1130,490,'#f7d9a8'],[1100,684,1260,440,'#f2c4b6'],[1230,736,1420,380,'#cfe0f0'],[1380,800,1640,300,'#f4e1c8']];
+  const bl=[[882,602,936,560,'#f4e1c8'],[930,616,996,550,'#e8c4a8'],[990,634,1074,536,'#f7d9a8'],[1066,658,1170,516,'#f2c4b6'],[1160,690,1290,490,'#cfe0f0'],[1280,730,1440,458,'#f4e1c8'],[1430,780,1640,420,'#e8a0a0'],[1630,840,1900,380,'#f7d9a8'],[1890,900,2300,340,'#f4e1c8']];
   for(const [x0,yb,x1,yt,c] of bl){g.fillStyle=c;g.fillRect(x0,yt,x1-x0,yb-yt+200);g.fillStyle='#b5532f';g.fillRect(x0-4,yt-8,x1-x0+8,10);
     const cols=Math.max(2,Math.round((x1-x0)/40)),rows=Math.max(2,Math.round((yb-yt)/48));const cw=(x1-x0)/cols,rh=(yb-yt)/rows;
     for(let r=0;r<rows;r++)for(let k=0;k<cols;k++){const lit=Math.sin(t*0.5+r*3+k*7+x0)>-0.3;g.fillStyle=lit?'#ffcf6a':'#4a3a5a';g.fillRect(x0+k*cw+cw*0.25,yt+r*rh+rh*0.25,cw*0.5,rh*0.5);if(r>0){g.fillStyle='#2a1a2a';g.fillRect(x0+k*cw+cw*0.18,yt+r*rh+rh*0.75,cw*0.64,2);}}
     if(c==='#cfe0f0'){g.save();g.globalAlpha=.5;tiles(g,x0,yt,x1-x0,yb-yt,14);g.restore();}
     for(let k=0;k<6;k++){g.fillStyle=k%2?'#fff':'#e63946';g.fillRect(x0+k*(x1-x0)/6,yb-28,(x1-x0)/6,10);}}
   // café umbrella with people (gentle motion)
-  {const ux=1300,uy=720;g.fillStyle='#fff3d8';g.beginPath();g.moveTo(ux-110,uy);g.quadraticCurveTo(ux,uy-70,ux+110,uy);g.fill();g.fillStyle='#e8d0a0';g.fillRect(ux-110,uy,220,8);g.fillStyle='#6b4a2b';g.fillRect(ux-3,uy,6,110);
+  {const ux=1230,uy=700;g.fillStyle='#fff3d8';g.beginPath();g.moveTo(ux-110,uy);g.quadraticCurveTo(ux,uy-70,ux+110,uy);g.fill();g.fillStyle='#e8d0a0';g.fillRect(ux-110,uy,220,8);g.fillStyle='#6b4a2b';g.fillRect(ux-3,uy,6,110);
    ell(g,ux,uy+80,60,10,'#7a5a3a');
-   for(const [px,col,ph] of [[ux-60,'#2a9d8f',0],[ux+50,'#e84393',1.7],[ux-10,'#ffd23f',3]]){const b=Math.sin(t*1.2+ph)*2;person2(g,px,uy+120+b,1.1,col,'#2b1a10',t,false);}
+   for(const [px,col,ph] of [[ux-60,'#2a9d8f',0],[ux+50,'#e84393',1.7],[ux-10,'#ffd23f',3]]){const b=Math.sin(t*1.2+ph)*2;person2(g,px,uy+110+b,0.9,col,'#2b1a10',t,false);}
    const gw=g.createRadialGradient(ux,uy+30,10,ux,uy+30,150);gw.addColorStop(0,'rgba(255,200,120,.35)');gw.addColorStop(1,'rgba(255,200,120,0)');g.fillStyle=gw;g.fillRect(ux-150,uy-120,300,300);}
   // street lamps with flickering glow
-  for(const [lx,ly,hh] of [[905,600,60],[985,640,90],[1110,700,140],[1500,820,240],[640,616,40],[520,648,60]]){const f=0.85+0.15*Math.sin(t*9+lx)*Math.sin(t*3.3+lx*0.1);g.fillStyle='#1d1a26';g.fillRect(lx-hh*0.03,ly-hh,hh*0.06,hh);g.fillStyle='#1d1a26';g.fillRect(lx-hh*0.07,ly-hh-hh*0.16,hh*0.14,hh*0.14);
+  for(const [lx,ly,hh] of [[905,602,44],[985,636,62],[1110,690,92],[1300,760,130],[1560,860,180],[640,616,40],[520,648,60],[300,700,90]]){const f=0.85+0.15*Math.sin(t*9+lx)*Math.sin(t*3.3+lx*0.1);g.fillStyle='#1d1a26';g.fillRect(lx-hh*0.03,ly-hh,hh*0.06,hh);g.fillStyle='#1d1a26';g.fillRect(lx-hh*0.07,ly-hh-hh*0.16,hh*0.14,hh*0.14);
     const lg=g.createRadialGradient(lx,ly-hh-hh*0.09,2,lx,ly-hh-hh*0.09,hh*0.6);lg.addColorStop(0,`rgba(255,220,140,${0.9*f})`);lg.addColorStop(1,'rgba(255,200,120,0)');g.fillStyle=lg;g.fillRect(lx-hh*0.6,ly-hh*1.7,hh*1.2,hh*1.2);circ(g,lx,ly-hh-hh*0.09,hh*0.045,'#fff3c0');}
   // the convertible — Luna points at the sunset
   {const cyc=t%12;const a=cyc<5?'point':cyc<7?'wave':cyc<9?'moon':'stand';if(crew.w.a!==a){crew.w.a=a;crew.w.t=0;crew.w.dur=99;}crew.w.t+=1/60;
    crew.d.a=cyc>6&&cyc<8?'thumb':'armOut';crew.d.t=t;
-   const bob=Math.sin(t*9)*1.2;g.save();g.translate(800,742+bob);g.scale(2.15,2.15);ell(g,0,-4,86,10,'rgba(0,0,0,.45)');drawCarAll(g,Math.sin(t*0.6)*0.08,false,false,t,t*30,true,1);g.restore();}
+   const bob=Math.sin(t*9)*1.2;g.save();g.translate(820,800+bob);g.scale(1.45,1.45);ell(g,0,-4,86,10,'rgba(0,0,0,.45)');drawCarAll(g,Math.sin(t*0.6)*0.08,false,false,t,t*30,true,1);g.restore();}
   // warm haze over the horizon
   const hz2=g.createLinearGradient(0,HZ-60,0,HZ+40);hz2.addColorStop(0,'rgba(255,150,120,0)');hz2.addColorStop(.5,'rgba(255,170,120,'+(0.16+0.06*Math.sin(t*1.3))+')');hz2.addColorStop(1,'rgba(255,150,120,0)');g.fillStyle=hz2;g.fillRect(-100,HZ-60,1800,100);
   g.setTransform(1,0,0,1,0,0);
@@ -2404,11 +2437,11 @@ function drawEuroStrip(g,w,h,T){
 let miniT=0;
 function showMini(t){miniT=t;}
 function zoneProgress(){const pz=position+playerZ,z=stageIdx,a=stageStart[z],b=z+1<stageStart.length?stageStart[z+1]:goalIdx;return z+clamp((pz/segL-a)/(b-a),0,0.999);}
-const stripCtx=$('euroStrip').getContext('2d');const mapCtx={};['euroMap','miniMap','pauseMap','radioMap','endMap'].forEach(id=>mapCtx[id]=$(id).getContext('2d'));
+const mapCtx={};['tourMap','euroMap','miniMap','pauseMap','radioMap','endMap'].forEach(id=>mapCtx[id]=$(id).getContext('2d'));
 const vis=id=>{const e=$(id);return e&&!e.classList.contains('hidden')&&e.offsetParent!==null;};
 function drawMaps(dt){
   const T=perfNow/1000;
-  if(state==='title'){if(!MON)buildMon();drawEuroStrip(stripCtx,520,130,T);}
+  if(vis('tourMap'))drawEuroMap(mapCtx.tourMap,760,500,T,{labels:true});
   const mm=$('miniMap');if(miniT>0){miniT-=dt;mm.classList.add('show');}else mm.classList.remove('show');
   if(miniT>-0.5&&['play','count','finish'].includes(state))drawPortugalMap(mapCtx.miniMap,240,320,T,zoneProgress());
   if(vis('pauseMap'))drawPortugalMap(mapCtx.pauseMap,240,320,T,zoneProgress());
@@ -2416,7 +2449,7 @@ function drawMaps(dt){
   if(vis('endMap'))drawEuroMap(mapCtx.endMap,520,350,T,{labels:true,done:state==='finish'});
 }
 function buildTicker(){const L=scores.slice(0,10);$('ticker').textContent=L.length?'🏆 RECORDES  ·  '+L.map((e,i)=>`${i+1}. ${e.n} ${e.s.toLocaleString('pt-PT')}`).join('   ·   ')+'   ·   MADE IN MAIA 🌙':'🏆 SÊ O PRIMEIRO NOS RECORDES · PORTO ➜ ALGARVE · MADE IN MAIA 🌙 · NEXT: EURO TOUR';}
-function endIntro(){if(state!=='intro')return;state='title';$('intro').classList.add('out');setTimeout(()=>{$('intro').classList.remove('out');show('title');const tt=$('title');tt.classList.remove('reveal');void tt.offsetWidth;tt.classList.add('reveal');sfx('boost');setTimeout(()=>tt.classList.remove('reveal'),2600);},450);buildTicker();checkRotate();}
+function endIntro(){if(state!=='intro')return;state='title';$('intro').classList.add('out');setTimeout(()=>{$('intro').classList.remove('out');show('title');sceneT0=performance.now();const tt=$('title');tt.classList.remove('reveal');void tt.offsetWidth;tt.classList.add('reveal');sfx('boost');setTimeout(()=>tt.classList.remove('reveal'),2600);},450);buildTicker();checkRotate();}
 
 
 // ------------------------------------------------------------------ animated screens: messages, intro scene, toasts, countdown, end
@@ -2548,12 +2581,22 @@ function endExtras(win,fs){
   if(win)for(let i=0;i<4;i++)setTimeout(spawnFirework,i*300);
 }
 
+
+// menu: Euro Tour screen + keyboard navigation + reveal camera
+$('tourBtn').onclick=()=>{aInit();sfx('click');state='tour';show('tour');};
+$('tourBack').onclick=()=>{sfx('click');state='title';show('title');};
+let menuSel=0;
+function menuBtns(){return [...document.querySelectorAll('#menu .mbtn')];}
+function setMenuSel(i){const b=menuBtns();menuSel=mod(i,b.length);b.forEach((x,k)=>x.classList.toggle('sel',k===menuSel));}
+addEventListener('keydown',e=>{if(state!=='title')return;if(e.key==='ArrowDown'){setMenuSel(menuSel+1);sfx('click');e.preventDefault();}else if(e.key==='ArrowUp'){setMenuSel(menuSel-1);sfx('click');e.preventDefault();}else if(e.key==='Enter'){menuBtns()[menuSel].click();}});
+menuBtns().forEach((b,k)=>b.addEventListener('pointerenter',()=>setMenuSel(k)));
+
 // ------------------------------------------------------------------ main loop
 let last=performance.now(),acc=0;
 function frame(now){
   perfNow=now;const dt=Math.min(0.25,(now-last)/1000);last=now;acc+=dt;
   let n=0;while(acc>=STEP&&n<8){update(STEP);acc-=STEP;n++;}if(n>=8)acc=0;
-  if(state==='title'){drawScene(now);}else{render();renderFX();}updateHUD();drawMaps(dt);if(state==='intro')drawIntro(now);
+  const useScene=state==='title'||state==='tour'||state==='hiscore'||(state==='settings'&&settingsFrom==='title');SC.style.display=useScene?'block':'none';if(useScene){drawScene(now);}else{render();renderFX();}updateHUD();drawMaps(dt);if(state==='intro')drawIntro(now);
   requestAnimationFrame(frame);
 }
 
