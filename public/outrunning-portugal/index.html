@@ -415,6 +415,31 @@ table.hi td.md{font-size:1.1em}
   .ttop{left:4vw;right:auto;width:52vw;text-align:center}
 }
 @keyframes menuInL{from{opacity:0;transform:translate(60px,-50%)}to{opacity:1;transform:translateY(-50%)}}
+
+/* landscape: postcards / checkpoint toasts go small to the side, out of the driving view */
+@media (orientation:landscape){
+  #toast{left:auto;right:max(10px,env(safe-area-inset-right));top:auto;bottom:calc(clamp(96px,30vh,190px) + 6px);transform:none;width:min(30vw,290px);text-align:right}
+  body:has(#toast:not(.hidden)) #miniMap{opacity:0;transition:opacity .2s}
+  #toast .card2{transform-origin:100% 100%;padding:7px 52px 7px 10px;border-width:4px;max-width:100%}
+  #toast .card2 .hi{font-size:clamp(11px,3vh,17px)}#toast .card2 .nm{font-size:clamp(14px,4.4vh,24px)}#toast .card2 .sb{font-size:clamp(8px,2.2vh,11px)}
+  #toast .card2 .fc{display:none}#toast .card2 .sig{font-size:clamp(9px,2.4vh,13px)}
+  #toast .stamp{width:34px;height:40px;font-size:17px;right:7px;top:7px}#toast .pmark{display:none}
+  #toast .cpb{padding:5px 14px 7px}#toast .cpb .t1{font-size:clamp(16px,5vh,30px)}#toast .cpb .bonus{font-size:clamp(14px,4.4vh,26px)}#toast .cpb .t2{font-size:clamp(8px,2.4vh,13px)}
+  #toast .fact{font-size:clamp(8px,2.2vh,11px);max-width:100%;margin-top:5px}
+  #toast .t1{font-size:clamp(15px,5vh,30px)}#toast .t2{font-size:clamp(10px,3vh,16px)}
+  @keyframes postIn{from{transform:translateX(50vw) rotate(10deg)}to{transform:rotate(-2deg)}}
+}
+
+#fsBtn{position:fixed;z-index:30;top:max(8px,env(safe-area-inset-top));right:max(8px,env(safe-area-inset-right));width:40px;height:40px;border-radius:12px;border:2px solid rgba(255,255,255,.7);background:rgba(20,6,44,.55);color:#fff;font-size:22px;line-height:1;display:none;backdrop-filter:blur(3px)}
+body.st-title #fsBtn,body.st-pause #fsBtn,body.st-radio #fsBtn{display:block}
+body.is-fs #fsBtn{display:none!important}
+#fsHelp{position:fixed;inset:0;z-index:60;background:rgba(10,2,30,.82);display:flex;align-items:center;justify-content:center;padding:18px}
+#fsHelp.hidden{display:none}
+.fsbox{max-width:360px;background:linear-gradient(180deg,#2b1055,#5a1a6a);border:3px solid #ffd23f;border-radius:18px;padding:18px;color:#fff;font-family:system-ui,sans-serif;box-shadow:0 0 30px rgba(255,61,127,.5)}
+.fst{font-family:'Racing Sans One',sans-serif;font-size:26px;color:#ffd23f;text-align:center;margin-bottom:8px}
+.fsd{font-size:14px;opacity:.9;margin-bottom:8px}.fsbox ol{font-size:15px;line-height:1.5;padding-left:20px;margin:0 0 12px}.shr{display:inline-block;border:1.5px solid #fff;border-radius:4px;padding:0 4px;font-size:12px}
+.fsbox .big{width:100%}
+html,body{height:100%;height:100dvh;overscroll-behavior:none}
 </style>
 </head>
 <body>
@@ -445,6 +470,11 @@ table.hi td.md{font-size:1.1em}
 
 <div id="intro" class="screen"><canvas id="introC"></canvas><div class="hero" id="hero"><div class="hwrap"><div class="glow"></div><div class="rays"></div><div class="ring"></div><div class="ring r2"></div><i class="spark" style="--r:20.0vmin;--a:0deg;animation-delay:0.00s"></i><i class="spark" style="--r:23.3vmin;--a:36deg;animation-delay:-0.40s"></i><i class="spark" style="--r:18.7vmin;--a:72deg;animation-delay:-0.90s"></i><i class="spark" style="--r:25.3vmin;--a:108deg;animation-delay:-1.30s"></i><i class="spark" style="--r:21.3vmin;--a:144deg;animation-delay:-0.20s"></i><i class="spark" style="--r:20.0vmin;--a:180deg;animation-delay:-1.70s"></i><i class="spark" style="--r:24.7vmin;--a:216deg;animation-delay:-0.60s"></i><i class="spark" style="--r:19.3vmin;--a:252deg;animation-delay:-1.10s"></i><i class="spark" style="--r:23.3vmin;--a:288deg;animation-delay:-2.00s"></i><i class="spark" style="--r:21.3vmin;--a:324deg;animation-delay:-1.50s"></i><div class="hlogo"><svg class="mimlogo" viewBox="0 0 200 237" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Made in Maia"><rect x="3" y="3" width="194" height="231" rx="26" fill="#fff" stroke="#000" stroke-width="4" vector-effect="non-scaling-stroke"/><rect x="15" y="15" width="170" height="170" rx="20" fill="#111"/><rect x="24" y="24" width="152" height="152" rx="10" fill="#fff"/><path d="M30.00 30.00h4.83v4.83h-4.83zM34.83 30.00h4.83v4.83h-4.83zM39.66 30.00h4.83v4.83h-4.83zM44.48 30.00h4.83v4.83h-4.83zM49.31 30.00h4.83v4.83h-4.83zM54.14 30.00h4.83v4.83h-4.83zM58.97 30.00h4.83v4.83h-4.83zM68.62 30.00h4.83v4.83h-4.83zM78.28 30.00h4.83v4.83h-4.83zM87.93 30.00h4.83v4.83h-4.83zM92.76 30.00h4.83v4.83h-4.83zM97.59 30.00h4.83v4.83h-4.83zM102.41 30.00h4.83v4.83h-4.83zM116.90 30.00h4.83v4.83h-4.83zM136.21 30.00h4.83v4.83h-4.83zM141.03 30.00h4.83v4.83h-4.83zM145.86 30.00h4.83v4.83h-4.83zM150.69 30.00h4.83v4.83h-4.83zM155.52 30.00h4.83v4.83h-4.83zM160.34 30.00h4.83v4.83h-4.83zM165.17 30.00h4.83v4.83h-4.83zM30.00 34.83h4.83v4.83h-4.83zM58.97 34.83h4.83v4.83h-4.83zM78.28 34.83h4.83v4.83h-4.83zM83.10 34.83h4.83v4.83h-4.83zM87.93 34.83h4.83v4.83h-4.83zM102.41 34.83h4.83v4.83h-4.83zM116.90 34.83h4.83v4.83h-4.83zM126.55 34.83h4.83v4.83h-4.83zM136.21 34.83h4.83v4.83h-4.83zM165.17 34.83h4.83v4.83h-4.83zM30.00 39.66h4.83v4.83h-4.83zM39.66 39.66h4.83v4.83h-4.83zM44.48 39.66h4.83v4.83h-4.83zM49.31 39.66h4.83v4.83h-4.83zM58.97 39.66h4.83v4.83h-4.83zM68.62 39.66h4.83v4.83h-4.83zM73.45 39.66h4.83v4.83h-4.83zM78.28 39.66h4.83v4.83h-4.83zM83.10 39.66h4.83v4.83h-4.83zM87.93 39.66h4.83v4.83h-4.83zM92.76 39.66h4.83v4.83h-4.83zM112.07 39.66h4.83v4.83h-4.83zM116.90 39.66h4.83v4.83h-4.83zM136.21 39.66h4.83v4.83h-4.83zM145.86 39.66h4.83v4.83h-4.83zM150.69 39.66h4.83v4.83h-4.83zM155.52 39.66h4.83v4.83h-4.83zM165.17 39.66h4.83v4.83h-4.83zM30.00 44.48h4.83v4.83h-4.83zM39.66 44.48h4.83v4.83h-4.83zM44.48 44.48h4.83v4.83h-4.83zM49.31 44.48h4.83v4.83h-4.83zM58.97 44.48h4.83v4.83h-4.83zM73.45 44.48h4.83v4.83h-4.83zM83.10 44.48h4.83v4.83h-4.83zM87.93 44.48h4.83v4.83h-4.83zM102.41 44.48h4.83v4.83h-4.83zM107.24 44.48h4.83v4.83h-4.83zM112.07 44.48h4.83v4.83h-4.83zM116.90 44.48h4.83v4.83h-4.83zM121.72 44.48h4.83v4.83h-4.83zM136.21 44.48h4.83v4.83h-4.83zM145.86 44.48h4.83v4.83h-4.83zM150.69 44.48h4.83v4.83h-4.83zM155.52 44.48h4.83v4.83h-4.83zM165.17 44.48h4.83v4.83h-4.83zM30.00 49.31h4.83v4.83h-4.83zM39.66 49.31h4.83v4.83h-4.83zM44.48 49.31h4.83v4.83h-4.83zM49.31 49.31h4.83v4.83h-4.83zM58.97 49.31h4.83v4.83h-4.83zM78.28 49.31h4.83v4.83h-4.83zM83.10 49.31h4.83v4.83h-4.83zM102.41 49.31h4.83v4.83h-4.83zM107.24 49.31h4.83v4.83h-4.83zM116.90 49.31h4.83v4.83h-4.83zM126.55 49.31h4.83v4.83h-4.83zM136.21 49.31h4.83v4.83h-4.83zM145.86 49.31h4.83v4.83h-4.83zM150.69 49.31h4.83v4.83h-4.83zM155.52 49.31h4.83v4.83h-4.83zM165.17 49.31h4.83v4.83h-4.83zM30.00 54.14h4.83v4.83h-4.83zM58.97 54.14h4.83v4.83h-4.83zM68.62 54.14h4.83v4.83h-4.83zM78.28 54.14h4.83v4.83h-4.83zM83.10 54.14h4.83v4.83h-4.83zM92.76 54.14h4.83v4.83h-4.83zM97.59 54.14h4.83v4.83h-4.83zM107.24 54.14h4.83v4.83h-4.83zM136.21 54.14h4.83v4.83h-4.83zM165.17 54.14h4.83v4.83h-4.83zM30.00 58.97h4.83v4.83h-4.83zM34.83 58.97h4.83v4.83h-4.83zM39.66 58.97h4.83v4.83h-4.83zM44.48 58.97h4.83v4.83h-4.83zM49.31 58.97h4.83v4.83h-4.83zM54.14 58.97h4.83v4.83h-4.83zM58.97 58.97h4.83v4.83h-4.83zM68.62 58.97h4.83v4.83h-4.83zM78.28 58.97h4.83v4.83h-4.83zM87.93 58.97h4.83v4.83h-4.83zM97.59 58.97h4.83v4.83h-4.83zM107.24 58.97h4.83v4.83h-4.83zM116.90 58.97h4.83v4.83h-4.83zM126.55 58.97h4.83v4.83h-4.83zM136.21 58.97h4.83v4.83h-4.83zM141.03 58.97h4.83v4.83h-4.83zM145.86 58.97h4.83v4.83h-4.83zM150.69 58.97h4.83v4.83h-4.83zM155.52 58.97h4.83v4.83h-4.83zM160.34 58.97h4.83v4.83h-4.83zM165.17 58.97h4.83v4.83h-4.83zM73.45 63.79h4.83v4.83h-4.83zM83.10 63.79h4.83v4.83h-4.83zM87.93 63.79h4.83v4.83h-4.83zM92.76 63.79h4.83v4.83h-4.83zM116.90 63.79h4.83v4.83h-4.83zM126.55 63.79h4.83v4.83h-4.83zM30.00 68.62h4.83v4.83h-4.83zM39.66 68.62h4.83v4.83h-4.83zM58.97 68.62h4.83v4.83h-4.83zM63.79 68.62h4.83v4.83h-4.83zM83.10 68.62h4.83v4.83h-4.83zM92.76 68.62h4.83v4.83h-4.83zM102.41 68.62h4.83v4.83h-4.83zM107.24 68.62h4.83v4.83h-4.83zM121.72 68.62h4.83v4.83h-4.83zM141.03 68.62h4.83v4.83h-4.83zM155.52 68.62h4.83v4.83h-4.83zM165.17 68.62h4.83v4.83h-4.83zM34.83 73.45h4.83v4.83h-4.83zM54.14 73.45h4.83v4.83h-4.83zM63.79 73.45h4.83v4.83h-4.83zM73.45 73.45h4.83v4.83h-4.83zM83.10 73.45h4.83v4.83h-4.83zM87.93 73.45h4.83v4.83h-4.83zM107.24 73.45h4.83v4.83h-4.83zM112.07 73.45h4.83v4.83h-4.83zM121.72 73.45h4.83v4.83h-4.83zM126.55 73.45h4.83v4.83h-4.83zM136.21 73.45h4.83v4.83h-4.83zM141.03 73.45h4.83v4.83h-4.83zM160.34 73.45h4.83v4.83h-4.83zM165.17 73.45h4.83v4.83h-4.83zM34.83 78.28h4.83v4.83h-4.83zM39.66 78.28h4.83v4.83h-4.83zM44.48 78.28h4.83v4.83h-4.83zM58.97 78.28h4.83v4.83h-4.83zM73.45 78.28h4.83v4.83h-4.83zM83.10 78.28h4.83v4.83h-4.83zM87.93 78.28h4.83v4.83h-4.83zM92.76 78.28h4.83v4.83h-4.83zM97.59 78.28h4.83v4.83h-4.83zM107.24 78.28h4.83v4.83h-4.83zM121.72 78.28h4.83v4.83h-4.83zM126.55 78.28h4.83v4.83h-4.83zM131.38 78.28h4.83v4.83h-4.83zM145.86 78.28h4.83v4.83h-4.83zM150.69 78.28h4.83v4.83h-4.83zM155.52 78.28h4.83v4.83h-4.83zM165.17 78.28h4.83v4.83h-4.83zM34.83 83.10h4.83v4.83h-4.83zM49.31 83.10h4.83v4.83h-4.83zM83.10 83.10h4.83v4.83h-4.83zM97.59 83.10h4.83v4.83h-4.83zM102.41 83.10h4.83v4.83h-4.83zM107.24 83.10h4.83v4.83h-4.83zM131.38 83.10h4.83v4.83h-4.83zM141.03 83.10h4.83v4.83h-4.83zM150.69 83.10h4.83v4.83h-4.83zM30.00 87.93h4.83v4.83h-4.83zM44.48 87.93h4.83v4.83h-4.83zM49.31 87.93h4.83v4.83h-4.83zM58.97 87.93h4.83v4.83h-4.83zM63.79 87.93h4.83v4.83h-4.83zM68.62 87.93h4.83v4.83h-4.83zM83.10 87.93h4.83v4.83h-4.83zM92.76 87.93h4.83v4.83h-4.83zM97.59 87.93h4.83v4.83h-4.83zM121.72 87.93h4.83v4.83h-4.83zM136.21 87.93h4.83v4.83h-4.83zM141.03 87.93h4.83v4.83h-4.83zM165.17 87.93h4.83v4.83h-4.83zM39.66 92.76h4.83v4.83h-4.83zM49.31 92.76h4.83v4.83h-4.83zM63.79 92.76h4.83v4.83h-4.83zM68.62 92.76h4.83v4.83h-4.83zM73.45 92.76h4.83v4.83h-4.83zM83.10 92.76h4.83v4.83h-4.83zM92.76 92.76h4.83v4.83h-4.83zM97.59 92.76h4.83v4.83h-4.83zM112.07 92.76h4.83v4.83h-4.83zM121.72 92.76h4.83v4.83h-4.83zM126.55 92.76h4.83v4.83h-4.83zM136.21 92.76h4.83v4.83h-4.83zM141.03 92.76h4.83v4.83h-4.83zM160.34 92.76h4.83v4.83h-4.83zM165.17 92.76h4.83v4.83h-4.83zM30.00 97.59h4.83v4.83h-4.83zM34.83 97.59h4.83v4.83h-4.83zM39.66 97.59h4.83v4.83h-4.83zM44.48 97.59h4.83v4.83h-4.83zM49.31 97.59h4.83v4.83h-4.83zM58.97 97.59h4.83v4.83h-4.83zM63.79 97.59h4.83v4.83h-4.83zM68.62 97.59h4.83v4.83h-4.83zM73.45 97.59h4.83v4.83h-4.83zM83.10 97.59h4.83v4.83h-4.83zM87.93 97.59h4.83v4.83h-4.83zM102.41 97.59h4.83v4.83h-4.83zM116.90 97.59h4.83v4.83h-4.83zM121.72 97.59h4.83v4.83h-4.83zM126.55 97.59h4.83v4.83h-4.83zM141.03 97.59h4.83v4.83h-4.83zM145.86 97.59h4.83v4.83h-4.83zM165.17 97.59h4.83v4.83h-4.83zM30.00 102.41h4.83v4.83h-4.83zM39.66 102.41h4.83v4.83h-4.83zM73.45 102.41h4.83v4.83h-4.83zM78.28 102.41h4.83v4.83h-4.83zM87.93 102.41h4.83v4.83h-4.83zM92.76 102.41h4.83v4.83h-4.83zM116.90 102.41h4.83v4.83h-4.83zM121.72 102.41h4.83v4.83h-4.83zM126.55 102.41h4.83v4.83h-4.83zM136.21 102.41h4.83v4.83h-4.83zM141.03 102.41h4.83v4.83h-4.83zM30.00 107.24h4.83v4.83h-4.83zM34.83 107.24h4.83v4.83h-4.83zM39.66 107.24h4.83v4.83h-4.83zM44.48 107.24h4.83v4.83h-4.83zM54.14 107.24h4.83v4.83h-4.83zM58.97 107.24h4.83v4.83h-4.83zM63.79 107.24h4.83v4.83h-4.83zM73.45 107.24h4.83v4.83h-4.83zM83.10 107.24h4.83v4.83h-4.83zM92.76 107.24h4.83v4.83h-4.83zM102.41 107.24h4.83v4.83h-4.83zM107.24 107.24h4.83v4.83h-4.83zM126.55 107.24h4.83v4.83h-4.83zM136.21 107.24h4.83v4.83h-4.83zM141.03 107.24h4.83v4.83h-4.83zM165.17 107.24h4.83v4.83h-4.83zM34.83 112.07h4.83v4.83h-4.83zM39.66 112.07h4.83v4.83h-4.83zM54.14 112.07h4.83v4.83h-4.83zM73.45 112.07h4.83v4.83h-4.83zM83.10 112.07h4.83v4.83h-4.83zM107.24 112.07h4.83v4.83h-4.83zM112.07 112.07h4.83v4.83h-4.83zM121.72 112.07h4.83v4.83h-4.83zM136.21 112.07h4.83v4.83h-4.83zM141.03 112.07h4.83v4.83h-4.83zM155.52 112.07h4.83v4.83h-4.83zM160.34 112.07h4.83v4.83h-4.83zM165.17 112.07h4.83v4.83h-4.83zM30.00 116.90h4.83v4.83h-4.83zM34.83 116.90h4.83v4.83h-4.83zM39.66 116.90h4.83v4.83h-4.83zM44.48 116.90h4.83v4.83h-4.83zM49.31 116.90h4.83v4.83h-4.83zM58.97 116.90h4.83v4.83h-4.83zM68.62 116.90h4.83v4.83h-4.83zM73.45 116.90h4.83v4.83h-4.83zM78.28 116.90h4.83v4.83h-4.83zM92.76 116.90h4.83v4.83h-4.83zM97.59 116.90h4.83v4.83h-4.83zM107.24 116.90h4.83v4.83h-4.83zM112.07 116.90h4.83v4.83h-4.83zM121.72 116.90h4.83v4.83h-4.83zM145.86 116.90h4.83v4.83h-4.83zM150.69 116.90h4.83v4.83h-4.83zM165.17 116.90h4.83v4.83h-4.83zM39.66 121.72h4.83v4.83h-4.83zM44.48 121.72h4.83v4.83h-4.83zM63.79 121.72h4.83v4.83h-4.83zM83.10 121.72h4.83v4.83h-4.83zM97.59 121.72h4.83v4.83h-4.83zM102.41 121.72h4.83v4.83h-4.83zM107.24 121.72h4.83v4.83h-4.83zM131.38 121.72h4.83v4.83h-4.83zM30.00 126.55h4.83v4.83h-4.83zM34.83 126.55h4.83v4.83h-4.83zM39.66 126.55h4.83v4.83h-4.83zM44.48 126.55h4.83v4.83h-4.83zM49.31 126.55h4.83v4.83h-4.83zM58.97 126.55h4.83v4.83h-4.83zM63.79 126.55h4.83v4.83h-4.83zM78.28 126.55h4.83v4.83h-4.83zM92.76 126.55h4.83v4.83h-4.83zM97.59 126.55h4.83v4.83h-4.83zM107.24 126.55h4.83v4.83h-4.83zM121.72 126.55h4.83v4.83h-4.83zM126.55 126.55h4.83v4.83h-4.83zM131.38 126.55h4.83v4.83h-4.83zM136.21 126.55h4.83v4.83h-4.83zM141.03 126.55h4.83v4.83h-4.83zM145.86 126.55h4.83v4.83h-4.83zM150.69 126.55h4.83v4.83h-4.83zM160.34 126.55h4.83v4.83h-4.83zM68.62 131.38h4.83v4.83h-4.83zM73.45 131.38h4.83v4.83h-4.83zM78.28 131.38h4.83v4.83h-4.83zM92.76 131.38h4.83v4.83h-4.83zM97.59 131.38h4.83v4.83h-4.83zM126.55 131.38h4.83v4.83h-4.83zM145.86 131.38h4.83v4.83h-4.83zM150.69 131.38h4.83v4.83h-4.83zM155.52 131.38h4.83v4.83h-4.83zM165.17 131.38h4.83v4.83h-4.83zM30.00 136.21h4.83v4.83h-4.83zM34.83 136.21h4.83v4.83h-4.83zM39.66 136.21h4.83v4.83h-4.83zM44.48 136.21h4.83v4.83h-4.83zM49.31 136.21h4.83v4.83h-4.83zM54.14 136.21h4.83v4.83h-4.83zM58.97 136.21h4.83v4.83h-4.83zM68.62 136.21h4.83v4.83h-4.83zM78.28 136.21h4.83v4.83h-4.83zM83.10 136.21h4.83v4.83h-4.83zM87.93 136.21h4.83v4.83h-4.83zM102.41 136.21h4.83v4.83h-4.83zM107.24 136.21h4.83v4.83h-4.83zM112.07 136.21h4.83v4.83h-4.83zM116.90 136.21h4.83v4.83h-4.83zM126.55 136.21h4.83v4.83h-4.83zM136.21 136.21h4.83v4.83h-4.83zM145.86 136.21h4.83v4.83h-4.83zM165.17 136.21h4.83v4.83h-4.83zM30.00 141.03h4.83v4.83h-4.83zM58.97 141.03h4.83v4.83h-4.83zM73.45 141.03h4.83v4.83h-4.83zM78.28 141.03h4.83v4.83h-4.83zM83.10 141.03h4.83v4.83h-4.83zM92.76 141.03h4.83v4.83h-4.83zM107.24 141.03h4.83v4.83h-4.83zM116.90 141.03h4.83v4.83h-4.83zM121.72 141.03h4.83v4.83h-4.83zM126.55 141.03h4.83v4.83h-4.83zM145.86 141.03h4.83v4.83h-4.83zM160.34 141.03h4.83v4.83h-4.83zM165.17 141.03h4.83v4.83h-4.83zM30.00 145.86h4.83v4.83h-4.83zM39.66 145.86h4.83v4.83h-4.83zM44.48 145.86h4.83v4.83h-4.83zM49.31 145.86h4.83v4.83h-4.83zM58.97 145.86h4.83v4.83h-4.83zM78.28 145.86h4.83v4.83h-4.83zM83.10 145.86h4.83v4.83h-4.83zM87.93 145.86h4.83v4.83h-4.83zM92.76 145.86h4.83v4.83h-4.83zM107.24 145.86h4.83v4.83h-4.83zM121.72 145.86h4.83v4.83h-4.83zM126.55 145.86h4.83v4.83h-4.83zM131.38 145.86h4.83v4.83h-4.83zM136.21 145.86h4.83v4.83h-4.83zM141.03 145.86h4.83v4.83h-4.83zM145.86 145.86h4.83v4.83h-4.83zM150.69 145.86h4.83v4.83h-4.83zM30.00 150.69h4.83v4.83h-4.83zM39.66 150.69h4.83v4.83h-4.83zM44.48 150.69h4.83v4.83h-4.83zM49.31 150.69h4.83v4.83h-4.83zM58.97 150.69h4.83v4.83h-4.83zM73.45 150.69h4.83v4.83h-4.83zM92.76 150.69h4.83v4.83h-4.83zM102.41 150.69h4.83v4.83h-4.83zM107.24 150.69h4.83v4.83h-4.83zM121.72 150.69h4.83v4.83h-4.83zM131.38 150.69h4.83v4.83h-4.83zM145.86 150.69h4.83v4.83h-4.83zM150.69 150.69h4.83v4.83h-4.83zM155.52 150.69h4.83v4.83h-4.83zM160.34 150.69h4.83v4.83h-4.83zM30.00 155.52h4.83v4.83h-4.83zM39.66 155.52h4.83v4.83h-4.83zM44.48 155.52h4.83v4.83h-4.83zM49.31 155.52h4.83v4.83h-4.83zM58.97 155.52h4.83v4.83h-4.83zM68.62 155.52h4.83v4.83h-4.83zM78.28 155.52h4.83v4.83h-4.83zM83.10 155.52h4.83v4.83h-4.83zM87.93 155.52h4.83v4.83h-4.83zM97.59 155.52h4.83v4.83h-4.83zM102.41 155.52h4.83v4.83h-4.83zM116.90 155.52h4.83v4.83h-4.83zM121.72 155.52h4.83v4.83h-4.83zM131.38 155.52h4.83v4.83h-4.83zM145.86 155.52h4.83v4.83h-4.83zM160.34 155.52h4.83v4.83h-4.83zM165.17 155.52h4.83v4.83h-4.83zM30.00 160.34h4.83v4.83h-4.83zM58.97 160.34h4.83v4.83h-4.83zM83.10 160.34h4.83v4.83h-4.83zM87.93 160.34h4.83v4.83h-4.83zM107.24 160.34h4.83v4.83h-4.83zM126.55 160.34h4.83v4.83h-4.83zM141.03 160.34h4.83v4.83h-4.83zM150.69 160.34h4.83v4.83h-4.83zM30.00 165.17h4.83v4.83h-4.83zM34.83 165.17h4.83v4.83h-4.83zM39.66 165.17h4.83v4.83h-4.83zM44.48 165.17h4.83v4.83h-4.83zM49.31 165.17h4.83v4.83h-4.83zM54.14 165.17h4.83v4.83h-4.83zM58.97 165.17h4.83v4.83h-4.83zM68.62 165.17h4.83v4.83h-4.83zM73.45 165.17h4.83v4.83h-4.83zM83.10 165.17h4.83v4.83h-4.83zM97.59 165.17h4.83v4.83h-4.83zM102.41 165.17h4.83v4.83h-4.83zM107.24 165.17h4.83v4.83h-4.83zM126.55 165.17h4.83v4.83h-4.83zM136.21 165.17h4.83v4.83h-4.83zM150.69 165.17h4.83v4.83h-4.83zM165.17 165.17h4.83v4.83h-4.83z" fill="#111" shape-rendering="crispEdges"/><text x="100" y="221" text-anchor="middle" textLength="170" lengthAdjust="spacingAndGlyphs" font-family="Oswald,'Bebas Neue','Arial Narrow',Impact,sans-serif" font-weight="700" font-size="31" fill="#111">MADE IN MAIA</text></svg><div class="shine"></div></div><div class="flare"></div></div><div class="pres">APRESENTA</div><div class="pres2">uma road trip arcade · Porto ➜ Algarve</div></div><div class="skip">toca para saltar ▸</div></div></div>
 
+<button id="fsBtn" aria-label="Ecrã inteiro">⛶</button>
+<div id="fsHelp" class="hidden"><div class="fsbox"><div class="fst">📱 ECRÃ INTEIRO</div>
+  <div class="fsd">No iPhone, o Safari não deixa os jogos ocuparem o ecrã todo. Instala o jogo e abre-o pelo ícone:</div>
+  <ol><li>Toca em <b>Partilhar</b> <span class="shr">⬆︎</span> na barra do Safari</li><li>Escolhe <b>Adicionar ao Ecrã Principal</b> ➕</li><li>Abre o <b>Outrunning PT</b> pelo ícone — sem barras! 🏁</li></ol>
+  <button class="big" id="fsOk">OK, PERCEBI</button></div></div>
 <div id="title" class="screen hidden">
   <div class="flashfx"></div><div class="burst"></div>
   <div class="ttop">
@@ -1589,7 +1619,7 @@ function evalPtrs(){
   if(on.cBoost&&!input.boost)useBoost();
   input.left=on.cLeft;input.right=on.cRight;input.gas=on.cGas;input.brake=on.cBrake;input.boost=on.cBoost;
 }
-addEventListener('pointerdown',e=>{if(state!=='play'&&state!=='count')return;if(!rects.cGas)cacheRects();ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});evalPtrs();},{passive:true});
+addEventListener('pointerdown',e=>{if(busted&&state==='play'&&busted.phase!=='stop')busted.fast=true;if(state!=='play'&&state!=='count')return;if(!rects.cGas)cacheRects();ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});evalPtrs();},{passive:true});
 addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});evalPtrs();},{passive:true});
 const ptrUp=e=>{ptrs.delete(e.pointerId);evalPtrs();};
 addEventListener('pointerup',ptrUp);addEventListener('pointercancel',ptrUp);
@@ -1680,7 +1710,6 @@ const PASS=['Fui! Tchau, lesma! 👋','Até logo, ó caracol!','Made in Maia, ba
 const BUMP=['Ó palhaço, olha o pisca!','Tiraste a carta na Feira Popular?','A minha pintura!!','Ó artista!'];
 const CRASH_D=['AI A MINHA PINTURA!','Ai a vida...','Isto na Maia não acontecia!'],CRASH_W=['AMOR!!','AI JESUS!','A minha selfie!!'];
 const LUNA_LINES=[['Mais devagar, amor!',null],['Ai que lindo!','point'],['Quero um pastel de nata!',null],['Luar de Portugal 🌙','moon'],['Tira-me uma foto!','selfie'],['Esta música é top! 🎶','dance'],['Maia até morrer, não é? 😂','lookDriver']];
-const BUST_LINES=[['Sr. Agente, sou da Maia, é tudo boa gente!','Maia? Então siga... devagarinho!',0],['Foi o turbo da bica, juro!','Multa! −5 segundos.',5],['Ia só levar a Luna a ver a lua... 🌙','Que romântico. Multa na mesma! −3 s',3],['Quer um pastel de nata?','Isso é suborno! −8 s',8],['Não vi o radar, Sr. Agente!','Pois não. −5 segundos.',5]];
 let shoutCD=0,lunaCD=9;
 function say(who,text,life=2.3,force){
   if(!force&&who==='d'&&shoutCD>0)return false;
@@ -1711,19 +1740,122 @@ function updatePolice(dt){
       if(!crash&&P.z>pz&&P.z<pz+segL*1.6&&Math.abs(P.offset-playerX)<0.5)return bust();
       if(P.z<pz-3*segL)P.phase='chase';}
     if(P.t>15||P.z<position-60*segL)policeGiveUp(true);
-  }else if(P.phase==='busted'){P.z=pz+segL*0.9;P.speed=speed;}
+  }else if(P.phase==='busted'){P.speed=0;}
   else if(P.phase==='leave'){P.speed=lerp(P.speed,P.z>pz?maxSpeed*1.2:maxSpeed*0.15,dt);P.z+=P.speed*dt;if(P.z>position+drawDist*segL*0.9||P.z<position-40*segL)police=null;}
 }
+// ---- police stop: dialogue pools (shuffle-bags so lines don't repeat until the pool is used up)
+const COP_STOP=['ENCOSTE! ENCOSTE JÁ! 🚨','ALTO! PARE O VEÍCULO! 🚨','Encoste à direita... digo, à esquerda! 🚨','PARE! Em nome da lei... e do lanche! 🚨','Ó maiato! Encoste lá isso! 🚨','Pisca ligado e encoste, se faz favor! 🚨'];
+const COP_HELLO=['Boa tarde. Sabe porque é que o mandei parar?','Documentos do carro, carta... e esse sorriso.','Ora viva! Vinha a fazer o quê, um rally?','Calma, respire. Eu também já fui jovem. Em 1982.','Isto aqui não é o Estoril, meu amigo!','O radar disse 294. Eu disse: "ai que lindo".','Desligue o motor. A música pode ficar.','Eu corria atrás de si, mas acabei de almoçar.','Bonito carro. Pena a condução.','Nem o Alfa Pendular vai a essa velocidade!','Carta de condução... ou carta de amor? 🌙','Tem noção que me fez entornar o café?','Boa tarde! Vai a algum incêndio?','Já viu o que fez ao meu radar? Está a fumegar!','Mãos onde eu as veja. No volante. Isso.','Sou o Agente Bolinhas. Sim, é mesmo o meu nome.'];
+const DRV_RUSH=['Sr. Agente, estou com uma pressa daquelas!','Tenho de chegar antes do pôr do sol!','É a bica, Sr. Agente, ainda está a fazer efeito ☕','Sou da Maia, lá isto é velocidade normal!','O carro é que anda sozinho, juro!','Despache lá, a Luna quer ver a lua a nascer 🌙','Eu ia devagar... para os padrões da Maia.','Não vi placa nenhuma, só via a estrada e a Luna.','Estou a correr atrás do sol, Sr. Agente!','É uma emergência: as natas estão a arrefecer!','Multa não, que ainda estou a pagar o carro!','O GPS disse "vire já", eu acelerei já.','Tenho um jantar marcado às oito. Lá longe!','Podemos fazer isto rapidinho? O motor está quente.','Foi o vento, Sr. Agente. Vento de trás.','Eu travava, mas o pedal é muito sensível.'];
+const LUNA_NICE=['Boa tarde, Sr. Agente! Que farda tão bonita 🌙','Ele é bom rapaz, só tem o pé pesado.','Quer um pastel de nata? Está quentinho! 🥧','A culpa é minha, pedi para ver o mar.','O senhor tem cara de quem perdoa! 😇','Prometo que eu ponho-o na linha!','Tire uma selfie connosco, vá! 📸','Que bigode tão elegante, Sr. Agente!','Ele abranda, eu garanto. Não é, amor?','Estamos numa viagem de lua... de mel 🌙','O senhor deve ter um coração enorme.','Hoje é lua cheia, dá sorte! 🌕','Quer um rebuçado? É de mentol.','Sr. Agente, o senhor canta? Tem voz de fadista!','Ai, desculpe! Ele estava só a mostrar-me a vista.','Nós vamos ser bonzinhos daqui para a frente!'];
+const COP_COMIC=[['Hmm... aceito a nata. Mas é como prova. 🥧','nata'],['O bigode? É de nascença, menina.','mustache'],['Selfie? Só se apanhar o meu lado bom. Este.','selfie'],['Fadista? Ai... (canta) ♪ Ó gente da minha terra ♪','sing'],['Pressa? Pressa tenho eu de ir lanchar.','belly'],['A minha sogra conduz mais devagar. E tem 92.','think'],['Ó rapaz, até o meu cão viu o radar.','think'],['Lua de mel? Eu estou em lua de fel: turno duplo.','belly'],['Isso da Maia não pega comigo. Sou de Gaia.','mustache'],['Deixe-me cheirar... isso é bica ou gasolina?','sniff'],['Vou pensar... (está a pensar no almoço)','think'],['Respire fundo. Eu também. Este cinto aperta.','belly'],['Ninguém foge ao Agente Bolinhas!','dance'],['Estou a escrever devagar de propósito.','write'],['Um rebuçado? Não posso, estou em serviço... Dê cá.','nata'],['Já me chamaram muita coisa, mas elegante é novo!','mustache']];
+const DRV_BACK=['Sr. Agente, olhe que eu tenho um tio na GNR!','Pode ser só um aviso? Por favor?','Isto é perseguição aos maiatos!','Vá lá, é dia de festa!','Juro que daqui para a frente vou a 50!','O senhor é que é o maior, Sr. Agente!'];
+const COP_VERDICT=[['Multa! −5 segundos. E abrande!',5],['Aqui tem: multa de 3 segundos e um sorriso.',3],['Assine aqui. Não, aí é o meu almoço. −4 s',4],['Multa por excesso de charme: −4 s.',4],['A multa vai para si, a nata fica comigo. −6 s',6],['Este papel é um souvenir. Custa 5 segundos.',5],['Vá lá... desta vez só −2 s.',2],['Multa dupla: velocidade e mau gosto musical! −7 s',7],['−5 s. E mande cumprimentos à Maia.',5],['Vá... siga! Mas eu vou estar de olho! 👀',0],['A menina convenceu-me. Siga devagarinho!',0],['Multa de 3 s. E a selfie fica para o Instagram da esquadra.',3]];
+const DRV_AFTER=['Obrigadinho, Sr. Agente... 😒','Ponha na conta da Maia!','Isto vai para o meu álbum de recordações.','Lá se foi o lanche...','Bolinhas... nunca te esquecerei.'];
+const LUNA_AFTER=['Adeus, Sr. Agente! 👋','Bom lanche! 🥧','Beijinhos à esquadra! 💋','Fique bem, Sr. Agente! 🌙','Até à próxima... ou não! 😅'];
+function bagPick(name,arr){
+  const key='rotadosol_bag_'+name;let q=null;try{q=JSON.parse(localStorage.getItem(key)||'null');}catch(e){}
+  if(!Array.isArray(q)||!q.length||q.some(i=>i>=arr.length)){q=arr.map((_,i)=>i);for(let i=q.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[q[i],q[j]]=[q[j],q[i]];}}
+  const i=q.shift();try{localStorage.setItem(key,JSON.stringify(q));}catch(e){}return arr[i];
+}
+const BUST_LINES=[]; // legacy
 function bust(){
-  police.phase='busted';police.offset=clamp(playerX+(playerX>0?-0.6:0.6),-1.2,1.2);
-  busted={t:0,line:pick(Math.random,BUST_LINES),step:0};
-  say('cop','ENCOSTE! DOCUMENTOS, SE FAZ FAVOR!',2.4,true);sfx('bump');setAnim('w','lookDriver',2.5);
+  police.phase='busted';police.tz=0;
+  const comic=bagPick('comic',COP_COMIC),verdict=bagPick('verdict',COP_VERDICT);
+  const seq=[['cop',bagPick('hello',COP_HELLO)],['d',bagPick('rush',DRV_RUSH)],['w',bagPick('luna',LUNA_NICE)],['cop',comic[0],comic[1]]];
+  if(Math.random()<0.6)seq.push(['d',bagPick('back',DRV_BACK)]);
+  seq.push(['cop',verdict[0],'write',verdict[1]]);
+  busted={t:0,seq,step:-1,next:4.7,phase:'stop',walk:0,anim:'idle',at:0,fine:verdict[1],ticket:null,fast:false};
+  say('cop',bagPick('stop',COP_STOP),2.2,true);sfx('bump');setAnim('w','lookDriver',2.5);
 }
 function updateBusted(dt){
-  const B=busted;B.t+=dt;
-  if(B.step===0&&B.t>2.2){B.step=1;say('d',B.line[0],2.6,true);setAnim('d','talk',2.4);}
-  if(B.step===1&&B.t>4.4){B.step=2;say('cop',B.line[1],2.4,true);if(B.line[2]){timeLeft=Math.max(0.5,timeLeft-B.line[2]);popText('MULTA −'+B.line[2]+' s',2);sfx('over');}else{popText('LIVRE! 🍀',1);sfx('pickup');}}
-  if(B.step===2&&B.t>6.2){busted=null;police.phase='leave';police.speed=maxSpeed*0.5;setAnim('w','wave',1.6);if(Math.random()<.6)setTimeout(()=>say('w','Adeus, Sr. Agente! 👋',1.8,true),300);}
+  const B=busted;if(B.fast)dt*=3;B.t+=dt;B.at+=dt;
+  // police car pulls in ahead on the driver's side
+  const pz=position+playerZ;police.z=lerp(police.z,pz+segL*(PORTRAIT?5.5:2.4),Math.min(1,dt*2.2));police.offset=lerp(police.offset,clamp(playerX-0.62,-1.4,1.4),Math.min(1,dt*2));
+  if(B.phase==='stop'&&B.t>1.9){B.phase='out';B.anim='walk';B.at=0;sfx('click');}
+  if(B.phase==='out'){B.walk=Math.min(1,B.walk+dt/2.6);if(B.walk>=1){B.phase='talk';B.anim='idle';B.at=0;}else if(B.walk>0.45&&B.walk<0.62)B.anim='hitch';else B.anim='walk';}
+  if(B.phase==='talk'&&B.t>=B.next){B.step++;const L=B.seq[B.step];
+    if(!L){B.phase='ticket';B.at=0;B.anim='give';B.ticket={t:0};sfx('pickup');
+      if(B.fine){timeLeft=Math.max(0.5,timeLeft-B.fine);popText('MULTA −'+B.fine+' s',2);sfx('over');}else popText('LIVRE! 🍀',1);
+      setTimeout(()=>{say('d',bagPick('dafter',DRV_AFTER),2.2,true);},500);}
+    else{say(L[0],L[1],2.4,true);B.next=B.t+2.55;if(L[0]==='cop'){B.anim=L[2]||'talk';B.at=0;}else B.anim='idle';
+      if(L[0]==='d')setAnim('d','talk',2.3);if(L[0]==='w')setAnim('w',pick(Math.random,['wave','hairFix','lookDriver']),2.2);
+      if(L[2]==='nata')setAnim('w','point',1.6);if(L[2]==='sing')sfx('pickup');}}
+  if(B.phase==='ticket'){if(B.ticket)B.ticket.t+=dt;if(B.at>2.1){B.phase='back';B.anim='walk';B.at=0;say('w',bagPick('lafter',LUNA_AFTER),2,true);setAnim('w','wave',2);}}
+  if(B.phase==='back'){B.walk=Math.max(0,B.walk-dt/2.0);if(B.walk<=0){busted=null;police.phase='leave';police.speed=maxSpeed*0.5;sfx('click');}}
+}
+// the cop: round belly, moustache, cap — drawn on the FX canvas, feet at (x,y)
+function drawCop(g,x,y,k,anim,t,at,face){
+  g.save();g.translate(x,y);g.scale(k*face,k);
+  const walk=anim==='walk',sw=walk?Math.sin(t*9):0,bob=walk?Math.abs(Math.sin(t*9))*3:0,dance=anim==='dance'?Math.sin(t*10)*6:0;
+  g.translate(dance,-bob);
+  ell(g,0,bob,34,6,'rgba(0,0,0,.35)');
+  const blue='#1d2f66',dk='#14204a',skin='#f0b98a';
+  // legs + shoes
+  for(const [lx,ph] of [[-11,sw],[11,-sw]]){g.fillStyle=dk;g.save();g.translate(lx,-38);g.rotate(ph*0.25);g.fillRect(-7,0,14,36);g.fillStyle='#111';rr(g,-9,32,20,8,4);g.fill();g.restore();}
+  // body/belly
+  const bel=anim==='belly'?1+Math.sin(at*14)*0.05:1;
+  g.fillStyle=blue;g.beginPath();g.ellipse(0,-66,34*bel,36,0,0,7);g.fill();
+  g.fillStyle='#2a4590';g.beginPath();g.ellipse(-8,-74,16,18,0,0,7);g.fill();
+  g.fillStyle='#e8e8f0';for(let i=0;i<4;i++)circ(g,0,-94+i*12,1.8,'#d4c060');
+  // belt + buckle
+  const by=anim==='hitch'?-52-Math.abs(Math.sin(at*8))*5:-50;g.fillStyle='#1a1a1a';g.fillRect(-33,by,66,7);g.fillStyle='#e8c23a';g.fillRect(-6,by-1,12,9);
+  // badge + name tag
+  star5(g,-16,-84,5,'#e8c23a');g.fillStyle='#fff';g.fillRect(6,-88,20,6);g.fillStyle='#1d2f66';g.font='bold 5px sans-serif';g.textAlign='center';g.fillText('BOLINHAS',16,-83.5);
+  // arms by animation
+  const sh=-90;let aL=[Math.PI/2+0.25,Math.PI/2],aR=[Math.PI/2-0.25,Math.PI/2],prop=null;
+  if(walk){aL=[Math.PI/2+0.3+sw*0.4,Math.PI/2+sw*0.3];aR=[Math.PI/2-0.3-sw*0.4,Math.PI/2-sw*0.3];}
+  else if(anim==='hitch'){aL=[Math.PI/2+0.9,0.3];aR=[Math.PI/2-0.9,Math.PI-0.3];}
+  else if(anim==='talk'){const w2=Math.sin(at*7)*0.5;aR=[-0.4+w2,-1.2+w2];}
+  else if(anim==='write'||anim==='give'){aL=[Math.PI/2+0.4,-0.2];aR=[Math.PI/2-0.2,anim==='give'&&at>0.7?-0.1:Math.PI+0.5+Math.sin(at*18)*0.15];prop=anim==='give'&&at>0.7?'none':'pad';}
+  else if(anim==='nata'){aR=[0.6,-1.9+Math.sin(at*6)*0.2];prop='nata';}
+  else if(anim==='selfie'){aR=[-0.9,-0.6];prop='phone';}
+  else if(anim==='mustache'){aR=[-0.2,-2.4];}
+  else if(anim==='think'){aR=[-0.3,-2.2+Math.sin(at*10)*0.2];}
+  else if(anim==='sniff'){aL=[Math.PI/2+0.25,Math.PI/2];aR=[0.2,-2.0];}
+  else if(anim==='sing'){aL=[Math.PI+0.5,Math.PI+0.9];aR=[-0.5,-0.9];}
+  else if(anim==='belly'){aL=[Math.PI/2+0.6,-0.3];aR=[Math.PI/2-0.6,Math.PI+0.3];}
+  else if(anim==='dance'){aL=[Math.PI+0.6+Math.sin(at*10)*0.4,Math.PI+1.2];aR=[-0.6-Math.sin(at*10)*0.4,-1.2];}
+  limb(g,-26,sh,aL[0],18,aL[1],16,9,blue);const hR=limb(g,26,sh,aR[0],18,aR[1],16,9,blue);
+  circ(g,hR[0],hR[1],5,skin);
+  if(prop==='pad'){g.fillStyle='#fff';g.fillRect(-30,-78,18,22);g.fillStyle='#e04040';g.fillRect(-30,-78,18,4);g.strokeStyle='#999';g.lineWidth=1;for(let i=0;i<4;i++){g.beginPath();g.moveTo(-28,-70+i*4);g.lineTo(-14,-70+i*4);g.stroke();}g.fillStyle='#222';g.fillRect(hR[0]-1,hR[1]-8,2,9);}
+  if(prop==='nata'){ell(g,hR[0],hR[1]-5,8,4,'#c8781e');ell(g,hR[0],hR[1]-7,6,2.5,'#f6c55a');}
+  if(prop==='phone'){g.fillStyle='#222';rr(g,hR[0]-5,hR[1]-12,10,16,2);g.fill();if(at%1<0.15){g.fillStyle='rgba(255,255,255,.8)';g.beginPath();g.arc(hR[0],hR[1]-4,14,0,7);g.fill();}}
+  // head
+  const hy=-118+(anim==='sniff'?Math.sin(at*20)*1.5:0);
+  circ(g,0,hy,17,skin);circ(g,-15,hy+2,4,skin);circ(g,15,hy+2,4,skin);
+  circ(g,-9,hy+6,4,'rgba(230,80,80,.45)');circ(g,9,hy+6,4,'rgba(230,80,80,.45)');
+  // aviators
+  g.fillStyle='#1a1a22';rr(g,-13,hy-4,11,7,3);g.fill();rr(g,2,hy-4,11,7,3);g.fill();g.fillRect(-2,hy-3,4,1.5);g.fillStyle='rgba(120,200,255,.5)';g.fillRect(-11,hy-3,3,2);g.fillRect(4,hy-3,3,2);
+  circ(g,0,hy+4,3.2,'#e09a70');
+  // moustache (twirls when stroked)
+  const mt=anim==='mustache'?Math.sin(at*12)*3:0;g.fillStyle='#4a2a14';g.beginPath();g.moveTo(0,hy+7);g.quadraticCurveTo(-8,hy+5,-15,hy+9+mt);g.quadraticCurveTo(-8,hy+12,0,hy+10);g.quadraticCurveTo(8,hy+12,15,hy+9-mt);g.quadraticCurveTo(8,hy+5,0,hy+7);g.fill();
+  const talking=anim==='talk'||anim==='sing'||(anim!=='walk'&&at<2.3&&Math.sin(at*22)>0);
+  if(talking){ell(g,0,hy+13,3.5,2.5,'#6a1a1a');}
+  // cap
+  g.fillStyle=dk;g.beginPath();g.ellipse(0,hy-14,19,8,0,0,7);g.fill();g.fillStyle=blue;g.fillRect(-16,hy-26,32,12);g.beginPath();g.ellipse(0,hy-26,18,6,0,0,7);g.fill();
+  g.fillStyle='#111';g.beginPath();g.ellipse(4,hy-13,14,4,0.1,0,Math.PI);g.fill();g.fillStyle='#d8d8e0';g.fillRect(-16,hy-17,32,2.5);star5(g,0,hy-21,4,'#e8c23a');
+  g.restore();
+  // fx above head
+  if(anim==='sing'){for(let i=0;i<3;i++){const p=(at*0.8+i/3)%1;g.globalAlpha=1-p;g.fillStyle='#ffd23f';g.font=`${Math.round(18*k)}px sans-serif`;g.textAlign='center';g.fillText('♪',x+(10+i*8+Math.sin(p*6)*8)*k*face,y-(150+p*50)*k);}g.globalAlpha=1;}
+  if(anim==='think'){g.fillStyle='#fff';g.font=`bold ${Math.round(22*k)}px "Arial Black",sans-serif`;g.textAlign='center';g.fillText('?',x+22*k*face,y-(158+Math.sin(at*4)*4)*k);}
+  if(anim==='sniff'){g.strokeStyle='rgba(255,255,255,.7)';g.lineWidth=2*k;for(let i=0;i<3;i++){const p=(at*1.5+i/3)%1;g.beginPath();g.arc(x+(20+p*30)*k*face,y-120*k,4*k*(1-p)+1,0,7);g.stroke();}}
+}
+function copScreen(){ // where the cop stands right now (FX coords) + scale + facing
+  const B=busted,s=carScale,cx=W,cy=(HZY+VS)*2-4;
+  const tx=cx-108*s,ty=cy+4,tk=s*0.95;
+  let fx=W*0.25,fy=cy-60*s,fk=s*0.5;
+  if(policeScr){const dw=0.29*roadW*policeScr.sc*HW*2;fx=policeScr.sx*2+dw*0.22;fy=policeScr.sy*2;fk=dw/160*0.95;}
+  const u=B.walk,e=u*u*(3-2*u);
+  return {x:lerp(fx,tx,e),y:lerp(fy,ty,e),k:lerp(fk,tk,e),face:B.phase==='back'?-1:1};
+}
+function drawBustFX(g){
+  const B=busted;if(!B||B.phase==='stop')return;
+  const c=copScreen(),T=perfNow/1000;
+  drawCop(g,c.x,c.y,c.k,B.anim,T,B.at,c.face);
+  if(B.ticket&&B.ticket.t<1.4){const p=B.ticket.t/1.4,s=carScale,x=lerp(c.x+20*s,W-30*s,p),y=lerp(c.y-90*s,(HZY+VS)*2-110*s,p)-Math.sin(p*Math.PI)*60*s;
+    g.save();g.translate(x,y);g.rotate(p*9);g.fillStyle='#fffbe8';g.fillRect(-14*s,-9*s,28*s,18*s);g.fillStyle='#e04040';g.fillRect(-14*s,-9*s,28*s,4*s);g.restore();}
+  if(B.phase!=='back'){g.save();g.globalAlpha=0.65+0.35*Math.sin(T*4);g.fillStyle='#fff';g.font=`bold ${Math.round(Math.min(W,H)*0.045)}px "Arial Black",sans-serif`;g.textAlign='center';g.fillText(B.fast?'⏩ ⏩':'toca para acelerar ⏩',W,FX.height-18);g.restore();}
 }
 
 // ------------------------------------------------------------------ update
@@ -1807,7 +1939,7 @@ function update(dt){
   if(busted)updateBusted(dt);
   if(shake>0)shake-=dt;if(flashT>0)flashT-=dt;
   if(state==='play'){
-    timeLeft-=dt;raceTime+=dt;score+=speed*dt*0.012;
+    if(!busted)timeLeft-=dt;raceTime+=dt;score+=speed*dt*0.012;
     const ns=stageIdx+1;
     if(ns<STAGES.length&&pSeg.index>=cpIdx[ns]){stageIdx=ns;const z=STAGES[ns];
       if(z.leg!==legIdx){legIdx=z.leg;const L=LEGS[legIdx];timeLeft+=L.bonus;sfx('cp');crewEvent('cp');spawnFirework();spawnFirework();
@@ -2104,15 +2236,17 @@ function drawFigure(g,x,y,rot,who,sit,T,s){
 function drawBubble(g,ax,ay,text,who,t,life,al_){
   const sc=Math.min(1,t/0.12),al=Math.min(1,(life-t)/0.25);g.save();g.globalAlpha=al;
   const fs=Math.round(Math.min(H,W*0.9)*0.062);g.font=`italic 900 ${fs}px "Arial Black",Impact,sans-serif`;
-  const tw=g.measureText(text).width,w=(tw+fs*1.1)*sc,h=fs*1.7*sc;
-  const bx=clamp(al_==='L'?ax-w+fs*1.2:al_==='R'?ax-fs*1.2:ax-w/2,8,FX.width-w-8),by=Math.max(8,ay-h-fs*0.8);
+  const maxW=FX.width*0.78-fs*1.1,words=text.split(' '),lines=[];let cur='';
+  for(const wd of words){const tt=cur?cur+' '+wd:wd;if(g.measureText(tt).width>maxW&&cur){lines.push(cur);cur=wd;}else cur=tt;}lines.push(cur);
+  const tw=Math.max(...lines.map(l=>g.measureText(l).width)),lh=fs*1.15,w=(tw+fs*1.1)*sc,h=(lines.length*lh+fs*0.55)*sc;
+  const bx=clamp(al_==='L'?ax-w+fs*1.2:al_==='R'?ax-fs*1.2:ax-w/2,8,FX.width-w-8),by=Math.max(fs*0.9,ay-h-fs*0.8);
   const col=who==='cop'?'#dbe8ff':who==='w'?'#fff0f6':'#ffffff',bd=who==='cop'?'#1f4fbf':who==='w'?'#d6336c':'#111';
   g.fillStyle=col;g.strokeStyle=bd;g.lineWidth=Math.max(2,fs*0.14);
   const tx=clamp(ax,bx+fs,bx+w-fs);g.beginPath();g.moveTo(tx-fs*0.4,by+h-2);g.lineTo(ax,Math.min(ay,by+h+fs*1.2));g.lineTo(tx+fs*0.4,by+h-2);g.closePath();g.fill();g.stroke();
   rr(g,bx,by,w,h,fs*0.55);g.fill();g.stroke();
   g.beginPath();g.moveTo(tx-fs*0.38,by+h-g.lineWidth);g.lineTo(tx+fs*0.38,by+h-g.lineWidth);g.strokeStyle=col;g.stroke();
-  if(sc>0.9){g.fillStyle=bd==='#111'?'#111':bd;g.textAlign='center';g.textBaseline='middle';g.fillText(text,bx+w/2,by+h/2+1);
-    g.font=`italic 900 ${Math.round(fs*0.5)}px "Arial Black",sans-serif`;g.textAlign='left';g.fillStyle=bd;g.fillText(who==='d'?'MAIATO':who==='w'?'LUNA 🌙':'POLÍCIA',bx+fs*0.4,by-fs*0.3);}
+  if(sc>0.9){g.fillStyle=bd==='#111'?'#111':bd;g.textAlign='center';g.textBaseline='middle';lines.forEach((l,i)=>g.fillText(l,bx+w/2,by+fs*0.28+lh*(i+0.5)+1));
+    g.font=`italic 900 ${Math.round(fs*0.5)}px "Arial Black",sans-serif`;g.textAlign='left';g.fillStyle=bd;g.fillText(who==='d'?'MAIATO':who==='w'?'LUNA 🌙':'AGENTE BOLINHAS 👮',bx+fs*0.4,by-fs*0.3);}
   g.restore();
 }
 function renderFX(){
@@ -2122,6 +2256,7 @@ function renderFX(){
   if(boostT>0&&state==='play'){const a=Math.min(1,boostT/0.5);fg.strokeStyle=`rgba(255,255,255,${0.5*a})`;fg.lineWidth=2;for(let i=0;i<24;i++){const ang=Math.random()*Math.PI*2,r1=VS*0.9+Math.random()*VS*1.2,r2=r1+40+Math.random()*140;fg.beginPath();fg.moveTo(W+Math.cos(ang)*r1,HZY*2+Math.sin(ang)*r1*0.7);fg.lineTo(W+Math.cos(ang)*r2,HZY*2+Math.sin(ang)*r2*0.7);fg.stroke();}}
   fg.save();fg.scale(2,2);for(const p of parts){fg.globalAlpha=Math.max(0,1-p.t/p.life)*0.7;fg.fillStyle=p.c;fg.beginPath();fg.arc(p.x,p.y,p.r,0,7);fg.fill();}fg.restore();fg.globalAlpha=1;
   drawPlayerFX(fg);
+  if(busted)drawBustFX(fg);
   // police right behind / beside you (nearer than your car)
   if(policeScr&&!policeScr.front){const img=SP['police'+(Math.floor(perfNow/170)%2)].img,dw=0.29*roadW*policeScr.sc*HW*2,dh=dw*img.height/img.width;if(dw<W*3)fg.drawImage(img,policeScr.sx*2-dw/2,policeScr.sy*2-dh,dw,dh);}
   if(crash&&crash.ej)for(const e of crash.ej)drawFigure(fg,e.x,e.y,e.r,e.who,e.land,perfNow/1000,carScale*0.95);
@@ -2131,6 +2266,7 @@ function renderFX(){
   for(const b of bubbles){let ax,ay;
     if(b.who==='d'){ax=cx-22*s-30;ay=cy-100*s;}
     else if(b.who==='w'){ax=cx+22*s+30;ay=cy-(crew.w.a==='stand'?124:100)*s;}
+    else if(busted&&busted.phase!=='stop'){const c=copScreen();ax=c.x;ay=c.y-150*c.k;}
     else{if(policeScr){const dw=0.29*roadW*policeScr.sc*HW*2;ax=policeScr.sx*2;ay=policeScr.sy*2-dw*0.8;if(ay<60||ax<0||ax>FX.width){ax=FX.width*0.8;ay=H*0.7;}}else{ax=FX.width*0.8;ay=H*0.7;}}
     drawBubble(fg,ax,ay,b.text,b.who,b.t,b.life,b.who==='d'?'L':b.who==='w'?'R':'C');}
 }
@@ -2340,7 +2476,7 @@ function show(id){['intro','title','radio','pause','over','hiscore','settings','
 function setStation(i){settings.station=i;store.set('station',i);const S=SONGS[i];$('np').textContent='♫ A TOCAR: '+S.name+' — '+S.desc+' · Outrunning Portugal Rádio ♫';$('lcdF').textContent=S.freq+' FM';$('lcdN').textContent=S.name;$('radioName').textContent=S.name;document.querySelectorAll('.preset').forEach((b,k)=>b.classList.toggle('sel',k===i));}
 SONGS.forEach((S,i)=>{const b=document.createElement('button');b.className='preset';b.innerHTML=`<b>${S.freq}</b>${S.name}<br><span style="opacity:.7;font-family:system-ui;font-weight:600">${S.desc}</span>`;b.onclick=()=>{aInit();setStation(i);musicStart(i);};$('presets').appendChild(b);});
 $('playBtn').onclick=()=>{aInit();sfx('click');
-  try{const el=document.documentElement;if(isTouch&&el.requestFullscreen&&!document.fullscreenElement)el.requestFullscreen().then(()=>{try{screen.orientation.lock('landscape').catch(()=>{});}catch(e){}}).catch(()=>{});}catch(e){}
+  FS.enter();
   if(settings.ctrl==='tilt'&&tilt.ang==null)enableTilt().then(ok=>{if(!ok)tiltFail();});
   show('radio');state='radio';setStation(settings.station);musicStart(settings.station);$('rot').classList.add('hidden');};
 $('goBtn').onclick=()=>{aInit();beginCountdown();};
@@ -2705,6 +2841,27 @@ state='intro';show('intro');$('intro').onclick=endIntro;setTimeout(endIntro,1400
 startRace();speed=maxSpeed*0.4;
 for(let i=0;i<STAGES.length;i++)setTimeout(()=>buildBG(i),50+i*30);
 requestAnimationFrame(frame);
+
+// ------------------------------------------------------------------ fullscreen on every mobile browser we can
+const FS={
+  el:document.documentElement,
+  api(){const e=this.el;return e.requestFullscreen||e.webkitRequestFullscreen||e.webkitRequestFullScreen||e.mozRequestFullScreen||e.msRequestFullscreen;},
+  on(){return !!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement);},
+  standalone(){try{return matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}},
+  iOSPhone(){return /iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1&&!this.api());},
+  enter(){if(this.on()||this.standalone())return;const f=this.api();
+    if(f){try{const r=f.call(this.el,{navigationUI:'hide'});if(r&&r.catch)r.catch(()=>{});}catch(e){try{f.call(this.el);}catch(e2){}}}
+    else if(isTouch&&!this.helped){this.helped=true;try{if(sessionStorage.getItem('rotadosol_fshelp'))return;sessionStorage.setItem('rotadosol_fshelp','1');}catch(e){}$('fsHelp').classList.remove('hidden');}
+    try{window.scrollTo(0,1);}catch(e){}},
+  sync(){document.body.classList.toggle('is-fs',this.on()||this.standalone());}
+};
+['fullscreenchange','webkitfullscreenchange','mozfullscreenchange'].forEach(ev=>document.addEventListener(ev,()=>{FS.sync();setTimeout(()=>{resize();rects={};},120);}));
+// any tap re-enters fullscreen if the browser dropped it (Android, iPad, Samsung, Firefox…)
+addEventListener('pointerup',()=>{if(isTouch&&!FS.on()&&FS.api()&&!FS.standalone())FS.enter();},{passive:true});
+$('fsBtn').onclick=e=>{e.stopPropagation();if(FS.api())FS.enter();else $('fsHelp').classList.remove('hidden');};
+$('fsOk').onclick=()=>$('fsHelp').classList.add('hidden');
+setInterval(()=>{for(const k of ['title','pause','radio'])document.body.classList.toggle('st-'+k,state===k||(k==='pause'&&state==='paused'));},300);
+FS.sync();
 </script>
 </body>
 </html>
