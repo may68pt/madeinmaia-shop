@@ -1292,10 +1292,10 @@ function buildSprites(){
 
 // ------------------------------------------------------------------ Portugal chapter: 4 stages (legs), each made of zones
 const LEGS=[
- {name:'PORTO & NORTE',bonus:55},
- {name:'CENTRO',bonus:55},
- {name:'LISBOA',bonus:44},
- {name:'ALGARVE',bonus:44}
+ {name:'PORTO & NORTE',bonus:66},
+ {name:'CENTRO',bonus:70},
+ {name:'LISBOA',bonus:46},
+ {name:'ALGARVE',bonus:42}
 ];
 const STAGES=[
  {key:'porto',leg:0,birds:true,name:'PORTO',sub:'Ribeira · Sé · Clérigos · Aliados',curvy:.6,hilly:1,len:1000,tunnels:1,facade:'#7d7468',radars:1,
@@ -1396,6 +1396,9 @@ function addRoad(enter,hold,leave,curve,y){
   for(let n=0;n<leave;n++)addSegment(easeInOut(curve,0,n/leave),easeInOut(sy,ey,(enter+hold+n)/total));
 }
 function addSprite(i,key,offset,extra){if(i<0||i>=segments.length||!SP[key])return;segments[i].sprites.push(Object.assign({key,offset},extra||{}));}
+// difficulty ramp: 0 on the first zone → 1 on the last
+const diffOf=si=>clamp(si/(STAGES.length-1),0,1);
+const DIFF=()=>diffOf(stageIdx);
 function buildTrack(){
   segments=[];stageStart=[];cpIdx=[];
   STAGES.forEach((st,si)=>{
@@ -1405,7 +1408,7 @@ function buildTrack(){
     while(segments.length-start<st.len){
       const r=R(),L=[25,40,60][(R()*3)|0];
       const sev=Math.min(2,(R()*3*st.curvy+0.2)|0);
-      const curve=(R()<.5?-1:1)*[2,3.5,5.5][sev];
+      const curve=(R()<.5?-1:1)*[2,3.5,5.5][sev]*(0.55+0.45*diffOf(si));
       let hill=0;if(R()<st.hilly*0.7){const sign=lastY()>0?(R()<.75?-1:1):(R()<.75?1:-1);hill=sign*[15,30,45][(R()*3)|0]*(0.5+st.hilly*0.5);}
       if(r<0.22)addRoad(L,L,L,0,hill);
       else if(r<0.78)addRoad(L,L,L,curve,hill);
@@ -1623,6 +1626,7 @@ function spawnCar(c,near){
   if(c.seg){const a=c.seg.cars;const k=a.indexOf(c);if(k>=0)a.splice(k,1);c.seg=null;}
   c.prevRel=undefined;
   if(idx>goalIdx-40){c.active=false;return;}
+  const zd=diffOf(segments[idx].stage);let na=0;for(const o of cars)if(o!==c&&o.active)na++;if(na>=Math.round(24*(0.33+0.67*zd))){c.active=false;return;}
   const type=pick(Math.random,STAGES[segments[idx].stage].traffic);
   c.active=true;c.key=type;c.z=zi*segL;
   c.offset=pick(Math.random,[-0.66,0,0.66])+(Math.random()-.5)*0.12;
@@ -1700,7 +1704,7 @@ function updatePolice(dt){
   const P=police,pz=position+playerZ;P.t+=dt;
   if(P.phase==='chase'||P.phase==='ahead'){
     if(state!=='play'){policeGiveUp(false);return;}
-    if(P.phase==='chase'){P.speed=Math.min(maxSpeed*1.12,speed+maxSpeed*0.13);P.offset+=clamp(playerX-P.offset,-1,1)*dt*0.8;P.z+=P.speed*dt;
+    if(P.phase==='chase'){P.speed=Math.min(maxSpeed*(1.0+0.12*DIFF()),speed+maxSpeed*(0.06+0.07*DIFF()));P.offset+=clamp(playerX-P.offset,-1,1)*dt*0.8;P.z+=P.speed*dt;
       if(!crash&&P.z>=pz-80&&P.z<=pz+150&&Math.abs(P.offset-playerX)<0.42)return bust();if(crash&&P.z>pz-2*segL)P.z=pz-2*segL;
       if(P.z>pz+250)P.phase='ahead';}
     else{P.speed=lerp(P.speed,maxSpeed*0.32,dt*1.4);P.offset+=clamp(playerX-P.offset,-1,1)*dt*1.1;P.z+=P.speed*dt;
@@ -1764,7 +1768,7 @@ function update(dt){
   braking=brake&&speed>100;
   if(crash)crashUpdate(dt);
   else{
-    playerX+=dx*steer*1.05;playerX-=dx*Math.min(pct,1)*pSeg.curve*centrifugal;
+    playerX+=dx*steer*1.05;playerX-=dx*Math.min(pct,1)*pSeg.curve*centrifugal*(0.7+0.3*DIFF());
     if(busted)speed*=Math.pow(0.06,dt);
     else if(boostT>0)speed+=accel*2.4*dt;
     else if(gas)speed+=(speed>maxSpeed?decel*1.2:accel*(1-pct*0.35))*dt;
@@ -1772,14 +1776,14 @@ function update(dt){
   }
   if(boostT>0)boostT-=dt;
   const off=playerX<-1||playerX>1;
-  if(off&&speed>offRoadLimit&&!crash)speed+=offRoadDecel*dt;
+  if(off&&speed>maxSpeed*(0.4-0.15*DIFF())&&!crash)speed+=offRoadDecel*(0.55+0.45*DIFF())*dt;
   if(ctrlOK){
     if(off){for(const s of pSeg.sprites){const sp=SP[s.key];if(s.pickup||!sp.hit)continue;const sw=sp.ww*sp.hit;if(overlap(playerX,PLAYER_HITW,s.offset+sw/2*(s.offset>0?1:-1),sw)){hitObstacle(pSeg);break;}}}
     if(!crash)for(const s of pSeg.sprites){const pl=s.over&&SP[s.key].pillar;if(pl&&Math.abs(playerX)>pl[0]&&Math.abs(playerX)<pl[1]+0.3){hitObstacle(pSeg);break;}}
     if(!crash&&pSeg.tunnel&&Math.abs(playerX)>TUN_W-0.12){playerX=Math.sign(playerX)*(TUN_W-0.2);speed*=0.6;sfx('bump');shake=0.25;if(Math.random()<.5)say('w','Cuidado com a parede!',1.6);}
-    for(let i=Math.min(lastPIdx+1,pSeg.index);i<=pSeg.index;i++){checkPickups(segments[i]);if(segments[i].radar&&speed>maxSpeed*0.85&&!police)startPolice();}
+    for(let i=Math.min(lastPIdx+1,pSeg.index);i<=pSeg.index;i++){checkPickups(segments[i]);if(segments[i].radar&&speed>maxSpeed*(0.97-0.12*DIFF())&&!police)startPolice();}
     if(!crash)for(const c of pSeg.cars){const cs=c.speed*maxSpeed;const sp=SP[c.key];if(speed>cs&&overlap(playerX,PLAYER_HITW,c.offset,sp.ww*0.9,0.85)){
-      if(speed-cs>maxSpeed*0.45){startCrash(c.offset<playerX?1:-1,'car');speed=cs*0.6;}
+      if(speed-cs>maxSpeed*(0.62-0.17*DIFF())){startCrash(c.offset<playerX?1:-1,'car');speed=cs*0.6;}
       else{speed=cs*(cs/speed);sfx('bump');shake=0.25;vib(30);crewEvent('bump');say('d',pick(Math.random,BUMP),2.2,true);honk();}
       position=Math.max(0,c.z-playerZ-20);break;}}
     // stuck behind a slow car → honk & shout
@@ -1819,7 +1823,7 @@ function update(dt){
   sirenSound(!!police&&(police.phase==='chase'||police.phase==='ahead'||police.phase==='busted')&&state!=='paused');
 }
 function hitObstacle(pSeg){
-  if(speed>maxSpeed*0.42)startCrash(playerX>0?-1:1,'obj');
+  if(speed>maxSpeed*(0.58-0.16*DIFF()))startCrash(playerX>0?-1:1,'obj');
   else{speed=maxSpeed/6;position=Math.max(0,pSeg.p1.world.z-playerZ);sfx('bump');shake=0.2;vib(25);crewEvent('bump');}
 }
 function startCrash(dir,kind){
