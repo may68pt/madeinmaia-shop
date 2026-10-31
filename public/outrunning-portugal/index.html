@@ -103,11 +103,11 @@ h2 small{display:block;font-size:.42em;color:#fff;letter-spacing:.12em}
 .preset b{display:block;font-size:1.25em;color:var(--y)}
 .preset.sel{border-color:var(--y);box-shadow:0 0 12px rgba(255,210,63,.6);background:linear-gradient(180deg,#5a4a1a,#2a220a)}
 #count{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(60px,26vmin,200px);font-style:italic;color:var(--y);text-shadow:6px 6px 0 #000;z-index:8;pointer-events:none}
-#toast{position:fixed;left:50%;top:31%;transform:translateX(-50%);text-align:center;z-index:12;pointer-events:none;width:min(92vw,640px);animation:pop .35s ease-out}
+#toast{position:fixed;left:50%;top:24%;transform:translateX(-50%);text-align:center;z-index:12;pointer-events:none;width:min(92vw,640px);animation:pop .35s ease-out}
 @keyframes pop{from{transform:translateX(-50%) scale(.6);opacity:0}}
-#toast .t1{font-size:clamp(24px,8.5vmin,60px);font-style:italic;color:var(--y);text-shadow:4px 4px 0 #000;transform:skewX(-8deg)}
+#toast .t1{font-size:clamp(20px,6.5vmin,48px);font-style:italic;color:var(--y);text-shadow:4px 4px 0 #000;transform:skewX(-8deg)}
 #toast .t2{font-size:clamp(12px,3.8vmin,22px);font-style:italic;text-shadow:2px 2px 0 #000}
-#toast .t3{font-size:clamp(10px,2.7vmin,15px);font-family:system-ui,sans-serif;font-weight:600;background:rgba(10,20,60,.75);border:2px solid #f4f6fb;outline:3px solid #1f5fbf;border-radius:8px;padding:6px 10px;margin-top:8px;display:inline-block}
+#toast .t3{font-size:clamp(9px,2.3vmin,13px);font-family:system-ui,sans-serif;font-weight:600;background:rgba(10,20,60,.75);border:2px solid #f4f6fb;outline:3px solid #1f5fbf;border-radius:8px;padding:6px 10px;margin-top:8px;display:inline-block}
 .stats{font-size:clamp(12px,3.4vmin,19px);font-style:italic;line-height:1.45;text-shadow:2px 2px 0 #000}
 .stats b{color:var(--y)}
 #rot{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:20;background:rgba(0,0,0,.75);border:2px solid #fff;border-radius:12px;padding:8px 12px;font-family:system-ui,sans-serif;font-weight:700;font-size:13px;display:flex;gap:10px;align-items:center;width:max-content;max-width:92vw}
@@ -122,6 +122,36 @@ table.hi tr.me td{color:#7dff9a}table.hi tr:nth-child(odd){background:rgba(31,95
 .slot b{font-size:clamp(26px,8vmin,48px);color:var(--y);width:1.1em;background:rgba(0,0,0,.4);border:2px solid #fff;border-radius:8px;text-shadow:2px 2px 0 #000}
 .slot button{width:2.4em;height:1.7em;border-radius:8px;border:2px solid #fff;background:rgba(0,0,0,.4);font-size:clamp(12px,3.4vmin,18px)}
 .ne-t{font-style:italic;color:#7dff9a;font-size:clamp(13px,3.5vmin,20px);text-shadow:2px 2px 0 #000}
+
+/* splash / title */
+#intro{background:#000;z-index:30;cursor:pointer;transition:opacity .6s}
+#intro img{width:min(70vw,520px);opacity:0;animation:introIn 2.2s ease forwards}
+#intro .pres{font-style:italic;letter-spacing:.5em;font-size:clamp(11px,2.8vmin,16px);color:#ffd23f;opacity:0;animation:introIn 2.2s .4s ease forwards}
+@keyframes introIn{0%{opacity:0;transform:scale(.92)}35%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0}}
+#title{background:linear-gradient(90deg,rgba(12,4,30,.86) 0%,rgba(12,4,30,.55) 48%,rgba(12,4,30,.3) 100%);justify-content:center}
+.tgrid{display:flex;gap:clamp(12px,3vw,40px);align-items:center;justify-content:center;width:100%;max-width:1180px}
+.tleft{flex:1 1 52%;display:flex;flex-direction:column;align-items:center;gap:clamp(5px,1.6vmin,12px);min-width:0}
+.tright{flex:0 1 40%;display:flex;flex-direction:column;gap:clamp(6px,1.5vmin,12px);max-width:440px;min-width:0}
+.card{background:rgba(10,4,30,.78);border:2px solid rgba(178,107,255,.6);border-radius:14px;padding:clamp(6px,1.4vmin,10px);box-shadow:0 0 24px rgba(178,107,255,.25)}
+.ct{font-style:italic;font-size:clamp(11px,3vmin,18px);color:#ffd23f;text-shadow:2px 2px 0 #000;margin-bottom:4px;text-align:left}
+.ct small{font-size:.62em;color:#05d9e8;letter-spacing:.12em;margin-left:.5em}
+#euroMap{width:100%;height:auto;display:block;border-radius:8px}
+.qr{display:flex;gap:10px;align-items:center}
+.qrbox{width:clamp(64px,19vmin,120px);flex:0 0 auto;border-radius:8px;overflow:hidden;border:3px solid #ffd23f;box-shadow:0 0 14px rgba(255,210,63,.4)}
+.qrbox svg{display:block;width:100%;height:auto}
+.qt{text-align:left;font-style:italic;font-size:clamp(11px,3vmin,17px);line-height:1.25;text-shadow:2px 2px 0 #000}
+.qt small{display:block;font-family:system-ui,sans-serif;font-style:normal;font-weight:700;font-size:.66em;color:#05d9e8;margin-top:3px;word-break:break-all}
+.press{font-style:italic;color:#fff;font-size:clamp(10px,2.6vmin,14px);letter-spacing:.3em;animation:blink 1s steps(2) infinite;text-shadow:2px 2px 0 #000}
+.ticker{position:absolute;left:0;right:0;bottom:max(6px,env(safe-area-inset-bottom));overflow:hidden;white-space:nowrap;font-style:italic;font-size:clamp(10px,2.5vmin,14px);color:#ffd23f;text-shadow:2px 2px 0 #000;pointer-events:none}
+.ticker span{display:inline-block;padding-left:100%;animation:tick 26s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+@media (max-aspect-ratio:1/1){.tgrid{flex-direction:column}.tright{max-width:92vw;width:92vw}}
+@media (max-height:440px) and (min-aspect-ratio:1/1){.tag .small,.best{display:none}.logo span{font-size:clamp(28px,10vmin,90px)!important}.sub-logo{font-size:11px}.ct{margin-bottom:2px}}
+#miniMap{position:fixed;right:var(--R);top:calc(var(--T) + clamp(96px,22vmin,140px));width:clamp(96px,22vmin,150px);height:auto;border-radius:10px;border:2px solid rgba(255,210,63,.8);box-shadow:0 0 18px rgba(255,61,127,.4);opacity:0;transform:translateX(20px);transition:opacity .4s,transform .4s;pointer-events:none;z-index:3}
+#miniMap.show{opacity:1;transform:none}
+.mapsrow{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap}
+#pauseMap,#radioMap{width:clamp(110px,26vmin,170px);height:auto;border-radius:10px;border:2px solid rgba(255,210,63,.7)}
+#endMap{width:clamp(200px,46vmin,340px);height:auto;border-radius:10px;border:2px solid rgba(178,107,255,.7)}
 </style>
 </head>
 <body>
@@ -135,6 +165,7 @@ table.hi tr.me td{color:#7dff9a}table.hi tr:nth-child(odd){background:rgba(31,95
   <div id="copWarn" class="hidden">🚨 POLÍCIA ATRÁS DE TI!</div>
 </div>
 <canvas id="gauge" class="hidden" width="220" height="220"></canvas>
+<canvas id="miniMap" width="240" height="320"></canvas>
 <canvas id="mirror" class="hidden" width="260" height="80"></canvas>
 <button id="pauseBtn" class="topbtn hidden" aria-label="Pausa">❚❚</button>
 <button id="ctrlBtn" class="topbtn hidden" aria-label="Controlo">🎮</button>
@@ -148,35 +179,46 @@ table.hi tr.me td{color:#7dff9a}table.hi tr:nth-child(odd){background:rgba(31,95
   <div id="tiltInd" class="hidden"><div id="wheel"></div><span>INCLINA 📱</span></div>
 </div>
 
-<div id="title" class="screen">
-  <div class="logo"><span>OUTRUNNING</span><span>PORTUGAL</span></div>
-  <div class="sub-logo">ROTA DO SOL</div>
-  <div class="tiles"></div>
-  <div class="tag">Porto ➜ Douro ➜ Coimbra ➜ Lisboa ➜ Sintra ➜ Alentejo ➜ Algarve<br><span class="small">Luna 🌙 &amp; o piloto made in Maia · uma road trip arcade</span></div>
-  <button class="big" id="playBtn">JOGAR <small>PLAY</small></button>
-  <div class="opts">
-    <button class="opt" id="optCtrl">Controlo: BOTÕES</button>
-    <button class="opt" id="optAuto">Auto-acelerar: NÃO</button>
-    <button class="opt" id="optSound">Som: SIM</button>
-    <button class="opt" id="hiBtn">🏆 Recordes</button>
-  </div>
-  <div class="best">RECORDE: <span id="bestScore">0</span></div>
-  <div class="small" id="keysHint">Teclado: ← → virar · ↑ acelerar · ↓ travar · Espaço turbo · P pausa</div>
-</div>
+<div id="intro" class="screen"><img alt="Made in Maia" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMzMgNjUiIHJvbGU9ImltZyIgYXJpYS1sYWJlbGxlZGJ5PSJ0aXRsZSI+CiAgPHRpdGxlIGlkPSJ0aXRsZSI+TWFkZSBpbiBNYWlhPC90aXRsZT4KICA8aW1hZ2Ugd2lkdGg9IjMzMyIgaGVpZ2h0PSI2NSIgaHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFVMEFBQUJCQ0FZQUFBQlZSZllMQUFBQUNYQklXWE1BQUFPV0FBQURsZ0UxNzJxaUFBQUtra2xFUVZSNG5PMmQ3WEhqT0JLR1gxL3QvOUZWM2Y5RkFGdGxiUVNEaVdDZHdlZ2l1TGtJemh2QmVpTTRid1JuUjNDWURPd0lGcE9CSEFIM0I4VXBDbXg4a0FRSXlIcWZLcFhFQm9odWthMG12blhUZFIwSUlZU2s4VU5pUG5WNkVVTEllOFdlWGtGQ1FmTU93QUhBTDFuTUlZU1F5K0Fad0FNQUl5WGVDTTN6SFlBbkFCK0xta1VJSVczempMN2llQndMM2FDNVF4OWRiN2V5aWhCQ0d1WVZnTVlvY1A3TnlmQUlCa3hDQ0JtNFJkL3kvczQ0YUdxdy81SVFRbHcrb20rbUF6Z1BtZ2MzSnlHRUVBREFsK0hEdUUvVEF2Z3hjdUlmNkt1cXgwaStGdGlqLzZLeDcwUUlJU244SGNCeEhEUmpzOXovaWI3UDg1TFlBWGdCQXljaFpEMmZBSmpVeWUydnFCTXcxZW4xZ21XMTJ5UDYrVmEvZWRKZkkrV21UTHQ2UTIrZkQ0WDVRZnZyaHVVTjdBRjhtRm51bUc5SW1CZ2NZZTAwTitsNzdoQWUzQXpaSGJKSDhwMllybFJ5M1A4Y3ZqMG01dWR6eS9OZDk3bCtHTE5yclY5UDZicHVlSVV3bzN4YnZ1NVArdldLTW5UZ2U4WEtQVWF1UzNleU1lVTdwSExNWEY0WEtjOTk3YnV1KzlKMW5aMnBJM1lkVWw1cm1Ydi9ZM2FIcm9Ia096RmRxU3oxNXpFcVVzNWNZdmYzSlZONVptWTVKbUxYNDh6eVF1aXU2eVpUamxyQ0FQZ0p3SzlZWDROWlkwT00wRk51Q2JIeVRHWjlrdjRIOURXYWZ4ZlcxVHBQOFN5YmsrSnZiOGovbTRtVmwxdGZLaWFTYm5NcmJEbG9mZ1R3RHdEM3FIZERVaHpVYkt6VFp0WVg0Z0hBenh2cWF3MVQyd0NCSS9xbWR3aFRRRy9NTDNOWEhsS3hrWFNUVzJITFFmTUcvZHpSbXBoSStqZmtuMG5RVXRBRWVudXV0Y2I1aEw3VzFobzFBdGlsQnMxWStteGFEcG90WUZhbUw4RW01RWtaMk1uSkEvb0h4RFZpYWhzZ3NIVVhUcXhtQzF4Ujh6eDE5UHlhZVlWL1JMVEUwOVVrNUxGWVA5SzhSeDhNeHp6Q1AwdmlIc0IvRitoNU9PbTZWSjdRM2tvNUUwblA3WmMySVUrTm1tYnFnL3dyTW01QXhLQVp4MkM3b0pucUJDOEFQcS9VdGNQVWtUNmk3eEk1Q1BuTlFqMTdRYzhsOFlSbEQ0dVNoUHd1TnRVb3R6NVg5NVo3VjlnWitiTDVJSnZuY1VJT1l6THJzb241U2o3VlAwUGVjTnFpemY2OTBxUU12TlRBMTBWVG96K3pwTzRRSmpGZlZyc1lOT01Zajd4RXY2S2t5MjFDQStXZDg4NGpyOVhaWDVzV3B4NlptZkkxV0VGMm41aXZKSkkvM2lmbVd3eURaaHdMdVlaVklvQllRYlpIMzVRZWMwVFpXcCtyNzlwcE1XajYvRytMbXFhQ1BMUEZGTkFkd2dxeWd5QmowS3lBU1pTdFJicTVlOGdES2RkYTY2dkJDOXFiUFdBRVdXeEo0UktrRnBXQy9HQzFtWFhIY0wvckR2SVMwNnlWREFiTktUdE1IVUp5Uk9ucHV4Wkp6d2RQMlF5YTIySXE2MWZPOFJIVFFDNzV4TnBXZ3hWa2U4Z0RQbExlVWtqOXpFUGxRZ3RwMlg0dkRKcFRwSnFkY1k2bHpRWU9LL1ZLVHFCUDcwcEljL1dUc3RSdW9rdDkyeVp5N0d1bHpNRUtzaUVRS3lGdHF6bkVWcENwMDd2MG9HRFFMSXgyam8xekxOMEE5NXk1V0VFMjNIdzJ6N2ZuaTNOY08yanVNQTFTcmcrNHh6bm14eHBCcGsvdlNramJ5aThsUGVyMExuMXZtMHN4ZzZhTUZtVGptcUI3dzZUOGMvSDFad0x5azlOazBFbjhhRUgydkxVUkR0bzVOcEZqTi84U3JDQlRwL2Vpd1NsQzZQZWlFdk12Z2tGVFJwb0lhenlmZ1hKQlU1M2VmUk56V3h1Y2VFLzhndW5EcW5adDB3MVNZNStSOWtIUUsvWDVka3NhQmx1VWtGYXpwaG5xTmpDNUZITkZrSjg5em0vTStMTVI4cTRsRkRTQjNpSGNINFZGKzd2U1B5THVzUDhwYjhZaU5NNERwYWxqeG5lMElCdVdDQnBIN2h0Sm5rT29OdWQrRHAxVEFpdkloc3FGNy9mNERSbCtMd3lhZmpUa29Pa2JzRm5yTEZhUXVRNXFuSFNEOXBjb1BpYmthVFZvM3VFOGFGcHN2MVJ3ekMybUQwK0QzZ2UyNmpJYTE3NlZrRDVNNzhtN1cvbzV2aDM2QjN5NkxUSUVUVGJQL1VoTm9UZkl0Y3kxRHVJYmNSeVhxNFIwdTFJdkNTT3RqR3ExaVY1aUVNZ0tNajM2N0F0QXBXdWJWcEM1MzFjTGVVd081UXlhZnJRZ2UwRWQ1d1E0VjdNR0h6Qzl2N1dEcG5hT2pmUHV5N2VFbEhtZk5acm9WcENweUxIdnZOa3dhUHI1RWRNTGIxQ21HV1FGbWV1Y2toNEd6Zkljbk9QYXE0TzBjM3hFLzlmYUxqbTZiV0o5bWtEaE9aRWVqQ0JUa1dPQVFYTVRYQWQ1d0haejRWS2NFMmh6QjU3M2hCWmtabU1ieGtqK2R1OGM2d3g2M2lCdk1hY1NkTmtNK2tOSTVidlhSYnBPSm9keUJzMHcyamwybldpSFBJTUNWcEM1TjkyblJ6cTNKUXlBTHZKcW1WdE1BMFhOSnJyVVpXQ2Q0MUt6T1lCcFArYldjNGg5MDZDVWMxeXNrc0dnR1VhdlRFL0I1d1RTVFZlQ2pFMzA4cmdEUWsrbys3RFNLOU5UTUlKTUNzYWg2VDBsOFBtN1c2bndkVS9ZdFFZd2FJYUoxU0pMUHRHbG02NW1uRS95b1FXWjNkaUdNVEcvS3pVNG1mb2c5NTJmZzloODVqRkYrbHNaTk9Qb2hXbXArRzdpamZBeVFqNmJ3UVlTUmxvZFZCTWRTRlBJcytEQkNqS0RxVThxei9rbWd3MFMxaU9UZmk5U255eUQ1Z2JvUUZxT0VVcTc4bnpXTkxkQjF6WmdoRFN6WTBCbjBtRldubTh6MkNCUlloSEpMQmcwNC9pYU9qbWFRRUNlb0xmMVgvcGVJOUpFOTVxVTlNc2MvWkdsSHVacnkyVk5jd1AwVFBsY2NqaVh6VkFHQ2ROYTBOUXo1WE93R2Nvb0VUU2xUVW1Xc0txU3dhQVpSNXJpQVpTZEN6Y1htNkVNRXNibkI3V1FiTWsxQmM1a0tBUElQNGZZdGxBT04reEl3OTN4YUpDdHhmYzBmZ2lVZjhEMHBodmszZlFpUnlCL2p4d3czWnk0RmxKL2Vza3VvejNrM2VPSC9OSjFzY2k3dVltWktRY0t6SHhnMEV4RDQzeTNIb1U4STVUR0kvOVg0QnlGNlUxM2o5ZGlQUEtXYWxvMTBMVU5jTkE0djFjNlU3bFdrQ240Qno3M2tJUG1DL3FaQjdtd2drd2hQQ0RyN2dvRnJLeGtzSG1lUnNvU3JTVllRUmFiMmlMcGxzcFp5alA4R3pXVTNPN3JFcEJXQjlWRVI0NlhrckxtZkl6UEwzTDNhMXBCcGlMblpQKzlzS2FaeGkzTzEvZnFUT1ZhUVJZTHlNb2pIemFqWGNvcitwVXV2aVpZYXdNaHRiaUQveHB0alh0UGNqek1mZjJRS25LZXhyU0ZZdGVaTXNFdEgxajJlN0ZyakdEUVRLZkVScmxHa0tuSU9UNG5lY0c4b0duUVR3Qk81VEFqN3hnOUkyL3I2OUNCL3Z1MEVqUnZrWDlEWk91UnE4aDVwWGM3OGsyRGlyWE1sRWUrdUpMQjVuazlmRTZnSXVmNTB1MVNReEs0US9zN3hHOUZhNnVEY3VNTGRFdVhidWFhUSt5elMwZk84NlV2RHVnTW12Vlk2cHhiNzVhOVI5cGZWbHdUdXJZQkJmSDVVYXcvVzNua2RyRWw1L2pzOHVrZDhEM2c3RkpER0RUcnNkUUpnTzEyeTc1RDM0eS85Z0VnbC9mY3Z5djVrVTQ0VDNua2Rxa2hEcWxiMWJuNHVpOVkwN3hBVXJlNGtwQ2Vua2YwaytYWG90RDNYeG9BL3dNRHBzUjdEcHBXa0tWMFIvaGFTR2F4SmVmWUdUcGRsQ0JiSERTdmZTRG9BZkxHd2t2WVk5N0F6ajJXVDVSK3hMd251RW5NdDhmeUlIbEEvV2FyRVdTeCszbkFmTHMvTE5TVmlsVDIwcEZ4eWNkOVNIOGNDS1MxZnVaZWt3UGs2Kzc3bnRMZ1crcjFma0xHQlJzM1hmZDl3REkwY3ZrVjlYOFFTOUVBL2wvYkNFTEl4Zk1KZ0VsdG5sL3lhS0dxYlFBaDVQMlFHalJ2Y1prMXpSM2FXU3RNQ0hrSHpPblRIRmFMbURLbVpHZUh2dDh3OStSZlFzZ1ZNKzdUZkFFRERDR0UrTGdCenB2bnBvNGRoQkRTUE0vRGgzRk5Vd0g0czRZMWhCRFNPSjl3cWxpT2E1b1d3TzhWakNHRWtKYjVIYU9XK0xpbU9mQUk0UE4yOWhCQ1NMUDhBV2VITDJuSzBRSEFyeHNZUXdnaHJmS0dQZzRlM0FTcHBqbWcwTTl4M0lQYmdoRkMzajl2NkdjUlBhRnZjWXRMTDBOQmt4QkNpQU4zT1NLRWtCa3dhQkpDeUF6K0FoUFh1YkgxdnZGZUFBQUFBRWxGVGtTdVFtQ0MiLz4KPC9zdmc+Cg=="><div class="pres">APRESENTA</div></div>
 
+<div id="title" class="screen hidden">
+  <div class="tgrid">
+    <div class="tleft">
+      <div class="logo"><span>OUTRUNNING</span><span>PORTUGAL</span></div>
+      <div class="sub-logo">ROTA DO SOL</div>
+      <div class="tiles"></div>
+      <div class="tag">Porto ➜ Centro ➜ Lisboa ➜ Algarve<br><span class="small">Luna 🌙 &amp; o piloto made in Maia · capítulo 1 da Euro Tour</span></div>
+      <div class="press">▶ PRESS START ◀</div>
+      <button class="big" id="playBtn">JOGAR <small>PLAY</small></button>
+      <div class="opts">
+        <button class="opt" id="optCtrl">Controlo: BOTÕES</button>
+        <button class="opt" id="optAuto">Auto-acelerar: NÃO</button>
+        <button class="opt" id="optSound">Som: SIM</button>
+        <button class="opt" id="hiBtn">🏆 Recordes</button>
+      </div>
+      <div class="best">RECORDE: <span id="bestScore">0</span></div>
+      <div class="small" id="keysHint">Teclado: ← → virar · ↑ acelerar · ↓ travar · Espaço turbo · P pausa</div>
+    </div>
+    <div class="tright">
+      <div class="card"><div class="ct">EURO TOUR<small>START / FINISH IN PORTUGAL</small></div><canvas id="euroMap" width="560" height="380"></canvas></div>
+      <div class="card qr"><div class="qrbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="M4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM18 4h1v1h-1zM19 4h1v1h-1zM20 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM27 4h1v1h-1zM30 4h1v1h-1zM31 4h1v1h-1zM32 4h1v1h-1zM33 4h1v1h-1zM34 4h1v1h-1zM35 4h1v1h-1zM36 4h1v1h-1zM4 5h1v1h-1zM10 5h1v1h-1zM13 5h1v1h-1zM14 5h1v1h-1zM17 5h1v1h-1zM18 5h1v1h-1zM22 5h1v1h-1zM23 5h1v1h-1zM24 5h1v1h-1zM30 5h1v1h-1zM36 5h1v1h-1zM4 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM27 6h1v1h-1zM30 6h1v1h-1zM32 6h1v1h-1zM33 6h1v1h-1zM34 6h1v1h-1zM36 6h1v1h-1zM4 7h1v1h-1zM6 7h1v1h-1zM7 7h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM16 7h1v1h-1zM20 7h1v1h-1zM21 7h1v1h-1zM25 7h1v1h-1zM26 7h1v1h-1zM30 7h1v1h-1zM32 7h1v1h-1zM33 7h1v1h-1zM34 7h1v1h-1zM36 7h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM20 8h1v1h-1zM21 8h1v1h-1zM23 8h1v1h-1zM25 8h1v1h-1zM26 8h1v1h-1zM30 8h1v1h-1zM32 8h1v1h-1zM33 8h1v1h-1zM34 8h1v1h-1zM36 8h1v1h-1zM4 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM21 9h1v1h-1zM24 9h1v1h-1zM25 9h1v1h-1zM26 9h1v1h-1zM27 9h1v1h-1zM28 9h1v1h-1zM30 9h1v1h-1zM36 9h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM30 10h1v1h-1zM31 10h1v1h-1zM32 10h1v1h-1zM33 10h1v1h-1zM34 10h1v1h-1zM35 10h1v1h-1zM36 10h1v1h-1zM12 11h1v1h-1zM15 11h1v1h-1zM18 11h1v1h-1zM21 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM4 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM21 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM29 12h1v1h-1zM30 12h1v1h-1zM31 12h1v1h-1zM32 12h1v1h-1zM33 12h1v1h-1zM36 12h1v1h-1zM5 13h1v1h-1zM6 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM9 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM16 13h1v1h-1zM18 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM22 13h1v1h-1zM25 13h1v1h-1zM27 13h1v1h-1zM29 13h1v1h-1zM33 13h1v1h-1zM34 13h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM18 14h1v1h-1zM19 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM29 14h1v1h-1zM33 14h1v1h-1zM35 14h1v1h-1zM4 15h1v1h-1zM6 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM14 15h1v1h-1zM16 15h1v1h-1zM17 15h1v1h-1zM26 15h1v1h-1zM27 15h1v1h-1zM28 15h1v1h-1zM29 15h1v1h-1zM30 15h1v1h-1zM35 15h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM14 16h1v1h-1zM17 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM23 16h1v1h-1zM26 16h1v1h-1zM30 16h1v1h-1zM32 16h1v1h-1zM33 16h1v1h-1zM6 17h1v1h-1zM7 17h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM17 17h1v1h-1zM18 17h1v1h-1zM21 17h1v1h-1zM22 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM25 17h1v1h-1zM28 17h1v1h-1zM29 17h1v1h-1zM31 17h1v1h-1zM34 17h1v1h-1zM6 18h1v1h-1zM8 18h1v1h-1zM9 18h1v1h-1zM10 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM19 18h1v1h-1zM22 18h1v1h-1zM24 18h1v1h-1zM25 18h1v1h-1zM27 18h1v1h-1zM28 18h1v1h-1zM29 18h1v1h-1zM30 18h1v1h-1zM32 18h1v1h-1zM33 18h1v1h-1zM35 18h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM14 19h1v1h-1zM16 19h1v1h-1zM19 19h1v1h-1zM20 19h1v1h-1zM21 19h1v1h-1zM22 19h1v1h-1zM25 19h1v1h-1zM27 19h1v1h-1zM29 19h1v1h-1zM30 19h1v1h-1zM32 19h1v1h-1zM4 20h1v1h-1zM5 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM8 20h1v1h-1zM9 20h1v1h-1zM10 20h1v1h-1zM12 20h1v1h-1zM14 20h1v1h-1zM16 20h1v1h-1zM17 20h1v1h-1zM21 20h1v1h-1zM23 20h1v1h-1zM25 20h1v1h-1zM26 20h1v1h-1zM28 20h1v1h-1zM30 20h1v1h-1zM32 20h1v1h-1zM35 20h1v1h-1zM4 21h1v1h-1zM5 21h1v1h-1zM6 21h1v1h-1zM8 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM15 21h1v1h-1zM17 21h1v1h-1zM19 21h1v1h-1zM20 21h1v1h-1zM27 21h1v1h-1zM29 21h1v1h-1zM33 21h1v1h-1zM34 21h1v1h-1zM35 21h1v1h-1zM6 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM11 22h1v1h-1zM12 22h1v1h-1zM14 22h1v1h-1zM16 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM21 22h1v1h-1zM25 22h1v1h-1zM26 22h1v1h-1zM27 22h1v1h-1zM31 22h1v1h-1zM33 22h1v1h-1zM4 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM9 23h1v1h-1zM14 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM21 23h1v1h-1zM22 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM25 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM29 23h1v1h-1zM31 23h1v1h-1zM35 23h1v1h-1zM36 23h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM7 24h1v1h-1zM9 24h1v1h-1zM10 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h1v1h-1zM28 24h1v1h-1zM30 24h1v1h-1zM31 24h1v1h-1zM32 24h1v1h-1zM33 24h1v1h-1zM36 24h1v1h-1zM4 25h1v1h-1zM5 25h1v1h-1zM6 25h1v1h-1zM8 25h1v1h-1zM9 25h1v1h-1zM13 25h1v1h-1zM20 25h1v1h-1zM23 25h1v1h-1zM26 25h1v1h-1zM29 25h1v1h-1zM31 25h1v1h-1zM33 25h1v1h-1zM35 25h1v1h-1zM6 26h1v1h-1zM7 26h1v1h-1zM8 26h1v1h-1zM10 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM17 26h1v1h-1zM20 26h1v1h-1zM21 26h1v1h-1zM22 26h1v1h-1zM23 26h1v1h-1zM25 26h1v1h-1zM26 26h1v1h-1zM29 26h1v1h-1zM30 26h1v1h-1zM31 26h1v1h-1zM32 26h1v1h-1zM34 26h1v1h-1zM35 26h1v1h-1zM9 27h1v1h-1zM12 27h1v1h-1zM13 27h1v1h-1zM14 27h1v1h-1zM18 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM25 27h1v1h-1zM28 27h1v1h-1zM29 27h1v1h-1zM32 27h1v1h-1zM35 27h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM7 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM11 28h1v1h-1zM13 28h1v1h-1zM14 28h1v1h-1zM15 28h1v1h-1zM16 28h1v1h-1zM17 28h1v1h-1zM18 28h1v1h-1zM19 28h1v1h-1zM20 28h1v1h-1zM21 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM29 28h1v1h-1zM30 28h1v1h-1zM31 28h1v1h-1zM32 28h1v1h-1zM33 28h1v1h-1zM35 28h1v1h-1zM12 29h1v1h-1zM13 29h1v1h-1zM14 29h1v1h-1zM15 29h1v1h-1zM16 29h1v1h-1zM17 29h1v1h-1zM19 29h1v1h-1zM20 29h1v1h-1zM21 29h1v1h-1zM24 29h1v1h-1zM25 29h1v1h-1zM28 29h1v1h-1zM32 29h1v1h-1zM34 29h1v1h-1zM35 29h1v1h-1zM4 30h1v1h-1zM5 30h1v1h-1zM6 30h1v1h-1zM7 30h1v1h-1zM8 30h1v1h-1zM9 30h1v1h-1zM10 30h1v1h-1zM12 30h1v1h-1zM14 30h1v1h-1zM16 30h1v1h-1zM17 30h1v1h-1zM18 30h1v1h-1zM19 30h1v1h-1zM20 30h1v1h-1zM22 30h1v1h-1zM24 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM33 30h1v1h-1zM35 30h1v1h-1zM4 31h1v1h-1zM10 31h1v1h-1zM15 31h1v1h-1zM16 31h1v1h-1zM17 31h1v1h-1zM18 31h1v1h-1zM20 31h1v1h-1zM26 31h1v1h-1zM28 31h1v1h-1zM32 31h1v1h-1zM36 31h1v1h-1zM4 32h1v1h-1zM6 32h1v1h-1zM7 32h1v1h-1zM8 32h1v1h-1zM10 32h1v1h-1zM12 32h1v1h-1zM13 32h1v1h-1zM14 32h1v1h-1zM18 32h1v1h-1zM20 32h1v1h-1zM23 32h1v1h-1zM26 32h1v1h-1zM28 32h1v1h-1zM29 32h1v1h-1zM30 32h1v1h-1zM31 32h1v1h-1zM32 32h1v1h-1zM33 32h1v1h-1zM4 33h1v1h-1zM6 33h1v1h-1zM7 33h1v1h-1zM8 33h1v1h-1zM10 33h1v1h-1zM13 33h1v1h-1zM15 33h1v1h-1zM22 33h1v1h-1zM23 33h1v1h-1zM24 33h1v1h-1zM25 33h1v1h-1zM27 33h1v1h-1zM28 33h1v1h-1zM30 33h1v1h-1zM31 33h1v1h-1zM32 33h1v1h-1zM34 33h1v1h-1zM35 33h1v1h-1zM4 34h1v1h-1zM6 34h1v1h-1zM7 34h1v1h-1zM8 34h1v1h-1zM10 34h1v1h-1zM13 34h1v1h-1zM16 34h1v1h-1zM17 34h1v1h-1zM19 34h1v1h-1zM21 34h1v1h-1zM22 34h1v1h-1zM24 34h1v1h-1zM25 34h1v1h-1zM26 34h1v1h-1zM27 34h1v1h-1zM30 34h1v1h-1zM31 34h1v1h-1zM32 34h1v1h-1zM33 34h1v1h-1zM34 34h1v1h-1zM4 35h1v1h-1zM10 35h1v1h-1zM16 35h1v1h-1zM17 35h1v1h-1zM18 35h1v1h-1zM19 35h1v1h-1zM20 35h1v1h-1zM21 35h1v1h-1zM25 35h1v1h-1zM27 35h1v1h-1zM29 35h1v1h-1zM30 35h1v1h-1zM4 36h1v1h-1zM5 36h1v1h-1zM6 36h1v1h-1zM7 36h1v1h-1zM8 36h1v1h-1zM9 36h1v1h-1zM10 36h1v1h-1zM12 36h1v1h-1zM13 36h1v1h-1zM18 36h1v1h-1zM20 36h1v1h-1zM21 36h1v1h-1zM23 36h1v1h-1zM24 36h1v1h-1zM25 36h1v1h-1zM26 36h1v1h-1zM28 36h1v1h-1zM29 36h1v1h-1zM30 36h1v1h-1zM33 36h1v1h-1zM36 36h1v1h-1z" fill="#1b0b3a"/></svg></div><div class="qt">JOGA NO TELEMÓVEL<br>SCAN TO PLAY<small>madeinmaia.pt/outrunning-portugal</small></div></div>
+    </div>
+  </div>
+  <div class="ticker"><span id="ticker"></span></div>
+</div>
 <div id="radio" class="screen hidden">
   <h2>ESCOLHE A RÁDIO<small>PICK YOUR STATION</small></h2>
   <div class="radio">
     <div class="lcd"><span id="lcdF">88.7 FM</span><span id="lcdN">MARÉ ALTA</span></div>
     <div class="presets" id="presets"></div>
   </div>
-  <button class="big" id="goBtn">ARRANCAR! <small>GO</small></button>
+  <div class="mapsrow"><canvas id="radioMap" width="240" height="320"></canvas><button class="big" id="goBtn">ARRANCAR! <small>GO</small></button></div>
   <div class="small">🥧 10 natas = +5 s · ⚡ apanha bicas turbo · 📸 cuidado com os radares!</div>
 </div>
 
 <div id="pause" class="screen hidden">
   <h2>PAUSA<small>PAUSED</small></h2>
-  <button class="big" id="resumeBtn">CONTINUAR</button>
+  <div class="mapsrow"><canvas id="pauseMap" width="240" height="320"></canvas><button class="big" id="resumeBtn">CONTINUAR</button></div>
   <div class="row">
     <button class="opt" id="optCtrl2">Controlo: BOTÕES</button>
     <button class="opt hidden" id="calBtn">🎯 Recalibrar</button>
@@ -198,7 +240,7 @@ table.hi tr.me td{color:#7dff9a}table.hi tr:nth-child(odd){background:rgba(31,95
     <div class="slots" id="slots"></div>
     <button class="opt" id="saveBtn" style="margin-top:8px">💾 GUARDAR</button>
   </div>
-  <table class="hi" id="overTable"></table>
+  <div class="mapsrow"><canvas id="endMap" width="520" height="350"></canvas><table class="hi" id="overTable"></table></div>
   <div class="row"><button class="big" id="againBtn">OUTRA VEZ!</button><button class="opt" id="menuBtn2">⌂ Menu</button></div>
 </div>
 
@@ -567,6 +609,238 @@ function moonCanvas(r,phase){return mk(r*4,r*4,(g,w,h)=>{
   g.drawImage(m,0,0);
 });}
 
+
+// ------------------------------------------------------------------ Portuguese historic landmarks (original drawings)
+const GRANITE='#cbbf9f',GRANITE_D='#a89c7c',LIME='#efe7d2',LIME_D='#cfc4a8';
+function crenel(g,x,y,w,h,col,step=8){g.fillStyle=col;for(let i=x;i<x+w-1;i+=step)g.fillRect(i,y-h,step*0.55,h);}
+function win(g,x,y,w,h,col='#2a2a33'){rr(g,x,y,w,h,w/2);g.fillStyle=col;g.fill();}
+function seDoPorto(){return mk(190,200,(g,w,h)=>{ // Sé do Porto: fortress cathedral, twin towers
+  g.fillStyle=GRANITE;g.fillRect(50,70,90,h-70);
+  for(const x of [10,130]){g.fillStyle=GRANITE;g.fillRect(x,40,50,h-40);g.fillStyle=GRANITE_D;g.fillRect(x+40,40,10,h-40);crenel(g,x,40,50,10,GRANITE,10);g.beginPath();g.ellipse(x+25,30,11,12,0,Math.PI,0);g.fillStyle=GRANITE_D;g.fill();g.fillRect(x+24,10,2,10);win(g,x+18,80,14,26);win(g,x+18,130,14,22);}
+  crenel(g,50,70,90,9,GRANITE,10);
+  circ(g,95,100,17,'#7a6a52');circ(g,95,100,13,'#3a4a6a');g.strokeStyle='#d8cfb5';g.lineWidth=1.5;for(let a=0;a<8;a++){g.beginPath();g.moveTo(95,100);g.lineTo(95+Math.cos(a*Math.PI/4)*13,100+Math.sin(a*Math.PI/4)*13);g.stroke();}
+  win(g,80,140,30,h-140,'#3a2a1a');g.strokeStyle=GRANITE_D;g.lineWidth=3;g.beginPath();g.arc(95,155,18,Math.PI,0);g.stroke();
+});}
+function carmo(){return mk(170,200,(g,w,h)=>{ // Igreja do Carmo: baroque church with giant azulejo side wall
+  tiles(g,0,60,110,h-60,10);
+  g.fillStyle='rgba(31,95,191,.85)';for(let i=0;i<4;i++){g.fillRect(14+i*24,90,14,50);circ(g,21+i*24,84,7,'rgba(31,95,191,.85)');}
+  g.fillStyle='#e9e1cc';g.fillRect(110,40,60,h-40);g.beginPath();g.moveTo(110,40);g.quadraticCurveTo(140,0,170,40);g.fill();
+  g.fillStyle='#c9bfa6';g.fillRect(162,40,8,h-40);
+  win(g,128,60,24,34);win(g,126,140,28,h-140,'#4a3220');g.fillStyle='#8a7a5a';g.fillRect(139,4,2,14);g.fillRect(134,8,12,2);
+  g.fillStyle='#d6cdb4';g.fillRect(0,52,110,10);
+});}
+function saoBento(){return mk(240,170,(g,w,h)=>{ // São Bento station facade
+  g.fillStyle='#e8dcc4';g.fillRect(0,50,w,h-50);g.fillStyle='#5a5a66';g.beginPath();g.moveTo(0,52);g.lineTo(20,26);g.lineTo(w-20,26);g.lineTo(w,52);g.fill();
+  g.fillStyle='#5a5a66';g.fillRect(96,8,48,24);g.beginPath();g.moveTo(92,10);g.lineTo(120,-2);g.lineTo(148,10);g.fill();
+  circ(g,120,22,9,'#f8f5ee');g.strokeStyle='#222';g.lineWidth=1.5;g.beginPath();g.moveTo(120,22);g.lineTo(120,15);g.moveTo(120,22);g.lineTo(125,24);g.stroke();
+  for(let i=0;i<9;i++)win(g,10+i*25,70,14,30);for(let i=0;i<5;i++)win(g,30+i*42,116,26,h-116,'#3a3a46');
+  g.fillStyle='#c9b998';g.fillRect(0,106,w,5);g.fillStyle='#2b2b2b';g.font='bold 10px serif';g.textAlign='center';g.fillText('S. BENTO',120,62);
+});}
+function camara(){return mk(150,280,(g,w,h)=>{ // Paços do Concelho (Aliados) with clock tower
+  g.fillStyle=GRANITE;g.fillRect(0,170,w,h-170);for(let i=0;i<5;i++){win(g,8+i*29,190,14,26);win(g,8+i*29,236,14,30);}
+  g.fillStyle=GRANITE;g.fillRect(55,40,40,140);g.fillStyle=GRANITE_D;g.fillRect(87,40,8,140);
+  circ(g,75,80,11,'#f8f5ee');g.strokeStyle='#222';g.lineWidth=1.5;g.beginPath();g.moveTo(75,80);g.lineTo(75,72);g.moveTo(75,80);g.lineTo(81,82);g.stroke();
+  win(g,68,110,14,30);g.beginPath();g.moveTo(52,40);g.lineTo(75,6);g.lineTo(98,40);g.fillStyle='#4a5a5a';g.fill();g.fillStyle='#d4af37';g.fillRect(74,0,2,8);
+  g.fillStyle='#e0d6bc';g.fillRect(0,168,w,5);
+});}
+function costaNova(c){return mk(100,130,(g,w,h)=>{ // Costa Nova striped house
+  for(let x=4;x<w-4;x+=10){g.fillStyle=((x-4)/10)%2?'#ffffff':c;g.fillRect(x,40,10,h-40);}
+  g.beginPath();g.moveTo(0,42);g.lineTo(w/2,8);g.lineTo(w,42);g.fillStyle='#b5532f';g.fill();
+  for(let x=10;x<w/2;x+=10){g.fillStyle=((x/10)|0)%2?'#fff':c;g.beginPath();g.moveTo(w/2-(w/2-x)*0,42);g.fill();}
+  g.fillStyle='#f4f4f4';g.fillRect(22,58,20,24);g.fillRect(60,58,20,24);g.fillStyle='#2b3445';g.fillRect(25,61,14,18);g.fillRect(63,61,14,18);
+  g.fillStyle='#f4f4f4';rr(g,40,92,22,38,3);g.fill();g.fillStyle='#6b4a2b';g.fillRect(43,95,16,35);
+});}
+function moliceiro(){return mk(170,90,(g,w,h)=>{ // painted moliceiro boat
+  g.fillStyle='#3d6fa8';g.fillRect(0,70,w,20);
+  g.beginPath();g.moveTo(10,72);g.quadraticCurveTo(85,90,150,72);g.quadraticCurveTo(168,40,160,10);g.quadraticCurveTo(150,40,140,60);g.lineTo(20,60);g.quadraticCurveTo(8,62,10,72);g.fillStyle='#1d1d1d';g.fill();
+  const cs=['#e63946','#ffd23f','#2a9d8f','#f4a261'];for(let i=0;i<4;i++){g.fillStyle=cs[i];g.fillRect(28+i*26,60,24,9);}
+  g.fillStyle='#ffd23f';g.beginPath();g.moveTo(150,58);g.quadraticCurveTo(160,36,156,16);g.lineTo(160,12);g.quadraticCurveTo(165,40,152,62);g.fill();
+  circ(g,158,12,4,'#e63946');g.fillStyle='#fff';g.font='bold 7px sans-serif';g.textAlign='center';g.fillText('RIA',60,67);
+});}
+function saltPile(){return mk(80,40,(g,w,h)=>{poly(g,[0,h,20,8,40,h],'#f8f8f2');poly(g,[30,h,52,4,76,h],'#ffffff');poly(g,[52,4,76,h,60,h],'#dfe4ea');poly(g,[20,8,40,h,28,h],'#dfe4ea');});}
+function batalha(){return mk(240,230,(g,w,h)=>{ // Mosteiro da Batalha: gothic, pinnacles, great window
+  const st='#d9c08a',dk='#b49a64';
+  g.fillStyle=st;g.fillRect(20,70,200,h-70);g.fillStyle=dk;g.fillRect(200,70,20,h-70);
+  for(let x=24;x<=216;x+=16){poly(g,[x-4,72,x,46,x+4,72],st);g.fillStyle=dk;g.fillRect(x-1,40,2,8);}
+  poly(g,[80,72,120,20,160,72],st);for(let x=90;x<=150;x+=12)poly(g,[x-3,60,x,38,x+3,60],dk);
+  g.fillStyle='#3a3a52';g.beginPath();g.moveTo(96,140);g.lineTo(96,96);g.quadraticCurveTo(120,66,144,96);g.lineTo(144,140);g.fill();
+  g.strokeStyle=st;g.lineWidth=2;for(const x of [108,120,132]){g.beginPath();g.moveTo(x,140);g.lineTo(x,90);g.stroke();}g.beginPath();g.arc(120,96,10,0,7);g.stroke();
+  g.fillStyle='#4a3a2a';g.beginPath();g.moveTo(100,h);g.lineTo(100,185);g.quadraticCurveTo(120,155,140,185);g.lineTo(140,h);g.fill();
+  g.strokeStyle=dk;g.lineWidth=3;for(let r=0;r<3;r++){g.beginPath();g.moveTo(94-r*5,h);g.lineTo(94-r*5,182);g.quadraticCurveTo(120,148-r*6,146+r*5,182);g.lineTo(146+r*5,h);g.stroke();}
+  for(const x of [40,180])win(g,x,120,18,46,'#3a3a52');
+});}
+function obidos(){return mk(260,150,(g,w,h)=>{ // Óbidos walls & towers with white houses
+  g.fillStyle='#d8c9a3';g.fillRect(0,50,w,h-50);crenel(g,0,50,w,9,'#d8c9a3',10);
+  for(const x of [40,170]){g.fillStyle='#cdbd94';g.fillRect(x,18,40,h-18);crenel(g,x,18,40,10,'#cdbd94',9);g.fillStyle='#b8a67a';g.fillRect(x+32,18,8,h-18);}
+  g.fillStyle='#4a3a2a';g.beginPath();g.moveTo(112,h);g.lineTo(112,96);g.quadraticCurveTo(128,76,144,96);g.lineTo(144,h);g.fill();
+  g.fillStyle='#2b6cb0';g.fillRect(110,94,38,3);
+  for(let i=0;i<4;i++){g.fillStyle='#fbf7ec';g.fillRect(i*60+90<w?i*60+5:0,0,0,0);}
+  g.fillStyle='rgba(120,90,50,.25)';for(let y=60;y<h;y+=12)g.fillRect(0,y,w,1);
+});}
+function fatima(){return mk(240,260,(g,w,h)=>{ // Sanctuary basilica: tall central tower, crown & cross, colonnade
+  g.fillStyle='#f5f2ea';g.fillRect(0,190,w,h-190);for(let x=6;x<w;x+=16){g.fillStyle='#ddd8cc';g.fillRect(x,196,6,h-196);}
+  g.fillStyle='#f8f6f0';g.fillRect(80,120,80,h-120);g.fillRect(100,40,40,100);g.fillStyle='#e2ddd0';g.fillRect(132,40,8,100);
+  g.beginPath();g.ellipse(120,40,22,10,0,Math.PI,0);g.fillStyle='#f8f6f0';g.fill();
+  g.fillStyle='#d4af37';g.beginPath();g.moveTo(108,32);g.lineTo(112,18);g.lineTo(116,28);g.lineTo(120,14);g.lineTo(124,28);g.lineTo(128,18);g.lineTo(132,32);g.closePath();g.fill();
+  g.fillStyle='#d4af37';g.fillRect(118,0,4,16);g.fillRect(113,5,14,3);
+  win(g,112,60,16,30);win(g,104,150,32,h-150,'#4a3a2a');for(const x of [86,146])win(g,x,140,10,26);
+});}
+function nazare(){return mk(220,170,(g,w,h)=>{ // Nazaré fort-lighthouse on cliff + giant wave
+  g.fillStyle='#8a6a4a';g.beginPath();g.moveTo(0,h);g.lineTo(0,70);g.lineTo(80,64);g.lineTo(110,90);g.lineTo(110,h);g.fill();
+  g.fillStyle='#e9e1cc';g.fillRect(14,40,60,30);crenel(g,14,40,60,7,'#e9e1cc',9);g.fillStyle='#c0392b';g.fillRect(48,14,18,28);g.fillStyle='#ffe28a';g.fillRect(50,8,14,8);poly(g,[46,8,57,0,68,8],'#c0392b');
+  const wv=g.createLinearGradient(110,20,220,170);wv.addColorStop(0,'#bfe6ff');wv.addColorStop(1,'#1f5f9f');
+  g.fillStyle=wv;g.beginPath();g.moveTo(110,h);g.quadraticCurveTo(120,40,190,20);g.quadraticCurveTo(222,24,214,60);g.quadraticCurveTo(200,40,180,52);g.quadraticCurveTo(160,90,220,h);g.fill();
+  g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.moveTo(150,40);g.quadraticCurveTo(190,14,214,40);g.stroke();
+  g.fillStyle='#ff3d7f';g.save();g.translate(160,92);g.rotate(-0.5);g.fillRect(-10,0,20,3);g.restore();circ(g,160,84,3,'#222');
+});}
+function jeronimos(){return mk(300,180,(g,w,h)=>{ // Jerónimos: long Manueline facade
+  g.fillStyle=LIME;g.fillRect(0,60,w,h-60);g.fillStyle=LIME_D;g.fillRect(0,60,w,6);
+  for(let i=0;i<10;i++){win(g,10+i*29,84,12,30,'#3a3a46');g.fillStyle=LIME_D;g.fillRect(9+i*29,118,14,3);}
+  g.fillStyle=LIME;g.fillRect(232,18,46,h-18);g.beginPath();g.ellipse(255,18,23,16,0,Math.PI,0);g.fill();g.fillStyle=LIME_D;g.fillRect(270,18,8,h-18);
+  for(let x=0;x<230;x+=12)poly(g,[x,62,x+6,50,x+12,62],LIME);
+  g.fillStyle='#e2d6b8';g.fillRect(120,40,50,h-40);for(let y=46;y<120;y+=10){g.fillStyle=y%20?'#cbbd98':'#d8caa6';g.fillRect(124,y,42,6);}
+  win(g,134,130,22,h-130,'#4a3220');for(const x of [118,168]){g.fillStyle='#cbbd98';g.fillRect(x,30,4,h-30);poly(g,[x-2,30,x+2,16,x+6,30],'#cbbd98');}
+});}
+function augusta(){return mk(640,260,(g,w,h)=>{ // Arco da Rua Augusta (overhead triumphal arch)
+  const st='#e8dfc8',dk='#c8bc9e';
+  g.fillStyle=st;g.fillRect(0,50,120,h-50);g.fillRect(w-120,50,120,h-50);g.fillRect(0,30,w,40);
+  for(const x of [14,62,w-106,w-58]){g.fillStyle=dk;g.fillRect(x,80,14,h-80);g.fillStyle=st;g.fillRect(x-3,76,20,6);}
+  g.fillStyle=st;g.beginPath();g.moveTo(120,70);g.lineTo(120,110);g.quadraticCurveTo(320,0,520,110);g.lineTo(520,70);g.fill();
+  g.fillStyle=dk;g.fillRect(0,68,w,5);g.fillRect(0,28,w,5);
+  g.fillStyle=st;g.beginPath();g.moveTo(200,30);g.lineTo(320,0);g.lineTo(440,30);g.fill();
+  circ(g,320,48,13,'#f8f5ee');g.strokeStyle='#222';g.lineWidth=2;g.beginPath();g.moveTo(320,48);g.lineTo(320,39);g.moveTo(320,48);g.lineTo(327,50);g.stroke();
+  g.fillStyle='#9a8f78';for(const x of [270,370]){g.fillRect(x-6,6,12,22);circ(g,x,4,6,'#9a8f78');}g.fillRect(314,-2,12,10);
+  g.fillStyle='#2b2b2b';g.font='bold 11px serif';g.textAlign='center';g.fillText('VIRTVTIBVS MAIORVM',320,66);
+});}
+function santaJusta(){return mk(70,280,(g,w,h)=>{ // Elevador de Santa Justa: neo-gothic iron tower
+  g.fillStyle='#3a3a40';g.fillRect(12,30,46,h-30);
+  g.strokeStyle='#6a6a72';g.lineWidth=2;for(let y=40;y<h;y+=18){g.beginPath();g.moveTo(14,y);g.lineTo(56,y+18);g.moveTo(56,y);g.lineTo(14,y+18);g.stroke();}
+  for(let y=40;y<h;y+=36){g.fillStyle='#2a2a30';rr(g,22,y,26,26,13);g.fill();g.fillStyle='#ffe28a';g.globalAlpha=.4;rr(g,26,y+4,18,18,9);g.fill();g.globalAlpha=1;}
+  g.fillStyle='#3a3a40';g.fillRect(0,22,w,10);for(let x=2;x<w;x+=8)g.fillRect(x,10,3,12);poly(g,[20,10,35,0,50,10],'#3a3a40');
+});}
+function aqueduto(){return mk(720,260,(g,w,h)=>{ // Aqueduto das Águas Livres (overhead arches)
+  const st='#d6cbb0',dk='#b0a486';
+  g.fillStyle=st;g.fillRect(0,20,w,30);g.fillStyle=dk;g.fillRect(0,46,w,4);
+  const arch=(x0,x1,top)=>{g.fillStyle=st;g.fillRect(x0-14,top,14,h-top);g.fillRect(x1,top,14,h-top);};
+  const xs=[0,90,180,270,450,540,630,720];
+  for(let i=0;i<xs.length-1;i++){if(i===3)continue;g.fillStyle=st;g.fillRect(xs[i+1]-16,50,16,h-50);g.beginPath();g.moveTo(xs[i],50);g.lineTo(xs[i+1],50);g.lineTo(xs[i+1],80);g.quadraticCurveTo((xs[i]+xs[i+1])/2,40,xs[i],80);g.fill();}
+  g.fillStyle=st;g.fillRect(254,50,16,h-50);g.fillRect(450,50,16,h-50);g.beginPath();g.moveTo(270,50);g.lineTo(450,50);g.lineTo(450,90);g.quadraticCurveTo(360,10,270,90);g.fill();
+  g.fillStyle='rgba(0,0,0,.12)';for(let y=60;y<h;y+=16)g.fillRect(0,y,w,1);
+});}
+function mouros(){return mk(260,170,(g,w,h)=>{ // Castelo dos Mouros on green rocks
+  g.fillStyle='#3f6b3a';g.beginPath();g.moveTo(0,h);g.quadraticCurveTo(60,60,130,70);g.quadraticCurveTo(200,40,260,h);g.fill();
+  g.fillStyle='#7d7a6a';g.beginPath();g.moveTo(10,120);for(let x=10;x<=250;x+=10)g.lineTo(x,100-Math.sin(x/40)*24);g.lineTo(250,116-Math.sin(250/40)*24);for(let x=250;x>=10;x-=10)g.lineTo(x,116-Math.sin(x/40)*24);g.fill();
+  for(let x=10;x<=250;x+=10){g.fillStyle='#7d7a6a';g.fillRect(x,94-Math.sin(x/40)*24,5,6);}
+  for(const x of [50,140,220]){const y=96-Math.sin(x/40)*24;g.fillStyle='#8a8676';g.fillRect(x-10,y-34,20,40);crenel(g,x-10,y-34,20,6,'#8a8676',6);}
+  g.fillStyle='#046a38';g.fillRect(140,44-Math.sin(140/40)*24-14,2,0);
+});}
+function caboRoca(){return mk(90,160,(g,w,h)=>{ // Cabo da Roca monument with cross
+  g.fillStyle='#8a7a5a';g.fillRect(0,130,w,30);g.fillStyle=LIME_D;g.fillRect(28,30,34,104);g.fillStyle=LIME;g.fillRect(28,30,26,104);
+  g.fillStyle='#e6dcc2';g.fillRect(22,124,46,10);g.fillRect(24,26,42,8);g.fillStyle=LIME;g.fillRect(42,2,6,26);g.fillRect(34,10,22,6);
+  g.fillStyle='#5a5a5a';g.fillRect(33,60,24,18);g.fillStyle='#ddd';g.fillRect(35,62,20,2);g.fillRect(35,66,20,2);g.fillRect(35,70,14,2);
+});}
+function evora(){return mk(230,170,(g,w,h)=>{ // Roman Temple of Évora: granite podium + columns
+  g.fillStyle='#a89c7c';g.fillRect(10,110,210,h-110);g.fillStyle='#bdb08e';g.fillRect(6,104,218,10);
+  for(let i=0;i<6;i++){const x=24+i*36;g.fillStyle='#e8e0cc';g.fillRect(x,30,14,76);g.fillStyle='#cfc4a8';g.fillRect(x+10,30,4,76);g.fillStyle='#d8ccb0';g.fillRect(x-4,24,22,8);g.fillRect(x-3,100,20,6);}
+  g.fillStyle='#d8ccb0';g.fillRect(14,12,150,14);g.fillStyle='rgba(0,0,0,.15)';g.fillRect(14,22,150,3);
+});}
+function silves(){return mk(260,160,(g,w,h)=>{ // Silves castle: red sandstone
+  const st='#b5523a',dk='#8f3b28';
+  g.fillStyle=st;g.fillRect(0,60,w,h-60);crenel(g,0,60,w,10,st,12);
+  for(const x of [20,120,220]){g.fillStyle=st;g.fillRect(x-4,28,40,h-28);crenel(g,x-4,28,40,10,st,10);g.fillStyle=dk;g.fillRect(x+28,28,8,h-28);win(g,x+10,60,10,18,'#3a1a10');}
+  g.fillStyle='rgba(0,0,0,.15)';for(let y=70;y<h;y+=12)g.fillRect(0,y,w,1);
+  g.strokeStyle='#2f8f3a';g.lineWidth=4;g.beginPath();g.moveTo(90,h);g.lineTo(96,40);g.stroke();for(let k=0;k<6;k++){const a=Math.PI+k*Math.PI/5;g.beginPath();g.moveTo(96,40);g.quadraticCurveTo(96+Math.cos(a)*14,40+Math.sin(a)*14-6,96+Math.cos(a)*26,40+Math.sin(a)*8+10);g.stroke();}
+});}
+function arcoVila(){return mk(640,260,(g,w,h)=>{ // Arco da Vila (Faro) overhead gate with bell tower + stork nest
+  const st='#f6f1e4',dk='#ddd4bf';
+  g.fillStyle=st;g.fillRect(0,70,150,h-70);g.fillRect(w-150,70,150,h-70);g.fillRect(0,60,w,46);
+  g.fillStyle=st;g.beginPath();g.moveTo(150,106);g.lineTo(150,130);g.quadraticCurveTo(320,40,490,130);g.lineTo(490,106);g.fill();
+  for(const x of [30,100,w-120,w-50]){g.fillStyle=dk;g.fillRect(x,110,14,h-110);}
+  g.fillStyle='#e8b923';g.fillRect(0,100,w,6);
+  g.fillStyle=st;g.fillRect(280,10,80,54);g.beginPath();g.ellipse(320,10,40,14,0,Math.PI,0);g.fill();g.fillStyle='#2a2a33';rr(g,306,20,28,34,14);g.fill();circ(g,320,40,7,'#c9a227');
+  g.fillStyle='#6b4a2b';g.beginPath();g.ellipse(320,-2,22,7,0,0,7);g.fill();
+  g.fillStyle='#fff';g.beginPath();g.ellipse(322,-12,8,6,0,0,7);g.fill();circ(g,328,-20,3.5,'#fff');g.strokeStyle='#e8732a';g.lineWidth=2;g.beginPath();g.moveTo(331,-20);g.lineTo(340,-18);g.stroke();g.fillStyle='#111';g.fillRect(314,-14,6,4);
+  g.fillStyle='#2b2b2b';g.font='bold 12px serif';g.textAlign='center';g.fillText('ARCO DA VILA',320,90);
+});}
+function chimneyHouse(){return mk(150,120,(g,w,h)=>{ // Algarve white house with ornate lattice chimney
+  g.fillStyle='#f7f5ef';g.fillRect(4,50,w-8,h-50);g.fillStyle='#1f5fbf';g.fillRect(4,h-10,w-8,10);g.fillStyle='#e8b923';g.fillRect(4,50,w-8,4);
+  for(const x of [20,90]){g.fillStyle='#1f5fbf';g.fillRect(x-3,66,30,30);g.fillStyle='#2b3445';g.fillRect(x,69,24,24);}
+  g.fillStyle='#f7f5ef';g.fillRect(56,6,30,46);g.fillStyle='#1f5fbf';for(let y=12;y<40;y+=8)for(let x=59;x<84;x+=8){g.beginPath();g.moveTo(x+3,y);g.lineTo(x+6,y+3);g.lineTo(x+3,y+6);g.lineTo(x,y+3);g.fill();}
+  poly(g,[52,8,71,-2,90,8],'#f7f5ef');circ(g,71,0,3,'#e8b923');
+});}
+function zoneSign(name,sub){return mk(230,140,(g,w,h)=>{
+  g.fillStyle='#888';g.fillRect(40,86,7,h-86);g.fillRect(w-47,86,7,h-86);
+  g.fillStyle='#7a4a2a';rr(g,2,2,w-4,88,8);g.fill();g.strokeStyle='#fff';g.lineWidth=3;rr(g,7,7,w-14,78,6);g.stroke();
+  g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.font='bold 12px sans-serif';g.fillText('BEM-VINDOS A',w/2,24);fitText(g,name,w-30,26,'bold');g.fillText(name,w/2,50);g.font='bold 11px sans-serif';g.fillText(sub,w/2,72);
+});}
+
+// ------------------------------------------------------------------ stylised maps (Euro Tour + Portugal route)
+const EU={
+ PT:[[-8.9,42.1],[-8.2,42.1],[-6.2,41.6],[-6.9,41.0],[-6.9,40.0],[-7.0,39.6],[-7.5,39.6],[-7.0,38.9],[-7.3,38.4],[-7.0,38.0],[-7.5,37.5],[-7.4,37.2],[-8.0,37.0],[-8.9,37.0],[-8.8,37.9],[-9.5,38.7],[-9.3,39.4],[-8.9,40.2],[-8.7,41.2]],
+ ES:[[-9.3,43.0],[-8.0,43.7],[-5.8,43.6],[-3.8,43.5],[-1.8,43.4],[0.7,42.8],[3.2,42.4],[3.2,41.9],[2.2,41.3],[0.9,41.0],[0.0,39.8],[-0.3,39.4],[0.2,38.8],[-0.7,37.6],[-2.1,36.7],[-4.4,36.7],[-5.6,36.0],[-6.4,36.8],[-7.4,37.2],[-7.5,37.5],[-7.0,38.0],[-7.3,38.4],[-7.0,38.9],[-7.5,39.6],[-7.0,39.6],[-6.9,40.0],[-6.9,41.0],[-6.2,41.6],[-8.2,42.1],[-8.9,42.1]],
+ FR:[[-1.8,43.4],[-1.2,46.0],[-2.2,47.1],[-4.7,48.0],[-4.6,48.6],[-1.9,48.7],[-1.4,49.7],[0.2,49.7],[1.6,50.9],[2.5,51.1],[4.2,49.9],[5.9,49.4],[8.2,48.9],[7.6,47.6],[6.8,47.3],[6.0,46.4],[7.0,45.9],[6.6,45.1],[7.0,44.2],[7.5,43.8],[6.2,43.1],[4.6,43.4],[3.1,43.0],[3.2,42.4],[0.7,42.8]],
+ IT:[[7.5,43.8],[7.0,44.2],[6.6,45.1],[7.0,45.9],[8.4,46.4],[10.5,46.9],[12.4,47.1],[13.7,46.5],[13.8,45.6],[12.3,45.3],[12.5,44.1],[13.6,43.5],[14.7,42.1],[16.1,41.9],[18.5,40.2],[17.0,40.4],[16.5,39.6],[17.1,38.9],[15.6,38.0],[15.7,39.4],[15.0,40.2],[12.6,41.5],[11.1,42.4],[10.2,43.9],[8.8,44.4]],
+ SIC:[[12.4,37.8],[15.6,38.3],[15.1,36.7]],SAR:[[8.4,40.9],[9.8,41.1],[9.6,39.1],[8.4,39.0]],COR:[[9.4,43.0],[9.5,41.4],[8.6,41.9]],
+ GB:[[-5.7,50.0],[-3.0,50.7],[1.4,51.2],[1.7,52.7],[0.3,53.5],[-0.1,54.5],[-1.6,55.6],[-2.1,56.0],[-1.8,57.6],[-3.0,58.6],[-5.0,58.6],[-6.2,57.5],[-5.6,56.3],[-5.0,55.8],[-4.9,54.8],[-3.4,54.9],[-3.0,53.4],[-4.6,53.3],[-4.2,52.3],[-5.3,51.7],[-3.2,51.4],[-4.5,51.0]],
+ IE:[[-6.0,52.2],[-6.0,53.9],[-5.5,54.5],[-7.3,55.4],[-8.5,54.5],[-10.0,54.2],[-9.9,53.0],[-10.4,52.0],[-8.0,51.6]],
+ CH:[[6.0,46.4],[6.8,47.3],[7.6,47.6],[8.6,47.8],[9.6,47.5],[10.5,46.9],[10.1,46.2],[9.0,45.8],[8.4,46.4],[7.0,45.9]],
+ DE:[[6.1,50.8],[6.0,51.9],[7.0,52.2],[7.0,53.6],[8.7,53.9],[9.9,54.8],[11.0,54.0],[13.0,54.4],[14.2,53.9],[14.6,52.5],[15.0,51.1],[12.1,50.3],[13.8,48.8],[13.0,47.5],[10.5,47.5],[9.6,47.5],[8.6,47.8],[7.6,47.6],[8.2,48.9],[6.4,49.5]],
+ NL:[[3.4,51.4],[4.4,52.2],[4.8,53.0],[6.9,53.4],[7.0,52.2],[6.0,51.9],[5.8,51.0],[5.0,51.4],[4.2,51.4]],
+ BE:[[2.5,51.1],[3.4,51.4],[4.2,51.4],[5.0,51.4],[5.8,51.0],[6.1,50.8],[6.4,49.5],[5.9,49.4],[4.2,49.9]],
+ AT:[[9.6,47.5],[10.5,47.5],[13.0,47.5],[13.8,48.8],[15.0,49.0],[16.9,48.6],[17.1,48.0],[16.1,46.9],[14.6,46.4],[13.7,46.5],[12.4,47.1],[10.5,46.9]],
+ DK:[[8.1,55.5],[8.6,57.1],[10.6,57.7],[10.5,56.5],[11.0,55.4],[9.6,54.9]],
+ SCA:[[5.3,59.3],[5.0,61.9],[8.0,63.4],[14.0,67.5],[19.0,70.0],[26.0,71.0],[30.0,69.8],[28.0,68.5],[24.0,65.8],[21.5,64.5],[19.0,63.0],[17.5,61.0],[18.8,59.8],[16.5,57.0],[14.2,55.4],[12.8,56.5],[11.2,59.0],[10.5,59.0],[8.0,58.0],[6.0,58.0]],
+ EAST:[[14.2,53.9],[18.5,54.8],[21.0,56.5],[21.5,57.5],[24.0,57.8],[23.5,59.3],[28.0,59.5],[32,59.9],[32,46],[29.6,45.2],[28.6,44.0],[27.8,42.0],[26.0,40.8],[24,40.8],[23.0,39.5],[22.5,37],[21.2,37.8],[20.0,39.6],[19.4,41.8],[18.5,42.5],[16.0,43.5],[14.5,45.2],[13.6,45.6],[13.7,46.5],[14.6,46.4],[16.1,46.9],[17.1,48.0],[16.9,48.6],[15.0,49.0],[13.8,48.8],[12.1,50.3],[15.0,51.1],[14.6,52.5]],
+ AFR:[[-9.8,35.0],[-5.9,35.8],[-2.0,35.1],[3.0,36.9],[10.0,37.3],[11.0,35.0],[11,33],[-9.8,33]]
+};
+const TOUR=[['PT','PORTUGAL',-8.2,39.7],['ES','ESPANHA',-3.7,40.3],['FR','FRANÇA',2.4,46.8],['IT','ITÁLIA',12.6,42.6],['CH','SUÍÇA',8.1,46.8],['DE','ALEMANHA',10.4,51.0],['NL','HOLANDA',5.4,52.3],['BE','BÉLGICA',4.6,50.6],['GB','REINO UNIDO',-1.6,52.8]];
+function drawPoly(g,pts,P){g.beginPath();pts.forEach((p,i)=>{const [x,y]=P(p[0],p[1]);i?g.lineTo(x,y):g.moveTo(x,y);});g.closePath();}
+function drawEuroMap(g,w,h,T,o={}){
+  g.clearRect(0,0,w,h);
+  const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#0c0626');bg.addColorStop(1,'#1d0b3e');g.fillStyle=bg;g.fillRect(0,0,w,h);
+  g.strokeStyle='rgba(255,61,127,.12)';g.lineWidth=1;for(let x=0;x<w;x+=w/16){g.beginPath();g.moveTo(x,0);g.lineTo(x,h);g.stroke();}for(let y=0;y<h;y+=h/10){g.beginPath();g.moveTo(0,y);g.lineTo(w,y);g.stroke();}
+  const kx=Math.cos(46*Math.PI/180),L0=-11.2,L1=17.5,A0=35.2,A1=58.6,s=Math.min(w/((L1-L0)*kx),h/(A1-A0));
+  const ox=(w-(L1-L0)*kx*s)/2,oy=(h-(A1-A0)*s)/2,P=(lon,lat)=>[ox+(lon-L0)*kx*s,oy+(A1-lat)*s];
+  const tourSet=new Set(TOUR.map(t=>t[0]));
+  for(const k in EU){if(k==='PT')continue;drawPoly(g,EU[k],P);const isT=tourSet.has(k);g.fillStyle=k==='AFR'?'#170a30':isT?'#3a1f66':'#241243';g.fill();g.strokeStyle=isT?'#a46bff':'#43306e';g.lineWidth=isT?1.5:1;g.stroke();}
+  // Portugal glowing
+  const pulse=0.5+0.5*Math.sin(T*3);
+  g.save();g.shadowColor='#ffd23f';g.shadowBlur=10+pulse*14;drawPoly(g,EU.PT,P);const pg=g.createLinearGradient(0,P(0,42.2)[1],0,P(0,37)[1]);pg.addColorStop(0,'#ffe27a');pg.addColorStop(1,'#ff3d7f');g.fillStyle=pg;g.fill();g.restore();
+  g.strokeStyle='#fff';g.lineWidth=1.5;drawPoly(g,EU.PT,P);g.stroke();
+  // route: PT → … → GB → back to PT (Algarve)
+  const pts=TOUR.map(t=>P(t[2],t[3]));pts.push(P(-8.0,37.4));
+  g.save();g.setLineDash([5,5]);g.lineDashOffset=-T*24;g.strokeStyle='#05d9e8';g.lineWidth=2;g.shadowColor='#05d9e8';g.shadowBlur=8;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.restore();
+  const fs=Math.max(9,Math.round(s*0.7));
+  TOUR.forEach((t,i)=>{const [x,y]=P(t[2],t[3]);
+    if(i===0){g.fillStyle='rgba(255,210,63,.25)';g.beginPath();g.arc(x,y,8+pulse*8,0,7);g.fill();circ(g,x,y,6,'#ffd23f');circ(g,x,y,2.5,'#1b0b3a');}
+    else{circ(g,x,y,4,'#1b0b3a');g.strokeStyle='#05d9e8';g.lineWidth=1.5;g.beginPath();g.arc(x,y,4,0,7);g.stroke();
+      if(o.labels){g.font=`900 ${fs}px "Arial Black",sans-serif`;g.textAlign='center';g.fillStyle='rgba(255,255,255,.75)';g.fillText(t[1],x,y-7);}}});
+  // labels
+  g.textAlign='left';g.font=`italic 900 ${Math.round(fs*1.15)}px "Arial Black",sans-serif`;g.fillStyle='#ffd23f';g.shadowColor='#000';g.shadowBlur=4;
+  const [px,py]=P(-11.3,36.4);g.fillText(o.done?'PORTUGAL ✓':'PORTUGAL',px,py);g.font=`900 ${Math.round(fs*0.8)}px "Arial Black",sans-serif`;g.fillStyle='#fff';g.fillText(o.done?'CAPÍTULO 1 COMPLETO':'CAPÍTULO 1 · AGORA',px,py+fs*1.05);
+  g.textAlign='right';g.fillStyle='#05d9e8';g.fillText('PRÓXIMOS NÍVEIS ▸ EM BREVE',w-6,h-6);g.shadowBlur=0;
+}
+const PT_ROUTE=[['porto','Porto',-8.61,41.15],['douro','Douro',-7.75,41.16],['aveiro','Aveiro',-8.65,40.64],['coimbra','Coimbra',-8.43,40.2],['oeste','Batalha',-8.82,39.66],['lisboa','Lisboa',-9.14,38.72],['sintra','Sintra',-9.39,38.8],['alentejo','Évora',-7.91,38.57],['algarve','Faro',-7.93,37.02]];
+function drawPortugalMap(g,w,h,T,zoneF){ // zoneF = zone index + fraction (progress)
+  g.clearRect(0,0,w,h);
+  const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#0c0626');bg.addColorStop(1,'#1d0b3e');g.fillStyle=bg;g.fillRect(0,0,w,h);
+  const kx=Math.cos(39.5*Math.PI/180),L0=-11.6,L1=-5.0,A0=36.6,A1=42.4,s=Math.min(w/((L1-L0)*kx),h/(A1-A0));
+  const ox=(w-(L1-L0)*kx*s)/2,oy=(h-(A1-A0)*s)/2,P=(lon,lat)=>[ox+(lon-L0)*kx*s,oy+(A1-lat)*s];
+  drawPoly(g,EU.ES,P);g.fillStyle='#241243';g.fill();g.strokeStyle='#43306e';g.stroke();
+  g.save();g.shadowColor='#ff3d7f';g.shadowBlur=12;drawPoly(g,EU.PT,P);const pg=g.createLinearGradient(0,0,0,h);pg.addColorStop(0,'#5a2a8a');pg.addColorStop(1,'#a8306a');g.fillStyle=pg;g.fill();g.restore();
+  g.strokeStyle='#ffd23f';g.lineWidth=1.5;drawPoly(g,EU.PT,P);g.stroke();
+  const pts=PT_ROUTE.map(r=>P(r[2],r[3]));
+  g.save();g.setLineDash([4,4]);g.lineDashOffset=-T*20;g.strokeStyle='rgba(5,217,232,.8)';g.lineWidth=2;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.restore();
+  const zi=Math.floor(zoneF),zf=zoneF-zi;
+  g.strokeStyle='#ffd23f';g.lineWidth=3;g.beginPath();for(let i=0;i<=Math.min(zi,pts.length-1);i++){i?g.lineTo(pts[i][0],pts[i][1]):g.moveTo(pts[i][0],pts[i][1]);}
+  let cx=pts[Math.min(zi,pts.length-1)][0],cy=pts[Math.min(zi,pts.length-1)][1];if(zi<pts.length-1){cx=lerp(pts[zi][0],pts[zi+1][0],zf);cy=lerp(pts[zi][1],pts[zi+1][1],zf);g.lineTo(cx,cy);}g.stroke();
+  const fs=Math.max(8,Math.round(h*0.05));
+  PT_ROUTE.forEach((r,i)=>{const [x,y]=pts[i];const leg=STAGES[i]?STAGES[i].leg:0,first=i===0||STAGES[i-1].leg!==leg;const done=i<=zi;
+    circ(g,x,y,first?5:3,done?'#ffd23f':'#1b0b3a');g.strokeStyle=done?'#fff':'#05d9e8';g.lineWidth=1.3;g.beginPath();g.arc(x,y,first?5:3,0,7);g.stroke();
+    g.font=`${first?'900':'700'} ${first?fs:Math.round(fs*0.8)}px "Arial Black",sans-serif`;g.fillStyle=done?'#fff':'rgba(255,255,255,.6)';g.textAlign=r[2]<-8.7?'right':'left';g.fillText(first?LEGS[leg].name:r[1],x+(r[2]<-8.7?-8:8),y+fs*0.35);});
+  const pulse=0.5+0.5*Math.sin(T*6);g.fillStyle='rgba(255,61,61,.35)';g.beginPath();g.arc(cx,cy,6+pulse*5,0,7);g.fill();g.fillStyle='#e0262f';rr(g,cx-6,cy-4,12,8,2);g.fill();g.strokeStyle='#fff';g.lineWidth=1.5;g.stroke();
+}
+
 // ------------------------------------------------------------------ build sprite registry
 const SP={};
 function buildSprites(){
@@ -594,81 +868,109 @@ function buildSprites(){
   s('flag',flagPT(),0.3,0.3);s('nata',nata(),0.13,1);s('bica',bica(),0.18,1);
   s('uniTower',uniTower(),0.8,0.9);s('student1',student(true),0.22,0.6);s('student2',student(false),0.22,0.6);s('pequenitos',pequenitos(),1.6,0.95);
   s('radar',radarSign(),0.7,0.5);
-  s('arch',archDomLuis(),3.6,0);
+  s('seP',seDoPorto(),1.5,0.95);s('carmo',carmo(),1.4,0.95);s('saoBento',saoBento(),1.9,0.95);s('camara',camara(),1.1,0.95);
+  ['#d62828','#2a9d8f','#1f5fbf','#e8b923'].forEach((c,i)=>s('costa'+i,costaNova(c),1.0,0.95));
+  s('moliceiro',moliceiro(),1.2,0.9);s('salt',saltPile(),0.6,0.9);s('batalha',batalha(),2.1,0.95);s('obidos',obidos(),2.3,0.95);s('fatima',fatima(),2.0,0.95);s('nazare',nazare(),1.9,0.95);
+  s('jeronimos',jeronimos(),2.8,0.95);s('santaJusta',santaJusta(),0.65,0.9);s('mouros',mouros(),2.4,0.95);s('caboRoca',caboRoca(),0.7,0.9);s('evora',evora(),1.9,0.95);s('silves',silves(),2.3,0.95);s('chimney',chimneyHouse(),1.3,0.95);
+  s('arch',archDomLuis(),3.6,0);SP.arch.pillar=[1.5,1.8];
+  s('augusta',augusta(),4.0,0);SP.augusta.pillar=[1.25,2.0];s('arcoVila',arcoVila(),4.0,0);SP.arcoVila.pillar=[1.25,2.0];s('aqueduto',aqueduto(),10,0);SP.aqueduto.pillar=[1.25,1.5];
   s('gateStart',gate('PARTIDA · PORTO','cp'),3.2,0);s('gateGoal',gate('META · ALGARVE','goal'),3.2,0);
 }
 
-// ------------------------------------------------------------------ stages
+// ------------------------------------------------------------------ Portugal chapter: 4 stages (legs), each made of zones
+const LEGS=[
+ {name:'PORTO & NORTE',bonus:55},
+ {name:'CENTRO',bonus:55},
+ {name:'LISBOA',bonus:44},
+ {name:'ALGARVE',bonus:44}
+];
 const STAGES=[
- {key:'porto',birds:true,name:'PORTO',sub:'Ribeira & Ponte D. Luís I',curvy:.6,hilly:1,len:1150,tunnels:1,facade:'#7d7468',radars:1,
+ {key:'porto',leg:0,birds:true,name:'PORTO',sub:'Ribeira · Sé · Clérigos · Aliados',curvy:.6,hilly:1,len:1000,tunnels:1,facade:'#7d7468',radars:1,
   road:['#6e6a72','#67636b'],grass:['#7d8a5a','#727f51'],rumble:['#d7263d','#f4f4f4'],lane:'#f4f4f4',fog:'#e9867a',fogD:4,
   sky:[['#1b1040',0],['#6a2c70',.35],['#e85d75',.72],['#ffb070',1]],sun:{r:48,y:110,x:1300,c:['#fff3a0','#ff7b54'],stripes:true},
   traffic:['carR','carB','carW','taxi','bus','vespa','carS'],
-  deco:[[['houseP0','houseP1','houseP2','houseP3','houseP4','houseP5','houseP6'],5,1.5,2.4,.85],['lamp',18,1.12,1.12,1],[['tree1','cypress'],23,2.6,3.6,.5]],
-  marks:[['clerigos',2.6,3],['galo',1.35,3],['flag',1.2,4]],arches:3,
-  boards:[['MADE IN MAIA','orgulho maiato'],['FRANCESINHA','a melhor do Porto ▸'],['VINHO DO PORTO','caves em Gaia ▸'],['ZOO DA MAIA','▸ 8 km'],['SÃO JOÃO','martelinhos & sardinhas'],['MAIA ♥ LUNA','road trip 2026']],
+  deco:[[['houseP0','houseP1','houseP2','houseP3','houseP4','houseP5','houseP6'],5,1.5,2.4,.8],['lamp',18,1.12,1.12,1],[['tree1','cypress'],23,2.6,3.6,.5]],
+  marks:[['seP',2.5,1],['clerigos',2.6,2],['carmo',2.3,1],['saoBento',2.4,1],['camara',2.6,1],['galo',1.35,2],['flag',1.2,3]],over:[['arch',2]],
+  boards:[['MADE IN MAIA','orgulho maiato'],['FRANCESINHA','a melhor do Porto ▸'],['VINHO DO PORTO','caves em Gaia ▸'],['ZOO DA MAIA','▸ 8 km'],['SÃO JOÃO','martelinhos & sardinhas'],['MiM ♥ LUNA','road trip 2026']],
   signs:[[['MAIA','8'],['LISBOA','313']],[['GAIA','▸'],['DOURO','▸']]],
   luna:'Adeus, Porto! 💙',fact:'Port wine ages in cellars across the river, in Vila Nova de Gaia.'},
- {key:'douro',name:'VALE DO DOURO',sub:'Vinhas em socalcos',curvy:1,hilly:.6,len:1150,tunnels:1,facade:'#8a6a4a',radars:1,
+ {key:'douro',leg:0,name:'VALE DO DOURO',sub:'Vinhas em socalcos · rabelos',curvy:1,hilly:.6,len:800,tunnels:1,facade:'#8a6a4a',radars:1,
   road:['#6a6560','#63605a'],grass:['#7aa63a','#8a6a3a'],rumble:['#d7263d','#f4f4f4'],lane:'#f4f4f4',fog:'#ffd59a',fogD:4,
   sky:[['#2f5fbf',0],['#7fa7e8',.55],['#ffd59a',1]],sun:{r:30,y:60,x:900,c:['#ffffff','#ffe9a0'],stripes:false},
   traffic:['carW','carG','van','carB','vespa2','carS'],
   deco:[['vines',2,1.3,2.8,.95],['cypress',15,1.8,2.4,.5]],
-  marks:[['barrels',1.35,6],['whiteY',2.4,3],['flag',1.2,2]],arches:0,
-  boards:[['PROVA DE VINHOS','quinta ▸ 2 km'],['VINDIMA','setembro'],['RABELOS','passeios no rio'],['DOURO · 1756','região demarcada'],['AZEITE','do Douro']],
+  marks:[['barrels',1.35,5],['whiteY',2.4,2],['flag',1.2,2]],
+  boards:[['PROVA DE VINHOS','quinta ▸ 2 km'],['VINDIMA','setembro'],['RABELOS','passeios no rio'],['DOURO · 1756','região demarcada']],
   signs:[[['PINHÃO','▸'],['RÉGUA','◂']]],
   luna:'Vamos provar vinho do Porto! 🍷',fact:'The Douro is one of the oldest demarcated wine regions in the world (1756).'},
- {key:'coimbra',name:'COIMBRA',sub:'Cidade dos estudantes',curvy:.7,hilly:.8,len:1150,tunnels:1,facade:'#d8cdb8',radars:1,
+ {key:'aveiro',leg:1,name:'AVEIRO',sub:'Ria · moliceiros · Costa Nova',curvy:.4,hilly:.2,len:800,tunnels:0,facade:'#d8cdb8',radars:1,
+  road:['#66646c','#605e66'],grass:['#c8d9a0','#bccd92'],rumble:['#e63946','#f4f4f4'],lane:'#f4f4f4',fog:'#ffd6b0',fogD:3.5,
+  sky:[['#2a5aa8',0],['#7fb0e8',.5],['#ffc9a0',1]],sun:{r:34,y:84,x:700,c:['#fffbe0','#ffb070'],stripes:false},
+  traffic:['carW','carB','vespa','van2','carY'],
+  deco:[[['costa0','costa1','costa2','costa3'],6,1.5,2.4,.8],['moliceiro',17,1.3,1.5,.55],['salt',11,2.6,3.6,.6],['lamp',18,1.12,1.12,1]],
+  marks:[['flag',1.2,2]],
+  boards:[['OVOS MOLES','de Aveiro ▸'],['MOLICEIROS','passeios na ria'],['COSTA NOVA','casas às riscas'],['VENEZA DE PORTUGAL','Aveiro ▸'],['SAL DE AVEIRO','marinhas']],
+  signs:[[['AVEIRO','▸'],['COIMBRA','60']]],
+  luna:'Olha os moliceiros! 🚣',fact:'Aveiro is called the "Venice of Portugal" for its canals and painted moliceiro boats.'},
+ {key:'coimbra',leg:1,name:'COIMBRA',sub:'Universidade · Mondego',curvy:.7,hilly:.8,len:800,tunnels:1,facade:'#d8cdb8',radars:0,
   road:['#64606a','#5e5a64'],grass:['#6b9a4a','#618f42'],rumble:['#1a1a1a','#f4f4f4'],lane:'#f4f4f4',fog:'#e8a0b8',fogD:4,
   sky:[['#21254f',0],['#5d4a9e',.45],['#e58fb0',.8],['#ffd1a8',1]],sun:{r:40,y:100,x:560,c:['#fff4c0','#ff8fa3'],stripes:true},moon:{r:20,x:1500,y:50,phase:'full'},
   traffic:['carW','carB','vespa','vespa2','bus','carS'],
   deco:[[['houseC0','houseC1','houseC2','houseP1'],6,1.5,2.4,.75],[['student1','student2'],11,1.15,1.35,.55],['lamp',17,1.12,1.12,1],['tree1',21,2.6,3.4,.5]],
-  marks:[['uniTower',2.5,2],['pequenitos',2.1,1],['flag',1.2,2]],arches:0,
-  boards:[['SERENATA AO LUAR','fado de Coimbra 🌙'],['QUEIMA DAS FITAS','maio'],['UNIVERSIDADE','desde 1290'],['PORTUGAL DOS PEQUENITOS','▸'],['LEITÃO','da Bairrada ▸'],['PASTÉIS DE TENTÚGAL','▸']],
+  marks:[['uniTower',2.5,2],['pequenitos',2.1,1],['flag',1.2,1]],
+  boards:[['SERENATA AO LUAR','fado de Coimbra 🌙'],['QUEIMA DAS FITAS','maio'],['UNIVERSIDADE','desde 1290'],['PORTUGAL DOS PEQUENITOS','▸'],['LEITÃO','da Bairrada ▸']],
   signs:[[['LISBOA','200'],['FIGUEIRA','▸']]],
   luna:'Uma serenata ao luar! 🌙',fact:'The University of Coimbra dates back to 1290 — one of the oldest in the world.'},
- {key:'lisboa',birds:true,name:'LISBOA',sub:'Cidade das sete colinas',curvy:.5,hilly:.9,len:1150,tunnels:2,facade:'#e8dcc4',radars:1,
+ {key:'oeste',leg:1,name:'BATALHA · ÓBIDOS',sub:'Mosteiro · muralhas · Nazaré · Fátima',curvy:.6,hilly:.6,len:900,tunnels:1,facade:'#b8a67a',radars:1,
+  road:['#686470','#625e6a'],grass:['#5f8f3a','#568536'],rumble:['#d7263d','#f4f4f4'],lane:'#f4f4f4',fog:'#f0b090',fogD:4,
+  sky:[['#3a2a6a',0],['#c06aa0',.5],['#ffd08a',1]],sun:{r:44,y:104,x:1200,c:['#fff6c0','#ff7a54'],stripes:true},
+  traffic:['carW','carR','van','bus','carS'],
+  deco:[['pine',7,1.6,3.4,.7],[['whiteB','whiteY'],15,2.0,2.8,.45],['cypress',17,1.5,2,.4]],
+  marks:[['batalha',2.6,1],['obidos',2.3,2],['nazare',2.6,1],['fatima',2.8,1],['flag',1.2,1]],
+  boards:[['GINJINHA','de Óbidos ▸'],['ONDAS GIGANTES','Nazaré ▸'],['MOSTEIRO DA BATALHA','desde 1386'],['FÁTIMA','santuário ▸'],['VILA DAS RAINHAS','Óbidos']],
+  signs:[[['NAZARÉ','▸'],['LISBOA','90']]],
+  luna:'Óbidos parece um postal! 🏰',fact:'The Monastery of Batalha, begun in 1386, is a UNESCO World Heritage site.'},
+ {key:'lisboa',leg:2,birds:true,name:'LISBOA',sub:'Baixa · Belém · Alfama',curvy:.5,hilly:.9,len:950,tunnels:2,facade:'#e8dcc4',radars:1,
   road:['#5f5c63','#5a575e'],grass:['#ebe5d6','#d2cab8'],rumble:['#ffc61a','#2b2b2b'],lane:'#f4f4f4',fog:'#ff9a6a',fogD:4,
   sky:[['#24305e',0],['#a8486a',.45],['#ff8c5a',.8],['#ffd27a',1]],sun:{r:55,y:118,x:700,c:['#fff7b0','#ff6a3d'],stripes:true},
   traffic:['tuk','tuk2','tram','taxi','carY','vespa','bus'],
-  deco:[[['houseL0','houseL1','houseL2','houseL3','houseL4','houseL5'],5,1.5,2.4,.85],['lamp',14,1.12,1.12,1],[['palm1','palm2'],19,1.25,1.4,.6]],
-  marks:[['belem',2.3,2],['flag',1.2,3]],arches:0,
+  deco:[[['houseL0','houseL1','houseL2','houseL3','houseL4','houseL5'],5,1.5,2.4,.8],['lamp',14,1.12,1.12,1],[['palm1','palm2'],19,1.25,1.4,.6]],
+  marks:[['jeronimos',2.6,1],['belem',2.3,1],['santaJusta',2.0,2],['flag',1.2,2]],over:[['augusta',1],['aqueduto',1]],
   boards:[['PASTÉIS DE NATA','fresquinhos ▸'],['FADO AO VIVO','Alfama · 21h'],['ELÉTRICO 28','segure-se!'],['SARDINHAS','assadas'],['MIRADOURO ▸','vista top'],['7 COLINAS','boa sorte']],
   signs:[[['SINTRA','28'],['CASCAIS','30']],[['BELÉM','▸'],['ALFAMA','◂']]],
-  luna:'Quero andar no 28! 🚋',fact:'Lisbon: city of seven hills, yellow trams and pastéis de nata.'},
- {key:'sintra',name:'SINTRA',sub:'Serra & Palácio da Pena',curvy:1,hilly:.7,len:1100,tunnels:2,facade:'#4f5a48',radars:0,
+  luna:'Quero andar no 28! 🚋',fact:'The Tower of Belém and the Jerónimos Monastery are UNESCO World Heritage sites.'},
+ {key:'sintra',leg:2,name:'SINTRA',sub:'Pena · Castelo dos Mouros · Cabo da Roca',curvy:1,hilly:.7,len:800,tunnels:2,facade:'#4f5a48',radars:0,
   road:['#5a5a60','#55555b'],grass:['#2f6b35','#2a6030'],rumble:['#1f5fbf','#f4f4f4'],lane:'#f4f4f4',fog:'#9aa9bd',fogD:9,
   sky:[['#1d2b4a',0],['#4b5f86',.5],['#a9b8c9',1]],sun:{r:28,y:70,x:1100,c:['#ffffff','#e8e8d8'],stripes:false},moon:{r:22,x:400,y:46,phase:'crescent'},
   traffic:['tuk','carW','carK','van2','tuk2'],
   deco:[[['tree1','tree2'],3,1.3,3.2,.9],['fern',4,1.15,1.6,.6],['cypress',17,1.5,2,.4]],
-  marks:[['pena',3.2,2]],arches:0,
+  marks:[['pena',3.2,1],['mouros',2.6,2],['caboRoca',1.6,1]],
   boards:[['TRAVESSEIROS','pastelaria ▸'],['QUEIJADAS','de Sintra'],['LUA CHEIA','noite mágica 🌙'],['NEVOEIRO','abrande!'],['CABO DA ROCA','onde a terra acaba']],
   signs:[[['CABO DA ROCA','▸'],['PENA','◂']]],
   luna:'Parece um castelo de conto de fadas! 🏰',fact:"Sintra's palaces and forests are a UNESCO World Heritage site."},
- {key:'alentejo',name:'ALENTEJO',sub:'Planície dourada',curvy:.25,hilly:.3,len:1100,tunnels:0,facade:'#c9774a',radars:2,
+ {key:'alentejo',leg:3,name:'ALENTEJO',sub:'Évora · planície dourada',curvy:.25,hilly:.3,len:800,tunnels:0,facade:'#c9774a',radars:2,
   road:['#6d6862','#67625c'],grass:['#e2b64c','#d5a83f'],rumble:['#d7263d','#f4f4f4'],lane:'#f4f4f4',fog:'#ffc47a',fogD:3,
   sky:[['#ff5f6d',0],['#ff9966',.5],['#ffe08a',1]],sun:{r:72,y:120,x:1500,c:['#fffbd0','#ff8a3d'],stripes:true},
   traffic:['carW','carR','van','carK','carS'],
   deco:[['cork',11,1.6,4,.7],['hay',13,1.3,2.6,.5],['pine',29,2,3.5,.5]],
-  marks:[['windmill',2.4,4],['whiteB',2.0,3],['whiteY',2.1,2]],arches:0,
-  boards:[['DEVAGAR','se vai ao longe'],['CORTIÇA','made in Portugal'],['CÉU DE ESTRELAS','Alqueva Dark Sky ▸'],['CALOR!','44°C à sombra'],['MONTE ALENTEJANO','turismo rural ▸']],
-  signs:[[['ÉVORA','▸'],['BEJA','▸']]],
-  luna:'Que calor! ☀️',fact:'Portugal produces roughly half of the world\'s cork.'},
- {key:'algarve',birds:true,name:'ALGARVE',sub:'Falésias & praias',curvy:.6,hilly:.4,len:1100,tunnels:1,facade:'#c97a3a',radars:1,
+  marks:[['evora',2.4,1],['windmill',2.4,3],['whiteB',2.0,2],['whiteY',2.1,1]],
+  boards:[['DEVAGAR','se vai ao longe'],['CORTIÇA','made in Portugal'],['CÉU DE ESTRELAS','Alqueva Dark Sky ▸'],['CALOR!','44°C à sombra']],
+  signs:[[['ÉVORA','▸'],['FARO','170']]],
+  luna:'Que calor! ☀️',fact:"Évora's Roman Temple dates from the 1st century AD."},
+ {key:'algarve',leg:3,birds:true,name:'ALGARVE',sub:'Silves · Faro · falésias',curvy:.6,hilly:.4,len:1000,tunnels:1,facade:'#c97a3a',radars:1,
   road:['#66606a','#605a64'],grass:['#f0cf8a','#e8c37a'],rumble:['#ff7a1a','#f4f4f4'],lane:'#f4f4f4',fog:'#ff9e7a',fogD:4,
   sky:[['#0b0630',0],['#4a1a7a',.35],['#d63c7a',.7],['#ffb36b',1]],sun:{r:86,y:146,x:1100,c:['#ffe27a','#ff3d7f'],stripes:true},moon:{r:16,x:1700,y:40,phase:'crescent'},reflect:true,stars:true,
   traffic:['van','van2','carB','carY','vespa','carW'],
   deco:[[['palm1','palm2','palm3'],6,1.3,2.2,.8],[['umbR','umbB'],9,2.0,3.0,.5],['surf',31,1.4,1.6,.5]],
-  marks:[['rock1',2.8,4],['rock2',3.0,3],['lighthouse',2.2,2]],arches:0,
+  marks:[['silves',2.6,1],['chimney',2.0,3],['rock1',2.8,3],['rock2',3.0,2],['lighthouse',2.2,1]],over:[['arcoVila',1]],
   boards:[['LUA DE MEL','suites com vista 🌙'],['PRAIA ▸','2 km'],['CATAPLANA','de marisco'],['SURF SCHOOL','Sagres ▸'],['PROTETOR SOLAR!','FPS 50']],
   signs:[[['FARO','▸'],['LAGOS','◂']],[['SAGRES','▸']]],
   luna:'Praia, finalmente! 🏖️',fact:'The Algarve gets around 300 days of sunshine a year.'}
 ];
-const BONUS=[50,30,30,30,30,28,28];
 const boardCols=[['#ffd23f','#1b1040'],['#da291c','#fff'],['#046a38','#fff'],['#1f5fbf','#fff'],['#f4f1ea','#b5121b'],['#ff7a1a','#fff']];
 
 // ------------------------------------------------------------------ track
-let segments=[], curStage=0, stageStart=[], cpIdx=[], goalIdx=0, goalZ=0;
+let cpLines=new Set(), segments=[], curStage=0, stageStart=[], cpIdx=[], goalIdx=0, goalZ=0;
 const lastY=()=>segments.length?segments[segments.length-1].p2.world.y:0;
 function addSegment(curve,y){
   const n=segments.length;
@@ -704,6 +1006,7 @@ function buildTrack(){
   curStage=STAGES.length-1;
   const fs=segments.length;addRoad(30,60,30,0,-lastY()/segL);addRoad(0,520,0,0,0);
   goalIdx=fs+60;goalZ=goalIdx*segL;
+  cpLines=new Set(STAGES.map((z,i)=>i>0&&STAGES[i-1].leg!==z.leg?cpIdx[i]:-1));
   decorate();
 }
 function decorate(){
@@ -714,16 +1017,17 @@ function decorate(){
       const ks=Array.isArray(keys)?keys:[keys];
       for(let i=a+ri;i<b;i+=every)for(const side of [-1,1])if(R()<ch)addSprite(i+((R()*every*0.5)|0),pick(R,ks),side*(o0+R()*(o1-o0)));
     });
-    st.marks.forEach(([k,off,n])=>{for(let j=0;j<n;j++){const i=a+Math.floor((j+0.5)/n*(b-a))+((R()*40)|0)-20;const side=R()<.5?-1:1;segments[i].sprites=segments[i].sprites.filter(s=>Math.sign(s.offset)!==side||Math.abs(s.offset)>off+2.5||Math.abs(s.offset)<off-1.5);addSprite(i,k,side*off);}});
+    st.marks.forEach(([k,off,n],mi)=>{for(let j=0;j<n;j++){let i=a+Math.floor((j+0.5)/n*(b-a))+((R()*40)|0)-20+(n===1?(mi%3-1)*90:0);i=clamp(i,a+10,b-10);let g=0;while(segments[i].tunnel&&g++<40)i=i+30<b?i+30:a+15+g*7;const side=R()<.5?-1:1;const LM=new Set(['seP','carmo','saoBento','camara','batalha','obidos','fatima','nazare','jeronimos','belem','evora','silves','uniTower','clerigos','mouros','chimney']);const o2=LM.has(k)?Math.min(off,1.75):off;for(let q=Math.max(0,i-12);q<Math.min(segments.length,i+4);q++)segments[q].sprites=segments[q].sprites.filter(s=>s.pickup||s.over||LM.has(s.key)||s.key==='radar'||Math.sign(s.offset)!==side||Math.abs(s.offset)<1.05||(q!==i&&Math.abs(s.offset)>o2+(SP[k].ww||1)+1));addSprite(i,k,side*o2);}});
     let bi=0;for(let i=a+40;i<b-20;i+=95){const side=bi%2?1:-1;const B=st.boards[bi%st.boards.length];const key=`board_${si}_${bi%st.boards.length}`;
       if(!SP[key]){const cc=boardCols[(si+bi)%boardCols.length];SP[key]={img:board(B[0],B[1],cc[0],cc[1]),ww:1.15,hit:0.9};}
       addSprite(i,key,side*1.3);bi++;}
     st.signs.forEach((lines,j)=>{const key=`sign_${si}_${j}`;SP[key]={img:blueSign(lines),ww:1.0,hit:0.9};addSprite(a+15+Math.floor((j+0.3)/st.signs.length*(b-a-60)),key,1.25);});
-    for(let j=0;j<st.arches;j++){const i=a+Math.floor((j+0.6)/st.arches*(b-a-80));addSprite(i,'arch',0,{over:true});}
+    (st.over||[]).forEach(([k,n],ki)=>{for(let j=0;j<n;j++){let i=a+Math.floor((j+0.6)/n*(b-a-80))-ki*220;while(segments[i].tunnel)i+=30;segments[i].sprites=segments[i].sprites.filter(p=>p.pickup||Math.abs(p.offset)>3);addSprite(i,k,0,{over:true});}});
     for(let i=a+30;i<b-10;i+=38){if(R()<0.75){const lane=pick(R,[-0.66,0,0.66]);const n=R()<0.35?3:1;for(let k=0;k<n;k++)addSprite(i+k*6,'nata',lane,{pickup:true});}}
     for(let i=a+90;i<b-30;i+=170)addSprite(i,'bica',pick(R,[-0.66,0,0.66]),{pickup:true});
     for(let j=0;j<st.radars;j++){let i=a+120+Math.floor((j+0.5)/st.radars*(b-a-260));while(segments[i].tunnel)i+=20;segments[i].radar=true;segments[i].sprites=segments[i].sprites.filter(s=>s.offset<0||s.pickup);addSprite(i,'radar',1.2);}
-    if(si>0){const key='gateCP'+si;SP[key]={img:gate('CHECKPOINT · '+st.name,'cp'),ww:3.2,hit:0};addSprite(cpIdx[si],key,0,{over:true});addSprite(cpIdx[si],'flag',-1.8);addSprite(cpIdx[si],'flag',1.8);}
+    if(si>0&&STAGES[si-1].leg===st.leg){const key='zs'+si;SP[key]={img:zoneSign(st.name,st.sub),ww:1.15,hit:0.9};addSprite(cpIdx[si]-6,key,1.3);addSprite(cpIdx[si]-6,key,-1.3);}
+    if(si>0&&STAGES[si-1].leg!==st.leg){const key='gateCP'+si;SP[key]={img:gate('CHECKPOINT · '+LEGS[st.leg].name,'cp'),ww:3.2,hit:0};addSprite(cpIdx[si],key,0,{over:true});addSprite(cpIdx[si],'flag',-1.8);addSprite(cpIdx[si],'flag',1.8);}
   });
   addSprite(10,'gateStart',0,{over:true});addSprite(10,'flag',-1.8);addSprite(10,'flag',1.8);
   addSprite(goalIdx,'gateGoal',0,{over:true});
@@ -781,6 +1085,20 @@ function buildBG(si){
     near=mk(LW,LH,g=>{const gr=g.createLinearGradient(0,198,0,LH);gr.addColorStop(0,'#d8a0c8');gr.addColorStop(1,'#46407a');g.fillStyle=gr;g.fillRect(0,198,LW,LH-198);g.fillStyle='rgba(255,230,240,.4)';for(let i=0;i<50;i++)g.fillRect(R()*LW,200+R()*36,6+R()*14,1);
       g.fillStyle='#3e3560';g.fillRect(250,188,520,7);for(let x=260;x<770;x+=46)g.fillRect(x,195,6,20);
       for(let x=0;x<LW;x+=18){if(x>240&&x<780)continue;ell(g,x+9,198,10,7,'#2e2a4a');}});
+  }else if(key==='aveiro'){
+    far=mk(LW,LH,g=>{clouds(g,R,'rgba(255,255,255,.55)',7);ridge(g,200,6,1.4,'#7a8fb0',[[1,.6],[3,.3]]);
+      for(let x=10;x<LW;x+=34){if(R()<.6){const c=pick(R,['#d62828','#2a9d8f','#1f5fbf','#e8b923']);const hh=10+R()*6,yb=rY(x,200,6,1.4,[[1,.6],[3,.3]]);for(let k=0;k<5;k++){g.fillStyle=k%2?'#fff':c;g.fillRect(x+k*3,yb-hh,3,hh);}poly(g,[x-1,yb-hh,x+7.5,yb-hh-6,x+16,yb-hh],'#b5532f');}}
+      for(let i=0;i<14;i++){const x=R()*LW,b=206;poly(g,[x,b,x+6,b-7,x+12,b],'#ffffff');}});
+    near=mk(LW,LH,g=>{const gr=g.createLinearGradient(0,204,0,LH);gr.addColorStop(0,'#9cc8ec');gr.addColorStop(1,'#3a6fa8');g.fillStyle=gr;g.fillRect(0,204,LW,LH-204);
+      g.fillStyle='rgba(255,255,255,.45)';for(let i=0;i<60;i++)g.fillRect(R()*LW,206+R()*30,6+R()*14,1);
+      const mol=(x,y,c)=>{g.fillStyle='#1d1d1d';g.beginPath();g.moveTo(x-16,y);g.quadraticCurveTo(x,y+5,x+14,y);g.quadraticCurveTo(x+20,y-8,x+17,y-16);g.quadraticCurveTo(x+14,y-6,x+10,y-3);g.lineTo(x-14,y-3);g.closePath();g.fill();g.fillStyle=c;g.fillRect(x-10,y-3,18,2);};
+      mol(150,214,'#ffd23f');mol(420,218,'#e63946');mol(700,212,'#2a9d8f');mol(900,216,'#ffd23f');});
+  }else if(key==='oeste'){
+    far=mk(LW,LH,g=>{clouds(g,R,'rgba(255,210,220,.45)',6);ridge(g,170,26,3.1,'#6a4f7e',KS1);
+      const ox=330,ot=rY(ox,170,26,3.1,KS1);g.fillStyle='#d8c9a3';g.fillRect(ox-60,ot-14,120,16);for(let x=ox-60;x<ox+60;x+=7)g.fillRect(x,ot-18,4,4);g.fillRect(ox-12,ot-34,24,22);for(let x=ox-12;x<ox+12;x+=6)g.fillRect(x,ot-38,3,4);
+      for(let i=0;i<16;i++){const x=ox-56+i*7;g.fillStyle='#fbf7ec';g.fillRect(x,ot-6+((i*7)%5),6,7);g.fillStyle='#c0603a';g.fillRect(x,ot-7+((i*7)%5),6,2);}
+      const bx=760,bt=rY(bx,170,26,3.1,KS1);g.fillStyle='#d9c08a';g.fillRect(bx-40,bt-24,80,26);for(let x=bx-40;x<=bx+40;x+=8)poly(g,[x-2,bt-24,x,bt-36,x+2,bt-24],'#d9c08a');poly(g,[bx-14,bt-24,bx,bt-48,bx+14,bt-24],'#d9c08a');});
+    near=mk(LW,LH,g=>{ridge(g,200,14,1.9,'#2e4a2a',KS3);for(let i=0;i<30;i++){const x=R()*LW,b=rY(x,200,14,1.9,KS3);g.fillStyle='#3b2a1a';g.fillRect(x-1,b-14,2,14);ell(g,x,b-16,12,5,'#26402a');}});
   }else if(key==='lisboa'){
     far=mk(LW,LH,g=>{clouds(g,R,'rgba(255,190,170,.45)',6);ridge(g,145,40,3.3,'#7a4a6a',KS1);
       for(let x=0;x<LW;x+=8){const top=rY(x+4,145,40,3.3,KS1);for(let y=top+3;y<LH;y+=8){if(R()<.9){g.fillStyle=pick(R,['#e8d0c0','#d9b0a0','#f0d8c8','#c9a0b0','#e0c090','#d8c8d8']);g.fillRect(x,y,7,7);g.fillStyle='#b05a40';g.fillRect(x,y,7,2);}}}
@@ -828,7 +1146,7 @@ function buildBG(si){
 
 // ------------------------------------------------------------------ game state
 let state='title';
-let position=0, playerX=0, speed=0, steer=0, stageIdx=0, timeLeft=50, score=0, natas=0;
+let legIdx=0, position=0, playerX=0, speed=0, steer=0, stageIdx=0, timeLeft=50, score=0, natas=0;
 let bgOff=[0,0,0], crash=null, shake=0, shx=0, shy=0, flashT=0, finishT=0, overT=0, raceTime=0;
 let boosts=0, boostT=0, braking=false, wheelPhase=0, lastPIdx=0, inTunnel=false, behindT=0, passes=0;
 let police=null, busted=null, policeScr=null, renderBaseIdx=0;
@@ -992,7 +1310,7 @@ function updateBusted(dt){
 
 // ------------------------------------------------------------------ update
 function startRace(){
-  position=0;playerX=0;speed=0;steer=0;stageIdx=0;timeLeft=BONUS[0];score=0;natas=0;crash=null;finishT=0;overT=0;raceTime=0;bgOff=[0,0,0];
+  position=0;playerX=0;speed=0;steer=0;stageIdx=0;legIdx=0;timeLeft=LEGS[0].bonus;score=0;natas=0;crash=null;finishT=0;overT=0;raceTime=0;bgOff=[0,0,0];
   boosts=0;boostT=0;lastPIdx=0;inTunnel=false;police=null;busted=null;behindT=0;passes=0;shoutCD=0;lunaCD=9;flashT=0;
   parts.length=0;fw.length=0;bubbles.length=0;setAnim('w','idle',0);setAnim('d','idle',0);
   for(const s of segments)for(const sp of s.sprites)if(sp.pickup)sp.taken=false;
@@ -1022,7 +1340,7 @@ function update(dt){
     if(brake&&!input.gas&&!(k.ArrowUp||k.w||k.W))gas=false;
     const kb=((input.right||k.ArrowRight||k.d||k.D)?1:0)-((input.left||k.ArrowLeft||k.a||k.A)?1:0);
     target=kb!==0?kb:(settings.ctrl==='tilt'?tiltSteer():0);
-  }else if(['title','radio','hiscore'].includes(state)){
+  }else if(['title','radio','hiscore','intro'].includes(state)){
     gas=pct<0.62;target=clamp(-playerX*1.6+pSeg.curve*0.35,-1,1);
     if(pSeg.index>stageStart[1]-60){position=0;playerX=0;speed=maxSpeed*0.4;resetCars();}
   }else if(busted){brake=true;target=clamp(-playerX*0.5,-0.3,0.3);}
@@ -1043,7 +1361,7 @@ function update(dt){
   if(off&&speed>offRoadLimit&&!crash)speed+=offRoadDecel*dt;
   if(ctrlOK){
     if(off){for(const s of pSeg.sprites){const sp=SP[s.key];if(s.pickup||!sp.hit)continue;const sw=sp.ww*sp.hit;if(overlap(playerX,PLAYER_HITW,s.offset+sw/2*(s.offset>0?1:-1),sw)){hitObstacle(pSeg);break;}}}
-    if(!crash)for(const s of pSeg.sprites){if(s.key==='arch'&&Math.abs(playerX)>1.5){hitObstacle(pSeg);break;}}
+    if(!crash)for(const s of pSeg.sprites){const pl=s.over&&SP[s.key].pillar;if(pl&&Math.abs(playerX)>pl[0]&&Math.abs(playerX)<pl[1]+0.3){hitObstacle(pSeg);break;}}
     if(!crash&&pSeg.tunnel&&Math.abs(playerX)>TUN_W-0.12){playerX=Math.sign(playerX)*(TUN_W-0.2);speed*=0.6;sfx('bump');shake=0.25;if(Math.random()<.5)say('w','Cuidado com a parede!',1.6);}
     for(let i=Math.min(lastPIdx+1,pSeg.index);i<=pSeg.index;i++){checkPickups(segments[i]);if(segments[i].radar&&speed>maxSpeed*0.85&&!police)startPolice();}
     if(!crash)for(const c of pSeg.cars){const cs=c.speed*maxSpeed;const sp=SP[c.key];if(speed>cs&&overlap(playerX,PLAYER_HITW,c.offset,sp.ww*0.9,0.85)){
@@ -1073,9 +1391,11 @@ function update(dt){
   if(state==='play'){
     timeLeft-=dt;raceTime+=dt;score+=speed*dt*0.012;
     const ns=stageIdx+1;
-    if(ns<STAGES.length&&pSeg.index>=cpIdx[ns]){stageIdx=ns;timeLeft+=BONUS[ns];sfx('cp');crewEvent('cp');spawnFirework();spawnFirework();
-      showToast('CHECKPOINT!',`+${BONUS[ns]} s · BEM-VINDOS: ${STAGES[ns].name}`,STAGES[ns].fact);say('w',STAGES[ns].luna,3,true);
-      if(police&&police.phase!=='busted')policeGiveUp(true);}
+    if(ns<STAGES.length&&pSeg.index>=cpIdx[ns]){stageIdx=ns;const z=STAGES[ns];
+      if(z.leg!==legIdx){legIdx=z.leg;const L=LEGS[legIdx];timeLeft+=L.bonus;sfx('cp');crewEvent('cp');spawnFirework();spawnFirework();
+        showToast('CHECKPOINT!',`+${L.bonus} s · ETAPA ${legIdx+1}: ${L.name}`,z.fact);if(police&&police.phase!=='busted')policeGiveUp(true);}
+      else{showToast(z.name,z.sub,z.fact);sfx('pickup');}
+      say('w',z.luna,3,true);showMini(4.5);}
     if(pSeg.index>=goalIdx){state='finish';finishT=0;sfx('goal');crewEvent('finish');police=null;busted=null;say('w','CHEGÁMOS! 🌙',4,true);say('d','MADE IN MAIA, BABY!',4,true);}
     else if(timeLeft<=0){timeLeft=0;state='over';overT=0;sfx('over');say('d','Ai... ficámos sem tempo!',3,true);busted=null;if(police)police.phase='leave';}
     if(!crash&&!busted){lunaCD-=dt;if(lunaCD<=0){lunaCD=11+Math.random()*10;const L=pick(Math.random,LUNA_LINES);if(say('w',L[0],2.6)&&L[1]&&crew.w.a==='idle')setAnim('w',L[1],2.4);}}
@@ -1122,7 +1442,7 @@ function drawSegment(s){
     ctx.fillStyle=tun?(a?'#26242e':'#2e2b38'):st.grass[a];ctx.fillRect(0,y2,W,y1-y2+1);
     const r1=w1/6,r2=w2/6;
     quad(x1-w1-r1,y1,x1-w1,y1,x2-w2,y2,x2-w2-r2,y2,st.rumble[a]);quad(x1+w1+r1,y1,x1+w1,y1,x2+w2,y2,x2+w2+r2,y2,st.rumble[a]);
-    const isLine=(s.index>=8&&s.index<=10)||Math.abs(s.index-goalIdx)<=1||cpIdx.includes(s.index);
+    const isLine=(s.index>=8&&s.index<=10)||Math.abs(s.index-goalIdx)<=1||cpLines.has(s.index);
     quad(x1-w1,y1,x1+w1,y1,x2+w2,y2,x2-w2,y2,isLine?(s.index%2?'#f4f4f4':'#1a1a1a'):(tun?(a?'#4a4650':'#504c58'):st.road[a]));
     if(!a&&!isLine){const l1=w1/32,l2=w2/32,lw1=w1*2/lanes,lw2=w2*2/lanes;let lx1=x1-w1+lw1,lx2=x2-w2+lw2;for(let l=1;l<lanes;l++,lx1+=lw1,lx2+=lw2)quad(lx1-l1/2,y1,lx1+l1/2,y1,lx2+l2/2,y2,lx2-l2/2,y2,tun?'#ffd27a':st.lane);}
     if(!isLine){const e1=w1/40,e2=w2/40;quad(x1-w1+e1,y1,x1-w1+e1*2,y1,x2-w2+e2*2,y2,x2-w2+e2,y2,'rgba(255,255,255,.5)');quad(x1+w1-e1,y1,x1+w1-e1*2,y1,x2+w2-e2*2,y2,x2+w2-e2,y2,'rgba(255,255,255,.5)');}
@@ -1312,7 +1632,7 @@ function drawCarAll(g,lean,brake,boostOn,T,wp,crewOn,pctV){
     if(brake&&!k){const rg=g.createRadialGradient(lx,-37,2,lx,-37,18);rg.addColorStop(0,'rgba(255,70,70,.85)');rg.addColorStop(1,'rgba(255,0,0,0)');g.fillStyle=rg;g.fillRect(lx-18,-55,36,36);}
     circ(g,lx-1.6,-38.6,1.6,'rgba(255,255,255,.6)');}
   g.fillStyle='#f4f4f4';rr(g,-21,-42,42,12,2);g.fill();g.fillStyle='#1f4fbf';g.fillRect(-21,-42,6,12);g.fillStyle='#ffd400';g.fillRect(15,-42,6,12);
-  g.fillStyle='#fff';g.font='bold 3.5px sans-serif';g.fillText('P',-18,-33);g.fillStyle='#222';g.font='bold 8px monospace';g.fillText('LUNA·80',0,-33);
+  g.fillStyle='#fff';g.font='bold 3.5px sans-serif';g.fillText('P',-18,-33);g.fillStyle='#222';g.font='900 6.2px "Arial Black",sans-serif';g.textAlign='right';g.fillText('MiM',-2.6,-33.4);g.textAlign='left';g.fillText('LUNA',2.8,-33.4);g.textAlign='center';{const hx=0.1,hy=-37.6,k=0.55;g.fillStyle='#e0102a';g.beginPath();g.moveTo(hx,hy+4*k);g.bezierCurveTo(hx-5*k,hy+0.5*k,hx-3.2*k,hy-3.6*k,hx,hy-1.2*k);g.bezierCurveTo(hx+3.2*k,hy-3.6*k,hx+5*k,hy+0.5*k,hx,hy+4*k);g.fill();}
   g.fillStyle='#fff';rr(g,-58,-27,30,6,1.5);g.fill();g.fillStyle='#1f5fbf';g.font='900 4.2px "Arial Black",sans-serif';g.fillText('MADE IN MAIA',-43,-22.6);
   g.fillStyle='#ffd23f';rr(g,30,-27,24,6,1.5);g.fill();g.fillStyle='#1b1040';g.fillText('🌙 LUA',42,-22.6);
   g.fillStyle='#121212';rr(g,-72,-20,144,10,4);g.fill();g.fillStyle='#333';for(let x=-40;x<=40;x+=10)g.fillRect(x-1,-20,2,10);
@@ -1445,7 +1765,7 @@ const hudCache={};
 function setT(id,v){if(hudCache[id]!==v){hudCache[id]=v;$(id).textContent=v;}}
 function buildRoute(){
   const r=$('route');r.querySelectorAll('.dot,.car').forEach(e=>e.remove());
-  STAGES.forEach((s,i)=>{const d=document.createElement('div');d.className='dot';d.style.left=(stageStart[i]/goalIdx*100)+'%';r.appendChild(d);});
+  LEGS.forEach((L,i)=>{const zi=STAGES.findIndex(z=>z.leg===i);const d=document.createElement('div');d.className='dot';d.style.left=(stageStart[zi]/goalIdx*100)+'%';r.appendChild(d);});
   const g=document.createElement('div');g.className='dot';g.style.left='100%';g.style.borderColor='#da291c';r.appendChild(g);
   const c=document.createElement('div');c.className='car';r.appendChild(c);
 }
@@ -1453,16 +1773,16 @@ function updateHUD(){
   if(!['play','finish','over','count'].includes(state))return;
   setT('time',String(Math.ceil(timeLeft)));$('time').classList.toggle('low',timeLeft<10&&state==='play');
   setT('score',Math.floor(score).toLocaleString('pt-PT'));setT('natas','🥧 NATAS '+natas);
-  setT('stage',`ETAPA ${stageIdx+1}/${STAGES.length} · ${STAGES[stageIdx].name}`);
+  setT('stage',`ETAPA ${legIdx+1}/${LEGS.length} · ${STAGES[stageIdx].name}`);
   if(hudCache.b!==boosts){hudCache.b=boosts;$('boosts').innerHTML='TURBO '+[0,1,2].map(i=>`<span class="${i<boosts?'':'off'}">⚡</span>`).join('');$('boostN').textContent=boosts;$('cBoost').classList.toggle('empty',boosts===0);}
   const prog=clamp((position+playerZ)/goalZ,0,1),r=$('route');r.querySelector('.fill').style.width=(prog*100)+'%';r.querySelector('.car').style.left=(prog*100)+'%';
-  r.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('done',i<=stageIdx));
+  r.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('done',i<=legIdx));
   const cw=!!police&&(police.phase==='chase'||police.phase==='ahead');if(hudCache.cw!==cw){hudCache.cw=cw;$('copWarn').classList.toggle('hidden',!cw);}
   if(settings.ctrl==='tilt')$('wheel').style.transform=`rotate(${steer*90}deg)`;
   drawGauge();drawMirror();
 }
 let toastTimer=0;
-function showToast(a,b,c){const t=$('toast');t.querySelector('.t1').textContent=a;t.querySelector('.t2').textContent=b;const t3=t.querySelector('.t3');t3.textContent=c||'';t3.style.display=c?'inline-block':'none';t.classList.remove('hidden');t.style.animation='none';void t.offsetWidth;t.style.animation='';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.add('hidden'),4200);}
+function showToast(a,b,c){const t=$('toast');t.querySelector('.t1').textContent=a;t.querySelector('.t2').textContent=b;const t3=t.querySelector('.t3');t3.textContent=c||'';t3.style.display=c?'inline-block':'none';t.classList.remove('hidden');t.style.animation='none';void t.offsetWidth;t.style.animation='';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.add('hidden'),3300);}
 function popText(txt,big){const d=document.createElement('div');d.className='pop';d.textContent=txt;d.style.left='50%';d.style.top=(big?40:60)+'%';d.style.transform='translateX(-50%)';if(big===2){d.style.color='#ff5050';d.style.fontSize='clamp(24px,8vmin,48px)';}document.body.appendChild(d);setTimeout(()=>d.remove(),1000);}
 
 // ------------------------------------------------------------------ AUDIO
@@ -1580,7 +1900,7 @@ function commitScore(){if(!pendingScore)return -1;const n=ini.join('');store.set
 // ------------------------------------------------------------------ flow / UI
 const isTouch=matchMedia('(pointer:coarse)').matches||'ontouchstart' in window;
 if(isTouch)$('keysHint').textContent='Pedais à esquerda · volante à direita · ou inclina o telemóvel 📱';
-function show(id){['title','radio','pause','over','hiscore'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
+function show(id){['intro','title','radio','pause','over','hiscore'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
 function setStation(i){settings.station=i;store.set('station',i);const S=SONGS[i];$('lcdF').textContent=S.freq+' FM';$('lcdN').textContent=S.name;$('radioName').textContent=S.name;document.querySelectorAll('.preset').forEach((b,k)=>b.classList.toggle('sel',k===i));}
 SONGS.forEach((S,i)=>{const b=document.createElement('button');b.className='preset';b.innerHTML=`<b>${S.freq}</b>${S.name}<br><span style="opacity:.7;font-family:system-ui;font-weight:600">${S.desc}</span>`;b.onclick=()=>{aInit();setStation(i);musicStart(i);};$('presets').appendChild(b);});
 $('playBtn').onclick=()=>{aInit();sfx('click');
@@ -1594,11 +1914,11 @@ function beginCountdown(){
   buildRoute();for(const k in hudCache)delete hudCache[k];updateHUD();
   const c=$('count');c.classList.remove('hidden');let n=3;c.textContent=n;sfx('beep');
   const iv=setInterval(()=>{n--;if(n>0){c.textContent=n;sfx('beep');}else if(n===0){c.textContent='VAI!';sfx('go');state='play';say('d','Bora, Luna! Rumo ao Algarve!',2.4,true);setTimeout(()=>say('w','Bora! 🌙',1.6,true),900);}else{clearInterval(iv);c.classList.add('hidden');}},800);
-  showToast('PORTO','Partida · rumo ao Algarve!',STAGES[0].fact);
+  showToast('PORTO','Partida · rumo ao Algarve!',STAGES[0].fact);showMini(5);
 }
 function pauseGame(){if(state!=='play')return;state='paused';show('pause');musicStop();engineSound(-1);sirenSound(false);ptrs.clear();evalPtrs();}
 function resumeGame(){show(null);state='play';aInit();musicResume();rects={};requestAnimationFrame(cacheRects);}
-function toMenu(){commitScore();musicStop();state='title';show('title');inGameUI(false);['toast','count'].forEach(i=>$(i).classList.add('hidden'));startRace();speed=maxSpeed*0.4;$('bestScore').textContent=best.toLocaleString('pt-PT');engineSound(-1);sirenSound(false);}
+function toMenu(){commitScore();buildTicker();musicStop();state='title';show('title');inGameUI(false);['toast','count'].forEach(i=>$(i).classList.add('hidden'));startRace();speed=maxSpeed*0.4;$('bestScore').textContent=best.toLocaleString('pt-PT');engineSound(-1);sirenSound(false);}
 $('resumeBtn').onclick=resumeGame;$('pauseBtn').onclick=e=>{e.stopPropagation();pauseGame();};
 $('ctrlBtn').onclick=e=>{e.stopPropagation();setCtrl(settings.ctrl==='tilt'?'btn':'tilt');setTimeout(()=>{rects={};cacheRects();},50);};
 $('restartBtn').onclick=()=>{aInit();musicStart(settings.station);beginCountdown();};
@@ -1622,19 +1942,38 @@ function showEnd(win){
   const fs=Math.floor(score);
   $('overT').innerHTML=win?'CHEGÁMOS AO ALGARVE! 🌙<small>LUNA &amp; O MAIATO · FIM DA ROTA</small>':'ACABOU O TEMPO!<small>GAME OVER</small>';
   const m=Math.floor(raceTime/60),s=Math.floor(raceTime%60);
-  $('overS').innerHTML=(win?`Viagem: <b>${m}:${String(s).padStart(2,'0')}</b> · Bónus: <b>+${bonus.toLocaleString('pt-PT')}</b><br>`:`Chegaste a: <b>${STAGES[stageIdx].name}</b><br>`)+`🥧 <b>${natas}</b> · Ultrapassagens <b>${passes}</b> · Pontos <b>${fs.toLocaleString('pt-PT')}</b>`;
+  $('overS').innerHTML=(win?`Viagem: <b>${m}:${String(s).padStart(2,'0')}</b> · Bónus: <b>+${bonus.toLocaleString('pt-PT')}</b><br>`:`Chegaste a: <b>${STAGES[stageIdx].name}</b> · Etapa ${legIdx+1}/4<br>`)+`🥧 <b>${natas}</b> · Ultrapassagens <b>${passes}</b> · Pontos <b>${fs.toLocaleString('pt-PT')}</b>`;
   $('overTable').innerHTML='';
   if(qualifies(fs)){pendingScore={s:fs,st:stageIdx,w:win};$('nameEntry').classList.remove('hidden');buildSlots();}
   else{pendingScore=null;$('nameEntry').classList.add('hidden');renderTable($('overTable'),-1,5);}
   show('over');$('controls').classList.add('hidden');$('pauseBtn').classList.add('hidden');$('ctrlBtn').classList.add('hidden');ptrs.clear();evalPtrs();
 }
 
+
+// ------------------------------------------------------------------ maps & splash runtime
+let miniT=0;
+function showMini(t){miniT=t;}
+function zoneProgress(){const pz=position+playerZ,z=stageIdx,a=stageStart[z],b=z+1<stageStart.length?stageStart[z+1]:goalIdx;return z+clamp((pz/segL-a)/(b-a),0,0.999);}
+const mapCtx={};['euroMap','miniMap','pauseMap','radioMap','endMap'].forEach(id=>mapCtx[id]=$(id).getContext('2d'));
+const vis=id=>{const e=$(id);return e&&!e.classList.contains('hidden')&&e.offsetParent!==null;};
+function drawMaps(dt){
+  const T=perfNow/1000;
+  if(vis('euroMap'))drawEuroMap(mapCtx.euroMap,560,380,T,{labels:true});
+  const mm=$('miniMap');if(miniT>0){miniT-=dt;mm.classList.add('show');}else mm.classList.remove('show');
+  if(miniT>-0.5&&['play','count','finish'].includes(state))drawPortugalMap(mapCtx.miniMap,240,320,T,zoneProgress());
+  if(vis('pauseMap'))drawPortugalMap(mapCtx.pauseMap,240,320,T,zoneProgress());
+  if(vis('radioMap'))drawPortugalMap(mapCtx.radioMap,240,320,T,0);
+  if(vis('endMap'))drawEuroMap(mapCtx.endMap,520,350,T,{labels:true,done:state==='finish'});
+}
+function buildTicker(){const L=scores.slice(0,10);$('ticker').textContent=L.length?'🏆 RECORDES  ·  '+L.map((e,i)=>`${i+1}. ${e.n} ${e.s.toLocaleString('pt-PT')}`).join('   ·   ')+'   ·   MADE IN MAIA 🌙':'🏆 SÊ O PRIMEIRO NOS RECORDES · PORTO ➜ ALGARVE · MADE IN MAIA 🌙 · NEXT: EURO TOUR';}
+function endIntro(){if(state!=='intro')return;state='title';show('title');buildTicker();checkRotate();}
+
 // ------------------------------------------------------------------ main loop
 let last=performance.now(),acc=0;
 function frame(now){
   perfNow=now;const dt=Math.min(0.25,(now-last)/1000);last=now;acc+=dt;
   let n=0;while(acc>=STEP&&n<8){update(STEP);acc-=STEP;n++;}if(n>=8)acc=0;
-  render();renderFX();updateHUD();
+  render();renderFX();updateHUD();drawMaps(dt);
   requestAnimationFrame(frame);
 }
 
@@ -1643,6 +1982,7 @@ resize();buildSprites();buildTrack();applyAuto();applySound();applyCtrl();
 tilePat=ctx.createPattern(mk(12,12,g=>tiles(g,0,0,12,12,12)),'repeat');
 if(settings.ctrl==='tilt')listenTilt();
 $('bestScore').textContent=best.toLocaleString('pt-PT');
+state='intro';show('intro');$('intro').onclick=endIntro;setTimeout(endIntro,2600);
 startRace();speed=maxSpeed*0.4;
 for(let i=0;i<STAGES.length;i++)setTimeout(()=>buildBG(i),50+i*30);
 requestAnimationFrame(frame);
