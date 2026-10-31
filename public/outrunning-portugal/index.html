@@ -172,6 +172,95 @@ body.swap #cLeft{right:auto;left:var(--L)}
 body.swap #tiltInd{right:auto;left:var(--L)}
 body.swap #miniMap{right:auto;left:var(--L)}
 body.swap #gauge{top:auto;bottom:calc(var(--B) + var(--st) + var(--gap))}
+
+/* ===== animated screens ===== */
+#intro{padding:0}
+#introC{position:absolute;inset:0;width:100%;height:100%}
+.introTxt{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:-22vh}
+#intro img{width:min(62vw,480px);opacity:0;animation:logoDrop 1s 1.2s cubic-bezier(.2,1.4,.4,1) forwards;filter:drop-shadow(0 0 18px rgba(255,61,127,.8))}
+#intro .pres{opacity:0;animation:fadeUp .6s 1.9s ease forwards;font-style:italic;letter-spacing:.5em;color:#ffd23f;font-size:clamp(11px,2.8vmin,16px);text-shadow:2px 2px 0 #000}
+#intro .pres2{opacity:0;animation:fadeUp .6s 2.3s ease forwards;font-family:system-ui,sans-serif;font-weight:700;font-size:clamp(10px,2.4vmin,14px);color:#fff;text-shadow:1px 1px 0 #000}
+#intro .skip{position:absolute;right:16px;bottom:max(12px,env(safe-area-inset-bottom));font-family:system-ui,sans-serif;font-size:12px;opacity:.6}
+#intro.out{opacity:0;transition:opacity .45s}
+@keyframes logoDrop{from{opacity:0;transform:scale(2.4) translateY(-30px);filter:blur(8px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.logo span{background-size:100% 220%;animation:chrome 4s ease-in-out infinite}
+.logo span+span{animation-delay:.25s}
+@keyframes chrome{0%,100%{background-position:0 0}50%{background-position:0 100%}}
+#title:not(.hidden) .logo{animation:logoIn .9s cubic-bezier(.2,1.3,.4,1) both}
+#title:not(.hidden) .sub-logo{animation:fadeUp .6s .5s both}
+#title:not(.hidden) .tright{animation:slideL .8s .3s cubic-bezier(.2,1,.3,1) both}
+@keyframes logoIn{from{opacity:0;transform:skewX(-8deg) scale(1.8);filter:blur(6px)}to{opacity:1;transform:skewX(-8deg)}}
+@keyframes slideL{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+.logo{position:relative;isolation:isolate}
+.logo:before{content:'';position:absolute;left:50%;top:50%;width:1.7em;height:1.7em;font-size:clamp(60px,19vmin,170px);transform:translate(-50%,-52%);border-radius:50%;z-index:-1;
+  background:repeating-linear-gradient(180deg,transparent 0 56%,rgba(20,8,45,.9) 56% 59%,transparent 59% 65%,rgba(20,8,45,.9) 65% 69%,transparent 69% 75%,rgba(20,8,45,.9) 75% 80%,transparent 80% 87%,rgba(20,8,45,.9) 87% 93%,transparent 93%),linear-gradient(180deg,#fff3a0,#ffb347 45%,#ff3d7f);
+  box-shadow:0 0 70px rgba(255,61,127,.6);opacity:.85;animation:sunBob 6s ease-in-out infinite}
+@keyframes sunBob{0%,100%{transform:translate(-50%,-52%)}50%{transform:translate(-50%,-45%)}}
+#playBtn{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 5px 0 #7a1a4a,0 0 18px rgba(255,120,80,.5)}50%{box-shadow:0 5px 0 #7a1a4a,0 0 38px rgba(255,180,80,.95)}}
+.tip{min-height:1.4em;font-family:system-ui,sans-serif;font-weight:700;font-size:clamp(10px,2.6vmin,14px);color:#fff;text-shadow:1px 1px 0 #000;background:rgba(10,4,30,.55);padding:.3em .9em;border-radius:999px;border:1px solid rgba(255,210,63,.5);transition:opacity .35s,transform .35s;max-width:92%}
+.tip.swap{opacity:0;transform:translateY(6px)}
+.screen:not(.hidden)>*{animation:fadeUp .45s both}
+.screen:not(.hidden)>*:nth-child(2){animation-delay:.06s}.screen:not(.hidden)>*:nth-child(3){animation-delay:.12s}.screen:not(.hidden)>*:nth-child(4){animation-delay:.18s}.screen:not(.hidden)>*:nth-child(5){animation-delay:.24s}.screen:not(.hidden)>*:nth-child(6){animation-delay:.3s}
+#intro>*,#title>*{animation:none}
+.set{animation:fadeUp .4s both}.set:nth-child(2){animation-delay:.04s}.set:nth-child(3){animation-delay:.08s}.set:nth-child(4){animation-delay:.12s}.set:nth-child(5){animation-delay:.16s}.set:nth-child(6){animation-delay:.2s}.set:nth-child(7){animation-delay:.24s}.set:nth-child(8){animation-delay:.28s}
+/* radio */
+.np{overflow:hidden;white-space:nowrap;background:#0d1f12;color:#7dff9a;font-family:"Courier New",monospace;font-weight:700;font-size:clamp(10px,2.6vmin,13px);border-radius:6px;margin-top:6px;padding:3px 0;text-shadow:0 0 6px #3dff6a}
+.np span{display:inline-block;padding-left:100%;animation:tick 10s linear infinite}
+.eq{display:flex;gap:3px;height:clamp(16px,5vmin,30px);align-items:flex-end;margin-top:6px}
+.eq i{flex:1;height:100%;background:linear-gradient(0deg,#7dff9a,#ffd23f 70%,#ff3d7f);border-radius:2px 2px 0 0;animation:eq .6s ease-in-out infinite alternate;transform-origin:bottom}
+@keyframes eq{from{transform:scaleY(.12)}to{transform:scaleY(1)}}
+/* countdown */
+#count{flex-direction:column;gap:8px}
+.lights{display:flex;gap:14px;padding:10px 16px;background:#111;border:3px solid #333;border-radius:40px;box-shadow:0 6px 18px rgba(0,0,0,.6)}
+.lights i{width:clamp(22px,7vmin,44px);height:clamp(22px,7vmin,44px);border-radius:50%;background:#3a0a0a;box-shadow:inset 0 0 8px #000;transition:background .1s}
+.lights i.r{background:radial-gradient(circle at 40% 35%,#ff9a9a,#e00);box-shadow:0 0 22px #f00}
+.lights i.g{background:radial-gradient(circle at 40% 35%,#b9ffb9,#0c0);box-shadow:0 0 22px #0f0}
+#countN{font-size:clamp(56px,22vmin,180px);line-height:1}
+#countN.pop{animation:countPop .7s cubic-bezier(.2,1.6,.4,1)}
+@keyframes countPop{from{transform:scale(2.6) rotate(-8deg);opacity:0}to{transform:none;opacity:1}}
+.cmsg{font-size:clamp(13px,4vmin,24px);color:#fff;text-shadow:3px 3px 0 #000;font-style:italic}
+/* checkpoint banner + postcard toasts */
+#toast{top:15%;animation:none}
+.cpb{position:relative;display:inline-block;padding:10px 26px 12px;transform:skewX(-10deg);background:repeating-linear-gradient(115deg,#046a38 0 26px,#0a7d45 26px 52px);background-size:200% 100%;border:4px solid #ffd23f;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:cpIn .55s cubic-bezier(.2,1.4,.4,1) both,stripes 1s linear infinite}
+.cpb.red{background:repeating-linear-gradient(115deg,#b5121b 0 26px,#da291c 26px 52px);background-size:200% 100%}
+@keyframes stripes{to{background-position:-104px 0}}
+@keyframes cpIn{from{transform:skewX(-10deg) translateX(-120vw)}to{transform:skewX(-10deg)}}
+.cpb .t1{font-size:clamp(24px,7.5vmin,56px);font-style:italic;color:#ffd23f;text-shadow:4px 4px 0 #000;animation:wob 1.2s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.cpb .bonus{font-size:clamp(20px,6vmin,40px);color:#fff;text-shadow:3px 3px 0 #000}
+.cpb .t2{font-size:clamp(11px,3.2vmin,19px);color:#fff;text-shadow:2px 2px 0 #000}
+.fact{display:inline-block;margin-top:10px;font-family:system-ui,sans-serif;font-weight:600;font-size:clamp(9px,2.3vmin,13px);background:rgba(10,20,60,.8);border:2px solid #f4f6fb;outline:3px solid #1f5fbf;border-radius:8px;padding:5px 10px;animation:fadeUp .5s .4s both}
+.card2{position:relative;display:inline-block;text-align:left;background:#fffaf0;color:#2a1a10;border-radius:6px;padding:10px 70px 10px 14px;box-shadow:0 10px 26px rgba(0,0,0,.5);border:6px solid #fff;outline:2px dashed #e0d6c0;outline-offset:-10px;animation:postIn .7s cubic-bezier(.2,1.3,.4,1) both;max-width:min(88vw,520px)}
+.card2.out{animation:postOut .5s ease-in both}
+@keyframes postIn{from{transform:translateX(80vw) rotate(14deg)}to{transform:rotate(-2deg)}}
+@keyframes postOut{to{transform:translateY(-40px) rotate(-8deg);opacity:0}}
+.card2 .hi{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:clamp(15px,4.2vmin,26px);color:#b5121b}
+.card2 .nm{font-style:italic;font-size:clamp(18px,5.4vmin,34px);color:#1f5fbf;line-height:1}
+.card2 .sb{font-family:system-ui,sans-serif;font-weight:700;font-size:clamp(9px,2.4vmin,13px);margin-top:3px;color:#5a4a3a}
+.card2 .fc{font-family:system-ui,sans-serif;font-size:clamp(9px,2.2vmin,12px);margin-top:5px;color:#3a2a1a;max-width:42ch}
+.card2 .sig{font-family:"Brush Script MT","Segoe Script",cursive;font-size:clamp(12px,3vmin,17px);color:#d6336c;margin-top:4px}
+.stamp{position:absolute;right:10px;top:10px;width:48px;height:56px;background:#ffd23f;border:3px dotted #fff;outline:2px solid #e8b923;display:flex;align-items:center;justify-content:center;font-size:24px;transform:rotate(6deg);animation:stampIn .4s .5s cubic-bezier(.2,2,.4,1) both}
+@keyframes stampIn{from{transform:scale(2.5) rotate(-20deg);opacity:0}to{transform:rotate(6deg);opacity:1}}
+.pmark{position:absolute;right:34px;top:46px;width:56px;height:56px;border:2px solid rgba(181,18,27,.55);border-radius:50%;color:rgba(181,18,27,.7);font:900 7px system-ui,sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;transform:rotate(-14deg);animation:fadeUp .3s .8s both}
+.note{display:inline-block;background:rgba(10,4,30,.85);border:2px solid #ffd23f;border-radius:12px;padding:8px 14px;animation:cpIn2 .45s cubic-bezier(.2,1.4,.4,1) both}
+.note .t1{font-size:clamp(18px,5vmin,34px);font-style:italic;color:#ffd23f;text-shadow:3px 3px 0 #000}
+.note .t2{font-size:clamp(11px,3vmin,17px);text-shadow:2px 2px 0 #000}
+@keyframes cpIn2{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+/* pause, over */
+.pmsg,.omsg{font-family:system-ui,sans-serif;font-weight:800;font-size:clamp(11px,3vmin,16px);background:rgba(10,4,30,.6);padding:.4em 1em;border-radius:999px;border:1px solid rgba(255,210,63,.5);text-shadow:1px 1px 0 #000}
+h2.cup{animation:wob 2.4s ease-in-out infinite!important}
+h2.shake{animation:shake .5s 2!important}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-10px) rotate(-2deg)}40%{transform:translateX(10px) rotate(2deg)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+h2.win{animation:winB 1s ease-in-out infinite!important}
+@keyframes winB{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.04)}}
+.bigscore{font-style:italic;font-size:clamp(28px,9vmin,64px);color:#ffd23f;text-shadow:4px 4px 0 #000;line-height:1}
+.bigscore.done{animation:wob .4s 2!important}
+table.hi tr{animation:rowIn .5s both}
+@keyframes rowIn{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+table.hi td.md{font-size:1.1em}
+@media (max-height:440px){#endMap,#pauseMap,#radioMap{display:none}.bigscore{font-size:30px}}
 </style>
 </head>
 <body>
@@ -199,7 +288,7 @@ body.swap #gauge{top:auto;bottom:calc(var(--B) + var(--st) + var(--gap))}
   <div id="tiltInd" class="hidden"><div id="wheel"></div><span>INCLINA 📱</span></div>
 </div>
 
-<div id="intro" class="screen"><img alt="Made in Maia" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMzMgNjUiIHJvbGU9ImltZyIgYXJpYS1sYWJlbGxlZGJ5PSJ0aXRsZSI+CiAgPHRpdGxlIGlkPSJ0aXRsZSI+TWFkZSBpbiBNYWlhPC90aXRsZT4KICA8aW1hZ2Ugd2lkdGg9IjMzMyIgaGVpZ2h0PSI2NSIgaHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFVMEFBQUJCQ0FZQUFBQlZSZllMQUFBQUNYQklXWE1BQUFPV0FBQURsZ0UxNzJxaUFBQUtra2xFUVZSNG5PMmQ3WEhqT0JLR1gxL3QvOUZWM2Y5RkFGdGxiUVNEaVdDZHdlZ2l1TGtJemh2QmVpTTRid1JuUjNDWURPd0lGcE9CSEFIM0I4VXBDbXg4a0FRSXlIcWZLcFhFQm9odWthMG12blhUZFIwSUlZU2s4VU5pUG5WNkVVTEllOFdlWGtGQ1FmTU93QUhBTDFuTUlZU1F5K0Fad0FNQUl5WGVDTTN6SFlBbkFCK0xta1VJSVczempMN2llQndMM2FDNVF4OWRiN2V5aWhCQ0d1WVZnTVlvY1A3TnlmQUlCa3hDQ0JtNFJkL3kvczQ0YUdxdy81SVFRbHcrb20rbUF6Z1BtZ2MzSnlHRUVBREFsK0hEdUUvVEF2Z3hjdUlmNkt1cXgwaStGdGlqLzZLeDcwUUlJU244SGNCeEhEUmpzOXovaWI3UDg1TFlBWGdCQXljaFpEMmZBSmpVeWUydnFCTXcxZW4xZ21XMTJ5UDYrVmEvZWRKZkkrV21UTHQ2UTIrZkQ0WDVRZnZyaHVVTjdBRjhtRm51bUc5SW1CZ2NZZTAwTitsNzdoQWUzQXpaSGJKSDhwMllybFJ5M1A4Y3ZqMG01dWR6eS9OZDk3bCtHTE5yclY5UDZicHVlSVV3bzN4YnZ1NVArdldLTW5UZ2U4WEtQVWF1UzNleU1lVTdwSExNWEY0WEtjOTk3YnV1KzlKMW5aMnBJM1lkVWw1cm1Ydi9ZM2FIcm9Ia096RmRxU3oxNXpFcVVzNWNZdmYzSlZONVptWTVKbUxYNDh6eVF1aXU2eVpUamxyQ0FQZ0p3SzlZWDROWlkwT00wRk51Q2JIeVRHWjlrdjRIOURXYWZ4ZlcxVHBQOFN5YmsrSnZiOGovbTRtVmwxdGZLaWFTYm5NcmJEbG9mZ1R3RHdEM3FIZERVaHpVYkt6VFp0WVg0Z0hBenh2cWF3MVQyd0NCSS9xbWR3aFRRRy9NTDNOWEhsS3hrWFNUVzJITFFmTUcvZHpSbXBoSStqZmtuMG5RVXRBRWVudXV0Y2I1aEw3VzFobzFBdGlsQnMxWStteGFEcG90WUZhbUw4RW01RWtaMk1uSkEvb0h4RFZpYWhzZ3NIVVhUcXhtQzF4Ujh6eDE5UHlhZVlWL1JMVEUwOVVrNUxGWVA5SzhSeDhNeHp6Q1AwdmlIc0IvRitoNU9PbTZWSjdRM2tvNUUwblA3WmMySVUrTm1tYnFnL3dyTW01QXhLQVp4MkM3b0pucUJDOEFQcS9VdGNQVWtUNmk3eEk1Q1BuTlFqMTdRYzhsOFlSbEQ0dVNoUHd1TnRVb3R6NVg5NVo3VjlnWitiTDVJSnZuY1VJT1l6THJzb241U2o3VlAwUGVjTnFpemY2OTBxUU12TlRBMTBWVG96K3pwTzRRSmpGZlZyc1lOT01Zajd4RXY2S2t5MjFDQStXZDg4NGpyOVhaWDVzV3B4NlptZkkxV0VGMm41aXZKSkkvM2lmbVd3eURaaHdMdVlaVklvQllRYlpIMzVRZWMwVFpXcCtyNzlwcE1XajYvRytMbXFhQ1BMUEZGTkFkd2dxeWd5QmowS3lBU1pTdFJicTVlOGdES2RkYTY2dkJDOXFiUFdBRVdXeEo0UktrRnBXQy9HQzFtWFhIY0wvckR2SVMwNnlWREFiTktUdE1IVUp5Uk9ucHV4Wkp6d2RQMlF5YTIySXE2MWZPOFJIVFFDNzV4TnBXZ3hWa2U4Z0RQbExlVWtqOXpFUGxRZ3RwMlg0dkRKcFRwSnFkY1k2bHpRWU9LL1ZLVHFCUDcwcEljL1dUc3RSdW9rdDkyeVp5N0d1bHpNRUtzaUVRS3lGdHF6bkVWcENwMDd2MG9HRFFMSXgyam8xekxOMEE5NXk1V0VFMjNIdzJ6N2ZuaTNOY08yanVNQTFTcmcrNHh6bm14eHBCcGsvdlNramJ5aThsUGVyMExuMXZtMHN4ZzZhTUZtVGptcUI3dzZUOGMvSDFad0x5azlOazBFbjhhRUgydkxVUkR0bzVOcEZqTi84U3JDQlRwL2Vpd1NsQzZQZWlFdk12Z2tGVFJwb0lhenlmZ1hKQlU1M2VmUk56V3h1Y2VFLzhndW5EcW5adDB3MVNZNStSOWtIUUsvWDVka3NhQmx1VWtGYXpwaG5xTmpDNUZITkZrSjg5em0vTStMTVI4cTRsRkRTQjNpSGNINFZGKzd2U1B5THVzUDhwYjhZaU5NNERwYWxqeG5lMElCdVdDQnBIN2h0Sm5rT29OdWQrRHAxVEFpdkloc3FGNy9mNERSbCtMd3lhZmpUa29Pa2JzRm5yTEZhUXVRNXFuSFNEOXBjb1BpYmthVFZvM3VFOGFGcHN2MVJ3ekMybUQwK0QzZ2UyNmpJYTE3NlZrRDVNNzhtN1cvbzV2aDM2QjN5NkxUSUVUVGJQL1VoTm9UZkl0Y3kxRHVJYmNSeVhxNFIwdTFJdkNTT3RqR3ExaVY1aUVNZ0tNajM2N0F0QXBXdWJWcEM1MzFjTGVVd081UXlhZnJRZ2UwRWQ1d1E0VjdNR0h6Qzl2N1dEcG5hT2pmUHV5N2VFbEhtZk5acm9WcENweUxIdnZOa3dhUHI1RWRNTGIxQ21HV1FGbWV1Y2toNEd6Zkljbk9QYXE0TzBjM3hFLzlmYUxqbTZiV0o5bWtEaE9aRWVqQ0JUa1dPQVFYTVRYQWQ1d0haejRWS2NFMmh6QjU3M2hCWmtabU1ieGtqK2R1OGM2d3g2M2lCdk1hY1NkTmtNK2tOSTVidlhSYnBPSm9keUJzMHcyamwybldpSFBJTUNWcEM1TjkyblJ6cTNKUXlBTHZKcW1WdE1BMFhOSnJyVVpXQ2Q0MUt6T1lCcFArYldjNGg5MDZDVWMxeXNrc0dnR1VhdlRFL0I1d1RTVFZlQ2pFMzA4cmdEUWsrbys3RFNLOU5UTUlKTUNzYWg2VDBsOFBtN1c2bndkVS9ZdFFZd2FJYUoxU0pMUHRHbG02NW1uRS95b1FXWjNkaUdNVEcvS3pVNG1mb2c5NTJmZzloODVqRkYrbHNaTk9Qb2hXbXArRzdpamZBeVFqNmJ3UVlTUmxvZFZCTWRTRlBJcytEQkNqS0RxVThxei9rbWd3MFMxaU9UZmk5U255eUQ1Z2JvUUZxT0VVcTc4bnpXTkxkQjF6WmdoRFN6WTBCbjBtRldubTh6MkNCUlloSEpMQmcwNC9pYU9qbWFRRUNlb0xmMVgvcGVJOUpFOTVxVTlNc2MvWkdsSHVacnkyVk5jd1AwVFBsY2NqaVh6VkFHQ2ROYTBOUXo1WE93R2Nvb0VUU2xUVW1Xc0txU3dhQVpSNXJpQVpTZEN6Y1htNkVNRXNibkI3V1FiTWsxQmM1a0tBUElQNGZZdGxBT04reEl3OTN4YUpDdHhmYzBmZ2lVZjhEMHBodmszZlFpUnlCL2p4d3czWnk0RmxKL2Vza3VvejNrM2VPSC9OSjFzY2k3dVltWktRY0t6SHhnMEV4RDQzeTNIb1U4STVUR0kvOVg0QnlGNlUxM2o5ZGlQUEtXYWxvMTBMVU5jTkE0djFjNlU3bFdrQ240Qno3M2tJUG1DL3FaQjdtd2drd2hQQ0RyN2dvRnJLeGtzSG1lUnNvU3JTVllRUmFiMmlMcGxzcFp5alA4R3pXVTNPN3JFcEJXQjlWRVI0NlhrckxtZkl6UEwzTDNhMXBCcGlMblpQKzlzS2FaeGkzTzEvZnFUT1ZhUVJZTHlNb2pIemFqWGNvcitwVXV2aVpZYXdNaHRiaUQveHB0alh0UGNqek1mZjJRS25LZXhyU0ZZdGVaTXNFdEgxajJlN0ZyakdEUVRLZkVScmxHa0tuSU9UNG5lY0c4b0duUVR3Qk81VEFqN3hnOUkyL3I2OUNCL3Z1MEVqUnZrWDlEWk91UnE4aDVwWGM3OGsyRGlyWE1sRWUrdUpMQjVuazlmRTZnSXVmNTB1MVNReEs0US9zN3hHOUZhNnVEY3VNTGRFdVhidWFhUSt5elMwZk84NlV2RHVnTW12Vlk2cHhiNzVhOVI5cGZWbHdUdXJZQkJmSDVVYXcvVzNua2RyRWw1L2pzOHVrZDhEM2c3RkpER0RUcnNkUUpnTzEyeTc1RDM0eS85Z0VnbC9mY3Z5djVrVTQ0VDNua2Rxa2hEcWxiMWJuNHVpOVkwN3hBVXJlNGtwQ2Vua2YwaytYWG90RDNYeG9BL3dNRHBzUjdEcHBXa0tWMFIvaGFTR2F4SmVmWUdUcGRsQ0JiSERTdmZTRG9BZkxHd2t2WVk5N0F6ajJXVDVSK3hMd251RW5NdDhmeUlIbEEvV2FyRVdTeCszbkFmTHMvTE5TVmlsVDIwcEZ4eWNkOVNIOGNDS1MxZnVaZWt3UGs2Kzc3bnRMZ1crcjFma0xHQlJzM1hmZDl3REkwY3ZrVjlYOFFTOUVBL2wvYkNFTEl4Zk1KZ0VsdG5sL3lhS0dxYlFBaDVQMlFHalJ2Y1prMXpSM2FXU3RNQ0hrSHpPblRIRmFMbURLbVpHZUh2dDh3OStSZlFzZ1ZNKzdUZkFFRERDR0UrTGdCenB2bnBvNGRoQkRTUE0vRGgzRk5Vd0g0czRZMWhCRFNPSjl3cWxpT2E1b1d3TzhWakNHRWtKYjVIYU9XK0xpbU9mQUk0UE4yOWhCQ1NMUDhBV2VITDJuSzBRSEFyeHNZUXdnaHJmS0dQZzRlM0FTcHBqbWcwTTl4M0lQYmdoRkMzajl2NkdjUlBhRnZjWXRMTDBOQmt4QkNpQU4zT1NLRWtCa3dhQkpDeUF6K0FoUFh1YkgxdnZGZUFBQUFBRWxGVGtTdVFtQ0MiLz4KPC9zdmc+Cg=="><div class="pres">APRESENTA</div></div>
+<div id="intro" class="screen"><canvas id="introC"></canvas><div class="introTxt"><img alt="Made in Maia" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMzMgNjUiIHJvbGU9ImltZyIgYXJpYS1sYWJlbGxlZGJ5PSJ0aXRsZSI+CiAgPHRpdGxlIGlkPSJ0aXRsZSI+TWFkZSBpbiBNYWlhPC90aXRsZT4KICA8aW1hZ2Ugd2lkdGg9IjMzMyIgaGVpZ2h0PSI2NSIgaHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFVMEFBQUJCQ0FZQUFBQlZSZllMQUFBQUNYQklXWE1BQUFPV0FBQURsZ0UxNzJxaUFBQUtra2xFUVZSNG5PMmQ3WEhqT0JLR1gxL3QvOUZWM2Y5RkFGdGxiUVNEaVdDZHdlZ2l1TGtJemh2QmVpTTRid1JuUjNDWURPd0lGcE9CSEFIM0I4VXBDbXg4a0FRSXlIcWZLcFhFQm9odWthMG12blhUZFIwSUlZU2s4VU5pUG5WNkVVTEllOFdlWGtGQ1FmTU93QUhBTDFuTUlZU1F5K0Fad0FNQUl5WGVDTTN6SFlBbkFCK0xta1VJSVczempMN2llQndMM2FDNVF4OWRiN2V5aWhCQ0d1WVZnTVlvY1A3TnlmQUlCa3hDQ0JtNFJkL3kvczQ0YUdxdy81SVFRbHcrb20rbUF6Z1BtZ2MzSnlHRUVBREFsK0hEdUUvVEF2Z3hjdUlmNkt1cXgwaStGdGlqLzZLeDcwUUlJU244SGNCeEhEUmpzOXovaWI3UDg1TFlBWGdCQXljaFpEMmZBSmpVeWUydnFCTXcxZW4xZ21XMTJ5UDYrVmEvZWRKZkkrV21UTHQ2UTIrZkQ0WDVRZnZyaHVVTjdBRjhtRm51bUc5SW1CZ2NZZTAwTitsNzdoQWUzQXpaSGJKSDhwMllybFJ5M1A4Y3ZqMG01dWR6eS9OZDk3bCtHTE5yclY5UDZicHVlSVV3bzN4YnZ1NVArdldLTW5UZ2U4WEtQVWF1UzNleU1lVTdwSExNWEY0WEtjOTk3YnV1KzlKMW5aMnBJM1lkVWw1cm1Ydi9ZM2FIcm9Ia096RmRxU3oxNXpFcVVzNWNZdmYzSlZONVptWTVKbUxYNDh6eVF1aXU2eVpUamxyQ0FQZ0p3SzlZWDROWlkwT00wRk51Q2JIeVRHWjlrdjRIOURXYWZ4ZlcxVHBQOFN5YmsrSnZiOGovbTRtVmwxdGZLaWFTYm5NcmJEbG9mZ1R3RHdEM3FIZERVaHpVYkt6VFp0WVg0Z0hBenh2cWF3MVQyd0NCSS9xbWR3aFRRRy9NTDNOWEhsS3hrWFNUVzJITFFmTUcvZHpSbXBoSStqZmtuMG5RVXRBRWVudXV0Y2I1aEw3VzFobzFBdGlsQnMxWStteGFEcG90WUZhbUw4RW01RWtaMk1uSkEvb0h4RFZpYWhzZ3NIVVhUcXhtQzF4Ujh6eDE5UHlhZVlWL1JMVEUwOVVrNUxGWVA5SzhSeDhNeHp6Q1AwdmlIc0IvRitoNU9PbTZWSjdRM2tvNUUwblA3WmMySVUrTm1tYnFnL3dyTW01QXhLQVp4MkM3b0pucUJDOEFQcS9VdGNQVWtUNmk3eEk1Q1BuTlFqMTdRYzhsOFlSbEQ0dVNoUHd1TnRVb3R6NVg5NVo3VjlnWitiTDVJSnZuY1VJT1l6THJzb241U2o3VlAwUGVjTnFpemY2OTBxUU12TlRBMTBWVG96K3pwTzRRSmpGZlZyc1lOT01Zajd4RXY2S2t5MjFDQStXZDg4NGpyOVhaWDVzV3B4NlptZkkxV0VGMm41aXZKSkkvM2lmbVd3eURaaHdMdVlaVklvQllRYlpIMzVRZWMwVFpXcCtyNzlwcE1XajYvRytMbXFhQ1BMUEZGTkFkd2dxeWd5QmowS3lBU1pTdFJicTVlOGdES2RkYTY2dkJDOXFiUFdBRVdXeEo0UktrRnBXQy9HQzFtWFhIY0wvckR2SVMwNnlWREFiTktUdE1IVUp5Uk9ucHV4Wkp6d2RQMlF5YTIySXE2MWZPOFJIVFFDNzV4TnBXZ3hWa2U4Z0RQbExlVWtqOXpFUGxRZ3RwMlg0dkRKcFRwSnFkY1k2bHpRWU9LL1ZLVHFCUDcwcEljL1dUc3RSdW9rdDkyeVp5N0d1bHpNRUtzaUVRS3lGdHF6bkVWcENwMDd2MG9HRFFMSXgyam8xekxOMEE5NXk1V0VFMjNIdzJ6N2ZuaTNOY08yanVNQTFTcmcrNHh6bm14eHBCcGsvdlNramJ5aThsUGVyMExuMXZtMHN4ZzZhTUZtVGptcUI3dzZUOGMvSDFad0x5azlOazBFbjhhRUgydkxVUkR0bzVOcEZqTi84U3JDQlRwL2Vpd1NsQzZQZWlFdk12Z2tGVFJwb0lhenlmZ1hKQlU1M2VmUk56V3h1Y2VFLzhndW5EcW5adDB3MVNZNStSOWtIUUsvWDVka3NhQmx1VWtGYXpwaG5xTmpDNUZITkZrSjg5em0vTStMTVI4cTRsRkRTQjNpSGNINFZGKzd2U1B5THVzUDhwYjhZaU5NNERwYWxqeG5lMElCdVdDQnBIN2h0Sm5rT29OdWQrRHAxVEFpdkloc3FGNy9mNERSbCtMd3lhZmpUa29Pa2JzRm5yTEZhUXVRNXFuSFNEOXBjb1BpYmthVFZvM3VFOGFGcHN2MVJ3ekMybUQwK0QzZ2UyNmpJYTE3NlZrRDVNNzhtN1cvbzV2aDM2QjN5NkxUSUVUVGJQL1VoTm9UZkl0Y3kxRHVJYmNSeVhxNFIwdTFJdkNTT3RqR3ExaVY1aUVNZ0tNajM2N0F0QXBXdWJWcEM1MzFjTGVVd081UXlhZnJRZ2UwRWQ1d1E0VjdNR0h6Qzl2N1dEcG5hT2pmUHV5N2VFbEhtZk5acm9WcENweUxIdnZOa3dhUHI1RWRNTGIxQ21HV1FGbWV1Y2toNEd6Zkljbk9QYXE0TzBjM3hFLzlmYUxqbTZiV0o5bWtEaE9aRWVqQ0JUa1dPQVFYTVRYQWQ1d0haejRWS2NFMmh6QjU3M2hCWmtabU1ieGtqK2R1OGM2d3g2M2lCdk1hY1NkTmtNK2tOSTVidlhSYnBPSm9keUJzMHcyamwybldpSFBJTUNWcEM1TjkyblJ6cTNKUXlBTHZKcW1WdE1BMFhOSnJyVVpXQ2Q0MUt6T1lCcFArYldjNGg5MDZDVWMxeXNrc0dnR1VhdlRFL0I1d1RTVFZlQ2pFMzA4cmdEUWsrbys3RFNLOU5UTUlKTUNzYWg2VDBsOFBtN1c2bndkVS9ZdFFZd2FJYUoxU0pMUHRHbG02NW1uRS95b1FXWjNkaUdNVEcvS3pVNG1mb2c5NTJmZzloODVqRkYrbHNaTk9Qb2hXbXArRzdpamZBeVFqNmJ3UVlTUmxvZFZCTWRTRlBJcytEQkNqS0RxVThxei9rbWd3MFMxaU9UZmk5U255eUQ1Z2JvUUZxT0VVcTc4bnpXTkxkQjF6WmdoRFN6WTBCbjBtRldubTh6MkNCUlloSEpMQmcwNC9pYU9qbWFRRUNlb0xmMVgvcGVJOUpFOTVxVTlNc2MvWkdsSHVacnkyVk5jd1AwVFBsY2NqaVh6VkFHQ2ROYTBOUXo1WE93R2Nvb0VUU2xUVW1Xc0txU3dhQVpSNXJpQVpTZEN6Y1htNkVNRXNibkI3V1FiTWsxQmM1a0tBUElQNGZZdGxBT04reEl3OTN4YUpDdHhmYzBmZ2lVZjhEMHBodmszZlFpUnlCL2p4d3czWnk0RmxKL2Vza3VvejNrM2VPSC9OSjFzY2k3dVltWktRY0t6SHhnMEV4RDQzeTNIb1U4STVUR0kvOVg0QnlGNlUxM2o5ZGlQUEtXYWxvMTBMVU5jTkE0djFjNlU3bFdrQ240Qno3M2tJUG1DL3FaQjdtd2drd2hQQ0RyN2dvRnJLeGtzSG1lUnNvU3JTVllRUmFiMmlMcGxzcFp5alA4R3pXVTNPN3JFcEJXQjlWRVI0NlhrckxtZkl6UEwzTDNhMXBCcGlMblpQKzlzS2FaeGkzTzEvZnFUT1ZhUVJZTHlNb2pIemFqWGNvcitwVXV2aVpZYXdNaHRiaUQveHB0alh0UGNqek1mZjJRS25LZXhyU0ZZdGVaTXNFdEgxajJlN0ZyakdEUVRLZkVScmxHa0tuSU9UNG5lY0c4b0duUVR3Qk81VEFqN3hnOUkyL3I2OUNCL3Z1MEVqUnZrWDlEWk91UnE4aDVwWGM3OGsyRGlyWE1sRWUrdUpMQjVuazlmRTZnSXVmNTB1MVNReEs0US9zN3hHOUZhNnVEY3VNTGRFdVhidWFhUSt5elMwZk84NlV2RHVnTW12Vlk2cHhiNzVhOVI5cGZWbHdUdXJZQkJmSDVVYXcvVzNua2RyRWw1L2pzOHVrZDhEM2c3RkpER0RUcnNkUUpnTzEyeTc1RDM0eS85Z0VnbC9mY3Z5djVrVTQ0VDNua2Rxa2hEcWxiMWJuNHVpOVkwN3hBVXJlNGtwQ2Vua2YwaytYWG90RDNYeG9BL3dNRHBzUjdEcHBXa0tWMFIvaGFTR2F4SmVmWUdUcGRsQ0JiSERTdmZTRG9BZkxHd2t2WVk5N0F6ajJXVDVSK3hMd251RW5NdDhmeUlIbEEvV2FyRVdTeCszbkFmTHMvTE5TVmlsVDIwcEZ4eWNkOVNIOGNDS1MxZnVaZWt3UGs2Kzc3bnRMZ1crcjFma0xHQlJzM1hmZDl3REkwY3ZrVjlYOFFTOUVBL2wvYkNFTEl4Zk1KZ0VsdG5sL3lhS0dxYlFBaDVQMlFHalJ2Y1prMXpSM2FXU3RNQ0hrSHpPblRIRmFMbURLbVpHZUh2dDh3OStSZlFzZ1ZNKzdUZkFFRERDR0UrTGdCenB2bnBvNGRoQkRTUE0vRGgzRk5Vd0g0czRZMWhCRFNPSjl3cWxpT2E1b1d3TzhWakNHRWtKYjVIYU9XK0xpbU9mQUk0UE4yOWhCQ1NMUDhBV2VITDJuSzBRSEFyeHNZUXdnaHJmS0dQZzRlM0FTcHBqbWcwTTl4M0lQYmdoRkMzajl2NkdjUlBhRnZjWXRMTDBOQmt4QkNpQU4zT1NLRWtCa3dhQkpDeUF6K0FoUFh1YkgxdnZGZUFBQUFBRWxGVGtTdVFtQ0MiLz4KPC9zdmc+Cg=="><div class="pres">APRESENTA</div><div class="pres2">uma road trip arcade · Porto ➜ Algarve</div></div><div class="skip">toca para saltar ▸</div></div></div>
 
 <div id="title" class="screen hidden">
   <div class="tgrid">
@@ -209,6 +298,7 @@ body.swap #gauge{top:auto;bottom:calc(var(--B) + var(--st) + var(--gap))}
       <div class="tiles"></div>
       <div class="tag">Porto ➜ Centro ➜ Lisboa ➜ Algarve<br><span class="small">Luna 🌙 &amp; o piloto made in Maia · capítulo 1 da Euro Tour</span></div>
       <div class="press">▶ PRESS START ◀</div>
+      <div class="tip" id="tip"></div>
       <button class="big" id="playBtn">JOGAR <small>PLAY</small></button>
       <div class="opts">
         <button class="opt" id="setBtn">⚙️ Definições</button>
@@ -219,7 +309,6 @@ body.swap #gauge{top:auto;bottom:calc(var(--B) + var(--st) + var(--gap))}
     </div>
     <div class="tright">
       <div class="card"><div class="ct">EURO TOUR<small>START / FINISH IN PORTUGAL</small></div><canvas id="euroMap" width="560" height="380"></canvas></div>
-      <div class="card qr"><div class="qrbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="M4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM18 4h1v1h-1zM19 4h1v1h-1zM20 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM27 4h1v1h-1zM30 4h1v1h-1zM31 4h1v1h-1zM32 4h1v1h-1zM33 4h1v1h-1zM34 4h1v1h-1zM35 4h1v1h-1zM36 4h1v1h-1zM4 5h1v1h-1zM10 5h1v1h-1zM13 5h1v1h-1zM14 5h1v1h-1zM17 5h1v1h-1zM18 5h1v1h-1zM22 5h1v1h-1zM23 5h1v1h-1zM24 5h1v1h-1zM30 5h1v1h-1zM36 5h1v1h-1zM4 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM27 6h1v1h-1zM30 6h1v1h-1zM32 6h1v1h-1zM33 6h1v1h-1zM34 6h1v1h-1zM36 6h1v1h-1zM4 7h1v1h-1zM6 7h1v1h-1zM7 7h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM16 7h1v1h-1zM20 7h1v1h-1zM21 7h1v1h-1zM25 7h1v1h-1zM26 7h1v1h-1zM30 7h1v1h-1zM32 7h1v1h-1zM33 7h1v1h-1zM34 7h1v1h-1zM36 7h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM20 8h1v1h-1zM21 8h1v1h-1zM23 8h1v1h-1zM25 8h1v1h-1zM26 8h1v1h-1zM30 8h1v1h-1zM32 8h1v1h-1zM33 8h1v1h-1zM34 8h1v1h-1zM36 8h1v1h-1zM4 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM21 9h1v1h-1zM24 9h1v1h-1zM25 9h1v1h-1zM26 9h1v1h-1zM27 9h1v1h-1zM28 9h1v1h-1zM30 9h1v1h-1zM36 9h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM30 10h1v1h-1zM31 10h1v1h-1zM32 10h1v1h-1zM33 10h1v1h-1zM34 10h1v1h-1zM35 10h1v1h-1zM36 10h1v1h-1zM12 11h1v1h-1zM15 11h1v1h-1zM18 11h1v1h-1zM21 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM4 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM21 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM29 12h1v1h-1zM30 12h1v1h-1zM31 12h1v1h-1zM32 12h1v1h-1zM33 12h1v1h-1zM36 12h1v1h-1zM5 13h1v1h-1zM6 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM9 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM16 13h1v1h-1zM18 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM22 13h1v1h-1zM25 13h1v1h-1zM27 13h1v1h-1zM29 13h1v1h-1zM33 13h1v1h-1zM34 13h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM18 14h1v1h-1zM19 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM29 14h1v1h-1zM33 14h1v1h-1zM35 14h1v1h-1zM4 15h1v1h-1zM6 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM14 15h1v1h-1zM16 15h1v1h-1zM17 15h1v1h-1zM26 15h1v1h-1zM27 15h1v1h-1zM28 15h1v1h-1zM29 15h1v1h-1zM30 15h1v1h-1zM35 15h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM14 16h1v1h-1zM17 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM23 16h1v1h-1zM26 16h1v1h-1zM30 16h1v1h-1zM32 16h1v1h-1zM33 16h1v1h-1zM6 17h1v1h-1zM7 17h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM17 17h1v1h-1zM18 17h1v1h-1zM21 17h1v1h-1zM22 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM25 17h1v1h-1zM28 17h1v1h-1zM29 17h1v1h-1zM31 17h1v1h-1zM34 17h1v1h-1zM6 18h1v1h-1zM8 18h1v1h-1zM9 18h1v1h-1zM10 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM19 18h1v1h-1zM22 18h1v1h-1zM24 18h1v1h-1zM25 18h1v1h-1zM27 18h1v1h-1zM28 18h1v1h-1zM29 18h1v1h-1zM30 18h1v1h-1zM32 18h1v1h-1zM33 18h1v1h-1zM35 18h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM14 19h1v1h-1zM16 19h1v1h-1zM19 19h1v1h-1zM20 19h1v1h-1zM21 19h1v1h-1zM22 19h1v1h-1zM25 19h1v1h-1zM27 19h1v1h-1zM29 19h1v1h-1zM30 19h1v1h-1zM32 19h1v1h-1zM4 20h1v1h-1zM5 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM8 20h1v1h-1zM9 20h1v1h-1zM10 20h1v1h-1zM12 20h1v1h-1zM14 20h1v1h-1zM16 20h1v1h-1zM17 20h1v1h-1zM21 20h1v1h-1zM23 20h1v1h-1zM25 20h1v1h-1zM26 20h1v1h-1zM28 20h1v1h-1zM30 20h1v1h-1zM32 20h1v1h-1zM35 20h1v1h-1zM4 21h1v1h-1zM5 21h1v1h-1zM6 21h1v1h-1zM8 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM15 21h1v1h-1zM17 21h1v1h-1zM19 21h1v1h-1zM20 21h1v1h-1zM27 21h1v1h-1zM29 21h1v1h-1zM33 21h1v1h-1zM34 21h1v1h-1zM35 21h1v1h-1zM6 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM11 22h1v1h-1zM12 22h1v1h-1zM14 22h1v1h-1zM16 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM21 22h1v1h-1zM25 22h1v1h-1zM26 22h1v1h-1zM27 22h1v1h-1zM31 22h1v1h-1zM33 22h1v1h-1zM4 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM9 23h1v1h-1zM14 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM21 23h1v1h-1zM22 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM25 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM29 23h1v1h-1zM31 23h1v1h-1zM35 23h1v1h-1zM36 23h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM7 24h1v1h-1zM9 24h1v1h-1zM10 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h1v1h-1zM28 24h1v1h-1zM30 24h1v1h-1zM31 24h1v1h-1zM32 24h1v1h-1zM33 24h1v1h-1zM36 24h1v1h-1zM4 25h1v1h-1zM5 25h1v1h-1zM6 25h1v1h-1zM8 25h1v1h-1zM9 25h1v1h-1zM13 25h1v1h-1zM20 25h1v1h-1zM23 25h1v1h-1zM26 25h1v1h-1zM29 25h1v1h-1zM31 25h1v1h-1zM33 25h1v1h-1zM35 25h1v1h-1zM6 26h1v1h-1zM7 26h1v1h-1zM8 26h1v1h-1zM10 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM17 26h1v1h-1zM20 26h1v1h-1zM21 26h1v1h-1zM22 26h1v1h-1zM23 26h1v1h-1zM25 26h1v1h-1zM26 26h1v1h-1zM29 26h1v1h-1zM30 26h1v1h-1zM31 26h1v1h-1zM32 26h1v1h-1zM34 26h1v1h-1zM35 26h1v1h-1zM9 27h1v1h-1zM12 27h1v1h-1zM13 27h1v1h-1zM14 27h1v1h-1zM18 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM25 27h1v1h-1zM28 27h1v1h-1zM29 27h1v1h-1zM32 27h1v1h-1zM35 27h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM7 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM11 28h1v1h-1zM13 28h1v1h-1zM14 28h1v1h-1zM15 28h1v1h-1zM16 28h1v1h-1zM17 28h1v1h-1zM18 28h1v1h-1zM19 28h1v1h-1zM20 28h1v1h-1zM21 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM29 28h1v1h-1zM30 28h1v1h-1zM31 28h1v1h-1zM32 28h1v1h-1zM33 28h1v1h-1zM35 28h1v1h-1zM12 29h1v1h-1zM13 29h1v1h-1zM14 29h1v1h-1zM15 29h1v1h-1zM16 29h1v1h-1zM17 29h1v1h-1zM19 29h1v1h-1zM20 29h1v1h-1zM21 29h1v1h-1zM24 29h1v1h-1zM25 29h1v1h-1zM28 29h1v1h-1zM32 29h1v1h-1zM34 29h1v1h-1zM35 29h1v1h-1zM4 30h1v1h-1zM5 30h1v1h-1zM6 30h1v1h-1zM7 30h1v1h-1zM8 30h1v1h-1zM9 30h1v1h-1zM10 30h1v1h-1zM12 30h1v1h-1zM14 30h1v1h-1zM16 30h1v1h-1zM17 30h1v1h-1zM18 30h1v1h-1zM19 30h1v1h-1zM20 30h1v1h-1zM22 30h1v1h-1zM24 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM33 30h1v1h-1zM35 30h1v1h-1zM4 31h1v1h-1zM10 31h1v1h-1zM15 31h1v1h-1zM16 31h1v1h-1zM17 31h1v1h-1zM18 31h1v1h-1zM20 31h1v1h-1zM26 31h1v1h-1zM28 31h1v1h-1zM32 31h1v1h-1zM36 31h1v1h-1zM4 32h1v1h-1zM6 32h1v1h-1zM7 32h1v1h-1zM8 32h1v1h-1zM10 32h1v1h-1zM12 32h1v1h-1zM13 32h1v1h-1zM14 32h1v1h-1zM18 32h1v1h-1zM20 32h1v1h-1zM23 32h1v1h-1zM26 32h1v1h-1zM28 32h1v1h-1zM29 32h1v1h-1zM30 32h1v1h-1zM31 32h1v1h-1zM32 32h1v1h-1zM33 32h1v1h-1zM4 33h1v1h-1zM6 33h1v1h-1zM7 33h1v1h-1zM8 33h1v1h-1zM10 33h1v1h-1zM13 33h1v1h-1zM15 33h1v1h-1zM22 33h1v1h-1zM23 33h1v1h-1zM24 33h1v1h-1zM25 33h1v1h-1zM27 33h1v1h-1zM28 33h1v1h-1zM30 33h1v1h-1zM31 33h1v1h-1zM32 33h1v1h-1zM34 33h1v1h-1zM35 33h1v1h-1zM4 34h1v1h-1zM6 34h1v1h-1zM7 34h1v1h-1zM8 34h1v1h-1zM10 34h1v1h-1zM13 34h1v1h-1zM16 34h1v1h-1zM17 34h1v1h-1zM19 34h1v1h-1zM21 34h1v1h-1zM22 34h1v1h-1zM24 34h1v1h-1zM25 34h1v1h-1zM26 34h1v1h-1zM27 34h1v1h-1zM30 34h1v1h-1zM31 34h1v1h-1zM32 34h1v1h-1zM33 34h1v1h-1zM34 34h1v1h-1zM4 35h1v1h-1zM10 35h1v1h-1zM16 35h1v1h-1zM17 35h1v1h-1zM18 35h1v1h-1zM19 35h1v1h-1zM20 35h1v1h-1zM21 35h1v1h-1zM25 35h1v1h-1zM27 35h1v1h-1zM29 35h1v1h-1zM30 35h1v1h-1zM4 36h1v1h-1zM5 36h1v1h-1zM6 36h1v1h-1zM7 36h1v1h-1zM8 36h1v1h-1zM9 36h1v1h-1zM10 36h1v1h-1zM12 36h1v1h-1zM13 36h1v1h-1zM18 36h1v1h-1zM20 36h1v1h-1zM21 36h1v1h-1zM23 36h1v1h-1zM24 36h1v1h-1zM25 36h1v1h-1zM26 36h1v1h-1zM28 36h1v1h-1zM29 36h1v1h-1zM30 36h1v1h-1zM33 36h1v1h-1zM36 36h1v1h-1z" fill="#1b0b3a"/></svg></div><div class="qt">JOGA NO TELEMÓVEL<br>SCAN TO PLAY<small>madeinmaia.pt/outrunning-portugal</small></div></div>
     </div>
   </div>
   <div class="ticker"><span id="ticker"></span></div>
@@ -227,7 +316,9 @@ body.swap #gauge{top:auto;bottom:calc(var(--B) + var(--st) + var(--gap))}
 <div id="radio" class="screen hidden">
   <h2>ESCOLHE A RÁDIO<small>PICK YOUR STATION</small></h2>
   <div class="radio">
-    <div class="lcd"><span id="lcdF">88.7 FM</span><span id="lcdN">MARÉ ALTA</span></div>
+    <div class="lcd"><span id="lcdF">88.7 FM</span><span id="lcdN">VELVET</span></div>
+    <div class="np"><span id="np">A TOCAR</span></div>
+    <div class="eq" id="eq"></div>
     <div class="presets" id="presets"></div>
   </div>
   <div class="mapsrow"><canvas id="radioMap" width="240" height="320"></canvas><button class="big" id="goBtn">ARRANCAR! <small>GO</small></button></div>
@@ -235,7 +326,8 @@ body.swap #gauge{top:auto;bottom:calc(var(--B) + var(--st) + var(--gap))}
 </div>
 
 <div id="pause" class="screen hidden">
-  <h2>PAUSA<small>PAUSED</small></h2>
+  <h2 class="cup">PAUSA ☕<small>PAUSED</small></h2>
+  <div class="pmsg" id="pmsg"></div>
   <div class="mapsrow"><canvas id="pauseMap" width="240" height="320"></canvas><button class="big" id="resumeBtn">CONTINUAR</button></div>
   <div class="row">
     <button class="opt" id="setBtn2">⚙️ Definições</button>
@@ -249,6 +341,8 @@ body.swap #gauge{top:auto;bottom:calc(var(--B) + var(--st) + var(--gap))}
 
 <div id="over" class="screen hidden">
   <h2 id="overT">ACABOU O TEMPO!<small>GAME OVER</small></h2>
+  <div class="omsg" id="omsg"></div>
+  <div class="bigscore" id="bigScore">0</div>
   <div class="stats" id="overS"></div>
   <div id="nameEntry" class="hidden">
     <div class="ne-t">🏆 NOVO RECORDE! Escreve as tuas iniciais</div>
@@ -281,8 +375,8 @@ body.swap #gauge{top:auto;bottom:calc(var(--B) + var(--st) + var(--gap))}
   <div class="small">Guardados neste dispositivo</div>
 </div>
 
-<div id="count" class="hidden"></div>
-<div id="toast" class="hidden"><div class="t1"></div><div class="t2"></div><div class="t3"></div></div>
+<div id="count" class="hidden"><div class="lights"><i></i><i></i><i></i></div><div id="countN">3</div><div class="cmsg" id="cmsg"></div></div>
+<div id="toast" class="hidden"></div>
 <div id="rot" class="hidden">↻ Roda o telemóvel · rotate for the best ride <button id="rotOk">OK</button></div>
 <script>
 'use strict';
@@ -1555,8 +1649,8 @@ function update(dt){
     const ns=stageIdx+1;
     if(ns<STAGES.length&&pSeg.index>=cpIdx[ns]){stageIdx=ns;const z=STAGES[ns];
       if(z.leg!==legIdx){legIdx=z.leg;const L=LEGS[legIdx];timeLeft+=L.bonus;sfx('cp');crewEvent('cp');spawnFirework();spawnFirework();
-        showToast('CHECKPOINT!',`+${L.bonus} s · ETAPA ${legIdx+1}: ${L.name}`,z.fact);if(police&&police.phase!=='busted')policeGiveUp(true);}
-      else{showToast(z.name,z.sub,z.fact);sfx('pickup');}
+        showCheckpoint(L.bonus,`ETAPA ${legIdx+1}/4 · ${L.name}`,z.fact);if(police&&police.phase!=='busted')policeGiveUp(true);}
+      else{showPostcard(z);sfx('pickup');}
       say('w',z.luna,3,true);showMini(4.5);}
     if(pSeg.index>=goalIdx){state='finish';finishT=0;sfx('goal');crewEvent('finish');police=null;busted=null;say('w','CHEGÁMOS! 🌙',4,true);say('d','MADE IN MAIA, BABY!',4,true);}
     else if(timeLeft<=0){timeLeft=0;state='over';overT=0;sfx('over');say('d','Ai... ficámos sem tempo!',3,true);busted=null;if(police)police.phase='leave';}
@@ -1944,7 +2038,6 @@ function updateHUD(){
   drawGauge();drawMirror();
 }
 let toastTimer=0;
-function showToast(a,b,c){const t=$('toast');t.querySelector('.t1').textContent=a;t.querySelector('.t2').textContent=b;const t3=t.querySelector('.t3');t3.textContent=c||'';t3.style.display=c?'inline-block':'none';t.classList.remove('hidden');t.style.animation='none';void t.offsetWidth;t.style.animation='';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.add('hidden'),3300);}
 function popText(txt,big){const d=document.createElement('div');d.className='pop';d.textContent=txt;d.style.left='50%';d.style.top=(big?40:60)+'%';d.style.transform='translateX(-50%)';if(big===2){d.style.color='#ff5050';d.style.fontSize='clamp(24px,8vmin,48px)';}document.body.appendChild(d);setTimeout(()=>d.remove(),1000);}
 
 // ------------------------------------------------------------------ AUDIO
@@ -2074,7 +2167,7 @@ let pendingScore=null;
 const qualifies=s=>s>0&&(scores.length<10||s>scores[scores.length-1].s);
 function addScore(n,p){const e={n,s:p.s,st:p.st,w:p.w};scores.push(e);scores.sort((a,b)=>b.s-a.s);scores=scores.slice(0,10);store.set('scores',scores);best=scores[0].s;store.set('best',best);return scores.indexOf(e);}
 function renderTable(el,hl,limit){const L=scores.slice(0,limit||10);
-  el.innerHTML=L.length?L.map((e,i)=>`<tr class="${i===hl?'me':''}"><td>${i+1}.</td><td>${e.n}</td><td class="r">${e.s.toLocaleString('pt-PT')}</td><td>${e.w?'🏁 ALGARVE':(STAGES[e.st]?STAGES[e.st].name:'')}</td></tr>`).join(''):'<tr><td>Ainda sem recordes — sê o primeiro! 🌙</td></tr>';}
+  el.innerHTML=L.length?L.map((e,i)=>`<tr class="${i===hl?'me':''}" style="animation-delay:${i*0.07}s"><td class="md">${['👑','🥈','🥉'][i]||(i+1)+'.'}</td><td>${e.n}</td><td class="r">${e.s.toLocaleString('pt-PT')}</td><td>${e.w?'🏁 ALGARVE':(STAGES[e.st]?STAGES[e.st].name:'')}</td></tr>`).join(''):'<tr><td>Ainda sem recordes — sê o primeiro! 🌙</td></tr>';}
 function buildSlots(){const el=$('slots');el.innerHTML='';ini.forEach((c,i)=>{const d=document.createElement('div');d.className='slot';d.innerHTML=`<button>▲</button><b>${c}</b><button>▼</button>`;const [up,b,dn]=d.children;const step=k=>{ini[i]=CH[mod(CH.indexOf(ini[i])+k,CH.length)];b.textContent=ini[i];sfx('click');};up.onclick=()=>step(1);dn.onclick=()=>step(-1);el.appendChild(d);});}
 function commitScore(){if(!pendingScore)return -1;const n=ini.join('');store.set('ini',n);const r=addScore(n,pendingScore);pendingScore=null;$('nameEntry').classList.add('hidden');$('bestScore').textContent=best.toLocaleString('pt-PT');return r;}
 
@@ -2082,7 +2175,7 @@ function commitScore(){if(!pendingScore)return -1;const n=ini.join('');store.set
 const isTouch=matchMedia('(pointer:coarse)').matches||'ontouchstart' in window;
 if(isTouch)$('keysHint').textContent='Pedais à esquerda · volante à direita · ou inclina o telemóvel 📱';
 function show(id){['intro','title','radio','pause','over','hiscore','settings'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
-function setStation(i){settings.station=i;store.set('station',i);const S=SONGS[i];$('lcdF').textContent=S.freq+' FM';$('lcdN').textContent=S.name;$('radioName').textContent=S.name;document.querySelectorAll('.preset').forEach((b,k)=>b.classList.toggle('sel',k===i));}
+function setStation(i){settings.station=i;store.set('station',i);const S=SONGS[i];$('np').textContent='♫ A TOCAR: '+S.name+' — '+S.desc+' · Outrunning Portugal Rádio ♫';$('lcdF').textContent=S.freq+' FM';$('lcdN').textContent=S.name;$('radioName').textContent=S.name;document.querySelectorAll('.preset').forEach((b,k)=>b.classList.toggle('sel',k===i));}
 SONGS.forEach((S,i)=>{const b=document.createElement('button');b.className='preset';b.innerHTML=`<b>${S.freq}</b>${S.name}<br><span style="opacity:.7;font-family:system-ui;font-weight:600">${S.desc}</span>`;b.onclick=()=>{aInit();setStation(i);musicStart(i);};$('presets').appendChild(b);});
 $('playBtn').onclick=()=>{aInit();sfx('click');
   try{const el=document.documentElement;if(isTouch&&el.requestFullscreen&&!document.fullscreenElement)el.requestFullscreen().then(()=>{try{screen.orientation.lock('landscape').catch(()=>{});}catch(e){}}).catch(()=>{});}catch(e){}
@@ -2093,11 +2186,10 @@ function inGameUI(on){['hud','pauseBtn','ctrlBtn','gauge','mirror'].forEach(i=>$
 function beginCountdown(){
   show(null);startRace();state='count';inGameUI(true);applyCtrl();calibrate();
   buildRoute();for(const k in hudCache)delete hudCache[k];updateHUD();
-  const c=$('count');c.classList.remove('hidden');let n=3;c.textContent=n;sfx('beep');
-  const iv=setInterval(()=>{n--;if(n>0){c.textContent=n;sfx('beep');}else if(n===0){c.textContent='VAI!';sfx('go');state='play';say('d','Bora, Luna! Rumo ao Algarve!',2.4,true);setTimeout(()=>say('w','Bora! 🌙',1.6,true),900);}else{clearInterval(iv);c.classList.add('hidden');}},800);
-  showToast('PORTO','Partida · rumo ao Algarve!',STAGES[0].fact);showMini(5);
+  startLights();
+  setTimeout(()=>showPostcard(STAGES[0],'Partida de'),2600);showMini(5);
 }
-function pauseGame(){if(state!=='play')return;state='paused';show('pause');musicStop();engineSound(-1);sirenSound(false);ptrs.clear();evalPtrs();}
+function pauseGame(){if(state!=='play')return;state='paused';$('toast').classList.add('hidden');show('pause');$('pmsg').textContent=pick(Math.random,PAUSE_MSGS);musicStop();engineSound(-1);sirenSound(false);ptrs.clear();evalPtrs();}
 function resumeGame(){show(null);state='play';aInit();musicResume();rects={};requestAnimationFrame(cacheRects);}
 function toMenu(){commitScore();buildTicker();musicStop();state='title';show('title');inGameUI(false);['toast','count'].forEach(i=>$(i).classList.add('hidden'));startRace();speed=maxSpeed*0.4;$('bestScore').textContent=best.toLocaleString('pt-PT');engineSound(-1);sirenSound(false);}
 $('resumeBtn').onclick=resumeGame;$('pauseBtn').onclick=e=>{e.stopPropagation();pauseGame();};
@@ -2122,7 +2214,7 @@ function showEnd(win){
   $('overTable').innerHTML='';
   if(qualifies(fs)){pendingScore={s:fs,st:stageIdx,w:win};$('nameEntry').classList.remove('hidden');buildSlots();}
   else{pendingScore=null;$('nameEntry').classList.add('hidden');renderTable($('overTable'),-1,5);}
-  show('over');$('controls').classList.add('hidden');$('pauseBtn').classList.add('hidden');$('ctrlBtn').classList.add('hidden');ptrs.clear();evalPtrs();
+  $('toast').classList.add('hidden');endExtras(win,fs);show('over');$('controls').classList.add('hidden');$('pauseBtn').classList.add('hidden');$('ctrlBtn').classList.add('hidden');ptrs.clear();evalPtrs();
 }
 
 
@@ -2142,14 +2234,88 @@ function drawMaps(dt){
   if(vis('endMap'))drawEuroMap(mapCtx.endMap,520,350,T,{labels:true,done:state==='finish'});
 }
 function buildTicker(){const L=scores.slice(0,10);$('ticker').textContent=L.length?'🏆 RECORDES  ·  '+L.map((e,i)=>`${i+1}. ${e.n} ${e.s.toLocaleString('pt-PT')}`).join('   ·   ')+'   ·   MADE IN MAIA 🌙':'🏆 SÊ O PRIMEIRO NOS RECORDES · PORTO ➜ ALGARVE · MADE IN MAIA 🌙 · NEXT: EURO TOUR';}
-function endIntro(){if(state!=='intro')return;state='title';show('title');buildTicker();checkRotate();}
+function endIntro(){if(state!=='intro')return;state='title';$('intro').classList.add('out');setTimeout(()=>{$('intro').classList.remove('out');show('title');},450);buildTicker();checkRotate();}
+
+
+// ------------------------------------------------------------------ animated screens: messages, intro scene, toasts, countdown, end
+const TIPS=['🥧 Apanha 10 pastéis de nata para ganhar +5 segundos','⚡ Guarda as bicas turbo para as retas!','📸 Cuidado com os radares — a Polícia não perdoa (quase nunca)',
+ '🌙 A Luna adora quando passas à raspar… ou não','🚇 Nos túneis, buzina! É tradição','🚋 O elétrico 28 não se desvia. Tu é que te desvias',
+ '🏁 Ultrapassagens dão pontos — à raspar dão ainda mais','☕ Uma bica resolve tudo. Até a pressa','🇵🇹 Capítulo 1: Portugal. A seguir: a Europa inteira!',
+ '🐓 Dizem que o Galo de Barcelos dá sorte aos condutores','🧭 Devagar se vai ao longe… mas não neste jogo','🎵 Muda de rádio no menu de pausa',
+ '📱 Experimenta conduzir a inclinar o telemóvel — vê as Definições','🏰 Repara nos monumentos: há mais de 20 pelo caminho','🚓 Fugir da Polícia com turbo dá +2000 pontos'];
+const PAUSE_MSGS=['☕ A Luna foi buscar uma bica…','🗺️ O maiato está a estudar o mapa','🥧 Pausa para um pastel de nata','📸 A Luna está a tirar uma selfie com a vista','🎶 Aproveita para mudar de rádio','🌅 Respira fundo. O Algarve espera por ti'];
+const OVER_MSGS=['O elétrico 28 chegou primeiro… 🚋','Até um tuk-tuk teria conseguido! 🛺','Tempo esgotado — mas a vista valeu a pena 🌅','A Luna diz: “para a próxima, menos selfies” 📸','Faltou uma bica turbo ☕⚡','Devagar se vai ao longe… mas não chega ao Algarve 😅','O GPS recalculou… para amanhã 🧭'];
+const WIN_MSGS=['Portugal conquistado. A Europa que se cuide! 🇪🇺','A Luna já está na praia 🌙🏖️','Made in Maia, finished in Faro 🏁','Lua de mel? Lua cheia? Lua no Algarve! 🌙'];
+const COUNT_MSGS=['Apertem os cintos!','Rumo ao Algarve!','Luna pronta? 🌙','Motor quente, bica tomada ☕','Made in Maia, vai!'];
+const ZEMO={porto:'🌉',douro:'🍇',aveiro:'🚣',coimbra:'🎓',oeste:'🏰',lisboa:'🚋',sintra:'🏰',alentejo:'🌾',algarve:'🏖️'};
+// tips rotation on title
+let tipI=Math.floor(Math.random()*TIPS.length);
+setInterval(()=>{const t=$('tip');if(!t||$('title').classList.contains('hidden'))return;t.classList.add('swap');setTimeout(()=>{tipI=(tipI+1)%TIPS.length;t.textContent=TIPS[tipI];t.classList.remove('swap');},350);},3800);
+$('tip').textContent=TIPS[tipI];
+// radio equalizer bars
+(()=>{const e=$('eq');for(let i=0;i<20;i++){const b=document.createElement('i');b.style.animationDuration=(0.35+Math.random()*0.5)+'s';b.style.animationDelay=(-Math.random())+'s';e.appendChild(b);}})();
+// intro scene
+const IC=$('introC'),ig=IC.getContext('2d');let introT0=performance.now();
+function drawIntro(now){
+  const dpr=Math.min(2,devicePixelRatio||1),w=IC.width=Math.round(innerWidth*dpr),h=IC.height=Math.round(innerHeight*dpr);const t=(now-introT0)/1000,hz=h*0.62;
+  const sk=ig.createLinearGradient(0,0,0,hz);sk.addColorStop(0,'#05021a');sk.addColorStop(.45,'#3a1068');sk.addColorStop(.8,'#c2306f');sk.addColorStop(1,'#ff9a5a');ig.fillStyle=sk;ig.fillRect(0,0,w,hz+1);
+  for(let i=0;i<70;i++){const x=(i*397%1000)/1000*w,y=(i*211%1000)/1000*hz*0.6;ig.globalAlpha=0.3+0.7*Math.abs(Math.sin(t*2+i));ig.fillStyle='#fff';ig.fillRect(x,y,dpr*1.5,dpr*1.5);}ig.globalAlpha=1;
+  const r=Math.min(w,h)*0.26,rise=1-Math.pow(1-Math.min(1,t/1.8),3),sy=hz+r*0.9-rise*r*1.25;
+  ig.save();ig.beginPath();ig.rect(0,0,w,hz);ig.clip();
+  const gl=ig.createRadialGradient(w/2,sy,r*0.6,w/2,sy,r*2.2);gl.addColorStop(0,'rgba(255,90,140,.55)');gl.addColorStop(1,'rgba(255,90,140,0)');ig.fillStyle=gl;ig.fillRect(0,0,w,hz);
+  const sg=ig.createLinearGradient(0,sy-r,0,sy+r);sg.addColorStop(0,'#fff3a0');sg.addColorStop(.5,'#ffb347');sg.addColorStop(1,'#ff3d7f');ig.fillStyle=sg;ig.beginPath();ig.arc(w/2,sy,r,0,7);ig.fill();
+  ig.globalCompositeOperation='destination-out';for(let k=0;k<7;k++){const yy=sy+r*0.05+k*r*0.14+((t*r*0.12)%(r*0.14));ig.fillRect(w/2-r,yy,r*2,(1+k*0.9)*dpr);}ig.globalCompositeOperation='source-over';
+  ig.restore();
+  // sky behind the cut stripes
+  ig.save();ig.globalCompositeOperation='destination-over';ig.fillStyle=sk;ig.fillRect(0,0,w,hz);ig.restore();
+  // palms
+  const palm=(x,s)=>{ig.strokeStyle='#120424';ig.lineCap='round';ig.lineWidth=6*s;ig.beginPath();ig.moveTo(x,hz+4);ig.quadraticCurveTo(x+16*s,hz-70*s,x+26*s,hz-140*s);ig.stroke();const tx=x+26*s,ty=hz-140*s;for(let k=0;k<8;k++){const a=Math.PI+k*Math.PI/7+Math.sin(t*1.5+k)*0.05;ig.beginPath();ig.moveTo(tx,ty);ig.quadraticCurveTo(tx+Math.cos(a)*32*s,ty+Math.sin(a)*32*s-14*s,tx+Math.cos(a)*62*s,ty+Math.sin(a)*18*s+20*s);ig.stroke();}};
+  palm(w*0.06,h/700);palm(w*0.14,h/950);palm(w*0.88,h/700);palm(w*0.95,h/1000);
+  // neon grid floor
+  const fg2=ig.createLinearGradient(0,hz,0,h);fg2.addColorStop(0,'#2a0a4a');fg2.addColorStop(1,'#0a0218');ig.fillStyle=fg2;ig.fillRect(0,hz,w,h-hz);
+  ig.strokeStyle='rgba(255,61,127,.75)';ig.lineWidth=1.5*dpr;ig.shadowColor='#ff3d7f';ig.shadowBlur=8*dpr;
+  for(let i=-14;i<=14;i++){ig.beginPath();ig.moveTo(w/2+i*w*0.012,hz);ig.lineTo(w/2+i*w*0.16,h);ig.stroke();}
+  const ph=(t*0.9)%1;for(let k=0;k<12;k++){const u=(k+ph)/12,y=hz+(h-hz)*u*u;ig.globalAlpha=Math.min(1,u*3);ig.beginPath();ig.moveTo(0,y);ig.lineTo(w,y);ig.stroke();}
+  ig.globalAlpha=1;ig.shadowBlur=0;
+  ig.fillStyle='#ffc38a';ig.fillRect(0,hz-dpr,w,2*dpr);
+  // the convertible drives off into the sunset
+  const k=Math.min(1,t/4.2),ease=1-Math.pow(1-k,2),sc=(h/120)*(1-ease*0.82),cy=h-(h*0.04)-ease*(h-hz)*0.92;
+  setAnim('w',t<2?'armsUp':'wave',3);crew.w.t=t;crew.d.a=t>1.2&&t<2.6?'wave':'idle';crew.d.t=t;
+  ig.save();ig.translate(w/2,cy);ig.scale(sc,sc);ell(ig,0,-4,84,9,'rgba(0,0,0,.45)');drawCarAll(ig,Math.sin(t*1.3)*0.15,false,t<1.4,t,t*40,true,1);ig.restore();
+}
+// toasts
+let toastTimer2=0;
+function toastHTML(html,ms){const t=$('toast');t.innerHTML=html;t.classList.remove('hidden');clearTimeout(toastTimer2);toastTimer2=setTimeout(()=>{const c=t.querySelector('.card2');if(c){c.classList.add('out');setTimeout(()=>t.classList.add('hidden'),480);}else t.classList.add('hidden');},ms);}
+function showToast(a,b,c){toastHTML(`<div class="note"><div class="t1">${a}</div><div class="t2">${b}</div></div>${c?`<br><div class="fact">${c}</div>`:''}`,3600);}
+function showCheckpoint(bonus,sub,fact){
+  toastHTML(`<div class="cpb"><div class="t1">CHECKPOINT!</div><div class="bonus">+<span id="bonusN">0</span> s</div><div class="t2">${sub}</div></div><br><div class="fact">${fact}</div>`,3800);
+  const t0=performance.now();const step=()=>{const e=$('bonusN');if(!e)return;const k=Math.min(1,(performance.now()-t0)/700);e.textContent=Math.round(bonus*k);if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);
+}
+function showPostcard(z,hi){const sig=pick(Math.random,['beijinhos, Luna 🌙','abraço do maiato 🤙','Luna & o maiato ♥','com amor, MiM ♥ LUNA']);
+  toastHTML(`<div class="card2"><div class="hi">${hi||'Saudações de'}</div><div class="nm">${z.name}</div><div class="sb">${z.sub}</div><div class="fc">${z.fact}</div><div class="sig">${sig}</div><div class="stamp">${ZEMO[z.key]||'🇵🇹'}</div><div class="pmark">PORTUGAL<br>2026<br>CORREIO</div></div>`,4000);}
+// countdown with start lights
+function startLights(){
+  const c=$('count'),n=$('countN'),L=c.querySelectorAll('.lights i');c.classList.remove('hidden');L.forEach(x=>x.className='');$('cmsg').textContent=pick(Math.random,COUNT_MSGS);
+  let k=0;const tickN=()=>{n.classList.remove('pop');void n.offsetWidth;n.classList.add('pop');};
+  n.textContent='3';tickN();L[0].className='r';sfx('beep');
+  const iv=setInterval(()=>{k++;if(k<3){n.textContent=String(3-k);tickN();L[k].className='r';sfx('beep');}
+    else if(k===3){L.forEach(x=>x.className='g');n.textContent='VAI!';tickN();sfx('go');state='play';say('d','Bora, Luna! Rumo ao Algarve!',2.4,true);setTimeout(()=>say('w','Bora! 🌙',1.6,true),900);}
+    else{clearInterval(iv);c.classList.add('hidden');}},800);
+}
+// end screen extras: message, animated title, score count-up
+function endExtras(win,fs){
+  $('omsg').textContent=pick(Math.random,win?WIN_MSGS:OVER_MSGS);
+  const h=$('overT');h.classList.remove('shake','win');void h.offsetWidth;h.classList.add(win?'win':'shake');
+  const b=$('bigScore');b.classList.remove('done');const t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/1300),e=1-Math.pow(1-k,3);b.textContent=Math.round(fs*e).toLocaleString('pt-PT');if(k<1)requestAnimationFrame(step);else b.classList.add('done');};requestAnimationFrame(step);
+  if(win)for(let i=0;i<4;i++)setTimeout(spawnFirework,i*300);
+}
 
 // ------------------------------------------------------------------ main loop
 let last=performance.now(),acc=0;
 function frame(now){
   perfNow=now;const dt=Math.min(0.25,(now-last)/1000);last=now;acc+=dt;
   let n=0;while(acc>=STEP&&n<8){update(STEP);acc-=STEP;n++;}if(n>=8)acc=0;
-  render();renderFX();updateHUD();drawMaps(dt);
+  render();renderFX();updateHUD();drawMaps(dt);if(state==='intro')drawIntro(now);
   requestAnimationFrame(frame);
 }
 
@@ -2158,7 +2324,7 @@ resize();buildSprites();buildTrack();applyCtrl();
 tilePat=ctx.createPattern(mk(12,12,g=>tiles(g,0,0,12,12,12)),'repeat');
 if(settings.ctrl==='tilt')listenTilt();
 $('bestScore').textContent=best.toLocaleString('pt-PT');
-state='intro';show('intro');$('intro').onclick=endIntro;setTimeout(endIntro,2600);
+state='intro';show('intro');$('intro').onclick=endIntro;setTimeout(endIntro,4200);
 startRace();speed=maxSpeed*0.4;
 for(let i=0;i<STAGES.length;i++)setTimeout(()=>buildBG(i),50+i*30);
 requestAnimationFrame(frame);
