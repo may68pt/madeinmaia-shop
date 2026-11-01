@@ -472,6 +472,8 @@ html,body{height:100%;height:100dvh;overscroll-behavior:none}
 @media (orientation:landscape){.tourBody{flex-direction:row;align-items:center;justify-content:center}.tmapWrap{width:min(52vw,600px)}.tcard{width:min(40vw,420px)}#tour h2 small{display:none}}
 .hitabs{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}.hitabs h3{margin:4px 0;font-family:Oswald,sans-serif;letter-spacing:.12em;color:#ffd23f;text-align:center}
 #nextBtn{background:linear-gradient(180deg,#5ee7ff,#1460a8)}
+
+body.closeup #gauge,body.closeup #mirror,body.closeup #miniMap,body.closeup #controls{opacity:0;transition:opacity .25s;pointer-events:none}
 </style>
 </head>
 <body>
@@ -1812,7 +1814,7 @@ const CNAMES={pt:{PT:'PORTUGAL',ES:'ESPANHA',FR:'FRANÇA',IT:'ITÁLIA',CH:'SUÍ�
  fr:{PT:'PORTUGAL',ES:'ESPAGNE',FR:'FRANCE',IT:'ITALIE',CH:'SUISSE',DE:'ALLEMAGNE',NL:'PAYS-BAS',BE:'BELGIQUE',GB:'ROYAUME-UNI',PT2:'RETOUR'},
  de:{PT:'PORTUGAL',ES:'SPANIEN',FR:'FRANKREICH',IT:'ITALIEN',CH:'SCHWEIZ',DE:'DEUTSCHLAND',NL:'NIEDERLANDE',BE:'BELGIEN',GB:'GROSSBRITANNIEN',PT2:'HEIMKEHR'},
  pl:{PT:'PORTUGALIA',ES:'HISZPANIA',FR:'FRANCJA',IT:'WŁOCHY',CH:'SZWAJCARIA',DE:'NIEMCY',NL:'HOLANDIA',BE:'BELGIA',GB:'WIELKA BRYTANIA',PT2:'POWRÓT'}};
-function detectLang(){const n=(navigator.language||'pt').slice(0,2).toLowerCase();return I18N[n]?n:'en';}
+function detectLang(){const L=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'en']);for(const l of L){const n=String(l).slice(0,2).toLowerCase();if(I18N[n])return n;}return 'en';}
 let LANG=store.get('lang',null)||detectLang();if(!I18N[LANG])LANG='pt';
 const T=k=>(I18N[LANG]&&I18N[LANG][k]!==undefined)?I18N[LANG][k]:(I18N.pt[k]!==undefined?I18N.pt[k]:k);
 const CNAME=C=>(CNAMES[LANG]||CNAMES.en)[C.code]||C.name;
@@ -2431,14 +2433,15 @@ function drawBubble(g,ax,ay,text,who,t,life,al_){
   const maxW=FX.width*0.84-fs*1.2,words=text.split(' '),lines=[];let cur='';
   for(const wd of words){const tt=cur?cur+' '+wd:wd;if(g.measureText(tt).width>maxW&&cur){lines.push(cur);cur=wd;}else cur=tt;}lines.push(cur);
   const tw=Math.max(...lines.map(l=>g.measureText(l).width)),lh=fs*1.12,w=Math.round((tw+fs*1.2)*sc),h=Math.round((lines.length*lh+fs*0.7)*sc);
-  const bx=Math.round(clamp(al_==='L'?ax-w+fs*1.2:al_==='R'?ax-fs*1.2:ax-w/2,8,FX.width-w-8)),by=Math.round(Math.max(fs*1.3,ay-h-fs*0.9));
+  const below=al_.length>1&&al_[1]==='B',A=al_[0];const bx=Math.round(clamp(A==='L'?ax-w+fs*1.2:A==='R'?ax-fs*1.2:ax-w/2,8,FX.width-w-8)),by=below?Math.round(Math.min(FX.height-h-8,ay+fs*0.9)):Math.round(Math.max(fs*1.3,ay-h-fs*0.9));
   const col=who==='cop'?'#e4eeff':who==='w'?'#fff0f6':'#fffdf2',bd=who==='cop'?'#1f3fa8':who==='w'?'#c2185b':'#111',tc=who==='cop'?'#102a7a':who==='w'?'#9c0f4a':'#111';
   // tail (stepped)
   const tx=Math.round(clamp(ax,bx+fs*1.2,bx+w-fs*1.2)),ty=Math.min(ay,by+h+fs*1.1);
-  const steps=4;for(let i=0;i<steps;i++){const k=i/steps,yy=by+h-p+(ty-(by+h))*k,ww=fs*0.7*(1-k)+p*1.2,xx=lerp(tx,ax,k);g.fillStyle=bd;g.fillRect(Math.round(xx-ww/2-p),Math.round(yy),Math.round(ww+2*p),Math.ceil((ty-by-h)/steps)+p);g.fillStyle=col;g.fillRect(Math.round(xx-ww/2),Math.round(yy),Math.round(ww),Math.ceil((ty-by-h)/steps)+(i<steps-1?p:0));}
+  if(below){const ty2=Math.max(ay,by-fs*1.1),st2=4;for(let i=0;i<st2;i++){const k=i/st2,hh=Math.ceil((by-ty2)/st2)+p,yy=by+p-(by-ty2)*(k+1/st2),ww=fs*0.7*(1-k)+p*1.2,xx=lerp(tx,ax,k);g.fillStyle=bd;g.fillRect(Math.round(xx-ww/2-p),Math.round(yy),Math.round(ww+2*p),hh);g.fillStyle=col;g.fillRect(Math.round(xx-ww/2),Math.round(yy)+(i===st2-1?p:0),Math.round(ww),hh);}}
+  else{const steps=4;for(let i=0;i<steps;i++){const k=i/steps,yy=by+h-p+(ty-(by+h))*k,ww=fs*0.7*(1-k)+p*1.2,xx=lerp(tx,ax,k);g.fillStyle=bd;g.fillRect(Math.round(xx-ww/2-p),Math.round(yy),Math.round(ww+2*p),Math.ceil((ty-by-h)/steps)+p);g.fillStyle=col;g.fillRect(Math.round(xx-ww/2),Math.round(yy),Math.round(ww),Math.ceil((ty-by-h)/steps)+(i<steps-1?p:0));}}
   pixBox(g,bx,by,w,h,p,col,bd,true);
   if(sc>0.9){g.fillStyle=tc;g.textAlign='center';g.textBaseline='middle';lines.forEach((l,i)=>g.fillText(l,bx+w/2,by+fs*0.36+lh*(i+0.5)));
-    const nm=who==='d'?'MAIATO':who==='w'?'LUNA 🌙':((busted&&busted.cop)||copCfg()).name+' 👮';g.font=`700 ${Math.round(fs*0.52)}px ${BFONT}`;const nw=g.measureText(nm).width+fs*0.6,nh=Math.round(fs*0.78);
+    const nm=who==='d'?'PAULO':who==='w'?'LUNA 🌙':((busted&&busted.cop)||copCfg()).name+' 👮';g.font=`700 ${Math.round(fs*0.52)}px ${BFONT}`;const nw=g.measureText(nm).width+fs*0.6,nh=Math.round(fs*0.78);
     pixBox(g,bx+fs*0.3,by-nh*0.62,nw,nh,Math.max(2,p*0.6),bd,bd,false);g.fillStyle='#fff';g.textAlign='left';g.fillText(nm,bx+fs*0.6,by-nh*0.62+nh/2+1);}
   g.restore();
 }
@@ -2456,7 +2459,8 @@ function renderFX(){
   if(flashT>0){fg.fillStyle=`rgba(255,255,255,${Math.min(1,flashT*3)})`;fg.fillRect(-20,-20,FX.width+40,FX.height+40);}
   // speech bubbles
   const s=carScale,cx=W,cy=(HZY+VS)*2-4;
-  for(const b of bubbles){let ax,ay;
+  drawCloseups(fg);const CU=closeupsOn();document.body.classList.toggle('closeup',CU);
+  for(const b of bubbles){let ax,ay;if(CU){const L=portraitLayout();let A;if(b.who==='d')A=[L.paulo.x+L.paulo.r*0.3,L.paulo.y+L.paulo.r*1.25,'RB'];else if(b.who==='w')A=[L.luna.x,L.luna.y+L.luna.h*0.5+L.luna.h*0.35,'CB'];else A=[L.cop.x-L.cop.r*0.3,L.cop.y+L.cop.r*1.25,'LB'];drawBubble(fg,A[0],A[1],b.text,b.who,b.t,b.life,A[2]);continue;}
     if(b.who==='d'){if(busted&&busted.phase!=='stop'){ax=cx+10*s;ay=cy-150*s;}else{ax=cx-22*s-30;ay=cy-100*s;}}
     else if(b.who==='w'){if(busted&&busted.phase!=='stop'){ax=cx+30*s;ay=cy-150*s;}else{ax=cx+22*s+30;ay=cy-(crew.w.a==='stand'?124:100)*s;}}
     else if(busted&&busted.phase!=='stop'){const c=copScreen();ax=c.x;ay=c.y-172*c.k;}
@@ -3389,7 +3393,7 @@ function buildEuroSprites(){if(euBuilt)return;euBuilt=true;const s=(k,img,ww,hit
   s('bigBen',bigBen(),1.0,0.9);s('towerBridge',towerBridge(),5.0,0);SP.towerBridge.pillar=[1.45,2.5];s('londonEye',londonEye(),2.6,0.4);s('stonehenge',stonehenge(),2.8,0.95);s('phoneBox',phoneBox(),0.3,0.7);
   ['#9a4a32','#b8604a','#7a3a2a','#c8b090'].forEach((c,i)=>s('terr'+i,terrace(c),1.15,0.95));
   s('santiago',santiago(),2.6,0.95);s('bomJesus',bomJesus(),2.6,0.95);s('espig',espigueiro(),0.9,0.8);s('torreLidador',torreLidador(),1.0,0.9);s('maiaHeart',maiaHeart(),1.3,0.9);
-  for(const k of ['ES','FR','IT','CH','DE','NL','BE','GB','GZ'])s('flag'+k,flagGen(k),0.3,0.3);
+  for(const k of ['ES','FR','IT','CH','DE','NL','BE','GB','GZ'])s('flag'+k,flagGen(k),0.3,0.3);buildEuro2();
   SP.dbus={img:doubleDecker(),ww:0.44};SP.cab={img:blackCab(),ww:0.3};
   SP.fiat0={img:retroCar('#e8402a'),ww:0.26};SP.fiat1={img:retroCar('#f2e8cf'),ww:0.26};SP.fiat2={img:retroCar('#6ac0a8'),ww:0.26};
   [['pedFl',{legs:'#c8102e',top:'#c8102e',skin:'#e0a57a',hair:'#111',skirt:'#c8102e',long:1}],['pedBe',{legs:'#222',top:'#f4f1ea',skin:'#f1c27d',hair:'#5a3a22',hat:'#1a1a2a'}],
@@ -3667,7 +3671,7 @@ let tourSel=0,tourNodes=[];
 function drawTourMap(g,w,h,T,sel){
   g.clearRect(0,0,w,h);const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#0c0626');bg.addColorStop(1,'#1d0b3e');g.fillStyle=bg;g.fillRect(0,0,w,h);
   g.strokeStyle='rgba(255,61,127,.12)';g.lineWidth=1;for(let x=0;x<w;x+=w/16){g.beginPath();g.moveTo(x,0);g.lineTo(x,h);g.stroke();}for(let y=0;y<h;y+=h/12){g.beginPath();g.moveTo(0,y);g.lineTo(w,y);g.stroke();}
-  const kx=Math.cos(46*Math.PI/180),L0=-11.2,L1=17.5,A0=35.4,A1=58.6,s=Math.min(w/((L1-L0)*kx),h/(A1-A0));
+  const kx=Math.cos(48*Math.PI/180),L0=-11.2,L1=40.5,A0=34.4,A1=61.2,s=Math.min(w/((L1-L0)*kx),h/(A1-A0));
   const ox=(w-(L1-L0)*kx*s)/2,oy=(h-(A1-A0)*s)/2,P=(lon,lat)=>[ox+(lon-L0)*kx*s,oy+(A1-lat)*s];
   const st=ci=>ci<unlocked?'done':ci===unlocked?'open':'lock';
   const codeOf={};CHAPTERS.forEach((c,i)=>{const k=c.code==='PT2'?'PT':c.code;if(codeOf[k]===undefined||c.code!=='PT2')codeOf[k]=i;});
@@ -3717,6 +3721,399 @@ function fetchGlobal(){return fetch(SCORE_API,{cache:'no-store'}).then(r=>r.ok?r
 function postGlobal(n,ps){try{fetch(SCORE_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({n,s:ps.s,c:ps.c||0,w:!!ps.w})}).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.ok){gScores=j.scores;if(state==='hiscore')renderHi();}}).catch(()=>{});}catch(e){}}
 function rowsHTML(L,hl){return L.length?L.map((e,i)=>{const C=CHAPTERS[e.c||0]||CHAPTERS[0];return `<tr class="${i===hl?'me':''}" style="animation-delay:${i*0.07}s"><td class="md">${['👑','🥈','🥉'][i]||(i+1)+'.'}</td><td>${e.n}</td><td class="r">${(+e.s).toLocaleString('pt-PT')}</td><td>${C.flag} ${e.w?'🏁 '+C.goal:C.name}</td></tr>`;}).join(''):'<tr><td>'+T('noRec')+'</td></tr>';}
 function renderHi(){const g=$('hiTableG');if(g)g.innerHTML=gScores?rowsHTML(gScores,-1):'<tr><td>'+T('loading')+'</td></tr>';renderTable($('hiTable'),-1,10);}
+
+
+// ================================================================== EURO TOUR II — Greece, Austria, Czechia, Poland, Russia (+ natural landmarks)
+// ---------- GREECE
+function parthenon(){return mk(340,190,(g,w,h)=>{const st='#e8dcc0',dk='#c8b896';
+  g.fillStyle='#b8a070';g.beginPath();g.moveTo(0,h);g.lineTo(20,150);g.quadraticCurveTo(170,128,320,150);g.lineTo(w,h);g.fill();
+  g.fillStyle=st;g.fillRect(30,138,280,14);g.fillStyle=dk;g.fillRect(30,148,280,4);
+  for(let i=0;i<11;i++){const x=40+i*25.5;if(i===7)continue;g.fillStyle=st;g.fillRect(x,64,14,76);g.fillStyle=dk;g.fillRect(x+10,64,4,76);g.fillStyle='rgba(0,0,0,.08)';g.fillRect(x+4,64,2,76);}
+  g.fillStyle=dk;g.fillRect(212,108,14,32);
+  g.fillStyle=st;g.fillRect(34,50,272,16);g.fillStyle=dk;g.fillRect(34,62,272,4);
+  poly(g,[34,52,170,22,306,52],st);g.fillStyle='rgba(0,0,0,.1)';poly(g,[60,50,170,30,280,50],'rgba(0,0,0,.08)');
+  g.fillStyle='rgba(120,100,70,.3)';g.fillRect(250,26,40,26);
+});}
+function meteora(){return mk(320,280,(g,w,h)=>{const r='#9a8a7a',d='#7a6a5a',l='#b8a894';
+  const pillar=(x,wd,top)=>{g.fillStyle=r;g.beginPath();g.moveTo(x-wd/2,h);g.quadraticCurveTo(x-wd*0.62,top+60,x-wd*0.4,top+10);g.quadraticCurveTo(x,top-8,x+wd*0.4,top+6);g.quadraticCurveTo(x+wd*0.6,top+60,x+wd/2,h);g.fill();
+    g.fillStyle=d;g.fillRect(x+wd*0.12,top+20,wd*0.3,h-top-20);g.strokeStyle='rgba(60,50,40,.35)';g.lineWidth=2;for(let y=top+30;y<h;y+=18){g.beginPath();g.moveTo(x-wd*0.4,y);g.lineTo(x+wd*0.4,y+4);g.stroke();}g.fillStyle=l;g.fillRect(x-wd*0.35,top+8,wd*0.2,40);};
+  pillar(70,90,110);pillar(180,110,40);pillar(275,80,120);
+  const mon=(x,y)=>{g.fillStyle='#f0e6d4';g.fillRect(x-24,y-20,48,20);g.fillStyle='#b5532f';poly(g,[x-28,y-20,x,y-36,x+28,y-20],'#b5532f');g.fillStyle='#f0e6d4';g.fillRect(x+8,y-40,12,22);g.beginPath();g.ellipse(x+14,y-40,6,6,0,Math.PI,0);g.fillStyle='#b5532f';g.fill();for(let i=0;i<3;i++)win(g,x-18+i*12,y-14,6,8,'#3a2a20');};
+  mon(180,44);mon(70,114);
+  g.fillStyle='#4a6a3a';for(let i=0;i<12;i++)ell(g,10+i*28,h-6,16,9,'#4a6a3a');
+});}
+function cycHouse(door='#1f5fbf'){return mk(110,110,(g,w,h)=>{g.fillStyle='#fbfbf8';g.fillRect(6,30,98,80);g.fillStyle='#e8e8e4';g.fillRect(84,30,20,80);g.fillStyle='#fbfbf8';g.fillRect(20,14,56,18);
+  g.fillStyle=door;rr(g,44,72,20,38,8);g.fill();g.fillRect(16,46,16,16);g.fillRect(76,46,14,16);g.fillStyle='#e84393';for(let i=0;i<6;i++)circ(g,12+i*6,28+((i*7)%5),4,i%2?'#e84393':'#c2185b');g.fillStyle='#5a8a3a';g.fillRect(8,30,30,3);});}
+function blueDome(){return mk(150,170,(g,w,h)=>{g.fillStyle='#fbfbf8';g.fillRect(20,80,110,90);g.fillRect(50,60,50,24);g.fillStyle='#e8e8e4';g.fillRect(110,80,20,90);
+  g.fillStyle='#1f5fbf';g.beginPath();g.ellipse(75,62,34,36,0,Math.PI,0);g.fill();g.fillStyle='rgba(255,255,255,.3)';g.beginPath();g.ellipse(62,44,8,12,-0.4,0,7);g.fill();g.fillStyle='#fbfbf8';g.fillRect(73,10,4,18);g.fillRect(67,16,16,4);
+  g.fillStyle='#fbfbf8';g.fillRect(0,110,26,60);g.beginPath();g.ellipse(13,110,13,12,0,Math.PI,0);g.fill();g.fillStyle='#1f5fbf';rr(g,8,120,10,16,5);g.fill();circ(g,13,104,3,'#1f5fbf');
+  g.fillStyle='#1f5fbf';rr(g,62,128,26,42,13);g.fill();win(g,34,100,12,18,'#1f5fbf');win(g,104,100,12,18,'#1f5fbf');});}
+function ruinCols(){return mk(220,140,(g,w,h)=>{const st='#e4d8bc',dk='#c4b494';g.fillStyle=dk;g.fillRect(0,h-16,w,16);
+  for(const [x,hh] of [[20,110],[60,110],[100,70],[140,110],[180,40]]){g.fillStyle=st;g.fillRect(x,h-16-hh,18,hh);g.fillStyle=dk;g.fillRect(x+13,h-16-hh,5,hh);if(hh>100){g.fillStyle=st;g.fillRect(x-4,h-20-hh,26,6);}}
+  g.fillStyle=st;g.fillRect(16,h-130,146,10);g.save();g.translate(150,h-20);g.rotate(0.2);g.fillStyle=st;g.fillRect(-30,-10,60,14);g.restore();});}
+function olympusSign(){return mk(220,140,(g,w,h)=>{g.fillStyle='#5a4a3a';g.fillRect(40,90,8,50);g.fillRect(172,90,8,50);g.fillStyle='#1f5fbf';rr(g,6,8,w-12,86,10);g.fill();g.strokeStyle='#fff';g.lineWidth=4;g.stroke();
+  g.fillStyle='#fff';g.font='900 26px "Arial Black",sans-serif';g.textAlign='center';g.fillText('ΟΛΥΜΠΟΣ',w/2,48);g.font='bold 16px sans-serif';g.fillText('OLYMPUS · 2918 m',w/2,76);});}
+// ---------- AUSTRIA
+function stephansdom(){return mk(240,330,(g,w,h)=>{const st='#cfc4a8',dk='#a89c80';g.fillStyle=st;g.fillRect(20,170,200,h-170);
+  g.save();g.beginPath();g.moveTo(14,174);g.lineTo(120,90);g.lineTo(226,174);g.closePath();g.clip();const cs=['#e8c23a','#2a7a5a','#1a1a1a','#f4efe4'];for(let y=90;y<176;y+=8)for(let x=10;x<230;x+=10){const k=(((x/10)|0)+((y/8)|0))%4,zz=Math.abs((x-120)/10%4);g.fillStyle=cs[(k+zz|0)%4];g.beginPath();g.moveTo(x,y);g.lineTo(x+5,y+6);g.lineTo(x+10,y);g.lineTo(x+5,y+8);g.closePath();g.fill();}g.restore();
+  g.fillStyle=st;g.fillRect(150,40,40,h-40);g.fillStyle=dk;g.fillRect(180,40,10,h-40);towerSpire(g,170,42,40,40,st);g.fillRect(168,-2,4,6);for(let y=60;y<h-40;y+=30)win(g,162,y,14,20,'#3a3a4a');
+  for(let i=0;i<4;i++){g.fillStyle='#2a2430';g.beginPath();g.moveTo(30+i*30,h);g.lineTo(30+i*30,h-40);g.lineTo(42+i*30,h-56);g.lineTo(54+i*30,h-40);g.lineTo(54+i*30,h);g.fill();}});}
+function schonbrunn(){return mk(380,150,(g,w,h)=>{const y='#f0c850',dk='#d8a830';g.fillStyle=y;g.fillRect(0,40,w,h-40);g.fillStyle=dk;g.fillRect(0,40,w,6);g.fillRect(0,h-14,w,14);
+  for(let i=0;i<22;i++){const x=6+i*17;win(g,x,58,9,18,'#f4f1ea');win(g,x,90,9,18,'#f4f1ea');}g.fillStyle=y;g.fillRect(150,18,80,28);poly(g,[146,20,190,4,234,20],dk);circ(g,190,30,7,'#f4f1ea');
+  g.fillStyle='#4a8a3a';for(let i=0;i<10;i++)ell(g,20+i*38,h-6,14,6,'#4a8a3a');});}
+function riesenrad(){return mk(240,260,(g,w,h)=>{const cx=120,cy=120,r=104;g.strokeStyle='#8a2a2a';g.lineWidth=5;g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();g.lineWidth=1.5;for(let k=0;k<30;k++){const a=k*Math.PI/15;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);g.stroke();}
+  g.beginPath();g.arc(cx,cy,r-12,0,7);g.stroke();for(let k=0;k<15;k++){const a=k*Math.PI*2/15;g.fillStyle='#c8302a';rr(g,cx+Math.cos(a)*(r+4)-8,cy+Math.sin(a)*(r+4)-5,16,12,2);g.fill();g.fillStyle='#f4efe4';g.fillRect(cx+Math.cos(a)*(r+4)-5,cy+Math.sin(a)*(r+4)-3,10,4);}
+  circ(g,cx,cy,8,'#6a2020');lin(g,[cx,cy,cx-46,h],'#6a2020',7);lin(g,[cx,cy,cx+46,h],'#6a2020',7);g.fillStyle='#e8dcc4';g.fillRect(cx-60,h-26,120,26);});}
+function hallstatt(){return mk(360,200,(g,w,h)=>{g.fillStyle='#3a6a4a';g.beginPath();g.moveTo(0,h-40);g.lineTo(0,10);g.quadraticCurveTo(100,0,180,60);g.quadraticCurveTo(260,20,w,30);g.lineTo(w,h-40);g.fill();g.fillStyle='#2a5a3a';for(let i=0;i<40;i++){const x=(i*37)%w,y=40+(i*53)%90;g.beginPath();g.moveTo(x,y);g.lineTo(x-6,y+16);g.lineTo(x+6,y+16);g.fill();}
+  const R=rng(31);for(let i=0;i<14;i++){const x=20+i*24,y=h-60-((i*13)%30);g.fillStyle=pick(R,['#f4efe4','#f0d8a0','#e8c8b0','#d8e0e8']);g.fillRect(x,y,22,30);poly(g,[x-2,y,x+11,y-12,x+24,y],'#6a3a2a');win(g,x+6,y+8,10,10,'#3a3a4a');}
+  g.fillStyle='#f4efe4';g.fillRect(150,h-110,20,70);towerSpire(g,160,h-110,26,60,'#3a3a5a');g.fillStyle='rgba(80,140,180,.8)';g.fillRect(0,h-40,w,40);g.fillStyle='rgba(255,255,255,.35)';for(let i=0;i<20;i++)g.fillRect(R()*w,h-36+R()*30,14,1.5);});}
+function hohensalzburg(){return mk(300,220,(g,w,h)=>{g.fillStyle='#5a7a4a';g.beginPath();g.moveTo(0,h);g.lineTo(30,120);g.quadraticCurveTo(150,80,270,120);g.lineTo(w,h);g.fill();g.fillStyle='#8a8a7a';poly(g,[60,h,80,120,220,116,240,h],'#7a7a6a');
+  const st='#f2ece0';g.fillStyle=st;g.fillRect(50,70,200,54);for(let x=50;x<250;x+=12)g.fillRect(x,64,8,8);g.fillStyle=st;g.fillRect(130,20,44,60);poly(g,[126,22,152,0,178,22],'#5a3a2a');g.fillRect(200,46,30,30);poly(g,[198,48,215,30,232,48],'#5a3a2a');
+  for(let i=0;i<8;i++)win(g,60+i*24,86,8,14,'#3a3a4a');win(g,146,36,12,16,'#3a3a4a');});}
+function waterfall(){return mk(220,240,(g,w,h)=>{g.fillStyle='#6a7a6a';g.beginPath();g.moveTo(0,h);g.lineTo(0,30);g.lineTo(70,10);g.lineTo(80,h);g.fill();g.beginPath();g.moveTo(w,h);g.lineTo(w,20);g.lineTo(150,14);g.lineTo(140,h);g.fill();
+  g.fillStyle='#3a6a3a';for(let i=0;i<8;i++){ell(g,10+i*9,20+i*3,14,10,'#3a6a3a');ell(g,w-10-i*9,14+i*3,14,10,'#3a6a3a');}
+  const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'#cfeaff');gr.addColorStop(1,'#ffffff');g.fillStyle=gr;g.fillRect(70,12,80,h-40);
+  g.strokeStyle='rgba(120,180,220,.55)';g.lineWidth=2;for(let x=76;x<146;x+=8){g.beginPath();g.moveTo(x,14);g.lineTo(x+2,h-40);g.stroke();}
+  g.fillStyle='rgba(255,255,255,.85)';for(let i=0;i<12;i++)ell(g,60+i*9,h-40+Math.sin(i)*4,14,10,'rgba(255,255,255,.9)');g.fillStyle='rgba(80,150,200,.8)';g.fillRect(0,h-28,w,28);});}
+// ---------- CZECHIA
+function pragueCastle(){return mk(360,230,(g,w,h)=>{g.fillStyle='#5a6a4a';g.beginPath();g.moveTo(0,h);g.lineTo(0,150);g.quadraticCurveTo(180,120,w,150);g.lineTo(w,h);g.fill();
+  const st='#e8e0cc';g.fillStyle=st;g.fillRect(10,120,340,40);g.fillStyle='#b5532f';g.fillRect(10,112,340,10);for(let i=0;i<24;i++)win(g,16+i*14,130,6,10,'#3a3a4a');
+  const vt='#7a7466',vd='#5a5448';g.fillStyle=vt;g.fillRect(140,70,90,56);towerSpire(g,150,72,22,40,vd);towerSpire(g,170,72,22,50,vd);g.fillStyle=vt;g.fillRect(220,20,30,104);g.fillStyle='#4a8a6a';poly(g,[218,22,235,-4,252,22],'#4a8a6a');circ(g,235,40,6,'#e8c23a');
+  g.fillStyle=vd;g.beginPath();g.moveTo(160,h-70);g.lineTo(160,90);g.lineTo(172,78);g.lineTo(184,90);g.lineTo(184,h-70);g.fill();});}
+function charlesBridge(){return mk(400,170,(g,w,h)=>{g.fillStyle='rgba(70,110,140,.8)';g.fillRect(0,h-30,w,30);const st='#7a7060';g.fillStyle=st;g.fillRect(0,80,w,22);
+  for(let i=0;i<6;i++){const x=20+i*72;g.fillStyle='rgba(30,40,50,.85)';g.beginPath();g.moveTo(x,h);g.lineTo(x,h-30);g.arc(x+26,h-30,26,Math.PI,0);g.lineTo(x+52,h);g.fill();g.fillStyle=st;g.fillRect(x+52,102,20,h-102);}
+  g.fillStyle='#2a2a2a';for(let x=20;x<w-20;x+=40){g.fillRect(x-2,58,5,24);circ(g,x,56,4,'#2a2a2a');}
+  g.fillStyle='#5a5448';g.fillRect(0,10,44,80);poly(g,[-4,12,22,-10,48,12],'#3a3a3a');win(g,14,30,16,40,'#2a2a2a');g.fillRect(w-44,20,44,70);poly(g,[w-48,22,w-22,0,w+4,22],'#3a3a3a');});}
+function orloj(){return mk(130,300,(g,w,h)=>{const st='#cfc4a8';g.fillStyle=st;g.fillRect(30,60,70,h-60);g.fillStyle='#a89c80';g.fillRect(86,60,14,h-60);
+  for(const x of [28,56,84,102])towerSpire(g,x,62,12,24,'#3a3a3a');towerSpire(g,65,62,40,56,'#3a3a3a');
+  circ(g,65,170,26,'#2a4a8a');circ(g,65,170,20,'#d4a83a');circ(g,65,170,12,'#2a4a8a');g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.moveTo(65,170);g.lineTo(78,160);g.stroke();circ(g,65,222,16,'#e8e0cc');g.strokeStyle='#8a6a2a';for(let k=0;k<12;k++){const a=k*Math.PI/6;g.beginPath();g.moveTo(65+Math.cos(a)*10,222+Math.sin(a)*10);g.lineTo(65+Math.cos(a)*15,222+Math.sin(a)*15);g.stroke();}
+  win(g,52,100,10,26,'#2a2a2a');win(g,70,100,10,26,'#2a2a2a');});}
+function krumlovTower(){return mk(110,280,(g,w,h)=>{g.fillStyle='#e8dcc4';g.fillRect(30,120,50,h-120);g.fillStyle='#f0c8a0';g.fillRect(30,60,50,62);g.fillStyle='#8a5a3a';for(let y=70;y<120;y+=12)g.fillRect(30,y,50,2);
+  g.fillStyle='#e8a060';g.fillRect(26,46,58,16);g.fillStyle='#f4efe4';for(let i=0;i<4;i++)rr(g,30+i*13,48,8,12,3),g.fill();
+  g.fillStyle='#5a7a5a';g.beginPath();g.moveTo(24,48);g.quadraticCurveTo(30,20,55,16);g.quadraticCurveTo(80,20,86,48);g.fill();g.fillRect(52,0,6,18);circ(g,55,0,4,'#e8c23a');
+  for(let y=140;y<h-20;y+=36)win(g,48,y,12,20,'#3a3a4a');g.fillStyle='#e8c23a';circ(g,55,90,9,'#f4efe4');});}
+function pravcicka(){return mk(300,220,(g,w,h)=>{const r='#c8a070',d='#a8804a';g.fillStyle='#3a5a3a';g.fillRect(0,h-40,w,40);
+  g.fillStyle=r;g.beginPath();g.moveTo(20,h-30);g.lineTo(40,60);g.quadraticCurveTo(150,20,260,60);g.lineTo(280,h-30);g.lineTo(220,h-30);g.lineTo(214,110);g.quadraticCurveTo(150,84,86,110);g.lineTo(80,h-30);g.closePath();g.fill();
+  g.strokeStyle=d;g.lineWidth=2;for(let y=70;y<h-30;y+=14){g.beginPath();g.moveTo(30,y);g.lineTo(84,y+3);g.moveTo(216,y);g.lineTo(272,y+3);g.stroke();}g.beginPath();g.moveTo(60,70);g.quadraticCurveTo(150,40,240,70);g.stroke();
+  g.fillStyle='#2a4a2a';for(let i=0;i<12;i++){const x=i*26,y=h-44;g.beginPath();g.moveTo(x,y-26);g.lineTo(x-10,y+4);g.lineTo(x+10,y+4);g.fill();}});}
+// ---------- POLAND
+function wawel(){return mk(340,210,(g,w,h)=>{g.fillStyle='#6a7a4a';g.beginPath();g.moveTo(0,h);g.lineTo(20,140);g.quadraticCurveTo(170,110,320,140);g.lineTo(w,h);g.fill();
+  const st='#e8dcc4';g.fillStyle='#b8604a';g.fillRect(20,124,300,20);for(let x=20;x<320;x+=12)g.fillRect(x,118,8,8);g.fillStyle=st;g.fillRect(60,80,200,48);g.fillStyle='#b5532f';poly(g,[56,82,160,60,264,82],'#b5532f');for(let i=0;i<10;i++)win(g,68+i*19,96,8,16,'#3a3a4a');
+  g.fillStyle='#d4a83a';g.beginPath();g.ellipse(220,60,16,18,0,Math.PI,0);g.fill();g.fillStyle=st;g.fillRect(204,60,32,22);g.fillStyle='#3a6a4a';towerSpire(g,110,82,26,40,'#3a6a4a');g.fillStyle=st;g.fillRect(100,82,20,10);});}
+function sukiennice(){return mk(320,150,(g,w,h)=>{const st='#f0e0b8';g.fillStyle=st;g.fillRect(20,50,280,h-50);
+  for(let i=0;i<10;i++){g.fillStyle='#4a3a2a';g.beginPath();g.moveTo(30+i*27,h);g.lineTo(30+i*27,h-34);g.arc(42+i*27,h-34,12,Math.PI,0);g.lineTo(54+i*27,h);g.fill();}
+  g.fillStyle='#e8d4a0';for(let x=20;x<300;x+=14){g.beginPath();g.moveTo(x,52);g.quadraticCurveTo(x+7,30,x+14,52);g.fill();g.fillStyle=x%28?'#e8d4a0':'#d8c490';}
+  g.fillStyle='#b5532f';g.fillRect(20,48,280,6);});}
+function palacKultury(){return mk(160,360,(g,w,h)=>{const st='#d8ccb0',dk='#b8ac90';g.fillStyle=st;g.fillRect(10,240,140,h-240);g.fillRect(30,150,100,94);g.fillRect(50,80,60,74);g.fillRect(64,40,32,44);
+  g.fillStyle=dk;for(const [x,y,ww,hh] of [[130,240,20,120],[115,150,15,94],[100,80,10,74]])g.fillRect(x,y,ww,hh);
+  g.strokeStyle=dk;g.lineWidth=1.5;for(let x=16;x<146;x+=8){g.beginPath();g.moveTo(x,250);g.lineTo(x,h);g.stroke();}for(let x=36;x<126;x+=8){g.beginPath();g.moveTo(x,160);g.lineTo(x,240);g.stroke();}
+  for(let k=0;k<4;k++)g.fillRect(28+k*30,144,8,10);circ(g,80,110,8,'#f4efe4');g.fillStyle=dk;g.fillRect(77,0,6,44);g.fillStyle='#e8c23a';g.fillRect(76,-2,8,6);});}
+function malbork(){return mk(360,200,(g,w,h)=>{const b='#a8442a',d='#8a3420';g.fillStyle='rgba(70,110,140,.8)';g.fillRect(0,h-26,w,26);g.fillStyle=b;g.fillRect(20,90,320,h-116);g.fillStyle=d;g.fillRect(20,h-40,320,14);
+  for(let x=20;x<340;x+=12){g.fillStyle=b;g.fillRect(x,82,8,10);}
+  const tw=(x,top,ww)=>{g.fillStyle=b;g.fillRect(x-ww/2,top,ww,h-26-top);g.fillStyle=d;g.fillRect(x+ww*0.2,top,ww*0.3,h-26-top);poly(g,[x-ww/2-3,top,x,top-ww*1.3,x+ww/2+3,top],'#5a2a1a');win(g,x-4,top+12,8,14,'#2a1a14');};
+  tw(40,60,28);tw(130,30,36);tw(230,50,30);tw(320,64,26);for(let i=0;i<12;i++)win(g,60+i*22,120,8,16,'#2a1a14');});}
+function zuraw(){return mk(180,250,(g,w,h)=>{const w0='#4a3a2a',b='#a8442a';g.fillStyle=b;g.fillRect(10,120,50,h-120);g.fillRect(120,120,50,h-120);g.fillStyle='#2a1a14';rr(g,60,170,60,h-170,28);g.fill();g.fillStyle=b;g.fillRect(60,120,60,52);
+  g.fillStyle=w0;g.fillRect(40,20,100,104);g.strokeStyle='#2a1a10';g.lineWidth=2;for(let y=30;y<124;y+=14){g.beginPath();g.moveTo(40,y);g.lineTo(140,y);g.stroke();}poly(g,[34,24,90,-4,146,24],'#2a1a10');lin(g,[140,30,176,60],w0,5);
+  win(g,64,40,14,20,'#d8c890');win(g,100,40,14,20,'#d8c890');});}
+function bison(){return mk(130,80,(g,w,h)=>{ell(g,64,h-4,46,5,'rgba(0,0,0,.25)');g.fillStyle='#4a3020';g.beginPath();g.ellipse(70,40,40,22,0,0,7);g.fill();g.fillStyle='#3a2416';g.beginPath();g.ellipse(40,32,26,24,0,0,7);g.fill();
+  g.fillStyle='#2a1a10';g.beginPath();g.ellipse(18,42,14,13,0,0,7);g.fill();g.strokeStyle='#d8c8a0';g.lineWidth=3;g.beginPath();g.moveTo(12,32);g.quadraticCurveTo(4,26,10,20);g.stroke();circ(g,12,40,2,'#111');
+  for(const x of [36,50,86,100]){g.fillStyle='#2a1a10';g.fillRect(x,54,7,h-58);}lin(g,[110,36,120,54],'#2a1a10',3);});}
+function goralHouse(){return mk(130,140,(g,w,h)=>{g.fillStyle='#8a5a32';g.fillRect(14,60,w-28,h-60);g.strokeStyle='#6a4022';g.lineWidth=2;for(let y=66;y<h;y+=8){g.beginPath();g.moveTo(14,y);g.lineTo(w-14,y);g.stroke();}
+  poly(g,[0,66,w/2,0,w,66],'#3a2a1e');poly(g,[30,50,w/2,14,w-30,50],'#5a3a22');win(g,30,80,20,22,'#f4e8c8');win(g,w-50,80,20,22,'#f4e8c8');g.fillStyle='#4a2a14';g.fillRect(w/2-10,h-36,20,36);g.fillStyle='#e8402a';for(let x=20;x<w-20;x+=10)circ(g,x,64,2.5,'#ffd23f');});}
+// ---------- RUSSIA
+function stBasil(){return mk(300,300,(g,w,h)=>{g.fillStyle='#b8402a';g.fillRect(30,180,240,h-180);for(let i=0;i<6;i++)win(g,46+i*38,210,14,30,'#f4e8d0');
+  const onion=(x,base,r,c1,c2,stripe)=>{g.fillStyle='#f0e0c0';g.fillRect(x-r*0.55,base,r*1.1,h-base);g.fillStyle='#b8402a';g.fillRect(x-r*0.55,base+r*0.3,r*1.1,6);
+    g.save();g.beginPath();g.moveTo(x-r,base);g.quadraticCurveTo(x-r*1.15,base-r*1.1,x,base-r*1.9);g.quadraticCurveTo(x+r*1.15,base-r*1.1,x+r,base);g.closePath();g.clip();g.fillStyle=c1;g.fillRect(x-r*1.2,base-r*2,r*2.4,r*2.1);g.fillStyle=c2;
+    if(stripe==='twist'){for(let k=-4;k<6;k++){g.beginPath();g.moveTo(x-r*1.2+k*r*0.5,base);g.lineTo(x-r*1.2+k*r*0.5+r*0.25,base);g.lineTo(x+k*r*0.5+r*0.6,base-r*2);g.lineTo(x+k*r*0.5+r*0.35,base-r*2);g.fill();}}else for(let k=0;k<6;k++){g.fillRect(x-r*1.2,base-r*2+k*r*0.4,r*2.4,r*0.18);}g.restore();g.fillStyle='#e8c23a';g.fillRect(x-1.5,base-r*2.4,3,r*0.6);g.fillRect(x-5,base-r*2.25,10,2);};
+  onion(150,120,34,'#2a8a4a','#e8c23a','twist');onion(70,170,24,'#1f5fbf','#f4f4f4','twist');onion(230,170,24,'#c8302a','#2a8a4a','stripe');onion(110,160,20,'#e8c23a','#c8302a','stripe');onion(190,160,20,'#2a8a4a','#c8302a','twist');
+  g.fillStyle='#f0e0c0';g.fillRect(138,20,24,100);towerSpire(g,150,24,28,40,'#2a8a4a');});}
+function spasskaya(){return mk(380,300,(g,w,h)=>{const b='#a8302a',d='#8a2420';g.fillStyle=b;g.fillRect(0,200,w,h-200);for(let x=0;x<w;x+=16){g.beginPath();g.moveTo(x,200);g.lineTo(x+3,186);g.lineTo(x+8,192);g.lineTo(x+13,186);g.lineTo(x+16,200);g.fill();}
+  g.fillStyle=b;g.fillRect(150,90,80,h-90);g.fillStyle=d;g.fillRect(212,90,18,h-90);g.fillStyle='#f4efe4';g.fillRect(156,96,68,10);g.fillStyle=b;g.fillRect(160,40,60,56);circ(g,190,66,16,'#1a1a2a');circ(g,190,66,13,'#f4efe4');g.strokeStyle='#d4a83a';g.lineWidth=2;g.beginPath();g.moveTo(190,66);g.lineTo(190,56);g.moveTo(190,66);g.lineTo(197,68);g.stroke();
+  towerSpire(g,190,42,50,46,'#2a6a4a');star5(g,190,-6,12,'#e8263a');g.fillStyle='#2a1414';rr(g,174,h-50,32,50,16);g.fill();});}
+function winterPalace(){return mk(380,150,(g,w,h)=>{g.fillStyle='#5aa88a';g.fillRect(0,40,w,h-40);g.fillStyle='#f4efe4';for(let i=0;i<30;i++){g.fillRect(6+i*12.6,46,4,h-60);}g.fillStyle='#f4efe4';g.fillRect(0,40,w,6);g.fillRect(0,92,w,5);g.fillRect(0,h-14,w,14);
+  for(let i=0;i<29;i++){win(g,9+i*12.6,56,6,14,'#2a3a4a');win(g,9+i*12.6,102,6,14,'#2a3a4a');}g.fillStyle='#d4a83a';for(let x=4;x<w;x+=20){g.fillRect(x,28,6,12);circ(g,x+3,26,3,'#d4a83a');}});}
+function saviorBlood(){return mk(240,300,(g,w,h)=>{g.fillStyle='#c8604a';g.fillRect(40,170,160,h-170);g.fillStyle='#f4efe4';for(let i=0;i<5;i++)win(g,56+i*28,200,12,30,'#2a3a6a');g.fillStyle='#e8c23a';g.fillRect(40,166,160,6);
+  const on=(x,base,r,c1,c2)=>{g.fillStyle='#e8dcc4';g.fillRect(x-r*0.5,base,r,h-base);g.save();g.beginPath();g.moveTo(x-r,base);g.quadraticCurveTo(x-r*1.15,base-r*1.1,x,base-r*1.9);g.quadraticCurveTo(x+r*1.15,base-r*1.1,x+r,base);g.closePath();g.clip();g.fillStyle=c1;g.fillRect(x-r*1.2,base-r*2,r*2.4,r*2.1);g.fillStyle=c2;for(let k=-4;k<6;k++){g.beginPath();g.moveTo(x-r*1.2+k*r*0.5,base);g.lineTo(x-r*0.95+k*r*0.5,base);g.lineTo(x+k*r*0.5+r*0.6,base-r*2);g.lineTo(x+k*r*0.5+r*0.35,base-r*2);g.fill();}g.restore();g.fillStyle='#e8c23a';g.fillRect(x-1.5,base-r*2.4,3,r*0.6);};
+  on(120,110,30,'#2a8a6a','#e8c23a');on(66,160,18,'#1f5fbf','#f4f4f4');on(174,160,18,'#e8c23a','#2a8a6a');on(96,150,14,'#c8302a','#f4f4f4');on(146,150,14,'#2a6a3a','#e8c23a');
+  g.fillStyle='#e8dcc4';g.fillRect(190,60,30,h-60);on(205,60,16,'#e8c23a','#e8c23a');});}
+function onionChurch(){return mk(170,200,(g,w,h)=>{g.fillStyle='#f4efe4';g.fillRect(30,100,110,h-100);g.fillRect(60,70,50,34);g.fillStyle='#e0d8c8';g.fillRect(120,100,20,h-100);
+  const dome=(x,y,r,c)=>{g.fillStyle=c;g.beginPath();g.moveTo(x-r,y);g.quadraticCurveTo(x-r*1.2,y-r*1.1,x,y-r*1.9);g.quadraticCurveTo(x+r*1.2,y-r*1.1,x+r,y);g.fill();g.fillStyle='#e8c23a';g.fillRect(x-1.5,y-r*2.5,3,r*0.7);g.fillRect(x-5,y-r*2.3,10,2);};
+  dome(85,72,22,'#1f4fa8');dome(48,102,12,'#e8c23a');dome(122,102,12,'#e8c23a');g.fillStyle='#1f4fa8';for(const [x,y] of [[60,60],[110,58],[75,30],[96,40]])star5(g,x,y,2.5,'#e8c23a');
+  win(g,72,130,26,40,'#3a2a20');win(g,40,120,10,22,'#3a3a4a');win(g,120,120,10,22,'#3a3a4a');});}
+function birch(){return mk(70,190,(g,w,h)=>{for(const [x,s] of [[24,1],[46,0.8]]){g.fillStyle='#f4f4f0';g.fillRect(x-3*s,30,6*s,h-30);g.fillStyle='#2a2a2a';for(let y=40;y<h;y+=14)g.fillRect(x-3*s,y+(x%7),4*s,2);}
+  g.fillStyle='#8ab84a';for(const [x,y,r] of [[34,30,22],[18,50,16],[52,48,16],[34,64,14],[22,20,12],[48,20,12]])ell(g,x,y,r,r*0.9,'#8ab84a');g.fillStyle='#c8e070';for(let i=0;i<14;i++)circ(g,10+(i*13)%52,10+(i*17)%60,2,'#c8e070');});}
+function matryoshka(){return mk(140,110,(g,w,h)=>{g.fillStyle='#8a5a32';g.fillRect(4,70,w-8,10);g.fillRect(10,80,6,h-80);g.fillRect(w-16,80,6,h-80);
+  for(const [x,s,c] of [[22,1,'#c8302a'],[56,0.85,'#1f5fbf'],[86,0.7,'#e8c23a'],[110,0.55,'#2a8a4a']]){g.save();g.translate(x,70);g.scale(s,s);g.fillStyle=c;g.beginPath();g.ellipse(0,-20,15,20,0,0,7);g.fill();g.beginPath();g.ellipse(0,-44,11,11,0,0,7);g.fill();circ(g,0,-44,7,'#f2c8a0');circ(g,-3,-45,1.2,'#111');circ(g,3,-45,1.2,'#111');circ(g,0,-41,1.5,'#e8263a');g.fillStyle='#fff';g.beginPath();g.ellipse(0,-18,9,11,0,0,7);g.fill();circ(g,0,-18,4,'#e8263a');g.restore();}});}
+function izba(){return mk(130,130,(g,w,h)=>{g.fillStyle='#7a4a2a';g.fillRect(14,56,w-28,h-56);g.strokeStyle='#5a3418';g.lineWidth=3;for(let y=62;y<h;y+=9){g.beginPath();g.moveTo(10,y);g.lineTo(w-10,y);g.stroke();}
+  poly(g,[4,60,w/2,8,w-4,60],'#5a3418');g.strokeStyle='#f4efe4';g.lineWidth=3;g.beginPath();g.moveTo(4,60);g.lineTo(w/2,8);g.lineTo(w-4,60);g.stroke();
+  for(const x of [28,w-52]){g.fillStyle='#2b6cb0';g.fillRect(x-4,72,32,30);g.fillStyle='#f4efe4';g.fillRect(x,76,24,22);g.fillStyle='#3a4a5a';g.fillRect(x+2,78,20,18);}win(g,w/2-8,24,16,18,'#3a4a5a');});}
+function msu(){return mk(260,320,(g,w,h)=>{const st='#e8dcc4',dk='#c8b8a0';g.fillStyle=st;g.fillRect(0,220,w,h-220);g.fillRect(40,170,180,54);g.fillRect(90,70,80,104);g.fillRect(110,40,40,34);
+  g.fillStyle=dk;g.fillRect(230,220,30,h-220);g.fillRect(200,170,20,54);for(let x=6;x<w;x+=10)for(let y=230;y<h;y+=14)g.fillRect(x,y,5,8);for(let x=96;x<166;x+=10)for(let y=80;y<170;y+=14)g.fillRect(x,y,5,8);
+  for(const x of [10,220]){g.fillStyle=st;g.fillRect(x,180,30,44);towerSpire(g,x+15,182,20,26,dk);}
+  g.fillStyle=dk;g.fillRect(127,0,6,44);star5(g,130,0,7,'#e8c23a');circ(g,130,94,10,'#f4efe4');});}
+
+// ---------------------------------------------------------------- EURO TOUR II: maps, sprites, chapters, order
+Object.assign(EU,{
+ PL:[[14.2,53.9],[18.5,54.8],[19.6,54.4],[23.5,54.2],[23.9,52.6],[23.2,52.3],[24.1,50.8],[22.6,49.1],[19.9,49.2],[18.8,49.5],[16.9,50.4],[15.0,51.1],[14.6,52.5]],
+ CZ:[[12.1,50.3],[14.3,51.0],[15.0,51.1],[16.9,50.4],[18.8,49.5],[17.1,48.8],[15.0,49.0],[13.8,48.8]],
+ GR:[[20.2,39.6],[21.0,40.8],[22.9,41.3],[26.0,41.7],[26.6,41.0],[24.0,40.7],[23.3,39.9],[22.6,40.0],[23.0,39.0],[24.0,38.2],[23.0,37.9],[22.9,36.5],[21.7,36.8],[21.1,38.3],[20.7,39.0]],
+ CRT:[[23.5,35.6],[26.3,35.2],[24.0,35.0]],
+ RU:[[27.7,57.6],[28.0,59.4],[30.2,59.9],[31,62],[30.0,63.5],[30.5,69.0],[33,69.4],[40,68],[44,66],[46,60],[46,52],[40,48],[38.2,47.2],[39.7,47.6],[40.2,48.5],[39.7,49.6],[38.2,50.0],[35.4,50.6],[34.0,52.2],[31.8,52.1],[31.5,53.4],[32.7,53.4],[31.0,54.6],[30.8,55.6],[28.2,56.1]]
+});
+['PL','CZ','GR','RU','AT'].forEach(k=>{});
+Object.assign(CH_POS,{GR:[22.5,39.3],AT:[14.3,47.6],CZ:[15.4,49.8],PL:[19.4,52.0],RU:[36.0,57.0]});
+Object.assign(COPS,{
+ GR:{name:'ASTYNOMOS SOUVLAKI',uni:'#1e2c5a',dk:'#141c3e',hat:'cap',hatC:'#141c3e',band:'#4aa0e0',local:'ΣΤΑΜΑΤΑ! ΑΣΤΥΝΟΜΙΑ! 🚨',car:{body:'#f4f6f8',a:'#1f5fbf',b:'#f4f6f8',label:'ΑΣΤΥΝΟΜΙΑ',lc:'#1f5fbf'}},
+ AT:{name:'INSPEKTOR STRUDEL',uni:'#232a3e',dk:'#161b2a',hat:'cap',hatC:'#161b2a',band:'#e8263a',local:'HALT! POLIZEI! 🚨',car:{body:'#f4f6f8',a:'#e8263a',b:'#f4f6f8',label:'POLIZEI',lc:'#1f3a8a'}},
+ CZ:{name:'STRÁŽMISTR KNEDLÍK',uni:'#26304a',dk:'#181e30',hat:'cap',hatC:'#181e30',band:'#c8e030',local:'STŮJ! POLICIE! 🚨',car:{body:'#f4f6f8',a:'#1f4fbf',b:'#c8e030',label:'POLICIE',lc:'#1f4fbf'}},
+ PL:{name:'SIERŻANT PIEROGI',uni:'#1e2848',dk:'#141a32',hat:'cap',hatC:'#141a32',band:'#e8263a',local:'STÓJ! POLICJA! 🚨',car:{body:'#2a4a9a',a:'#c8ccd4',b:'#2a4a9a',label:'POLICJA',lc:'#ffffff'}},
+ RU:{name:'SERZHANT BLINI',uni:'#2a3a4a',dk:'#1c2834',hat:'cap',hatC:'#1c2834',band:'#e8263a',local:'СТОЙ! ПОЛИЦИЯ! 🚨',car:{body:'#f4f6f8',a:'#1f4fbf',b:'#f4f6f8',label:'ПОЛИЦИЯ',lc:'#1f4fbf'}}
+});
+Object.assign(CNAMES.pt,{GR:'GRÉCIA',AT:'ÁUSTRIA',CZ:'CHÉQUIA',PL:'POLÓNIA',RU:'RÚSSIA'});Object.assign(CNAMES.en,{GR:'GREECE',AT:'AUSTRIA',CZ:'CZECHIA',PL:'POLAND',RU:'RUSSIA'});
+Object.assign(CNAMES.it,{GR:'GRECIA',AT:'AUSTRIA',CZ:'CECHIA',PL:'POLONIA',RU:'RUSSIA'});Object.assign(CNAMES.es,{GR:'GRECIA',AT:'AUSTRIA',CZ:'CHEQUIA',PL:'POLONIA',RU:'RUSIA'});
+Object.assign(CNAMES.fr,{GR:'GRÈCE',AT:'AUTRICHE',CZ:'TCHÉQUIE',PL:'POLOGNE',RU:'RUSSIE'});Object.assign(CNAMES.de,{GR:'GRIECHENLAND',AT:'ÖSTERREICH',CZ:'TSCHECHIEN',PL:'POLEN',RU:'RUSSLAND'});
+Object.assign(CNAMES.pl,{GR:'GRECJA',AT:'AUSTRIA',CZ:'CZECHY',PL:'POLSKA',RU:'ROSJA'});
+['parthenon','meteora','blueDome','ruinCols','stephansdom','schonbrunn','riesenrad','hallstatt','hohensalzburg','waterfall','pragueCastle','charlesBridge','orloj','krumlovTower','pravcicka','wawel','sukiennice','palacKultury','malbork','zuraw','stBasil','spasskaya','winterPalace','saviorBlood','onionChurch','msu'].forEach(k=>LMSET.add(k));
+function buildEuro2(){const s=(k,img,ww,hit=0.6)=>SP[k]={img,ww,hit};
+  s('parthenon',parthenon(),3.2,0.95);s('meteora',meteora(),3.2,0.95);['#1f5fbf','#2a8a8a','#c8302a'].forEach((c,i)=>s('cyc'+i,cycHouse(c),1.1,0.95));s('blueDome',blueDome(),1.5,0.95);s('ruinCols',ruinCols(),2.0,0.95);s('olympusSign',olympusSign(),1.15,0.9);
+  s('stephansdom',stephansdom(),2.2,0.95);s('schonbrunn',schonbrunn(),3.4,0.95);s('riesenrad',riesenrad(),2.2,0.5);s('hallstatt',hallstatt(),3.4,0.95);s('hohensalzburg',hohensalzburg(),2.8,0.95);s('waterfall',waterfall(),2.2,0.9);
+  s('pragueCastle',pragueCastle(),3.4,0.95);s('charlesBridge',charlesBridge(),3.6,0.95);s('orloj',orloj(),1.2,0.9);s('krumlovTower',krumlovTower(),1.0,0.9);s('pravcicka',pravcicka(),2.8,0.95);
+  s('wawel',wawel(),3.2,0.95);s('sukiennice',sukiennice(),3.0,0.95);s('palacKultury',palacKultury(),1.4,0.9);s('malbork',malbork(),3.4,0.95);s('zuraw',zuraw(),1.6,0.95);s('bison',bison(),0.9,0.7);s('goral',goralHouse(),1.3,0.95);
+  s('stBasil',stBasil(),2.6,0.95);s('spasskaya',spasskaya(),3.4,0.95);s('winterPalace',winterPalace(),3.4,0.95);s('saviorBlood',saviorBlood(),2.2,0.95);s('onionChurch',onionChurch(),1.6,0.95);s('birch',birch(),0.7,0.2);s('matryoshka',matryoshka(),1.1,0.8);s('izba',izba(),1.3,0.95);s('msu',msu(),2.4,0.95);
+  for(const k of ['GR','AT','CZ','PL','RU'])s('flag'+k,flag2(k),0.3,0.3);
+  SP.lada0={img:retroCar('#e8e0c8'),ww:0.26};SP.lada1={img:retroCar('#8a2a2a'),ww:0.26};SP.lada2={img:retroCar('#3a6a8a'),ww:0.26};
+}
+function flag2(k){return mk(52,140,(g,w,h)=>{g.fillStyle='#bbb';g.fillRect(2,0,4,h);circ(g,4,2,3,'#ffd23f');const x=6,y=6,fw=44,fh=30;
+  const H=(cs)=>cs.forEach((c,i)=>{g.fillStyle=c;g.fillRect(x,y+i*fh/cs.length,fw,fh/cs.length+0.5);});
+  if(k==='GR'){for(let i=0;i<9;i++){g.fillStyle=i%2?'#fff':'#0d5eaf';g.fillRect(x,y+i*fh/9,fw,fh/9+0.5);}g.fillStyle='#0d5eaf';g.fillRect(x,y,18,16.6);g.fillStyle='#fff';g.fillRect(x+7,y,4,16.6);g.fillRect(x,y+6.3,18,4);}
+  else if(k==='AT')H(['#ed2939','#fff','#ed2939']);else if(k==='PL')H(['#fff','#dc143c']);else if(k==='RU')H(['#fff','#0039a6','#d52b1e']);
+  else if(k==='CZ'){H(['#fff','#d7141a']);g.fillStyle='#11457e';g.beginPath();g.moveTo(x,y);g.lineTo(x+20,y+fh/2);g.lineTo(x,y+fh);g.fill();}
+  g.fillStyle='rgba(0,0,0,.12)';g.fillRect(x+fw-6,y,6,fh);});}
+TR.gr=['carW','carB','vespa','vespa2','moto','van','fiat1','taxi'];TR.at=['carW','carK','carS','van2','bike','carB','moto'];TR.cz=['carW','carS','retro1','van','carK','bike','moto2'];TR.pl=['carW','carS','retro0','van','carK','bus','moto'];TR.ru=['lada0','lada1','lada2','carK','carW','bus','van2','retro2'];
+const NEW_CH=[
+ {code:'GR',name:'GRÉCIA',flag:'🇬🇷',start:'METEORA',goal:'SANTORINI',color:'#0d5eaf',map:{polys:['GR','CRT'],ctx:['EAST','IT','AFR'],b:[19.5,27.2,34.6,41.9]},win:'OPA! CHEGÁMOS A SANTORINI! 🏛️',tag:'Meteora · Monte Olimpo · Atenas · Santorini',thumb:['parthenon','blueDome','meteora','ruinCols','cyc0','olive'],
+  legs:[{name:'NORTE',bonus:58},{name:'ATENAS',bonus:30},{name:'ILHAS',bonus:30}],stages:[
+  Z({key:'meteora',leg:0,birds:true,name:'METEORA',sub:'Mosteiros nas rochas · Tessália',curvy:.7,hilly:.7,tunnels:1,grass:['#9aa060','#8e9454'],sky:SKY.gold,sun:SUN.mid,fog:'#f0c8a0',ll:[21.63,39.72],emo:'⛰️',traffic:TR.gr,
+   deco:[['olive',5,1.8,3.8,.8],['cypress',11,1.6,2.4,.5],['cyc1',23,1.6,2.4,.4],['flagGR',70,1.2,1.2,.5]],
+   marks:[['meteora',3.0,2],['flagGR',1.2,2]],boards:[['ΜΕΤΕΩΡΑ','monasteries ▸'],['GYROS','pita ▸'],['FETA','& olive oil'],['ΚΑΛΩΣ ΗΡΘΑΤΕ','welcome!']],
+   signs:[[['ΚΑΛΑΜΠΑΚΑ','▸'],['ΑΘΗΝΑ','350']]],luna:'Mosteiros em cima das rochas! 😮',fact:'The monasteries of Meteora sit on top of huge sandstone pillars, some 400 m high.',
+   bg:{far:[['ridge',150,40,3.7,'#8a7a9a'],['sil','meteora',520,190,90,'#6a5a7a']],near:[['ridge',206,10,1.2,'#7a8a4a'],['trees',206,'#4a5a2a',36,0.8]]}}),
+  Z({key:'olimpo',leg:0,name:'MONTE OLIMPO',sub:'Casa dos deuses · Mar Egeu',curvy:.9,hilly:.9,tunnels:2,radars:0,grass:['#6a8a4a','#5e7e42'],sky:SKY.day,sun:SUN.pale,fog:'#d0e0f0',fogD:5,ll:[22.35,40.08],emo:'⚡',traffic:TR.gr,
+   deco:[['pine',4,1.6,3.2,.8],['olive',13,2.4,3.8,.5],['ruinCols',61,2.6,3.0,.6]],
+   marks:[['olympusSign',1.3,2],['ruinCols',2.6,2],['flagGR',1.2,1]],boards:[['ZEUS','⚡ powered'],['ΟΛΥΜΠΟΣ','2918 m'],['HONEY','thyme · μέλι'],['AEGEAN SEA','▸ 20 km']],
+   signs:[[['ΘΕΣΣΑΛΟΝΙΚΗ','90'],['ΑΘΗΝΑ','430']]],luna:'Será que o Zeus está em casa? ⚡',fact:'Mount Olympus (2,918 m) was believed to be the home of the twelve Greek gods.',
+   bg:{far:[['mount',196,'#8a8ab8','#ffffff',[[300,150,300],[620,130,260],[880,100,220]]]],near:[['sea',200,'#5aa0d8','#1a4a8a']]}}),
+  Z({key:'atenas',leg:1,birds:true,name:'ATENAS',sub:'Acrópole · Pártenon · Plaka',curvy:.5,hilly:.6,tunnels:2,facade:'#f0e6d0',grass:['#d8ccb0','#ccc0a4'],rumble:['#0d5eaf','#f4f4f4'],sky:SKY.sunset,sun:SUN.big,fog:'#ff9a6a',ll:[23.73,37.98],emo:'🏛️',traffic:['taxi','taxi','vespa','moto','carW','bus','vespa2'],
+   deco:[[['cyc0','cyc1','cyc2','shop0','shop3'],6,1.5,2.4,.7],['olive',13,1.3,1.6,.5],['lamp',15,1.12,1.12,1],[['ped1','ped2','ped4'],9,1.25,1.4,.45],['kiosk',70,1.35,1.45,.6]],
+   marks:[['parthenon',2.8,2],['ruinCols',2.6,2],['flagGR',1.2,2]],boards:[['SOUVLAKI','& tzatziki'],['ΑΚΡΟΠΟΛΗ','▸ 1 km'],['FRAPPÉ','iced coffee'],['DEMOCRACY','since 508 BC']],
+   signs:[[['ΠΕΙΡΑΙΑΣ','12'],['ΣΑΝΤΟΡΙΝΗ','⛴']]],luna:'O Pártenon ao pôr do sol! 🏛️',fact:'The Parthenon on the Acropolis was completed in 438 BC.',
+   bg:{far:[['clouds','rgba(255,170,190,.45)',6],['ridge',176,24,2.3,'#7a4a6a'],['sil','parthenon',520,170,50,'#4a2a48'],['city',192,'#6a3a5a',90]],near:[['city',208,'#4a2848',40]]}}),
+  Z({key:'santorini',leg:2,birds:true,name:'SANTORINI',sub:'Oia · cúpulas azuis · caldeira',curvy:.8,hilly:.6,tunnels:0,facade:'#fbfbf8',grass:['#d8c8a8','#ccbc9c'],rumble:['#0d5eaf','#f4f4f4'],sky:SKY.dusk,sun:SUN.big,fog:'#ffa0b0',reflect:true,stars:true,moon:{r:16,x:1700,y:40,phase:'crescent'},ll:[25.43,36.39],emo:'💙',traffic:['vespa','vespa2','moto','carW','bike','van'],
+   deco:[[['cyc0','cyc1','cyc2','cyc0'],4,1.5,2.4,.9],['blueDome',17,1.8,2.6,.6],['bouga',11,1.3,1.6,.5],['molino',41,2.4,3.0,.5],[['ped4','ped6'],12,1.25,1.4,.4]],
+   marks:[['blueDome',2.2,3],['flagGR',1.2,2]],boards:[['SUNSET','Oia ▸ 19:47'],['VOLCANO','boat trips'],['ASSYRTIKO','wine'],['ΚΑΛΗΝΥΧΤΑ','good night 🌙']],
+   signs:[[['ΟΙΑ','▸'],['ΦΗΡΑ','◂']]],luna:'O pôr do sol mais bonito do mundo! 💙🌅',fact:"Santorini's caldera was formed by a huge volcanic eruption around 1600 BC.",
+   bg:{far:[['sea',172,'#d870a0','#2a1a58'],['ridge',178,12,6.1,'#3a1a4a']],near:[['sea',196,'#e870a0','#20124a']]}})]},
+ {code:'AT',name:'ÁUSTRIA',flag:'🇦🇹',start:'GROSSGLOCKNER',goal:'VIENA',color:'#ed2939',map:{polys:['AT'],ctx:['DE','CH','IT','CZ','EAST'],b:[9.3,17.3,46.2,49.1]},win:'SERVUS! CHEGÁMOS A VIENA! 🎻',tag:'Grossglockner · Krimml · Hallstatt · Salzburgo · Viena',thumb:['riesenrad','stephansdom','hallstatt','waterfall','hohensalzburg','chalet'],
+  legs:[{name:'ALPES',bonus:62},{name:'SALZBURGO',bonus:30},{name:'VIENA',bonus:30}],stages:[
+  Z({key:'glockner',leg:0,name:'GROSSGLOCKNER',sub:'Estrada alpina · cascatas de Krimml',curvy:1,hilly:1,tunnels:3,radars:0,grass:['#5a9a4a','#529044'],rumble:['#ed2939','#f4f4f4'],sky:SKY.day,sun:SUN.pale,fog:'#d0e0f8',fogD:6,ll:[12.69,47.07],emo:'🏔️',traffic:TR.at,
+   deco:[['pine',4,1.5,3.2,.8],['chalet',13,1.8,2.6,.5],['cow',17,1.6,3,.5],['flagAT',70,1.2,1.2,.5]],
+   marks:[['waterfall',2.8,2],['chalet',2.2,1],['flagAT',1.2,1]],boards:[['HOCHALPENSTRASSE','48 Kurven!'],['KAISERSCHMARRN','▸ Hütte'],['MURMELTIERE','marmots!'],['3798 m','Großglockner']],
+   signs:[[['ZELL AM SEE','40'],['SALZBURG','▸']]],luna:'Que cascata gigante! 💦',fact:'The Grossglockner High Alpine Road has 36 hairpin bends and climbs to 2,504 m.',
+   bg:{far:[['mount',196,'#8a9ac8','#ffffff',[[200,140,220],[520,175,260],[840,130,240]]]],near:[['mount',206,'#4a7a5a','#e8f0ff',[[120,60,180],[460,70,200],[800,50,160]]],['trees',206,'#2a4a3a',40,0.9]]}}),
+  Z({key:'hallstatt',leg:0,birds:true,name:'HALLSTATT',sub:'Lago · aldeia de postal · sal',curvy:.7,hilly:.6,tunnels:2,grass:['#5a8a4a','#527e44'],sky:SKY.gold,sun:SUN.mid,fog:'#f0c8b0',ll:[13.65,47.56],emo:'🏞️',traffic:TR.at,
+   deco:[[['fach0','fach1','chalet'],8,1.6,2.4,.6],['pine',5,2.4,3.6,.6],['lamp',17,1.12,1.12,1],[['ped1','pedBe'],13,1.25,1.4,.4]],
+   marks:[['hallstatt',3.0,1],['flagAT',1.2,2]],boards:[['SALZWELTEN','7000 Jahre'],['SEE','Bootsverleih'],['APFELSTRUDEL','▸ Café'],['WELTERBE','UNESCO']],
+   signs:[[['BAD ISCHL','20'],['SALZBURG','70']]],luna:'Parece um postal! 🏞️',fact:'Hallstatt has mined salt for about 7,000 years.',
+   bg:{far:[['mount',178,'#6a7aa8','#ffffff',[[200,110,260],[560,130,280],[880,100,220]]],['sil','hallstatt',520,198,40,'#4a5a7a']],near:[['sea',198,'#a0c0e0','#2a4a80']]}}),
+  Z({key:'salzburgo',leg:1,birds:true,name:'SALZBURGO',sub:'Mozart · Hohensalzburg · Música no Coração',curvy:.6,hilly:.6,tunnels:1,facade:'#f0dcc0',grass:['#7a9a5a','#6e8e52'],rumble:['#ed2939','#f4f4f4'],sky:SKY.sunset,sun:SUN.big,fog:'#ff9a7a',ll:[13.04,47.80],emo:'🎼',traffic:TR.at,
+   deco:[[['fach0','fach1','fach2','parisH1','shop0'],5,1.5,2.4,.8],['lamp',14,1.12,1.12,1],['tree1',19,1.3,1.5,.5],[['pedBe','ped3','ped6'],9,1.25,1.4,.45]],
+   marks:[['hohensalzburg',2.8,1],['flagAT',1.2,2]],boards:[['MOZARTKUGELN','Schokolade ▸'],['MOZART','1756–1791'],['FESTSPIELE','Sommer'],['DO-RE-MI','🎶']],
+   signs:[[['WIEN','300'],['MÜNCHEN','140']]],luna:'Toca Mozart no rádio! 🎼',fact:'Wolfgang Amadeus Mozart was born in Salzburg in 1756.',
+   bg:{far:[['clouds','rgba(255,170,190,.45)',5],['mount',170,'#6a4a8a','#ffd8e8',[[240,80,260],[700,90,280]]],['sil','hohensalzburg',520,186,60,'#3a1a48'],['city',192,'#5a2a5a',50]],near:[['sea',200,'#d0708a','#4a3570']]}}),
+  Z({key:'viena',leg:2,birds:true,name:'VIENA',sub:'Stephansdom · Schönbrunn · Prater',curvy:.5,hilly:.3,tunnels:2,facade:'#f0e6d0',grass:['#d8d0bc','#ccc4b0'],rumble:['#ed2939','#f4f4f4'],sky:SKY.dusk,sun:SUN.mid,fog:'#e890b0',stars:true,moon:{r:20,x:400,y:46,phase:'full'},ll:[16.37,48.21],emo:'🎻',traffic:['carK','carW','taxi','bus','bike','carS','cart'],
+   deco:[[['parisH0','parisH1','parisH2','shop0'],5,1.5,2.4,.85],['lamp',12,1.12,1.12,1],['tree1',17,1.3,1.5,.5],[['pedBe','ped3','ped6'],8,1.25,1.4,.5],['kiosk',70,1.35,1.45,.6]],
+   marks:[['stephansdom',2.5,1],['schonbrunn',2.8,1],['riesenrad',2.8,1],['flagAT',1.2,2]],boards:[['SACHERTORTE','original ▸'],['WIENER SCHNITZEL','▸'],['WALZER','Ball heute'],['KAFFEEHAUS','Melange']],
+   signs:[[['PRAHA','330'],['BRATISLAVA','▸']]],luna:'Vamos dançar uma valsa! 💃🎻',fact:"Vienna's Riesenrad Ferris wheel in the Prater has turned since 1897.",
+   bg:{far:[['clouds','rgba(255,170,220,.4)',6],['city',182,'#3a2060',90],['sil','stephansdom',440,192,100,'#2a1048'],['sil','riesenrad',760,194,70,'#2a1048']],near:[['city',212,'#20123a',40]]}})]},
+ {code:'CZ',name:'CHÉQUIA',flag:'🇨🇿',start:'ČESKÝ KRUMLOV',goal:'BOÉMIA',color:'#11457e',map:{polys:['CZ'],ctx:['DE','AT','PL','EAST'],b:[11.8,19.0,48.4,51.2]},win:'NA ZDRAVÍ! CHEGÁMOS À BOÉMIA! 🍺',tag:'Český Krumlov · Praga · Suíça Boémia',thumb:['pragueCastle','charlesBridge','orloj','krumlovTower','pravcicka','fach0'],
+  legs:[{name:'SUL',bonus:32},{name:'PRAGA',bonus:30},{name:'NORTE',bonus:30}],stages:[
+  Z({key:'krumlov',leg:0,birds:true,name:'ČESKÝ KRUMLOV',sub:'Torre pintada · rio Vltava',curvy:.8,hilly:.6,tunnels:1,facade:'#f0dcc0',grass:['#6a9a4a','#5e8e42'],sky:SKY.gold,sun:SUN.mid,fog:'#f0c0a0',ll:[14.32,48.81],emo:'🏰',traffic:TR.cz,
+   deco:[[['fach0','fach1','fach2','itH2'],6,1.6,2.4,.7],['tree1',9,2.4,3.4,.5],['lamp',17,1.12,1.12,1],['flagCZ',70,1.2,1.2,.5]],
+   marks:[['krumlovTower',2.4,2],['castleES2',2.8,1],['flagCZ',1.2,1]],boards:[['PIVO','🍺 Budvar ▸'],['TRDELNÍK','sladký'],['VLTAVA','rafting'],['HRAD','▸ zámek']],
+   signs:[[['PRAHA','170'],['LINZ','◂']]],luna:'Que torre tão colorida! 🎨',fact:'Český Krumlov Castle is the second-largest castle complex in the Czech Republic.',
+   bg:{far:[['ridge',156,36,4.1,'#7a6a9a'],['sil','krumlovTower',520,180,80,'#5a4a7a']],near:[['sea',200,'#c0a0b0','#3a4a70']]}}),
+  Z({key:'praga',leg:1,birds:true,name:'PRAGA',sub:'Castelo · Ponte Carlos · Relógio Astronómico',curvy:.6,hilly:.6,tunnels:2,facade:'#f0e0c8',grass:['#d8d0bc','#ccc4b0'],rumble:['#11457e','#f4f4f4'],sky:SKY.dusk,sun:SUN.big,fog:'#e890b0',stars:true,moon:{r:18,x:1600,y:44,phase:'full'},ll:[14.42,50.09],emo:'🌉',traffic:['carK','carW','retro1','taxi','bus','bike','retro0'],
+   deco:[[['fach0','fach2','parisH0','itH1','itH3'],5,1.5,2.4,.85],['lamp',12,1.12,1.12,1],[['pedBe','ped1','ped3'],8,1.25,1.4,.5],['kiosk',70,1.35,1.45,.6]],
+   marks:[['pragueCastle',3.0,1],['charlesBridge',3.0,1],['orloj',2.3,1],['flagCZ',1.2,2]],boards:[['ORLOJ','since 1410'],['SVÍČKOVÁ','& knedlíky'],['PIVO','0,5 l'],['KAFKA','museum ▸']],
+   signs:[[['DRESDEN','150'],['BRNO','▸']]],luna:'Praga é mágica! ✨',fact:"Prague's Astronomical Clock was installed in 1410 and still works.",
+   bg:{far:[['city',184,'#3a2060',80],['sil','pragueCastle',560,190,70,'#24103e']],near:[['sea',198,'#e080b0','#2a1a58']]}}),
+  Z({key:'boemia',leg:2,name:'SUÍÇA BOÉMIA',sub:'Pravčická brána · arenitos · florestas',curvy:.9,hilly:.8,tunnels:2,radars:0,grass:['#3a7a3a','#346e34'],sky:SKY.grey,sun:SUN.pale,fog:'#b0c0b0',fogD:6,ll:[14.28,50.88],emo:'🪨',traffic:TR.cz,
+   deco:[['pine',2,1.4,3.2,.9],['fern',4,1.15,1.6,.6],['goral',27,1.8,2.6,.4]],
+   marks:[['pravcicka',3.0,2],['flagCZ',1.2,1]],boards:[['NÁRODNÍ PARK','České Švýcarsko'],['STEZKA','hiking ▸'],['MECH','& kapradí'],['PRAVČICKÁ BRÁNA','▸ 3 km']],
+   signs:[[['DĚČÍN','15'],['DRESDEN','▸']]],luna:'Um arco de pedra natural! 🪨',fact:'Pravčická brána is the largest natural sandstone arch in Europe.',
+   bg:{far:[['ridge',150,44,6.4,'#5a6a5a'],['sil','pravcicka',520,186,60,'#3a4a3a']],near:[['trees',204,'#1a3a1a',60,1.2]]}})]},
+ {code:'PL',name:'POLÓNIA',flag:'🇵🇱',start:'ZAKOPANE',goal:'GDAŃSK',color:'#dc143c',map:{polys:['PL'],ctx:['DE','CZ','EAST'],b:[13.8,24.4,48.8,55.0]},win:'NA ZDROWIE! CHEGÁMOS A GDAŃSK! 🥟',tag:'Tatras · Cracóvia · Varsóvia · Malbork · Gdańsk',thumb:['wawel','palacKultury','malbork','zuraw','bison','goral'],
+  legs:[{name:'SUL',bonus:58},{name:'VARSÓVIA',bonus:30},{name:'BÁLTICO',bonus:32}],stages:[
+  Z({key:'tatras',leg:0,name:'TATRAS',sub:'Zakopane · Morskie Oko · casas de madeira',curvy:1,hilly:1,tunnels:2,radars:0,grass:['#5a8a4a','#527e44'],rumble:['#dc143c','#f4f4f4'],sky:SKY.day,sun:SUN.pale,fog:'#d0e0f0',fogD:5,ll:[20.07,49.20],emo:'🏔️',traffic:TR.pl,
+   deco:[['pine',3,1.5,3.2,.85],['goral',11,1.8,2.6,.6],['cow',23,2,3,.3],['flagPL',70,1.2,1.2,.5]],
+   marks:[['goral',2.2,2],['waterfall',2.8,1],['flagPL',1.2,1]],boards:[['OSCYPEK','ser góralski'],['MORSKIE OKO','▸ 9 km'],['KOLEJKA','Kasprowy Wierch'],['ZAKOPANE','zimowa stolica']],
+   signs:[[['KRAKÓW','110'],['SŁOWACJA','▸']]],luna:'Montanhas e casas de madeira! 🏔️',fact:'Morskie Oko is the largest lake in the Tatra Mountains.',
+   bg:{far:[['mount',196,'#7a8ab8','#ffffff',[[180,140,220],[460,160,240],[760,120,220]]]],near:[['sea',200,'#80b8d8','#2a5a8a'],['trees',214,'#1a3a2a',40,0.9]]}}),
+  Z({key:'cracovia',leg:0,birds:true,name:'CRACÓVIA',sub:'Wawel · Rynek · Sukiennice',curvy:.6,hilly:.5,tunnels:1,facade:'#f0dcc0',grass:['#d8d0bc','#ccc4b0'],sky:SKY.sunset,sun:SUN.big,fog:'#ff9a7a',ll:[19.94,50.06],emo:'🐉',traffic:['carW','carS','retro0','bus','cart','taxi','bike'],
+   deco:[[['fach1','fach2','itH0','itH4','shop0'],5,1.5,2.4,.8],['lamp',13,1.12,1.12,1],[['ped1','ped3','pedBe'],9,1.25,1.4,.45],['kiosk',70,1.35,1.45,.6]],
+   marks:[['wawel',2.8,1],['sukiennice',2.8,1],['flagPL',1.2,2]],boards:[['PIEROGI','ruskie ▸'],['OBWARZANEK','krakowski'],['SMOK WAWELSKI','🐉'],['RYNEK','▸ centrum']],
+   signs:[[['WARSZAWA','300'],['ZAKOPANE','◂']]],luna:'Um dragão no castelo? 🐉',fact:"Kraków's main square, Rynek Główny, is one of the largest medieval squares in Europe.",
+   bg:{far:[['clouds','rgba(255,170,190,.45)',5],['city',182,'#5a2d63',70],['sil','wawel',520,190,50,'#3a1848']],near:[['sea',200,'#d0708a','#4a3570']]}}),
+  Z({key:'varsovia',leg:1,birds:true,name:'VARSÓVIA',sub:'Palácio da Cultura · Cidade Velha · bisontes',curvy:.4,hilly:.2,tunnels:2,facade:'#e8dcc4',grass:['#c8c4b8','#bcb8ac'],rumble:['#dc143c','#f4f4f4'],sky:SKY.night,sun:{r:24,y:60,x:1300,c:['#ffffff','#e8e8ff'],stripes:false},fog:'#5a4a8a',stars:true,moon:{r:22,x:400,y:40,phase:'full'},ll:[21.01,52.23],emo:'🦬',traffic:['carK','carS','carW','taxi','bus','bike','retro0'],
+   deco:[[['parisH0','parisH2','fach1','shop3'],5,1.5,2.4,.8],['lamp',12,1.12,1.12,1],['birch',15,1.4,2.2,.5],['bison',41,2.2,3.0,.5],[['ped3','ped5'],9,1.25,1.4,.45]],
+   marks:[['palacKultury',2.4,2],['flagPL',1.2,2]],boards:[['CHOPIN','1810–1849 🎹'],['ŻUBR','Białowieża ▸'],['BIGOS','& żurek'],['WISŁA','bulwary']],
+   signs:[[['GDAŃSK','340'],['BIAŁYSTOK','▸']]],luna:'Olha, bisontes! 🦬',fact:"Poland's Białowieża Forest is home to Europe's largest population of wild bison.",
+   bg:{far:[['city',178,'#2a1a4a',90],['sil','palacKultury',520,192,140,'#140a2a']],near:[['city',210,'#100820',40]]}}),
+  Z({key:'gdansk',leg:2,birds:true,name:'MALBORK & GDAŃSK',sub:'Castelo de tijolo · Żuraw · Báltico',curvy:.6,hilly:.3,tunnels:1,facade:'#a8442a',grass:['#6a9a4a','#5e8e42'],sky:SKY.gold,sun:SUN.mid,fog:'#f0c0a0',ll:[18.65,54.35],emo:'⚓',traffic:TR.pl,
+   deco:[[['canal0','canal1','canal3','canal5'],5,1.5,2.4,.8],['lamp',14,1.12,1.12,1],[['ped1','pedDu'],10,1.25,1.4,.45]],
+   marks:[['malbork',3.0,1],['zuraw',2.4,1],['flagPL',1.2,2]],boards:[['BURSZTYN','amber ▸'],['MALBORK','największy zamek'],['MORZE','Bałtyk ▸'],['SOLIDARNOŚĆ','1980']],
+   signs:[[['SOPOT','12'],['MOSKWA','▸ 1200']]],luna:'Âmbar do Báltico! 🧡',fact:'Malbork Castle is the largest castle in the world by land area.',
+   bg:{far:[['city',184,'#7a4a4a',70],['sil','malbork',420,194,60,'#4a2a2a'],['sil','zuraw',760,194,60,'#4a2a2a']],near:[['sea',200,'#e0a080','#4a4a7a']]}})]},
+ {code:'RU',name:'RÚSSIA',flag:'🇷🇺',start:'SÃO PETERSBURGO',goal:'MOSCOVO',color:'#d52b1e',map:{polys:['RU'],ctx:['EAST','SCA'],b:[27.0,42.0,53.5,61.0]},win:'УРА! CHEGÁMOS A MOSCOVO! 🪆',tag:'São Petersburgo · Anel Dourado · Volga · Moscovo',thumb:['stBasil','spasskaya','saviorBlood','winterPalace','birch','matryoshka'],
+  legs:[{name:'SÃO PETERSBURGO',bonus:32},{name:'ANEL DOURADO',bonus:32},{name:'MOSCOVO',bonus:30}],stages:[
+  Z({key:'spb',leg:0,birds:true,name:'SÃO PETERSBURGO',sub:'Palácio de Inverno · Salvador do Sangue · Neva',curvy:.5,hilly:.2,tunnels:1,facade:'#5aa88a',grass:['#c8c4b8','#bcb8ac'],rumble:['#d52b1e','#f4f4f4'],sky:SKY.dusk,sun:SUN.mid,fog:'#e8a0c0',stars:true,ll:[30.31,59.94],emo:'⚓',traffic:TR.ru,
+   deco:[[['parisH0','parisH1','parisH2','itH2'],5,1.5,2.4,.8],['lamp',12,1.12,1.12,1],[['pedBe','ped3','ped6'],9,1.25,1.4,.45]],
+   marks:[['winterPalace',2.8,1],['saviorBlood',2.6,1],['flagRU',1.2,2]],boards:[['ЭРМИТАЖ','Hermitage ▸'],['БЕЛЫЕ НОЧИ','white nights'],['НЕВА','boat tours'],['БЛИНЫ','blini ▸']],
+   signs:[[['МОСКВА','700'],['ПЕТЕРГОФ','▸']]],luna:'As noites brancas! 🌙',fact:'In June, St Petersburg has "white nights" when the sky never gets fully dark.',
+   bg:{far:[['city',184,'#4a2a5a',80],['sil','saviorBlood',420,192,80,'#2a1438'],['sil','winterPalace',760,194,30,'#2a1438']],near:[['sea',198,'#e080b0','#2a1a58']]}}),
+  Z({key:'suzdal',leg:1,name:'ANEL DOURADO',sub:'Suzdal · cúpulas douradas · Volga · bétulas',curvy:.5,hilly:.3,tunnels:0,radars:2,grass:['#7aa04a','#6e9442'],sky:SKY.gold,sun:SUN.hot,fog:'#f0c8a0',fogD:3,ll:[40.39,56.42],emo:'⛪',traffic:TR.ru,
+   deco:[['birch',3,1.4,3.4,.9],['izba',13,1.8,2.6,.5],['matryoshka',41,1.5,1.6,.6],['onionChurch',53,2.4,3.0,.5]],
+   marks:[['onionChurch',2.6,3],['flagRU',1.2,1]],boards:[['МЁД','honey ▸'],['МАТРЁШКА','souvenirs'],['ВОЛГА','▸ 30 km'],['ЗОЛОТОЕ КОЛЬЦО','golden ring']],
+   signs:[[['МОСКВА','220'],['ВЛАДИМИР','▸']]],luna:'Bonecas dentro de bonecas! 🪆',fact:"The Golden Ring is a route of old towns north-east of Moscow famous for onion-domed churches.",
+   bg:{far:[['ridge',190,6,1.3,'#8aa060'],['sil','onionChurch',460,192,50,'#6a6a3a'],['trees',192,'#5a7a3a',40,0.8]],near:[['sea',202,'#a0c0d8','#3a5a88'],['trees',214,'#4a6a2a',40,0.8]]}}),
+  Z({key:'moscovo',leg:2,birds:true,name:'MOSCOVO',sub:'Praça Vermelha · São Basílio · Kremlin',curvy:.5,hilly:.3,tunnels:2,facade:'#e8dcc4',grass:['#c8c4b8','#bcb8ac'],rumble:['#d52b1e','#f4f4f4'],sky:SKY.night,sun:{r:24,y:60,x:1300,c:['#ffffff','#e8e8ff'],stripes:false},fog:'#5a3a6a',stars:true,moon:{r:22,x:400,y:40,phase:'full'},ll:[37.62,55.75],emo:'🪆',traffic:['lada0','lada1','lada2','carK','taxi','bus','carW'],
+   deco:[[['parisH0','parisH2','shop0','shop3'],5,1.5,2.4,.8],['lamp',12,1.12,1.12,1],['birch',19,1.4,2.0,.4],['matryoshka',60,1.5,1.6,.6],[['pedBe','ped3','ped5'],9,1.25,1.4,.45]],
+   marks:[['stBasil',2.8,1],['spasskaya',3.0,1],['msu',2.6,1],['flagRU',1.2,2]],boards:[['КРАСНАЯ ПЛОЩАДЬ','Red Square ▸'],['БОРЩ','borscht'],['МЕТРО','beautiful!'],['БАЛЕТ','Bolshoi']],
+   signs:[[['КРЕМЛЬ','▸'],['БЕРЛИН','◂ 1800']]],luna:'As cúpulas parecem gelados! 🍦',fact:"St Basil's Cathedral on Red Square was built between 1555 and 1561.",
+   bg:{far:[['city',180,'#3a1a3a',90],['sil','stBasil',440,194,100,'#1a0a1a'],['sil','spasskaya',760,194,70,'#1a0a1a']],near:[['city',210,'#140814',40]]}})]}
+];
+// final tour order: PT · ES · FR · CH · IT · GR · AT · CZ · PL · RU · DE · NL · BE · GB · home
+(()=>{const by={};CHAPTERS.concat(NEW_CH).forEach(c=>by[c.code]=c);const order=['PT','ES','FR','CH','IT','GR','AT','CZ','PL','RU','DE','NL','BE','GB','PT2'];CHAPTERS.length=0;order.forEach(k=>CHAPTERS.push(by[k]));
+  // natural landmarks added to earlier chapters
+  const st=k=>{for(const c of CHAPTERS)for(const z of c.stages)if(z.key===k)return z;};
+  st('sevilha').bg.far.unshift(['mount',176,'#b89aa8','#ffffff',[[780,70,260],[960,60,200]]]);
+  st('barcelona').bg.far.splice(1,0,['mount',172,'#5a3a6a','#7a5a8a',[[160,70,60],[200,90,50],[240,80,60],[280,60,50]]]);
+  st('veneza').bg.far.unshift(['mount',176,'#7a6a9a','#ffe8f0',[[200,90,200],[480,110,220],[760,95,200]]]);
+  st('zurique').marks.push(['waterfall',2.8,1]);st('zurique').sub+=' · Cataratas do Reno';
+  st('minho').bg.far.unshift(['mount',170,'#5a6a8a','#c8d0e0',[[180,60,240],[820,70,260]]]);
+  st('colonia').marks.push(['rhineCastle',3.0,1]);
+})();
+
+// ================================================================== landscape police scene: 16-bit close-up portraits (Paulo · Luna in the mirror · the cop)
+const PORT={};
+function pxCanvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.imageSmoothingEnabled=false;return [c,g];}
+const R_=(g,x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h);};
+function drawPaulo(g,t,talk){ // 64x64
+  const b=Math.round(Math.sin(t*3)),blink=(t%3.4)<0.12,mo=talk&&Math.sin(t*20)>-0.2;
+  const sky=g.createLinearGradient(0,0,0,64);sky.addColorStop(0,'#3a1a6a');sky.addColorStop(1,'#ff7a5a');g.fillStyle=sky;g.fillRect(0,0,64,64);
+  R_(g,0,44,64,20,'#2b3a55');R_(g,6,40,52,4,'#1a2438'); // seat/car
+  // tee + neck
+  R_(g,14,48+b,36,16,'#f4f4f4');R_(g,14,48+b,36,2,'#d8d8d8');R_(g,27,52+b,10,5,'#e8263a');R_(g,28,53+b,8,3,'#fff');R_(g,29,53+b,2,3,'#e8263a');
+  R_(g,27,42+b,10,7,'#c98a5a');
+  // head
+  R_(g,20,18+b,24,26,'#d9a070');R_(g,18,26+b,2,8,'#c98a5a');R_(g,44,26+b,2,8,'#c98a5a');R_(g,22,40+b,20,4,'#c98a5a');
+  // stubble
+  g.fillStyle='rgba(60,40,30,.35)';for(let x=22;x<42;x+=2)for(let y=36;y<44;y+=2)if((x+y)%4===0)g.fillRect(x,y+b,1,1);
+  // hair quiff
+  R_(g,19,12+b,26,8,'#1e140e');R_(g,22,9+b,18,4,'#1e140e');R_(g,36,8+b,8,4,'#2a1c12');R_(g,19,18+b,3,8,'#1e140e');R_(g,42,18+b,3,6,'#1e140e');
+  // aviators
+  R_(g,21,26+b,9,6,'#111');R_(g,34,26+b,9,6,'#111');R_(g,30,27+b,4,1,'#111');R_(g,22,27+b,3,2,'#6ac0ff');R_(g,35,27+b,3,2,'#6ac0ff');
+  if(blink){R_(g,22,30+b,7,1,'#111');}
+  // brows (expressive)
+  R_(g,21,23+b,9,2,'#1e140e');R_(g,34,23+b-(talk?1:0),9,2,'#1e140e');
+  // nose + mouth
+  R_(g,31,32+b,3,4,'#c98a5a');
+  if(mo){R_(g,27,38+b,10,4,'#6a1a1a');R_(g,28,38+b,8,1,'#fff');}else{R_(g,27,39+b,10,1,'#7a3a2a');R_(g,36,38+b,2,1,'#7a3a2a');}
+  // gold chain
+  g.fillStyle='#e8c23a';for(let x=24;x<40;x+=2)g.fillRect(x,48+b+Math.round(Math.abs(x-32)*0.15),1,1);
+}
+function drawLunaMirror(g,t,talk){ // 96x40 — what the driver sees in the rear-view mirror
+  const b=Math.round(Math.sin(t*2.6)),blink=(t%3.9)<0.13,wink=(t%7)<0.5&&!talk,mo=talk&&Math.sin(t*19)>-0.2;
+  const sky=g.createLinearGradient(0,0,96,0);sky.addColorStop(0,'#ff9a6a');sky.addColorStop(1,'#a8306a');g.fillStyle=sky;g.fillRect(0,0,96,40);
+  // hair mass
+  R_(g,22,0,52,40,'#3a2014');R_(g,18,8,8,32,'#3a2014');R_(g,70,8,8,32,'#3a2014');R_(g,26,0,44,4,'#4a2a1a');
+  g.fillStyle='#5a3424';for(let i=0;i<8;i++)g.fillRect(24+i*6,2+(i%2),2,10);
+  // face
+  R_(g,30,8+b,36,32,'#f0c09a');R_(g,30,8+b,36,6,'#3a2014');R_(g,28,10+b,6,8,'#3a2014');R_(g,62,10+b,6,8,'#3a2014');
+  // eyes with lashes
+  const ey=20+b;
+  if(blink){R_(g,35,ey+2,9,1,'#2a1410');R_(g,52,ey+2,9,1,'#2a1410');}
+  else{R_(g,35,ey,9,5,'#fff');R_(g,38,ey,4,5,'#5a3a1a');R_(g,39,ey+1,2,2,'#111');R_(g,40,ey,1,1,'#fff');R_(g,34,ey-1,11,1,'#111');R_(g,33,ey-2,2,1,'#111');
+    if(wink){R_(g,52,ey+2,9,1,'#2a1410');R_(g,51,ey,2,1,'#111');}else{R_(g,52,ey,9,5,'#fff');R_(g,55,ey,4,5,'#5a3a1a');R_(g,56,ey+1,2,2,'#111');R_(g,57,ey,1,1,'#fff');R_(g,51,ey-1,11,1,'#111');R_(g,61,ey-2,2,1,'#111');}}
+  R_(g,35,ey-4,9,1,'#2a1410');R_(g,52,ey-4,9,1,'#2a1410');
+  R_(g,46,ey+4,3,5,'#e0a882');g.fillStyle='rgba(240,110,120,.45)';g.fillRect(33,ey+7,6,3);g.fillRect(57,ey+7,6,3);
+  if(mo){R_(g,43,ey+12,10,4,'#9a1a3a');R_(g,44,ey+12,8,1,'#fff');}else{R_(g,43,ey+13,10,2,'#d6336c');}
+  // crescent moon clip
+  R_(g,64,4,6,6,'#ffd23f');R_(g,66,4,4,4,'#3a2014');R_(g,68,12+b,2,4,'#ffd23f');
+  // mirror glare
+  g.fillStyle='rgba(255,255,255,.18)';g.beginPath();g.moveTo(8,0);g.lineTo(22,0);g.lineTo(10,40);g.lineTo(-4,40);g.fill();
+}
+function drawCopFace(g,t,talk,cop){ // 64x64
+  const b=Math.round(Math.sin(t*3.2)),mo=talk&&Math.sin(t*21)>-0.2,mt=Math.round(Math.sin(t*6));
+  const sky=g.createLinearGradient(0,0,0,64);sky.addColorStop(0,'#1f3a8a');sky.addColorStop(1,'#5ac0ff');g.fillStyle=sky;g.fillRect(0,0,64,64);
+  if(Math.sin(t*8)>0){g.fillStyle='rgba(255,40,40,.35)';g.fillRect(0,0,20,64);}else{g.fillStyle='rgba(40,120,255,.35)';g.fillRect(44,0,20,64);}
+  R_(g,6,50+b,52,14,cop.uni);R_(g,28,52+b,8,12,'#e8e8f0');R_(g,30,53+b,4,2,cop.dk);R_(g,12,54+b,4,4,'#e8c23a');
+  // big round face + double chin
+  R_(g,14,22+b,36,28,'#f2bc8e');R_(g,12,28+b,2,14,'#f2bc8e');R_(g,50,28+b,2,14,'#f2bc8e');R_(g,18,48+b,28,4,'#d99a6c');R_(g,10,30+b,4,6,'#e8a87a');R_(g,50,30+b,4,6,'#e8a87a');
+  g.fillStyle='rgba(235,90,90,.5)';g.fillRect(16,38+b,6,4);g.fillRect(42,38+b,6,4);
+  // aviators + brows
+  R_(g,17,30+b,12,7,'#111');R_(g,35,30+b,12,7,'#111');R_(g,29,31+b,6,1,'#111');R_(g,19,31+b,3,2,'#8ad8ff');R_(g,37,31+b,3,2,'#8ad8ff');
+  R_(g,17,27+b-(talk?1:0),11,2,'#3a2210');R_(g,36,27+b,11,2,'#3a2210');
+  R_(g,29,36+b,6,5,'#e8946a');R_(g,30,36+b,2,2,'#f8c8a8');
+  // handlebar moustache
+  R_(g,20,42+b,24,3,'#3e220e');R_(g,16,40+b+mt,5,3,'#3e220e');R_(g,43,40+b-mt,5,3,'#3e220e');R_(g,14,38+b+mt,3,3,'#3e220e');R_(g,47,38+b-mt,3,3,'#3e220e');
+  if(mo){R_(g,27,45+b,10,4,'#6a1a1a');R_(g,28,45+b,8,1,'#fff');}else R_(g,28,46+b,8,1,'#7a3a2a');
+  // hat
+  const hc=cop.hatC;
+  if(cop.hat==='tricorn'){R_(g,12,12+b,40,10,hc);R_(g,16,6+b,30,8,hc);R_(g,44,2+b,8,8,hc);R_(g,20,8+b,12,1,'#555');}
+  else if(cop.hat==='bobby'){R_(g,18,2+b,28,20,hc);R_(g,22,0+b,20,4,hc);R_(g,14,20+b,36,3,'#111');R_(g,29,10+b,6,6,'#d8dce4');}
+  else if(cop.hat==='kepi'){R_(g,18,6+b,28,16,hc);R_(g,18,16+b,28,2,cop.band);R_(g,18,7+b,28,1,cop.band);R_(g,20,22+b,26,3,'#111');}
+  else{R_(g,12,12+b,40,8,cop.hat==='cara'?'#111522':cop.uni);R_(g,14,8+b,36,6,cop.hat==='cara'?'#111522':cop.uni);R_(g,12,18+b,40,2,cop.band);R_(g,16,20+b,34,3,'#0d0d0d');R_(g,30,10+b,4,4,'#e8c23a');}
+}
+function ringPortrait(g,img,cx,cy,r,col,label){
+  g.save();g.beginPath();g.arc(cx,cy,r+6,0,7);g.fillStyle='rgba(0,0,0,.4)';g.fill();
+  g.beginPath();g.arc(cx,cy,r,0,7);g.closePath();g.save();g.clip();g.imageSmoothingEnabled=false;g.drawImage(img,cx-r,cy-r,r*2,r*2);
+  g.fillStyle='rgba(0,0,0,.12)';for(let y=cy-r;y<cy+r;y+=4)g.fillRect(cx-r,y,r*2,1.5);g.restore();
+  g.lineWidth=Math.max(4,r*0.09);g.strokeStyle='#fff';g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();g.lineWidth=Math.max(2,r*0.04);g.strokeStyle=col;g.beginPath();g.arc(cx,cy,r+g.lineWidth*1.6,0,7);g.stroke();
+  const fs=Math.round(r*0.22);g.font=`700 ${fs}px ${BFONT}`;const tw=g.measureText(label).width+fs;pixBox(g,cx-tw/2,cy+r-fs*0.4,tw,fs*1.4,Math.max(2,fs*0.15),col,'#fff',true);g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.fillText(label,cx,cy+r+fs*0.3);
+  g.restore();
+}
+function mirrorPortrait(g,img,cx,cy,w,h){
+  g.save();g.fillStyle='rgba(0,0,0,.4)';rr(g,cx-w/2-8,cy-h/2-6,w+16,h+16,h*0.42);g.fill();
+  g.fillStyle='#1a1a22';rr(g,cx-w/2-10,cy-h/2-10,w+20,h+20,h*0.45);g.fill();g.fillStyle='#3a3a46';rr(g,cx-w/2-6,cy-h/2-6,w+12,h+12,h*0.42);g.fill();
+  g.save();rr(g,cx-w/2,cy-h/2,w,h,h*0.38);g.clip();g.imageSmoothingEnabled=false;g.drawImage(img,cx-w/2,cy-h/2,w,h);g.fillStyle='rgba(0,0,0,.1)';for(let y=cy-h/2;y<cy+h/2;y+=4)g.fillRect(cx-w/2,y,w,1.5);g.restore();
+  g.fillStyle='#1a1a22';g.fillRect(cx-8,cy-h/2-34,16,26);
+  const fs=Math.round(h*0.2);g.font=`700 ${fs}px ${BFONT}`;const lbl='LUNA 🌙';const tw=g.measureText(lbl).width+fs;pixBox(g,cx-tw/2,cy+h/2-fs*0.2,tw,fs*1.4,Math.max(2,fs*0.15),'#c2185b','#fff',true);g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.fillText(lbl,cx,cy+h/2+fs*0.5);
+  g.restore();
+}
+function portraitLayout(){ // FX coords
+  const FW=FX.width,FH=FX.height,r=Math.round(FH*0.15);
+  return {paulo:{x:r+FW*0.035,y:FH*0.40,r},cop:{x:FW-r-FW*0.035,y:FH*0.40,r},luna:{x:FW/2,y:FH*0.13,w:FH*0.62,h:FH*0.26}};
+}
+function closeupsOn(){return busted&&!PORTRAIT&&['talk','ticket'].includes(busted.phase)&&state==='play';}
+let portT0=0;
+function drawCloseups(g){
+  if(!closeupsOn()){portT0=0;return;}
+  if(!portT0)portT0=perfNow;const k=Math.min(1,(perfNow-portT0)/350),e=1-Math.pow(1-k,3),t=perfNow/1000;
+  const L=portraitLayout(),spk=(bubbles.length?bubbles[bubbles.length-1].who:'');
+  if(!PORT.p){[PORT.p,PORT.pg]=pxCanvas(64,64);[PORT.l,PORT.lg]=pxCanvas(96,40);[PORT.c,PORT.cg]=pxCanvas(64,64);}
+  drawPaulo(PORT.pg,t,bubbles.some(b=>b.who==='d'&&b.t<b.life));drawLunaMirror(PORT.lg,t,bubbles.some(b=>b.who==='w'&&b.t<b.life));drawCopFace(PORT.cg,t,bubbles.some(b=>b.who==='cop'&&b.t<b.life),busted.cop||COPS.PT);
+  const sc=(w)=>w===spk?1.08+Math.sin(t*10)*0.015:1;
+  g.save();g.globalAlpha=e;
+  ringPortrait(g,PORT.p,L.paulo.x-(1-e)*L.paulo.r*3,L.paulo.y,L.paulo.r*sc('d'),'#e8263a','PAULO');
+  ringPortrait(g,PORT.c,L.cop.x+(1-e)*L.cop.r*3,L.cop.y,L.cop.r*sc('cop'),'#1f3fa8',(busted.cop||COPS.PT).name.split(' ').pop());
+  mirrorPortrait(g,PORT.l,L.luna.x,L.luna.y-(1-e)*L.luna.h*2,L.luna.w*sc('w'),L.luna.h*sc('w'));
+  g.restore();
+}
+function closeupAnchor(who){const L=portraitLayout();
+  if(who==='d')return [L.paulo.x+L.paulo.r*0.7,L.paulo.y+L.paulo.r*1.75,'R'];
+  if(who==='w')return [L.luna.x,L.luna.y+L.luna.h*0.5+L.luna.h*1.55,'C'];
+  return [L.cop.x-L.cop.r*0.7,L.cop.y+L.cop.r*1.75,'L'];}
 
 resize();buildSprites();buildTrack();applyCtrl();
 {const c0=+store.get('chapter',0)||0;if(c0>0&&c0<=unlocked)loadChapter(c0);else updatePlayLabel();fetchGlobal();}
