@@ -1723,7 +1723,7 @@ function spawnCar(c,near){
   const zi=position/segL+(near?30+Math.random()*(drawDist+200):drawDist+10+Math.random()*260);
   const idx=Math.floor(zi);
   if(c.seg){const a=c.seg.cars;const k=a.indexOf(c);if(k>=0)a.splice(k,1);c.seg=null;}
-  c.prevRel=undefined;
+  c.prevRel=undefined;c.ann=0;
   if(idx>goalIdx-40){c.active=false;return;}
   const zd=diffOf(segments[idx].stage);let na=0;for(const o of cars)if(o!==c&&o.active)na++;if(na>=Math.round(24*(0.33+0.67*zd))){c.active=false;return;}
   let type=pick(Math.random,STAGES[segments[idx].stage].traffic);type=mixTraffic(type,STAGES[segments[idx].stage]);
@@ -1737,7 +1737,7 @@ function resetCars(){for(const s of segments)s.cars.length=0;cars=[];for(let i=0
 function updateCars(dt){
   for(const c of cars){
     if(!c.active){if(Math.random()<0.02)spawnCar(c,false);continue;}
-    c.z+=dt*c.speed*maxSpeed;
+    c.z+=dt*c.speed*maxSpeed;if(c.key&&c.key.startsWith('leg'))legendCheck(c);
     if(c.z<position-14*segL||c.z>position+(drawDist+420)*segL||c.z>goalZ-segL*30){spawnCar(c,false);continue;}
     const ns=findSeg(c.z);c.pct=(c.z%segL)/segL;
     if(ns!==c.seg){const a=c.seg.cars;a.splice(a.indexOf(c),1);ns.cars.push(c);c.seg=ns;}
@@ -3539,7 +3539,7 @@ function buildEuroSprites(){if(euBuilt)return;euBuilt=true;const s=(k,img,ww,hit
   s('bigBen',bigBen(),1.0,0.9);s('towerBridge',towerBridge(),5.0,0);SP.towerBridge.pillar=[1.45,2.5];s('londonEye',londonEye(),2.6,0.4);s('stonehenge',stonehenge(),2.8,0.95);s('phoneBox',phoneBox(),0.3,0.7);
   ['#9a4a32','#b8604a','#7a3a2a','#c8b090'].forEach((c,i)=>s('terr'+i,terrace(c),1.15,0.95));
   s('santiago',santiago(),2.6,0.95);s('bomJesus',bomJesus(),2.6,0.95);s('espig',espigueiro(),0.9,0.8);s('torreLidador',torreLidador(),1.0,0.9);s('maiaHeart',maiaHeart(),1.3,0.9);
-  for(const k of ['ES','FR','IT','CH','DE','NL','BE','GB','GZ'])s('flag'+k,flagGen(k),0.3,0.3);buildEuro2();buildEuro3();buildAssets2();
+  for(const k of ['ES','FR','IT','CH','DE','NL','BE','GB','GZ'])s('flag'+k,flagGen(k),0.3,0.3);buildEuro2();buildEuro3();buildAssets2();buildLegends();
   SP.dbus={img:doubleDecker(),ww:0.44};SP.cab={img:blackCab(),ww:0.3};
   SP.fiat0={img:retroCar('#e8402a'),ww:0.26};SP.fiat1={img:retroCar('#f2e8cf'),ww:0.26};SP.fiat2={img:retroCar('#6ac0a8'),ww:0.26};
   [['pedFl',{legs:'#c8102e',top:'#c8102e',skin:'#e0a57a',hair:'#111',skirt:'#c8102e',long:1}],['pedBe',{legs:'#222',top:'#f4f1ea',skin:'#f1c27d',hair:'#5a3a22',hat:'#1a1a2a'}],
@@ -4818,7 +4818,8 @@ function buildAssets2(){if(assets2)return;assets2=true;const s=(k,img,ww,hit=0.6
 // extra traffic mix: EVs everywhere, TIR lorries outside cities, trams in cities, an occasional cyber pickup
 function isCity(st){return st.traffic.includes('taxi')||st.traffic.includes('tram')||st.traffic.includes('dbus')||(st.deco||[]).some(d=>d[0]==='lamp'&&d[1]<=14);}
 function mixTraffic(type,st){const r=Math.random(),city=isCity(st);
-  if(r<0.035)return 'cyber';
+  if(r<0.018&&SP.legNata)return pick(Math.random,LEGENDS);
+  if(r<0.05)return 'cyber';
   if(r<0.20)return 'ev'+((Math.random()*4)|0);
   if(!city&&r<0.33)return 'tir'+((Math.random()*5)|0);
   if(city&&r<0.27&&!st.traffic.includes('tram'))return pick(Math.random,['tramR','tramB','tramG']);
@@ -4830,6 +4831,48 @@ const SPEED2={cyber:.55,ev0:.46,ev1:.46,ev2:.46,ev3:.46,tir0:.3,tir1:.3,tir2:.3,
 function fillScenery(R){STAGES.forEach((st,si)=>{const a=stageStart[si]+24,b=(si+1<STAGES.length?stageStart[si+1]:goalIdx)-10,city=isCity(st);
   const pool=city?['benchS','binS','bush0','flw0','flw1','bush2','flw2']:['bush0','bush1','bush2','flw0','flw1','flw2','flw3','fence','rockS','rockS'];
   for(let i=a;i<b;i+=3){if(segments[i].tunnel)continue;for(const side of [-1,1])if(R()<(city?0.35:0.55))addSprite(i,pick(R,pool),side*(1.25+R()*(city?0.3:2.8)));}});}
+
+
+// ================================================================== original "legend" cameo vehicles (rare)
+function legNata(){return mk(130,90,(g,w,h)=>{ell(g,w/2,h-4,w*0.46,5,'rgba(0,0,0,.35)');g.fillStyle='#111';rr(g,10,h-24,20,20,4);g.fill();rr(g,w-30,h-24,20,20,4);g.fill();
+  ell(g,w/2,50,60,30,'#a8621e');ell(g,w/2,46,56,26,'#d8923a');ell(g,w/2,42,50,20,'#f6c842');const R=rng(3);for(let i=0;i<14;i++)ell(g,w/2-36+R()*72,32+R()*20,3+R()*4,2+R()*3,R()<.5?'#6a3010':'#8a4a18');
+  g.strokeStyle='#8a4a18';g.lineWidth=2;for(let k=-4;k<=4;k++){g.beginPath();g.moveTo(w/2+k*12,64);g.lineTo(w/2+k*13,74);g.stroke();}g.fillStyle='#ff3030';rr(g,14,60,14,8,2);g.fill();rr(g,w-28,60,14,8,2);g.fill();ell(g,w/2-18,36,6,3,'rgba(255,255,255,.5)');});}
+function legGalo(){return mk(120,110,(g,w,h)=>{ell(g,w/2,h-4,w*0.46,5,'rgba(0,0,0,.35)');g.fillStyle='#111';rr(g,8,h-26,20,22,4);g.fill();rr(g,w-28,h-26,20,22,4);g.fill();
+  g.fillStyle='#111';rr(g,6,44,w-12,46,16);g.fill();g.beginPath();g.moveTo(w/2-10,46);g.quadraticCurveTo(w/2+30,0,w/2+44,20);g.quadraticCurveTo(w/2+30,40,w/2+10,46);g.fill();
+  for(const [x,y] of [[w/2-8,20],[w/2-2,16],[w/2+4,20]])circ(g,x,y,6,'#e63946');circ(g,w/2,30,10,'#111');
+  const cs=['#e63946','#ffd23f','#2ecc71','#3498db','#fff'];for(let i=0;i<10;i++){const x=20+(i%5)*18,y=58+((i/5)|0)*14;g.fillStyle=cs[i%5];g.beginPath();g.moveTo(x,y+5);g.arc(x-3,y,3,Math.PI*0.75,Math.PI*1.9);g.arc(x+3,y,3,Math.PI*1.1,Math.PI*0.25);g.closePath();g.fill();}
+  g.fillStyle='#ff3030';rr(g,10,76,12,8,2);g.fill();rr(g,w-22,76,12,8,2);g.fill();});}
+function legSardine(){return mk(140,80,(g,w,h)=>{ell(g,w/2,h-4,w*0.46,5,'rgba(0,0,0,.35)');g.fillStyle='#111';rr(g,12,h-22,20,18,4);g.fill();rr(g,w-32,h-22,20,18,4);g.fill();
+  const gr=g.createLinearGradient(0,14,0,62);gr.addColorStop(0,'#3a5a8a');gr.addColorStop(.45,'#c8d4e4');gr.addColorStop(1,'#f4f6fa');g.fillStyle=gr;g.beginPath();g.ellipse(w/2,40,62,24,0,0,7);g.fill();
+  g.fillStyle='#3a5a8a';poly(g,[w/2-6,16,w/2+10,4,w/2+16,18],'#3a5a8a');g.strokeStyle='rgba(255,255,255,.6)';g.lineWidth=1;for(let x=24;x<w-24;x+=8){g.beginPath();g.arc(x,36,5,Math.PI*0.2,Math.PI*0.8);g.stroke();}
+  g.fillStyle='#ff3030';rr(g,16,46,12,7,2);g.fill();rr(g,w-28,46,12,7,2);g.fill();g.fillStyle='#ffd23f';g.font='bold 9px sans-serif';g.textAlign='center';g.fillText('SARDINHA GT',w/2,58);});}
+function legRocketTuk(){return mk(110,110,(g,w,h)=>{ell(g,w/2,h-4,w*0.44,5,'rgba(0,0,0,.35)');g.fillStyle='#111';rr(g,10,h-24,18,20,4);g.fill();rr(g,w-28,h-24,18,20,4);g.fill();
+  g.fillStyle='#2a9d8f';rr(g,8,30,w-16,60,10);g.fill();g.fillStyle='#ffd23f';g.fillRect(8,24,w-16,10);g.fillStyle='#24303e';g.fillRect(18,40,w-36,22);
+  for(const sd of [-1,1]){const x=w/2+sd*30;g.fillStyle='#c0c4cc';rr(g,x-7,66,14,22,4);g.fill();g.fillStyle='#ff8a1a';poly(g,[x-6,88,x,108,x+6,88],'#ff8a1a');poly(g,[x-3,88,x,100,x+3,88],'#fff3a0');}
+  g.fillStyle='#ff3030';rr(g,12,70,12,8,2);g.fill();rr(g,w-24,70,12,8,2);g.fill();});}
+function legMoonBuggy(){return mk(130,90,(g,w,h)=>{ell(g,w/2,h-4,w*0.46,5,'rgba(0,0,0,.35)');for(const x of [10,w-34])g.fillStyle='#222',rr(g,x,h-28,24,24,8),g.fill();
+  g.fillStyle='#d8dce8';rr(g,8,40,w-16,30,10);g.fill();g.fillStyle='#ffd23f';g.beginPath();g.arc(w/2,30,22,0,7);g.fill();g.fillStyle='#d8dce8';g.beginPath();g.arc(w/2+10,24,20,0,7);g.fill();
+  g.fillStyle='#1f3a8a';rr(g,24,46,w-48,14,6);g.fill();for(let i=0;i<5;i++)star5(g,30+i*18,53,3,'#ffd23f');g.fillStyle='#ff3d7f';rr(g,12,62,12,7,2);g.fill();rr(g,w-24,62,12,7,2);g.fill();});}
+function legHover(){return mk(130,80,(g,w,h)=>{const gl=g.createRadialGradient(w/2,h-10,4,w/2,h-10,60);gl.addColorStop(0,'rgba(5,217,232,.6)');gl.addColorStop(1,'rgba(5,217,232,0)');g.fillStyle=gl;g.fillRect(0,h-40,w,40);
+  g.fillStyle='#ff3d7f';rr(g,6,30,w-12,26,12);g.fill();g.fillStyle='#2a0a3e';g.beginPath();g.moveTo(26,32);g.quadraticCurveTo(w/2,4,w-26,32);g.fill();g.fillStyle='#05d9e8';g.fillRect(10,48,w-20,3);g.fillStyle='#ffd23f';rr(g,12,38,16,6,3);g.fill();rr(g,w-28,38,16,6,3);g.fill();
+  g.fillStyle='#05d9e8';for(let i=0;i<4;i++)ell(g,24+i*28,62,10,3,'#9af6ff');});}
+function legBica(){return mk(110,110,(g,w,h)=>{ell(g,w/2,h-4,w*0.44,5,'rgba(0,0,0,.35)');g.fillStyle='#111';rr(g,10,h-22,18,18,4);g.fill();rr(g,w-28,h-22,18,18,4);g.fill();
+  ell(g,w/2,h-26,48,10,'#f4f1ea');g.fillStyle='#f4f1ea';g.beginPath();g.moveTo(16,30);g.lineTo(w-16,30);g.lineTo(w-26,h-28);g.lineTo(26,h-28);g.fill();ell(g,w/2,30,39,9,'#5a3418');ell(g,w/2,30,34,7,'#c8904a');
+  g.strokeStyle='#f4f1ea';g.lineWidth=7;g.beginPath();g.arc(w-14,52,12,-Math.PI/2,Math.PI/2);g.stroke();g.strokeStyle='rgba(255,255,255,.7)';g.lineWidth=2;for(let i=0;i<3;i++){g.beginPath();g.moveTo(40+i*14,22);g.quadraticCurveTo(34+i*14,10,42+i*14,0);g.stroke();}
+  g.fillStyle='#e8263a';g.font='bold 10px sans-serif';g.textAlign='center';g.fillText('BICA',w/2,62);});}
+const LEGENDS=['legNata','legGalo','legSardine','legRocketTuk','legMoonBuggy','legHover','legBica'];
+const LEGSET=new Set(LEGENDS);
+function buildLegends(){if(SP.legNata)return;SP.legNata={img:legNata(),ww:0.34};SP.legGalo={img:legGalo(),ww:0.32};SP.legSardine={img:legSardine(),ww:0.36};SP.legRocketTuk={img:legRocketTuk(),ww:0.3};SP.legMoonBuggy={img:legMoonBuggy(),ww:0.34};SP.legHover={img:legHover(),ww:0.34};SP.legBica={img:legBica(),ww:0.3};
+  Object.assign(SPEED2,{legNata:.78,legGalo:.8,legSardine:.82,legRocketTuk:.85,legMoonBuggy:.76,legHover:.88,legBica:.78});}
+const LEG_LINES={pt:['Era um pastel de nata com rodas?!','Isto é a Europa ou um desenho animado?! 😂','Quero um carro daqueles! 🤩','Paulo, vimos o mesmo?!','Lendas da estrada! ★'],
+ en:['Was that a custard tart on wheels?!','Is this Europe or a cartoon?! 😂','I want one of those! 🤩','Paulo, did we see the same thing?!','Road legends! ★'],
+ it:['Era un pasticcino con le ruote?!','È l\'Europa o un cartone animato?! 😂','Ne voglio una così! 🤩','Paulo, abbiamo visto la stessa cosa?!','Leggende della strada! ★'],
+ es:['¿¡Era un pastel de nata con ruedas!?','¿¡Esto es Europa o unos dibujos animados!? 😂','¡Quiero uno de esos! 🤩','Paulo, ¿¡vimos lo mismo!?','¡Leyendas de la carretera! ★'],
+ fr:['C\'était un pastel de nata sur roues?!','C\'est l\'Europe ou un dessin animé?! 😂','J\'en veux une comme ça! 🤩','Paulo, on a vu la même chose?!','Légendes de la route! ★'],
+ de:['War das ein Törtchen auf Rädern?!','Ist das Europa oder ein Zeichentrick?! 😂','So einen will ich auch! 🤩','Paulo, haben wir dasselbe gesehen?!','Straßenlegenden! ★'],
+ pl:['To była babeczka na kółkach?!','To Europa czy kreskówka?! 😂','Chcę taki! 🤩','Paulo, widzieliśmy to samo?!','Legendy szos! ★']};
+const LEG_POP={pt:'★ LENDA NA ESTRADA ★',en:'★ ROAD LEGEND ★',it:'★ LEGGENDA IN STRADA ★',es:'★ LEYENDA EN LA CARRETERA ★',fr:'★ LÉGENDE DE LA ROUTE ★',de:'★ STRASSENLEGENDE ★',pl:'★ LEGENDA SZOS ★'};
+function legendCheck(c){if(!LEGSET.has(c.key)||c.ann||state!=='play')return;const rel=c.z-(position+playerZ);if(rel>0&&rel<segL*55){c.ann=1;popText(LEG_POP[LANG]||LEG_POP.en,1);setTimeout(()=>say('w',pick(Math.random,LEG_LINES[LANG]||LEG_LINES.en),2.4,true),400);score+=250;}}
 
 resize();buildSprites();buildEuroSprites();buildTrack();applyCtrl();
 {const c0=+store.get('chapter',0)||0;if(c0>0&&c0<=unlocked)loadChapter(c0);else updatePlayLabel();fetchGlobal();}
