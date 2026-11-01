@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#2b1055">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Racing+Sans+One&family=Yellowtail&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Pixelify+Sans:wght@600;700&family=Racing+Sans+One&family=Yellowtail&display=swap" rel="stylesheet">
 <title>Outrunning Portugal — Rota do Sol</title>
 <meta name="description" content="Arcade road trip from Porto to the Algarve: a sunset convertible, Luna 🌙, the driver made in Maia, police chases, tunnels and pastéis de nata. Play free on your phone.">
 <meta name="application-name" content="Outrunning Portugal">
@@ -2417,20 +2417,29 @@ function drawFigure(g,x,y,rot,who,sit,T,s){
   }
   g.restore();
 }
+const BFONT='"Pixelify Sans","Arial Black",sans-serif';
+try{document.fonts&&document.fonts.load('700 20px "Pixelify Sans"');}catch(e){}
+function pixBox(g,x,y,w,h,p,fill,bd,sh){ // 16-bit stepped-corner box
+  const path=(ox,oy)=>{g.beginPath();g.moveTo(x+ox+2*p,y+oy);g.lineTo(x+ox+w-2*p,y+oy);g.lineTo(x+ox+w-2*p,y+oy+p);g.lineTo(x+ox+w-p,y+oy+p);g.lineTo(x+ox+w-p,y+oy+2*p);g.lineTo(x+ox+w,y+oy+2*p);g.lineTo(x+ox+w,y+oy+h-2*p);g.lineTo(x+ox+w-p,y+oy+h-2*p);g.lineTo(x+ox+w-p,y+oy+h-p);g.lineTo(x+ox+w-2*p,y+oy+h-p);g.lineTo(x+ox+w-2*p,y+oy+h);g.lineTo(x+ox+2*p,y+oy+h);g.lineTo(x+ox+2*p,y+oy+h-p);g.lineTo(x+ox+p,y+oy+h-p);g.lineTo(x+ox+p,y+oy+h-2*p);g.lineTo(x+ox,y+oy+h-2*p);g.lineTo(x+ox,y+oy+2*p);g.lineTo(x+ox+p,y+oy+2*p);g.lineTo(x+ox+p,y+oy+p);g.lineTo(x+ox+2*p,y+oy+p);g.closePath();};
+  if(sh){path(p,p);g.fillStyle='rgba(0,0,0,.45)';g.fill();}
+  path(0,0);g.fillStyle=bd;g.fill();
+  g.save();g.translate(p,p);const w0=w,h0=h;w-=2*p;h-=2*p;path(0,0);g.fillStyle=fill;g.fill();w=w0;h=h0;g.restore();
+}
 function drawBubble(g,ax,ay,text,who,t,life,al_){
-  const sc=Math.min(1,t/0.12),al=Math.min(1,(life-t)/0.25);g.save();g.globalAlpha=al;
-  const fs=Math.round(Math.min(H,W*0.9)*0.074);g.font=`italic 900 ${fs}px "Arial Black",Impact,sans-serif`;
-  const maxW=FX.width*0.78-fs*1.1,words=text.split(' '),lines=[];let cur='';
+  const sc=Math.min(1,t/0.1),al=Math.min(1,(life-t)/0.2);g.save();g.globalAlpha=al;
+  const fs=Math.round(Math.min(H,W*0.9)*0.088),p=Math.max(3,Math.round(fs*0.16));g.font=`700 ${fs}px ${BFONT}`;
+  const maxW=FX.width*0.84-fs*1.2,words=text.split(' '),lines=[];let cur='';
   for(const wd of words){const tt=cur?cur+' '+wd:wd;if(g.measureText(tt).width>maxW&&cur){lines.push(cur);cur=wd;}else cur=tt;}lines.push(cur);
-  const tw=Math.max(...lines.map(l=>g.measureText(l).width)),lh=fs*1.15,w=(tw+fs*1.1)*sc,h=(lines.length*lh+fs*0.55)*sc;
-  const bx=clamp(al_==='L'?ax-w+fs*1.2:al_==='R'?ax-fs*1.2:ax-w/2,8,FX.width-w-8),by=Math.max(fs*0.9,ay-h-fs*0.8);
-  const col=who==='cop'?'#dbe8ff':who==='w'?'#fff0f6':'#ffffff',bd=who==='cop'?'#1f4fbf':who==='w'?'#d6336c':'#111';
-  g.fillStyle=col;g.strokeStyle=bd;g.lineWidth=Math.max(2,fs*0.14);
-  const tx=clamp(ax,bx+fs,bx+w-fs);g.beginPath();g.moveTo(tx-fs*0.4,by+h-2);g.lineTo(ax,Math.min(ay,by+h+fs*1.2));g.lineTo(tx+fs*0.4,by+h-2);g.closePath();g.fill();g.stroke();
-  rr(g,bx,by,w,h,fs*0.55);g.fill();g.stroke();
-  g.beginPath();g.moveTo(tx-fs*0.38,by+h-g.lineWidth);g.lineTo(tx+fs*0.38,by+h-g.lineWidth);g.strokeStyle=col;g.stroke();
-  if(sc>0.9){g.fillStyle=bd==='#111'?'#111':bd;g.textAlign='center';g.textBaseline='middle';lines.forEach((l,i)=>g.fillText(l,bx+w/2,by+fs*0.28+lh*(i+0.5)+1));
-    g.font=`italic 900 ${Math.round(fs*0.5)}px "Arial Black",sans-serif`;g.textAlign='left';g.fillStyle=bd;g.fillText(who==='d'?'MAIATO':who==='w'?'LUNA 🌙':((busted&&busted.cop)||copCfg()).name+' 👮',bx+fs*0.4,by-fs*0.3);}
+  const tw=Math.max(...lines.map(l=>g.measureText(l).width)),lh=fs*1.12,w=Math.round((tw+fs*1.2)*sc),h=Math.round((lines.length*lh+fs*0.7)*sc);
+  const bx=Math.round(clamp(al_==='L'?ax-w+fs*1.2:al_==='R'?ax-fs*1.2:ax-w/2,8,FX.width-w-8)),by=Math.round(Math.max(fs*1.3,ay-h-fs*0.9));
+  const col=who==='cop'?'#e4eeff':who==='w'?'#fff0f6':'#fffdf2',bd=who==='cop'?'#1f3fa8':who==='w'?'#c2185b':'#111',tc=who==='cop'?'#102a7a':who==='w'?'#9c0f4a':'#111';
+  // tail (stepped)
+  const tx=Math.round(clamp(ax,bx+fs*1.2,bx+w-fs*1.2)),ty=Math.min(ay,by+h+fs*1.1);
+  const steps=4;for(let i=0;i<steps;i++){const k=i/steps,yy=by+h-p+(ty-(by+h))*k,ww=fs*0.7*(1-k)+p*1.2,xx=lerp(tx,ax,k);g.fillStyle=bd;g.fillRect(Math.round(xx-ww/2-p),Math.round(yy),Math.round(ww+2*p),Math.ceil((ty-by-h)/steps)+p);g.fillStyle=col;g.fillRect(Math.round(xx-ww/2),Math.round(yy),Math.round(ww),Math.ceil((ty-by-h)/steps)+(i<steps-1?p:0));}
+  pixBox(g,bx,by,w,h,p,col,bd,true);
+  if(sc>0.9){g.fillStyle=tc;g.textAlign='center';g.textBaseline='middle';lines.forEach((l,i)=>g.fillText(l,bx+w/2,by+fs*0.36+lh*(i+0.5)));
+    const nm=who==='d'?'MAIATO':who==='w'?'LUNA 🌙':((busted&&busted.cop)||copCfg()).name+' 👮';g.font=`700 ${Math.round(fs*0.52)}px ${BFONT}`;const nw=g.measureText(nm).width+fs*0.6,nh=Math.round(fs*0.78);
+    pixBox(g,bx+fs*0.3,by-nh*0.62,nw,nh,Math.max(2,p*0.6),bd,bd,false);g.fillStyle='#fff';g.textAlign='left';g.fillText(nm,bx+fs*0.6,by-nh*0.62+nh/2+1);}
   g.restore();
 }
 function renderFX(){
@@ -2449,7 +2458,7 @@ function renderFX(){
   const s=carScale,cx=W,cy=(HZY+VS)*2-4;
   for(const b of bubbles){let ax,ay;
     if(b.who==='d'){if(busted&&busted.phase!=='stop'){ax=cx+10*s;ay=cy-150*s;}else{ax=cx-22*s-30;ay=cy-100*s;}}
-    else if(b.who==='w'){ax=cx+22*s+30;ay=cy-(crew.w.a==='stand'?124:100)*s;}
+    else if(b.who==='w'){if(busted&&busted.phase!=='stop'){ax=cx+30*s;ay=cy-150*s;}else{ax=cx+22*s+30;ay=cy-(crew.w.a==='stand'?124:100)*s;}}
     else if(busted&&busted.phase!=='stop'){const c=copScreen();ax=c.x;ay=c.y-172*c.k;}
     else{if(policeScr){const dw=0.29*roadW*policeScr.sc*HW*2;ax=policeScr.sx*2;ay=policeScr.sy*2-dw*0.8;if(ay<60||ax<0||ax>FX.width){ax=FX.width*0.8;ay=H*0.7;}}else{ax=FX.width*0.8;ay=H*0.7;}}
     drawBubble(fg,ax,ay,b.text,b.who,b.t,b.life,b.who==='d'?(busted&&busted.phase!=='stop'?'R':'L'):b.who==='w'?'R':'C');}
