@@ -1935,26 +1935,25 @@ function bp(k){const [n,a]=P_(k);return bagPick(n,a);}
 function bust(){
   police.phase='busted';const cop=copCfg();
   const comic=bp('comic'),verdict=bp('verdict');
-  const seq=[['cop',bp('hello')],['d',bp('rush')],['w',bp('luna')],['cop',comic[0],comic[1]]];
-  if(Math.random()<0.5)seq.push(['d',bp('back')]);
+  const seq=[['cop',bp('hello')],Math.random()<0.5?['d',bp('rush')]:['w',bp('luna')],['cop',comic[0],comic[1]]];
   seq.push(['cop',verdict[0],'write',verdict[1]]);
-  busted={t:0,seq,step:-1,next:3.0,phase:'stop',walk:0,anim:'idle',at:0,fine:verdict[1],ticket:null,fast:false,cop};
+  busted={t:0,seq,step:-1,next:2.2,phase:'stop',walk:0,anim:'idle',at:0,fine:verdict[1],ticket:null,fast:false,cop};
   say('cop',cop.local&&Math.random()<0.6?cop.local:bp('stop'),1.9,true);sfx('bump');setAnim('w','lookDriver',2.2);
 }
 function updateBusted(dt){
   const B=busted;if(B.fast)dt*=2.5;B.t+=dt;B.at+=dt;
   const pz=position+playerZ;police.z=lerp(police.z,pz+segL*(PORTRAIT?5.5:2.4),Math.min(1,dt*2.6));police.offset=lerp(police.offset,clamp(playerX-0.62,-1.4,1.4),Math.min(1,dt*2.4));
-  if(B.phase==='stop'&&B.t>1.2){B.phase='out';B.anim='walk';B.at=0;sfx('click');}
-  if(B.phase==='out'){B.walk=Math.min(1,B.walk+dt/1.7);if(B.walk>=1){B.phase='talk';B.anim='idle';B.at=0;B.next=Math.min(B.next,B.t+0.2);}else if(B.walk>0.45&&B.walk<0.62)B.anim='hitch';else B.anim='walk';}
+  if(B.phase==='stop'&&B.t>0.9){B.phase='out';B.anim='walk';B.at=0;sfx('click');}
+  if(B.phase==='out'){B.walk=Math.min(1,B.walk+dt/1.25);if(B.walk>=1){B.phase='talk';B.anim='idle';B.at=0;B.next=Math.min(B.next,B.t+0.2);}else if(B.walk>0.45&&B.walk<0.62)B.anim='hitch';else B.anim='walk';}
   if(B.phase==='talk'&&B.t>=B.next){B.step++;const L=B.seq[B.step];
     if(!L){B.phase='ticket';B.at=0;B.anim='give';B.ticket={t:0};sfx('pickup');
       if(B.fine){timeLeft=Math.max(0.5,timeLeft-B.fine);popText(T('fine')+' −'+B.fine+' s',2);sfx('over');}else popText(T('free'),1);
-      setTimeout(()=>{say('d',bp('dafter'),1.9,true);},350);}
-    else{say(L[0],L[1],2.15,true);B.next=B.t+2.1;if(L[0]==='cop'){B.anim=L[2]||'talk';B.at=0;}else B.anim='idle';
+      if(Math.random()<0.5)setTimeout(()=>{say('d',bp('dafter'),1.6,true);},300);}
+    else{say(L[0],L[1],1.95,true);B.next=B.t+1.9;if(L[0]==='cop'){B.anim=L[2]||'talk';B.at=0;}else B.anim='idle';
       if(L[0]==='d')setAnim('d','talk',2.0);if(L[0]==='w')setAnim('w',pick(Math.random,['wave','hairFix','lookDriver']),2.0);
       if(L[2]==='nata')setAnim('w','point',1.4);if(L[2]==='sing')sfx('pickup');}}
-  if(B.phase==='ticket'){if(B.ticket)B.ticket.t+=dt;if(B.at>1.5){B.phase='back';B.anim='walk';B.at=0;say('w',bp('lafter'),1.8,true);setAnim('w','wave',1.8);}}
-  if(B.phase==='back'){B.walk=Math.max(0,B.walk-dt/1.4);if(B.walk<=0){busted=null;police.phase='leave';police.speed=maxSpeed*0.5;sfx('click');}}
+  if(B.phase==='ticket'){if(B.ticket)B.ticket.t+=dt;if(B.at>1.1){B.phase='back';B.anim='walk';B.at=0;say('w',bp('lafter'),1.5,true);setAnim('w','wave',1.8);}}
+  if(B.phase==='back'){B.walk=Math.max(0,B.walk-dt/1.1);if(B.walk<=0){busted=null;police.phase='leave';police.speed=maxSpeed*0.5;sfx('click');}}
 }
 // the cop: very round, moustache, country hat — drawn on the FX canvas, feet at (x,y)
 function drawCop(g,x,y,k,anim,t,at,face){
@@ -4092,8 +4091,8 @@ function mirrorPortrait(g,img,cx,cy,w,h){
   g.restore();
 }
 function portraitLayout(){ // FX coords
-  const FW=FX.width,FH=FX.height,r=Math.round(FH*0.15);
-  return {paulo:{x:r+FW*0.035,y:FH*0.40,r},cop:{x:FW-r-FW*0.035,y:FH*0.40,r},luna:{x:FW/2,y:FH*0.13,w:FH*0.62,h:FH*0.26}};
+  const FW=FX.width,FH=FX.height,r=Math.round(FH*0.205);
+  return {paulo:{x:r+FW*0.03,y:FH*0.40,r},cop:{x:FW-r-FW*0.03,y:FH*0.40,r},luna:{x:FW/2,y:FH*0.17,w:FH*0.8,h:FH*0.33}};
 }
 function closeupsOn(){return busted&&!PORTRAIT&&['talk','ticket'].includes(busted.phase)&&state==='play';}
 let portT0=0;
