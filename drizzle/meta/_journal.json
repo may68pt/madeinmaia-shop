@@ -169,6 +169,13 @@
       "when": 1792242000000,
       "tag": "0023_maia_activity_map",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793490000000,
+      "tag": "0024_outrunning_scores",
+      "breakpoints": true
     }
   ]
 }

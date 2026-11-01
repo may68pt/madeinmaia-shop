@@ -154,7 +154,7 @@ table.hi tr.me td{color:#7dff9a}table.hi tr:nth-child(odd){background:rgba(31,95
 #pauseMap,#radioMap{width:clamp(110px,26vmin,170px);height:auto;border-radius:10px;border:2px solid rgba(255,210,63,.7)}
 #endMap{width:clamp(200px,46vmin,340px);height:auto;border-radius:10px;border:2px solid rgba(178,107,255,.7)}
 
-.setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,90vw),1fr));gap:6px 10px;width:min(96vw,900px)}
+.setlang{grid-column:1/-1}.setlang .seg{flex-wrap:wrap}.setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,90vw),1fr));gap:6px 10px;width:min(96vw,900px)}
 .set{background:rgba(10,4,30,.7);border:2px solid rgba(178,107,255,.5);border-radius:12px;padding:6px 9px;text-align:left;display:flex;flex-direction:column;gap:5px}
 .set b{font-style:italic;font-size:clamp(11px,2.8vmin,15px);color:#ffd23f}
 .set small{font-family:system-ui,sans-serif;font-size:clamp(9px,2.2vmin,12px);opacity:.8}
@@ -440,6 +440,38 @@ body.is-fs #fsBtn{display:none!important}
 .fsd{font-size:14px;opacity:.9;margin-bottom:8px}.fsbox ol{font-size:15px;line-height:1.5;padding-left:20px;margin:0 0 12px}.shr{display:inline-block;border:1.5px solid #fff;border-radius:4px;padding:0 4px;font-size:12px}
 .fsbox .big{width:100%}
 html,body{height:100%;height:100dvh;overscroll-behavior:none}
+
+/* ===== Euro Tour selection ===== */
+#tour{justify-content:flex-start;padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));gap:8px;overflow-y:auto;background:radial-gradient(ellipse at 50% 0%,#4a1a7a 0%,#1a0838 55%,#0a0420 100%)}
+#tour h2{margin:4px 0 0}
+.tourBody{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:980px}
+.tmapWrap{width:min(94vw,520px,calc(36vh * 1.357));border-radius:16px;overflow:hidden;border:2px solid rgba(178,107,255,.7);box-shadow:0 0 24px rgba(178,107,255,.35)}
+#tourMap{width:100%;height:auto;display:block;border:0;border-radius:0}
+.tcard{--cc:#ff3d7f;width:min(94vw,480px,calc(30vh * 1.6 + 26px));background:linear-gradient(180deg,rgba(40,10,70,.95),rgba(20,4,40,.95));border:3px solid var(--cc);border-radius:18px;padding:10px;box-shadow:0 0 0 2px rgba(255,255,255,.15),0 0 30px color-mix(in srgb,var(--cc) 55%,transparent);text-align:center}
+.tcard.flip{animation:tflip .45s cubic-bezier(.2,1.3,.4,1)}
+@keyframes tflip{from{transform:perspective(600px) rotateY(-25deg) scale(.92);opacity:.3}to{transform:none;opacity:1}}
+.tthumbWrap{position:relative;border-radius:12px;overflow:hidden;border:3px solid #fff;box-shadow:0 6px 0 rgba(0,0,0,.4)}
+#tThumb{width:100%;height:auto;display:block;image-rendering:pixelated}
+.tshine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.28) 50%,transparent 60%);background-size:250% 100%;animation:tsh 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes tsh{0%,40%{background-position:120% 0}100%{background-position:-120% 0}}
+.tlock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;text-shadow:0 4px 0 #000}
+.tlock.hidden{display:none}
+.tnum{position:absolute;top:6px;right:8px;font:900 13px "Arial Black",sans-serif;background:rgba(0,0,0,.55);padding:2px 8px;border-radius:99px}
+.tname{font-family:'Racing Sans One',sans-serif;font-size:clamp(26px,7vw,40px);color:#fff;text-shadow:0 3px 0 #000,0 0 14px var(--cc);margin-top:6px;line-height:1.05}
+.tname .tf{font-size:.9em}
+.ttag{font-family:system-ui,sans-serif;font-weight:700;font-size:13px;opacity:.85;margin-top:2px}
+.tstat{font-family:Oswald,sans-serif;font-weight:700;letter-spacing:.08em;font-size:13px;color:#ffd23f;margin:6px 0 8px}
+.tnav{display:flex;align-items:center;gap:10px}
+.tnav .mbtn.primary{flex:1;height:58px}
+.tnav .mbtn.primary b{font-size:28px}.tnav .mbtn.primary .ic{width:42px;height:42px}
+.tnav .mbtn.locked{filter:grayscale(1) brightness(.7);animation:none}
+.tarrow{width:54px;height:54px;border-radius:50%;border:3px solid #fff;background:linear-gradient(180deg,#5ee7ff,#1460a8);color:#fff;font-size:22px;box-shadow:0 4px 0 #0b3f6a;flex:none}
+.tarrow:active{transform:translateY(3px)}
+.tdots{display:flex;justify-content:center;gap:6px;margin-top:8px}
+.tdots i{width:9px;height:9px;border-radius:50%;background:#5a4a7a}.tdots i.done{background:#27ae60}.tdots i.on{background:#ffd23f;transform:scale(1.35);box-shadow:0 0 8px #ffd23f}
+@media (orientation:landscape){.tourBody{flex-direction:row;align-items:center;justify-content:center}.tmapWrap{width:min(52vw,600px)}.tcard{width:min(40vw,420px)}#tour h2 small{display:none}}
+.hitabs{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}.hitabs h3{margin:4px 0;font-family:Oswald,sans-serif;letter-spacing:.12em;color:#ffd23f;text-align:center}
+#nextBtn{background:linear-gradient(180deg,#5ee7ff,#1460a8)}
 </style>
 </head>
 <body>
@@ -531,7 +563,7 @@ html,body{height:100%;height:100dvh;overscroll-behavior:none}
     <button class="opt" id="saveBtn" style="margin-top:8px">💾 GUARDAR</button>
   </div>
   <div class="mapsrow"><canvas id="endMap" width="520" height="350"></canvas><table class="hi" id="overTable"></table></div>
-  <div class="row"><button class="big" id="againBtn">OUTRA VEZ!</button><button class="opt" id="menuBtn2">⌂ Menu</button></div>
+  <div class="row"><button class="big" id="nextBtn">PRÓXIMO PAÍS ▶</button><button class="big" id="againBtn">OUTRA VEZ!</button><button class="opt" id="menuBtn2">⌂ Menu</button></div>
 </div>
 
 
@@ -546,19 +578,27 @@ html,body{height:100%;height:100dvh;overscroll-behavior:none}
     <div class="set"><b>Vibração</b><div class="seg" data-k="vib"><button data-v="0">Não</button><button data-v="1">Sim</button></div></div>
     <div class="set"><b>Música 🎵</b><input type="range" min="0" max="100" step="5" id="volM"></div>
     <div class="set"><b>Efeitos 🔊</b><input type="range" min="0" max="100" step="5" id="volS"></div>
+    <div class="set setlang"><b>Idioma 🌍</b><div class="seg" data-k="lang"><button data-v="pt">🇵🇹 PT</button><button data-v="en">🇬🇧 EN</button><button data-v="it">🇮🇹 IT</button><button data-v="es">🇪🇸 ES</button><button data-v="fr">🇫🇷 FR</button><button data-v="de">🇩🇪 DE</button><button data-v="pl">🇵🇱 PL</button></div></div>
   </div>
   <button class="big" id="setBack">OK</button>
 </div>
 
 <div id="tour" class="screen hidden">
-  <h2>EURO TOUR<small>START &amp; FINISH IN PORTUGAL</small></h2>
-  <canvas id="tourMap" width="760" height="500"></canvas>
-  <div class="tourlist"><b>1 · PORTUGAL</b> disponível ✓ · <span>2 · Espanha · 3 · França · 4 · Itália · 5 · Suíça · 6 · Alemanha · 7 · Holanda · 8 · Bélgica · 9 · Reino Unido</span> · em breve</div>
-  <button class="big" id="tourBack">VOLTAR</button>
+  <h2>EURO TOUR<small>ESCOLHE A PISTA · START &amp; FINISH IN PORTUGAL</small></h2>
+  <div class="tourBody">
+    <div class="tmapWrap"><canvas id="tourMap" width="760" height="560"></canvas></div>
+    <div class="tcard" id="tcard">
+      <div class="tthumbWrap"><canvas id="tThumb" width="480" height="300"></canvas><div class="tlock hidden" id="tLock">🔒</div><div class="tnum" id="tNum">1/10</div><div class="tshine"></div></div>
+      <div class="tname" id="tName"></div><div class="ttag" id="tTag"></div><div class="tstat" id="tStat"></div>
+      <div class="tnav"><button class="tarrow" id="tPrev">◀</button><button class="mbtn primary" id="tPlay"><i class="ic">▶</i><b>JOGAR</b></button><button class="tarrow" id="tNext">▶</button></div>
+      <div class="tdots" id="tDots"></div>
+    </div>
+  </div>
+  <button class="opt" id="tourBack">⌂ VOLTAR</button>
 </div>
 <div id="hiscore" class="screen hidden">
   <h2>RECORDES<small>HIGH SCORES · TOP 10</small></h2>
-  <table class="hi" id="hiTable"></table>
+  <div class="hitabs"><div><h3>🌍 MUNDIAL</h3><table class="hi" id="hiTableG"></table></div><div><h3>📱 ESTE TELEMÓVEL</h3><table class="hi" id="hiTable"></table></div></div>
   <button class="big" id="hiBack">VOLTAR</button>
   <div class="small">Guardados neste dispositivo</div>
 </div>
@@ -893,20 +933,6 @@ function bica(){return mk(56,60,(g,w,h)=>{
   ell(g,w/2,h-40,13,4,'#3b2314');ell(g,w/2-3,h-41,5,1.5,'#7a4a2a');
   poly(g,[w/2+3,1,w/2-10,23,w/2-1,23,w/2-6,38,w/2+10,14,w/2+1,14,w/2+6,1],'#ffd23f');g.strokeStyle='#b5121b';g.lineWidth=1.5;g.stroke();
 });}
-function policeCar(lit){return mk(104,86,(g,w,h)=>{
-  const o=12;
-  ell(g,w/2,h-4,w*0.48,5,'rgba(0,0,0,.3)');
-  g.fillStyle='#111';rr(g,8,o+46,18,24,4);g.fill();rr(g,w-26,o+46,18,24,4);g.fill();
-  g.fillStyle='#f4f6f8';rr(g,6,o+30,w-12,32,8);g.fill();
-  poly(g,[18,o+32,27,o+6,w-27,o+6,w-18,o+32],'#dfe3e8');poly(g,[24,o+30,31,o+10,w-31,o+10,w-24,o+30],'#2b3a55');
-  for(let x=6;x<w-6;x+=8){const k=((x-6)/8)|0;g.fillStyle=k%2?'#1f4fbf':'#f4f6f8';g.fillRect(x,o+46,8,5);g.fillStyle=k%2?'#f4f6f8':'#1f4fbf';g.fillRect(x,o+51,8,5);}
-  g.fillStyle='#1f4fbf';g.font='bold 9px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('POLÍCIA',w/2,o+40);
-  g.fillStyle='#ff3030';rr(g,9,o+35,14,7,2);g.fill();rr(g,w-23,o+35,14,7,2);g.fill();
-  g.fillStyle='#222';rr(g,8,o+57,w-16,6,3);g.fill();
-  g.fillStyle='#222';rr(g,w/2-24,o-3,48,9,3);g.fill();
-  g.fillStyle=lit?'#ff2a2a':'#5a1010';rr(g,w/2-22,o-2,21,7,2);g.fill();g.fillStyle=lit?'#1a3a6a':'#2a7bff';rr(g,w/2+1,o-2,21,7,2);g.fill();
-  const gx=lit?w/2-12:w/2+12,rg=g.createRadialGradient(gx,o,1,gx,o,18);rg.addColorStop(0,lit?'rgba(255,40,40,.7)':'rgba(60,140,255,.7)');rg.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=rg;g.fillRect(gx-18,0,36,o+18);
-});}
 function radarSign(){return mk(120,150,(g,w,h)=>{
   g.fillStyle='#777';g.fillRect(w/2-3,70,6,h-70);
   g.fillStyle='#0b4ea2';rr(g,6,4,w-12,74,8);g.fill();g.strokeStyle='#fff';g.lineWidth=3;rr(g,10,8,w-20,66,6);g.stroke();
@@ -1107,7 +1133,7 @@ const EU={
 };
 const TOUR=[['PT','PORTUGAL',-8.2,39.7],['ES','ESPANHA',-3.7,40.3],['FR','FRANÇA',2.4,46.8],['IT','ITÁLIA',12.6,42.6],['CH','SUÍÇA',8.1,46.8],['DE','ALEMANHA',10.4,51.0],['NL','HOLANDA',5.4,52.3],['BE','BÉLGICA',4.6,50.6],['GB','REINO UNIDO',-1.6,52.8]];
 function drawPoly(g,pts,P){g.beginPath();pts.forEach((p,i)=>{const [x,y]=P(p[0],p[1]);i?g.lineTo(x,y):g.moveTo(x,y);});g.closePath();}
-function drawEuroMap(g,w,h,T,o={}){
+function drawEuroMapOld(g,w,h,T,o={}){
   g.clearRect(0,0,w,h);
   const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#0c0626');bg.addColorStop(1,'#1d0b3e');g.fillStyle=bg;g.fillRect(0,0,w,h);
   g.strokeStyle='rgba(255,61,127,.12)';g.lineWidth=1;for(let x=0;x<w;x+=w/16){g.beginPath();g.moveTo(x,0);g.lineTo(x,h);g.stroke();}for(let y=0;y<h;y+=h/10){g.beginPath();g.moveTo(0,y);g.lineTo(w,y);g.stroke();}
@@ -1321,13 +1347,13 @@ function buildSprites(){
 }
 
 // ------------------------------------------------------------------ Portugal chapter: 4 stages (legs), each made of zones
-const LEGS=[
+let LEGS=[
  {name:'PORTO & NORTE',bonus:66},
  {name:'CENTRO',bonus:70},
  {name:'LISBOA',bonus:46},
  {name:'ALGARVE',bonus:42}
 ];
-const STAGES=[
+let STAGES=[
  {key:'porto',leg:0,birds:true,name:'PORTO',sub:'Ribeira · Sé · Clérigos · Aliados',curvy:.6,hilly:1,len:1000,tunnels:1,facade:'#7d7468',radars:1,
   road:['#6e6a72','#67636b'],grass:['#7d8a5a','#727f51'],rumble:['#d7263d','#f4f4f4'],lane:'#f4f4f4',fog:'#e9867a',fogD:4,
   sky:[['#1b1040',0],['#6a2c70',.35],['#e85d75',.72],['#ffb070',1]],sun:{r:48,y:110,x:1300,c:['#fff3a0','#ff7b54'],stripes:true},
@@ -1427,7 +1453,7 @@ function addRoad(enter,hold,leave,curve,y){
 }
 function addSprite(i,key,offset,extra){if(i<0||i>=segments.length||!SP[key])return;segments[i].sprites.push(Object.assign({key,offset},extra||{}));}
 // difficulty ramp: 0 on the first zone → 1 on the last
-const diffOf=si=>clamp(si/(STAGES.length-1),0,1);
+const diffOf=si=>clamp(0.7*si/Math.max(1,STAGES.length-1)+0.1*chapter,0,1);
 const DIFF=()=>diffOf(stageIdx);
 function buildTrack(){
   segments=[];stageStart=[];cpIdx=[];
@@ -1463,7 +1489,7 @@ function decorate(){
       const ks=Array.isArray(keys)?keys:[keys];
       for(let i=a+ri;i<b;i+=every)for(const side of [-1,1])if(R()<ch)addSprite(i+((R()*every*0.5)|0),pick(R,ks),side*(o0+R()*(o1-o0)));
     });
-    st.marks.forEach(([k,off,n],mi)=>{for(let j=0;j<n;j++){let i=a+Math.floor((j+0.5)/n*(b-a))+((R()*40)|0)-20+(n===1?(mi%3-1)*90:0);i=clamp(i,a+10,b-10);let g=0;while(segments[i].tunnel&&g++<40)i=i+30<b?i+30:a+15+g*7;const side=R()<.5?-1:1;const LM=new Set(['seP','carmo','saoBento','camara','batalha','obidos','fatima','nazare','jeronimos','belem','evora','silves','uniTower','clerigos','mouros','chimney']);const o2=LM.has(k)?Math.min(off,1.75):off;for(let q=Math.max(0,i-12);q<Math.min(segments.length,i+4);q++)segments[q].sprites=segments[q].sprites.filter(s=>s.pickup||s.over||LM.has(s.key)||s.key==='radar'||Math.sign(s.offset)!==side||Math.abs(s.offset)<1.05||(q!==i&&Math.abs(s.offset)>o2+(SP[k].ww||1)+1));addSprite(i,k,side*o2);}});
+    st.marks.forEach(([k,off,n],mi)=>{for(let j=0;j<n;j++){let i=a+Math.floor((j+0.5)/n*(b-a))+((R()*40)|0)-20+(n===1?(mi%3-1)*90:0);i=clamp(i,a+10,b-10);let g=0;while(segments[i].tunnel&&g++<40)i=i+30<b?i+30:a+15+g*7;const side=R()<.5?-1:1;const LM=LMSET;const o2=LM.has(k)?Math.min(off,1.75):off;for(let q=Math.max(0,i-12);q<Math.min(segments.length,i+4);q++)segments[q].sprites=segments[q].sprites.filter(s=>s.pickup||s.over||LM.has(s.key)||s.key==='radar'||Math.sign(s.offset)!==side||Math.abs(s.offset)<1.05||(q!==i&&Math.abs(s.offset)>o2+(SP[k].ww||1)+1));addSprite(i,k,side*o2);}});
     let bi=0;for(let i=a+40;i<b-20;i+=95){const side=bi%2?1:-1;const B=st.boards[bi%st.boards.length];const key=`board_${si}_${bi%st.boards.length}`;
       if(!SP[key]){const cc=boardCols[(si+bi)%boardCols.length];SP[key]={img:board(B[0],B[1],cc[0],cc[1]),ww:1.15,hit:0.9};}
       addSprite(i,key,side*1.3);bi++;}
@@ -1503,7 +1529,8 @@ function buildBG(si){
   });
   let far,near;
   const key=st.key;
-  if(key==='porto'){
+  if(st.bg){const o=genericBG(st,R);far=o.far;near=o.near;}
+  else if(key==='porto'){
     far=mk(LW,LH,g=>{clouds(g,R,'rgba(255,170,190,.45)',7);ridge(g,150,45,1.3,'#5a2d63',KS1);
       for(let x=0;x<LW;x+=7){const top=rY(x+3,150,45,1.3,KS1);for(let y=top+4;y<LH;y+=7){if(R()<.85){g.fillStyle=pick(R,['#8e4f7a','#a0607a','#7a4a80','#b07070','#6e4a7a','#9a5a6a']);g.fillRect(x,y,6,6);g.fillStyle='#6a3050';g.fillRect(x,y,6,1);if(R()<.3){g.fillStyle='#ffd27a';g.fillRect(x+2,y+2,2,2);}}}}
       const cx=300,ct=rY(cx,150,45,1.3,KS1);g.fillStyle='#45204d';g.fillRect(cx-4,ct-64,8,66);g.fillRect(cx-7,ct-34,14,36);circ(g,cx,ct-64,5,'#45204d');g.fillRect(cx-1,ct-78,2,10);
@@ -1722,7 +1749,7 @@ function honk(){sfx('honk');}
 
 // ------------------------------------------------------------------ police (radar-triggered chase)
 function startPolice(){
-  if(police||busted)return;
+  if(police||busted)return;refreshPoliceCar();
   police={z:position-24*segL,offset:clamp(playerX,-0.8,0.8)+(Math.random()<.5?-0.7:0.7),speed:maxSpeed*1.1,t:0,phase:'chase'};
   flashT=0.3;sfx('flash');popText('📸 RADAR! '+Math.round(speed/maxSpeed*294)+' km/h',1);
   setTimeout(()=>{if(police)say('cop',pick(Math.random,['ALTO! POLÍCIA! 🚨','ENCOSTE JÁ! 🚨']),2.2,true);},500);
@@ -1759,88 +1786,245 @@ function bagPick(name,arr){
   const i=q.shift();try{localStorage.setItem(key,JSON.stringify(q));}catch(e){}return arr[i];
 }
 const BUST_LINES=[]; // legacy
+
+// ================================================================== i18n: PT · EN · IT · ES · FR · DE · PL
+const LANGS=[['pt','🇵🇹','Português'],['en','🇬🇧','English'],['it','🇮🇹','Italiano'],['es','🇪🇸','Español'],['fr','🇫🇷','Français'],['de','🇩🇪','Deutsch'],['pl','🇵🇱','Polski']];
+const I18N={
+pt:{play:'JOGAR',tour:'EURO TOUR',opts:'OPÇÕES',records:'RECORDES',record:'RECORDE',radio:'ESCOLHE A RÁDIO',go:'ARRANCAR!',radioTip:'🥧 10 natas = +5 s · ⚡ apanha bicas turbo · 📸 cuidado com os radares!',pause:'PAUSA ☕',resume:'CONTINUAR',settings:'⚙️ Definições',restart:'↺ Recomeçar',menu:'⌂ Menu',timeUp:'ACABOU O TEMPO!',newRec:'🏆 NOVO RECORDE! Escreve as tuas iniciais',save:'💾 GUARDAR',next:'PRÓXIMO PAÍS ▶',again:'OUTRA VEZ!',setT:'DEFINIÇÕES',ctrl:'Controlo',btns:'🎮 Botões',tilt:'📱 Inclinar',sens:'Sensibilidade da inclinação',recal:'🎯 Recalibrar',pedals:'Pedais',left:'◀ Esquerda',right:'Direita ▶',auto:'Auto-acelerar',autoD:'Se ligado, o carro acelera sozinho — só viras e travas.',no:'Não',yes:'Sim',gfx:'Qualidade gráfica',gfxD:'Alta = mais detalhe (telemóveis recentes).',normal:'Normal',high:'Alta HD',vib:'Vibração',music:'Música 🎵',fx:'Efeitos 🔊',lang:'Idioma 🌍',tourS:'ESCOLHE A PISTA · COMEÇA E ACABA EM PORTUGAL',back:'⌂ VOLTAR',locked:'BLOQUEADO',unlockHint:'🔒 Termina {x} para desbloquear',complete:'✅ COMPLETO',nextTrack:'🏁 PRÓXIMA PISTA',zones:'zonas',world:'🌍 MUNDIAL',device:'📱 ESTE TELEMÓVEL',loading:'🌍 A carregar o ranking mundial…',noRec:'Ainda sem recordes — sê o primeiro! 🌙',time:'TEMPO',points:'PONTOS',natas:'NATAS',turbo:'TURBO',stage:'ETAPA',gas:'ACELERAR',brake:'TRAVAR',checkpoint:'CHECKPOINT!',goNow:'VAI!',fine:'MULTA',free:'LIVRE! 🍀',tapFast:'toca para acelerar ⏩',reached:'Chegaste a',trip:'Viagem',bonus:'Bónus',passes:'Ultrapassagens',pts:'Pontos',start:'PARTIDA',goal:'META',greet:'Saudações de',departure:'Partida de',nextC:'PRÓXIMO',tourDone:'EURO TOUR COMPLETO! 🏆',arrived:'CHEGÁMOS A',saved:'Guardado neste dispositivo',fsT:'📱 ECRÃ INTEIRO',fsD:'No iPhone, o Safari não deixa os jogos ocuparem o ecrã todo. Instala o jogo e abre-o pelo ícone:',fs1:'Toca em <b>Partilhar</b> ⬆︎ na barra do Safari',fs2:'Escolhe <b>Adicionar ao Ecrã Principal</b> ➕',fs3:'Abre o <b>Outrunning PT</b> pelo ícone — sem barras! 🏁',fsOk:'OK, PERCEBI',
+ count:['Apertem os cintos!','Rumo à meta!','Luna pronta? 🌙','Motor quente, bica tomada ☕','Made in Maia, vai!'],pauseM:['☕ A Luna foi buscar uma bica…','🗺️ O maiato está a estudar o mapa','🥧 Pausa para um pastel de nata','📸 A Luna está a tirar uma selfie com a vista'],overM:['Tempo esgotado — mas a vista valeu a pena 🌅','A Luna diz: “para a próxima, menos selfies” 📸','Até um tuk-tuk teria conseguido! 🛺'],winM:['A Luna já está a dançar 🌙','Made in Maia, finished in style 🏁','Mais um país conquistado! 🇪🇺']},
+en:{play:'PLAY',tour:'EURO TOUR',opts:'OPTIONS',records:'SCORES',record:'BEST',radio:'PICK YOUR STATION',go:'GO!',radioTip:'🥧 10 tarts = +5 s · ⚡ grab espresso boosts · 📸 watch out for speed cameras!',pause:'PAUSED ☕',resume:'RESUME',settings:'⚙️ Settings',restart:'↺ Restart',menu:'⌂ Menu',timeUp:'TIME\'S UP!',newRec:'🏆 NEW RECORD! Enter your initials',save:'💾 SAVE',next:'NEXT COUNTRY ▶',again:'AGAIN!',setT:'SETTINGS',ctrl:'Controls',btns:'🎮 Buttons',tilt:'📱 Tilt',sens:'Tilt sensitivity',recal:'🎯 Recalibrate',pedals:'Pedals',left:'◀ Left',right:'Right ▶',auto:'Auto-accelerate',autoD:'When on, the car accelerates by itself — you just steer and brake.',no:'No',yes:'Yes',gfx:'Graphics quality',gfxD:'High = more detail (recent phones).',normal:'Normal',high:'High HD',vib:'Vibration',music:'Music 🎵',fx:'Sound FX 🔊',lang:'Language 🌍',tourS:'PICK A TRACK · START & FINISH IN PORTUGAL',back:'⌂ BACK',locked:'LOCKED',unlockHint:'🔒 Finish {x} to unlock',complete:'✅ COMPLETE',nextTrack:'🏁 NEXT TRACK',zones:'zones',world:'🌍 WORLDWIDE',device:'📱 THIS PHONE',loading:'🌍 Loading world ranking…',noRec:'No scores yet — be the first! 🌙',time:'TIME',points:'SCORE',natas:'TARTS',turbo:'TURBO',stage:'STAGE',gas:'GAS',brake:'BRAKE',checkpoint:'CHECKPOINT!',goNow:'GO!',fine:'FINE',free:'FREE! 🍀',tapFast:'tap to fast-forward ⏩',reached:'You reached',trip:'Trip',bonus:'Bonus',passes:'Overtakes',pts:'Score',start:'START',goal:'FINISH',greet:'Greetings from',departure:'Leaving',nextC:'NEXT',tourDone:'EURO TOUR COMPLETE! 🏆',arrived:'WE MADE IT TO',saved:'Saved on this device',fsT:'📱 FULL SCREEN',fsD:'On iPhone, Safari won\'t let games use the whole screen. Install the game and open it from its icon:',fs1:'Tap <b>Share</b> ⬆︎ in Safari\'s bar',fs2:'Choose <b>Add to Home Screen</b> ➕',fs3:'Open <b>Outrunning PT</b> from the icon — no bars! 🏁',fsOk:'OK, GOT IT',
+ count:['Buckle up!','Next stop: the finish!','Ready, Luna? 🌙','Engine warm, espresso down ☕','Made in Maia, go!'],pauseM:['☕ Luna went for an espresso…','🗺️ The driver is studying the map','🥧 Custard tart break','📸 Luna is taking a selfie with the view'],overM:['Out of time — but what a view 🌅','Luna says: “fewer selfies next time” 📸','Even a tuk-tuk would have made it! 🛺'],winM:['Luna is already dancing 🌙','Made in Maia, finished in style 🏁','Another country conquered! 🇪🇺']},
+it:{play:'GIOCA',tour:'EURO TOUR',opts:'OPZIONI',records:'RECORD',record:'RECORD',radio:'SCEGLI LA RADIO',go:'VIA!',radioTip:'🥧 10 pasticcini = +5 s · ⚡ prendi gli espresso turbo · 📸 attenzione agli autovelox!',pause:'PAUSA ☕',resume:'CONTINUA',settings:'⚙️ Impostazioni',restart:'↺ Ricomincia',menu:'⌂ Menu',timeUp:'TEMPO SCADUTO!',newRec:'🏆 NUOVO RECORD! Scrivi le tue iniziali',save:'💾 SALVA',next:'PROSSIMO PAESE ▶',again:'ANCORA!',setT:'IMPOSTAZIONI',ctrl:'Controlli',btns:'🎮 Pulsanti',tilt:'📱 Inclina',sens:'Sensibilità inclinazione',recal:'🎯 Ricalibra',pedals:'Pedali',left:'◀ Sinistra',right:'Destra ▶',auto:'Accelerazione auto',autoD:'Se attiva, l\'auto accelera da sola — tu sterzi e freni.',no:'No',yes:'Sì',gfx:'Qualità grafica',gfxD:'Alta = più dettagli (telefoni recenti).',normal:'Normale',high:'Alta HD',vib:'Vibrazione',music:'Musica 🎵',fx:'Effetti 🔊',lang:'Lingua 🌍',tourS:'SCEGLI LA PISTA · INIZIO E FINE IN PORTOGALLO',back:'⌂ INDIETRO',locked:'BLOCCATO',unlockHint:'🔒 Completa {x} per sbloccare',complete:'✅ COMPLETATO',nextTrack:'🏁 PROSSIMA PISTA',zones:'zone',world:'🌍 MONDIALE',device:'📱 QUESTO TELEFONO',loading:'🌍 Caricamento classifica mondiale…',noRec:'Ancora nessun record — sii il primo! 🌙',time:'TEMPO',points:'PUNTI',natas:'DOLCI',turbo:'TURBO',stage:'TAPPA',gas:'GAS',brake:'FRENO',checkpoint:'CHECKPOINT!',goNow:'VIA!',fine:'MULTA',free:'LIBERO! 🍀',tapFast:'tocca per accelerare ⏩',reached:'Sei arrivato a',trip:'Viaggio',bonus:'Bonus',passes:'Sorpassi',pts:'Punti',start:'PARTENZA',goal:'ARRIVO',greet:'Saluti da',departure:'Partenza da',nextC:'PROSSIMO',tourDone:'EURO TOUR COMPLETATO! 🏆',arrived:'SIAMO ARRIVATI A',saved:'Salvati su questo dispositivo',fsT:'📱 SCHERMO INTERO',fsD:'Su iPhone, Safari non permette ai giochi di usare tutto lo schermo. Installa il gioco e aprilo dall\'icona:',fs1:'Tocca <b>Condividi</b> ⬆︎ nella barra di Safari',fs2:'Scegli <b>Aggiungi alla schermata Home</b> ➕',fs3:'Apri <b>Outrunning PT</b> dall\'icona — senza barre! 🏁',fsOk:'OK, CAPITO',
+ count:['Allacciate le cinture!','Verso il traguardo!','Pronta, Luna? 🌙','Motore caldo, espresso bevuto ☕','Made in Maia, via!'],pauseM:['☕ Luna è andata a prendere un espresso…','🗺️ Il pilota studia la mappa','🥧 Pausa pasticcino','📸 Luna si fa un selfie col panorama'],overM:['Tempo scaduto — ma che vista 🌅','Luna dice: “la prossima volta meno selfie” 📸','Anche un tuk-tuk ce l\'avrebbe fatta! 🛺'],winM:['Luna sta già ballando 🌙','Made in Maia, finito con stile 🏁','Un altro paese conquistato! 🇪🇺']},
+es:{play:'JUGAR',tour:'EURO TOUR',opts:'OPCIONES',records:'RÉCORDS',record:'RÉCORD',radio:'ELIGE LA RADIO',go:'¡ARRANCA!',radioTip:'🥧 10 pasteles = +5 s · ⚡ coge cafés turbo · 📸 ¡cuidado con los radares!',pause:'PAUSA ☕',resume:'CONTINUAR',settings:'⚙️ Ajustes',restart:'↺ Reiniciar',menu:'⌂ Menú',timeUp:'¡SE ACABÓ EL TIEMPO!',newRec:'🏆 ¡NUEVO RÉCORD! Escribe tus iniciales',save:'💾 GUARDAR',next:'SIGUIENTE PAÍS ▶',again:'¡OTRA VEZ!',setT:'AJUSTES',ctrl:'Control',btns:'🎮 Botones',tilt:'📱 Inclinar',sens:'Sensibilidad de inclinación',recal:'🎯 Recalibrar',pedals:'Pedales',left:'◀ Izquierda',right:'Derecha ▶',auto:'Auto-acelerar',autoD:'Si está activo, el coche acelera solo — tú giras y frenas.',no:'No',yes:'Sí',gfx:'Calidad gráfica',gfxD:'Alta = más detalle (móviles recientes).',normal:'Normal',high:'Alta HD',vib:'Vibración',music:'Música 🎵',fx:'Efectos 🔊',lang:'Idioma 🌍',tourS:'ELIGE LA PISTA · EMPIEZA Y TERMINA EN PORTUGAL',back:'⌂ VOLVER',locked:'BLOQUEADO',unlockHint:'🔒 Termina {x} para desbloquear',complete:'✅ COMPLETADO',nextTrack:'🏁 SIGUIENTE PISTA',zones:'zonas',world:'🌍 MUNDIAL',device:'📱 ESTE MÓVIL',loading:'🌍 Cargando el ranking mundial…',noRec:'Aún no hay récords — ¡sé el primero! 🌙',time:'TIEMPO',points:'PUNTOS',natas:'PASTELES',turbo:'TURBO',stage:'ETAPA',gas:'ACELERAR',brake:'FRENAR',checkpoint:'¡CHECKPOINT!',goNow:'¡YA!',fine:'MULTA',free:'¡LIBRE! 🍀',tapFast:'toca para acelerar ⏩',reached:'Llegaste a',trip:'Viaje',bonus:'Bonus',passes:'Adelantamientos',pts:'Puntos',start:'SALIDA',goal:'META',greet:'Saludos desde',departure:'Salida de',nextC:'SIGUIENTE',tourDone:'¡EURO TOUR COMPLETADO! 🏆',arrived:'¡LLEGAMOS A',saved:'Guardados en este dispositivo',fsT:'📱 PANTALLA COMPLETA',fsD:'En iPhone, Safari no deja que los juegos usen toda la pantalla. Instala el juego y ábrelo desde el icono:',fs1:'Toca <b>Compartir</b> ⬆︎ en la barra de Safari',fs2:'Elige <b>Añadir a pantalla de inicio</b> ➕',fs3:'Abre <b>Outrunning PT</b> desde el icono — ¡sin barras! 🏁',fsOk:'VALE, ENTENDIDO',
+ count:['¡Abróchense los cinturones!','¡Rumbo a la meta!','¿Lista, Luna? 🌙','Motor caliente, café tomado ☕','¡Made in Maia, vamos!'],pauseM:['☕ Luna fue a por un café…','🗺️ El conductor estudia el mapa','🥧 Pausa para un pastel de nata','📸 Luna se hace un selfie con la vista'],overM:['Sin tiempo — pero qué vistas 🌅','Luna dice: “la próxima, menos selfies” 📸','¡Hasta un tuk-tuk lo habría logrado! 🛺'],winM:['Luna ya está bailando 🌙','Made in Maia, terminado con estilo 🏁','¡Otro país conquistado! 🇪🇺']},
+fr:{play:'JOUER',tour:'EURO TOUR',opts:'OPTIONS',records:'RECORDS',record:'RECORD',radio:'CHOISIS TA RADIO',go:'C\'EST PARTI!',radioTip:'🥧 10 pâtisseries = +5 s · ⚡ attrape les expressos turbo · 📸 attention aux radars!',pause:'PAUSE ☕',resume:'CONTINUER',settings:'⚙️ Réglages',restart:'↺ Recommencer',menu:'⌂ Menu',timeUp:'TEMPS ÉCOULÉ!',newRec:'🏆 NOUVEAU RECORD! Entre tes initiales',save:'💾 ENREGISTRER',next:'PAYS SUIVANT ▶',again:'ENCORE!',setT:'RÉGLAGES',ctrl:'Contrôles',btns:'🎮 Boutons',tilt:'📱 Inclinaison',sens:'Sensibilité de l\'inclinaison',recal:'🎯 Recalibrer',pedals:'Pédales',left:'◀ Gauche',right:'Droite ▶',auto:'Accélération auto',autoD:'Activé, la voiture accélère seule — tu tournes et tu freines.',no:'Non',yes:'Oui',gfx:'Qualité graphique',gfxD:'Haute = plus de détails (téléphones récents).',normal:'Normale',high:'Haute HD',vib:'Vibration',music:'Musique 🎵',fx:'Effets 🔊',lang:'Langue 🌍',tourS:'CHOISIS LA PISTE · DÉPART ET ARRIVÉE AU PORTUGAL',back:'⌂ RETOUR',locked:'VERROUILLÉ',unlockHint:'🔒 Termine {x} pour débloquer',complete:'✅ TERMINÉ',nextTrack:'🏁 PISTE SUIVANTE',zones:'zones',world:'🌍 MONDIAL',device:'📱 CE TÉLÉPHONE',loading:'🌍 Chargement du classement mondial…',noRec:'Pas encore de records — sois le premier! 🌙',time:'TEMPS',points:'POINTS',natas:'NATAS',turbo:'TURBO',stage:'ÉTAPE',gas:'GAZ',brake:'FREIN',checkpoint:'CHECKPOINT!',goNow:'PARTEZ!',fine:'AMENDE',free:'LIBRE! 🍀',tapFast:'touche pour accélérer ⏩',reached:'Tu as atteint',trip:'Voyage',bonus:'Bonus',passes:'Dépassements',pts:'Points',start:'DÉPART',goal:'ARRIVÉE',greet:'Bons baisers de',departure:'Départ de',nextC:'SUIVANT',tourDone:'EURO TOUR TERMINÉ! 🏆',arrived:'ON EST ARRIVÉS À',saved:'Enregistrés sur cet appareil',fsT:'📱 PLEIN ÉCRAN',fsD:'Sur iPhone, Safari ne laisse pas les jeux occuper tout l\'écran. Installe le jeu et ouvre-le depuis son icône :',fs1:'Touche <b>Partager</b> ⬆︎ dans la barre de Safari',fs2:'Choisis <b>Sur l\'écran d\'accueil</b> ➕',fs3:'Ouvre <b>Outrunning PT</b> depuis l\'icône — sans barres! 🏁',fsOk:'OK, COMPRIS',
+ count:['Attachez vos ceintures!','Cap sur l\'arrivée!','Prête, Luna? 🌙','Moteur chaud, expresso avalé ☕','Made in Maia, go!'],pauseM:['☕ Luna est partie chercher un expresso…','🗺️ Le pilote étudie la carte','🥧 Pause pastel de nata','📸 Luna fait un selfie avec la vue'],overM:['Temps écoulé — mais quelle vue 🌅','Luna dit : « moins de selfies la prochaine fois » 📸','Même un tuk-tuk y serait arrivé! 🛺'],winM:['Luna danse déjà 🌙','Made in Maia, fini avec style 🏁','Encore un pays conquis! 🇪🇺']},
+de:{play:'SPIELEN',tour:'EURO TOUR',opts:'OPTIONEN',records:'BESTENLISTE',record:'REKORD',radio:'WÄHLE DEINEN SENDER',go:'LOS!',radioTip:'🥧 10 Törtchen = +5 s · ⚡ schnapp dir Espresso-Turbos · 📸 Vorsicht, Blitzer!',pause:'PAUSE ☕',resume:'WEITER',settings:'⚙️ Einstellungen',restart:'↺ Neustart',menu:'⌂ Menü',timeUp:'ZEIT ABGELAUFEN!',newRec:'🏆 NEUER REKORD! Gib deine Initialen ein',save:'💾 SPEICHERN',next:'NÄCHSTES LAND ▶',again:'NOCHMAL!',setT:'EINSTELLUNGEN',ctrl:'Steuerung',btns:'🎮 Tasten',tilt:'📱 Neigen',sens:'Neigungs-Empfindlichkeit',recal:'🎯 Kalibrieren',pedals:'Pedale',left:'◀ Links',right:'Rechts ▶',auto:'Auto-Gas',autoD:'Wenn an, gibt das Auto selbst Gas — du lenkst und bremst.',no:'Nein',yes:'Ja',gfx:'Grafikqualität',gfxD:'Hoch = mehr Details (neuere Handys).',normal:'Normal',high:'Hoch HD',vib:'Vibration',music:'Musik 🎵',fx:'Effekte 🔊',lang:'Sprache 🌍',tourS:'WÄHLE DIE STRECKE · START UND ZIEL IN PORTUGAL',back:'⌂ ZURÜCK',locked:'GESPERRT',unlockHint:'🔒 Schaffe {x} zum Freischalten',complete:'✅ GESCHAFFT',nextTrack:'🏁 NÄCHSTE STRECKE',zones:'Zonen',world:'🌍 WELTWEIT',device:'📱 DIESES HANDY',loading:'🌍 Weltrangliste wird geladen…',noRec:'Noch keine Rekorde — sei der Erste! 🌙',time:'ZEIT',points:'PUNKTE',natas:'TÖRTCHEN',turbo:'TURBO',stage:'ETAPPE',gas:'GAS',brake:'BREMSE',checkpoint:'CHECKPOINT!',goNow:'LOS!',fine:'STRAFE',free:'FREI! 🍀',tapFast:'tippen zum Vorspulen ⏩',reached:'Du kamst bis',trip:'Fahrt',bonus:'Bonus',passes:'Überholungen',pts:'Punkte',start:'START',goal:'ZIEL',greet:'Grüße aus',departure:'Abfahrt aus',nextC:'NÄCHSTES',tourDone:'EURO TOUR GESCHAFFT! 🏆',arrived:'WIR SIND IN',saved:'Auf diesem Gerät gespeichert',fsT:'📱 VOLLBILD',fsD:'Auf dem iPhone lässt Safari Spiele nicht den ganzen Bildschirm nutzen. Installiere das Spiel und öffne es über das Symbol:',fs1:'Tippe in Safari auf <b>Teilen</b> ⬆︎',fs2:'Wähle <b>Zum Home-Bildschirm</b> ➕',fs3:'Öffne <b>Outrunning PT</b> über das Symbol — ohne Leisten! 🏁',fsOk:'OK, VERSTANDEN',
+ count:['Anschnallen!','Auf zum Ziel!','Bereit, Luna? 🌙','Motor warm, Espresso intus ☕','Made in Maia, los!'],pauseM:['☕ Luna holt einen Espresso…','🗺️ Der Fahrer studiert die Karte','🥧 Törtchen-Pause','📸 Luna macht ein Selfie mit Aussicht'],overM:['Zeit um — aber was für eine Aussicht 🌅','Luna sagt: „nächstes Mal weniger Selfies" 📸','Sogar ein Tuk-Tuk hätte es geschafft! 🛺'],winM:['Luna tanzt schon 🌙','Made in Maia, mit Stil ins Ziel 🏁','Wieder ein Land erobert! 🇪🇺']},
+pl:{play:'GRAJ',tour:'EURO TOUR',opts:'OPCJE',records:'REKORDY',record:'REKORD',radio:'WYBIERZ RADIO',go:'START!',radioTip:'🥧 10 babeczek = +5 s · ⚡ zbieraj espresso-turbo · 📸 uważaj na fotoradary!',pause:'PAUZA ☕',resume:'GRAJ DALEJ',settings:'⚙️ Ustawienia',restart:'↺ Od nowa',menu:'⌂ Menu',timeUp:'KONIEC CZASU!',newRec:'🏆 NOWY REKORD! Wpisz swoje inicjały',save:'💾 ZAPISZ',next:'NASTĘPNY KRAJ ▶',again:'JESZCZE RAZ!',setT:'USTAWIENIA',ctrl:'Sterowanie',btns:'🎮 Przyciski',tilt:'📱 Przechylanie',sens:'Czułość przechylania',recal:'🎯 Kalibruj',pedals:'Pedały',left:'◀ Lewo',right:'Prawo ▶',auto:'Auto-gaz',autoD:'Gdy włączone, auto przyspiesza samo — ty skręcasz i hamujesz.',no:'Nie',yes:'Tak',gfx:'Jakość grafiki',gfxD:'Wysoka = więcej detali (nowsze telefony).',normal:'Normalna',high:'Wysoka HD',vib:'Wibracje',music:'Muzyka 🎵',fx:'Efekty 🔊',lang:'Język 🌍',tourS:'WYBIERZ TRASĘ · START I META W PORTUGALII',back:'⌂ WRÓĆ',locked:'ZABLOKOWANE',unlockHint:'🔒 Ukończ {x}, aby odblokować',complete:'✅ UKOŃCZONE',nextTrack:'🏁 NASTĘPNA TRASA',zones:'strefy',world:'🌍 ŚWIAT',device:'📱 TEN TELEFON',loading:'🌍 Ładowanie rankingu światowego…',noRec:'Brak rekordów — bądź pierwszy! 🌙',time:'CZAS',points:'PUNKTY',natas:'BABECZKI',turbo:'TURBO',stage:'ETAP',gas:'GAZ',brake:'HAMULEC',checkpoint:'CHECKPOINT!',goNow:'JEDŹ!',fine:'MANDAT',free:'WOLNE! 🍀',tapFast:'dotknij, aby przyspieszyć ⏩',reached:'Dotarłeś do',trip:'Podróż',bonus:'Bonus',passes:'Wyprzedzania',pts:'Punkty',start:'START',goal:'META',greet:'Pozdrowienia z',departure:'Wyjazd z',nextC:'NASTĘPNY',tourDone:'EURO TOUR UKOŃCZONY! 🏆',arrived:'DOTARLIŚMY DO',saved:'Zapisane na tym urządzeniu',fsT:'📱 PEŁNY EKRAN',fsD:'Na iPhonie Safari nie pozwala grom zająć całego ekranu. Zainstaluj grę i otwieraj ją z ikony:',fs1:'Stuknij <b>Udostępnij</b> ⬆︎ na pasku Safari',fs2:'Wybierz <b>Do ekranu początkowego</b> ➕',fs3:'Otwórz <b>Outrunning PT</b> z ikony — bez pasków! 🏁',fsOk:'OK, ROZUMIEM',
+ count:['Zapiąć pasy!','Kierunek: meta!','Gotowa, Luna? 🌙','Silnik ciepły, espresso wypite ☕','Made in Maia, jazda!'],pauseM:['☕ Luna poszła po espresso…','🗺️ Kierowca studiuje mapę','🥧 Przerwa na babeczkę','📸 Luna robi selfie z widokiem'],overM:['Koniec czasu — ale jaki widok 🌅','Luna mówi: „następnym razem mniej selfie" 📸','Nawet tuk-tuk by zdążył! 🛺'],winM:['Luna już tańczy 🌙','Made in Maia, w wielkim stylu 🏁','Kolejny kraj zdobyty! 🇪🇺']}
+};
+const CNAMES={pt:{PT:'PORTUGAL',ES:'ESPANHA',FR:'FRANÇA',IT:'ITÁLIA',CH:'SUÍÇA',DE:'ALEMANHA',NL:'HOLANDA',BE:'BÉLGICA',GB:'REINO UNIDO',PT2:'REGRESSO'},
+ en:{PT:'PORTUGAL',ES:'SPAIN',FR:'FRANCE',IT:'ITALY',CH:'SWITZERLAND',DE:'GERMANY',NL:'NETHERLANDS',BE:'BELGIUM',GB:'UNITED KINGDOM',PT2:'HOMECOMING'},
+ it:{PT:'PORTOGALLO',ES:'SPAGNA',FR:'FRANCIA',IT:'ITALIA',CH:'SVIZZERA',DE:'GERMANIA',NL:'OLANDA',BE:'BELGIO',GB:'REGNO UNITO',PT2:'RITORNO'},
+ es:{PT:'PORTUGAL',ES:'ESPAÑA',FR:'FRANCIA',IT:'ITALIA',CH:'SUIZA',DE:'ALEMANIA',NL:'HOLANDA',BE:'BÉLGICA',GB:'REINO UNIDO',PT2:'REGRESO'},
+ fr:{PT:'PORTUGAL',ES:'ESPAGNE',FR:'FRANCE',IT:'ITALIE',CH:'SUISSE',DE:'ALLEMAGNE',NL:'PAYS-BAS',BE:'BELGIQUE',GB:'ROYAUME-UNI',PT2:'RETOUR'},
+ de:{PT:'PORTUGAL',ES:'SPANIEN',FR:'FRANKREICH',IT:'ITALIEN',CH:'SCHWEIZ',DE:'DEUTSCHLAND',NL:'NIEDERLANDE',BE:'BELGIEN',GB:'GROSSBRITANNIEN',PT2:'HEIMKEHR'},
+ pl:{PT:'PORTUGALIA',ES:'HISZPANIA',FR:'FRANCJA',IT:'WŁOCHY',CH:'SZWAJCARIA',DE:'NIEMCY',NL:'HOLANDIA',BE:'BELGIA',GB:'WIELKA BRYTANIA',PT2:'POWRÓT'}};
+function detectLang(){const n=(navigator.language||'pt').slice(0,2).toLowerCase();return I18N[n]?n:'en';}
+let LANG=store.get('lang',null)||detectLang();if(!I18N[LANG])LANG='pt';
+const T=k=>(I18N[LANG]&&I18N[LANG][k]!==undefined)?I18N[LANG][k]:(I18N.pt[k]!==undefined?I18N.pt[k]:k);
+const CNAME=C=>(CNAMES[LANG]||CNAMES.en)[C.code]||C.name;
+function winTitle(C){return LANG==='pt'?C.win:`${T('arrived')} ${C.goal}! ${C.flag}`;}
+function applyLang(){
+  document.documentElement.lang=LANG;
+  const set=(sel,k,html)=>{document.querySelectorAll(sel).forEach(e=>{if(html)e.innerHTML=T(k);else e.textContent=T(k);});};
+  const setB=(sel,k)=>{const e=document.querySelector(sel);if(e){const b=e.querySelector('b');if(b)b.textContent=T(k);}};
+  setB('#playBtn','play');setB('#tourBtn','tour');setB('#setBtn','opts');setB('#hiBtn','records');
+  const bs=document.querySelector('.menu .best');if(bs)bs.firstChild.textContent='🏁 '+T('record')+' ';
+  const h=(id,k)=>{const e=$(id);if(e&&e.firstChild)e.firstChild.textContent=T(k);};
+  document.querySelectorAll('#radio h2').forEach(e=>e.firstChild.textContent=T('radio'));
+  const gb=$('goBtn');if(gb)gb.firstChild.textContent=T('go')+' ';
+  document.querySelectorAll('#radio .small').forEach(e=>e.textContent=T('radioTip'));
+  document.querySelectorAll('#pause h2').forEach(e=>e.firstChild.textContent=T('pause'));
+  set('#resumeBtn','resume');set('#setBtn2','settings');set('#restartBtn','restart');set('#menuBtn','menu');set('#menuBtn2','menu');
+  set('#nameEntry .ne-t','newRec');set('#saveBtn','save');set('#nextBtn','next');set('#againBtn','again');
+  document.querySelectorAll('#settings h2').forEach(e=>e.firstChild.textContent=T('setT'));
+  const sb=[...document.querySelectorAll('#settings .set>b')];const lab=['ctrl','sens','pedals','auto','gfx','vib','music','fx','lang'];sb.forEach((b,i)=>{if(lab[i])b.textContent=T(lab[i]);});
+  const sm=[...document.querySelectorAll('#settings .set>small')];if(sm[0])sm[0].textContent=T('autoD');if(sm[1])sm[1].textContent=T('gfxD');
+  const segT=(k,vals)=>{const sg=document.querySelector(`.seg[data-k="${k}"]`);if(!sg)return;[...sg.querySelectorAll('button')].forEach((b,i)=>{if(vals[i])b.textContent=T(vals[i]);});};
+  segT('ctrl',['btns','tilt']);segT('layout',['left','right']);segT('auto',['no','yes']);segT('hd',['normal','high']);segT('vib',['no','yes']);set('#calBtn','recal');
+  document.querySelectorAll('#tour h2 small').forEach(e=>e.textContent=T('tourS'));set('#tourBack','back');
+  const ht=document.querySelectorAll('.hitabs h3');if(ht[0])ht[0].textContent=T('world');if(ht[1])ht[1].textContent=T('device');
+  document.querySelectorAll('#hiscore h2').forEach(e=>e.firstChild.textContent=T('records'));document.querySelectorAll('#hiscore .small').forEach(e=>e.textContent=T('saved'));
+  document.querySelectorAll('#hbL .lbl').forEach(e=>e.textContent=T('time'));document.querySelectorAll('#hbR .lbl').forEach(e=>e.textContent=T('points'));
+  set('#cGas','gas');set('#cBrake','brake');
+  set('#fsHelp .fst','fsT');set('#fsHelp .fsd','fsD');const li=document.querySelectorAll('#fsHelp li');['fs1','fs2','fs3'].forEach((k,i)=>{if(li[i])li[i].innerHTML=T(k);});set('#fsOk','fsOk');
+  CHAPTERS.forEach(C=>{C.name=CNAME(C);});
+  if(typeof updatePlayLabel==='function')updatePlayLabel();
+  for(const k in hudCache)delete hudCache[k];
+  if(state==='tour')renderTourCard();
+  document.querySelectorAll('.seg[data-k="lang"] button').forEach(b=>b.classList.toggle('on',b.dataset.v===LANG));
+}
+function setLang(l){if(!I18N[l])return;LANG=l;store.set('lang',l);applyLang();}
+
+// ---- police by country (car livery, uniform, hat, local shout)
+const COPS={
+ PT:{name:'AGENTE BOLINHAS',uni:'#1d2f66',dk:'#14204a',hat:'cap',hatC:'#14204a',band:'#d8d8e0',local:'',car:{body:'#f4f6f8',a:'#1f4fbf',b:'#f4f6f8',label:'POLÍCIA',lc:'#1f4fbf'}},
+ ES:{name:'CABO GAZPACHO',uni:'#3a5a2a',dk:'#2a421e',hat:'tricorn',hatC:'#0a0a0a',band:'#0a0a0a',local:'¡ALTO! ¡GUARDIA CIVIL! 🚨',car:{body:'#f4f6f8',a:'#2a7a3a',b:'#f4f6f8',label:'GUARDIA CIVIL',lc:'#2a6a2a'}},
+ FR:{name:'BRIGADIER CROISSANT',uni:'#1f2c5a',dk:'#141c3e',hat:'kepi',hatC:'#1f2c5a',band:'#e8c23a',local:'ARRÊTEZ-VOUS! GENDARMERIE! 🚨',car:{body:'#22357a',a:'#f4f6f8',b:'#e8263a',label:'GENDARMERIE',lc:'#ffffff'}},
+ IT:{name:'MARESCIALLO RAVIOLI',uni:'#111522',dk:'#0a0c14',hat:'cara',hatC:'#111522',band:'#c8102e',local:'ALT! CARABINIERI! 🚨',car:{body:'#141a2c',a:'#c8102e',b:'#141a2c',label:'CARABINIERI',lc:'#ffffff'}},
+ CH:{name:'WACHTMEISTER FONDUE',uni:'#2a3446',dk:'#1c2432',hat:'cap',hatC:'#1c2432',band:'#e8402a',local:'HALT! POLIZEI! 🚨',car:{body:'#f4f6f8',a:'#e8402a',b:'#ffd23f',label:'POLIZEI',lc:'#e8402a'}},
+ DE:{name:'KOMMISSAR BRATWURST',uni:'#1e2a52',dk:'#141c3a',hat:'cap',hatC:'#141c3a',band:'#ffd23f',local:'HALT! POLIZEI! 🚨',car:{body:'#f4f6f8',a:'#1f3a8a',b:'#f4f6f8',label:'POLIZEI',lc:'#1f3a8a'}},
+ NL:{name:'AGENT STROOPWAFEL',uni:'#1e2848',dk:'#141a32',hat:'cap',hatC:'#141a32',band:'#ff8a1a',local:'STOP! POLITIE! 🚨',car:{body:'#f4f6f8',a:'#1f4fbf',b:'#ff8a1a',label:'POLITIE',lc:'#1f4fbf'}},
+ BE:{name:'AGENT GAUFRE',uni:'#1e2848',dk:'#141a32',hat:'cap',hatC:'#141a32',band:'#e8263a',local:'STOP! POLICE! 🚨',car:{body:'#f4f6f8',a:'#1f3a8a',b:'#e8263a',label:'POLICE',lc:'#1f3a8a'}},
+ GB:{name:'CONSTABLE CRUMPET',uni:'#151a2e',dk:'#0c1020',hat:'bobby',hatC:'#151a2e',band:'#c0c4cc',local:"'ELLO 'ELLO 'ELLO! 🚨",car:{body:'#f4f6f8',a:'#1f4fbf',b:'#ffd23f',label:'POLICE',lc:'#1f4fbf'}},
+};
+function copCfg(){const C=CUR(),k=C.code==='PT2'?(stageIdx===0?'ES':'PT'):C.code;return COPS[k]||COPS.PT;}
+function policeCar(lit,cfg){cfg=cfg||COPS.PT.car;return mk(104,86,(g,w,h)=>{
+  const o=12;ell(g,w/2,h-4,w*0.48,5,'rgba(0,0,0,.3)');
+  g.fillStyle='#111';rr(g,8,o+46,18,24,4);g.fill();rr(g,w-26,o+46,18,24,4);g.fill();
+  g.fillStyle=cfg.body;rr(g,6,o+30,w-12,32,8);g.fill();
+  poly(g,[18,o+32,27,o+6,w-27,o+6,w-18,o+32],cfg.body==='#f4f6f8'?'#dfe3e8':cfg.body);poly(g,[24,o+30,31,o+10,w-31,o+10,w-24,o+30],'#2b3a55');
+  for(let x=6;x<w-6;x+=8){const k=((x-6)/8)|0;g.fillStyle=k%2?cfg.a:cfg.b;g.fillRect(x,o+46,8,5);g.fillStyle=k%2?cfg.b:cfg.a;g.fillRect(x,o+51,8,5);}
+  g.fillStyle=cfg.lc;g.font=`bold ${cfg.label.length>9?7:9}px sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(cfg.label,w/2,o+40);
+  g.fillStyle='#ff3030';rr(g,9,o+35,14,7,2);g.fill();rr(g,w-23,o+35,14,7,2);g.fill();
+  g.fillStyle='#222';rr(g,8,o+57,w-16,6,3);g.fill();g.fillStyle='#222';rr(g,w/2-24,o-3,48,9,3);g.fill();
+  g.fillStyle=lit?'#ff2a2a':'#5a1010';rr(g,w/2-22,o-2,21,7,2);g.fill();g.fillStyle=lit?'#1a3a6a':'#2a7bff';rr(g,w/2+1,o-2,21,7,2);g.fill();
+  const gx=lit?w/2-12:w/2+12,rg=g.createRadialGradient(gx,o,1,gx,o,18);rg.addColorStop(0,lit?'rgba(255,40,40,.7)':'rgba(60,140,255,.7)');rg.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=rg;g.fillRect(gx-18,0,36,o+18);
+});}
+let copCarKey='';
+function refreshPoliceCar(){const cfg=copCfg(),k=cfg.car.label+cfg.car.a;if(k===copCarKey)return;copCarKey=k;SP.police0={img:policeCar(false,cfg.car),ww:0.29};SP.police1={img:policeCar(true,cfg.car),ww:0.29};}
+// ---- dialogue pools per language (shuffle-bags: no repeats until each pool is used up)
+const POL={
+ pt:{stop:COP_STOP,hello:COP_HELLO,rush:DRV_RUSH,luna:LUNA_NICE,comic:COP_COMIC,back:DRV_BACK,verdict:COP_VERDICT,dafter:DRV_AFTER,lafter:LUNA_AFTER},
+ en:{stop:['PULL OVER! RIGHT NOW! 🚨','STOP THE VEHICLE! 🚨','Pull over… and turn that music down! 🚨'],
+  hello:['Good evening. Do you know why I stopped you?','Licence, registration… and that smile, please.','What was that, a rally? I nearly dropped my doughnut.','The radar said 294. I said "ooh, lovely".','Hands on the wheel. Both. Yes, like that.','Nice car. Shame about the driving.','You made me spill my tea. That is a crime here.','Officer on duty. Lunch on hold. Not happy.'],
+  rush:['Officer, I\'m in a terrible hurry!','We have to get there before sunset!','It\'s the espresso, officer, still kicking in ☕','I\'m from Maia — this is normal speed there!','The car drives itself, I swear!','Can we be quick? Luna wants to see the moonrise 🌙','Emergency: the custard tarts are getting cold!','No fine please, I\'m still paying for the car!'],
+  luna:['Good evening, officer! Lovely uniform 🌙','He\'s a good boy, just a heavy foot.','Fancy a custard tart? Still warm! 🥧','It\'s my fault, I wanted to see the sea.','You have a forgiving face! 😇','Selfie with us? Go on! 📸','What an elegant moustache, officer!','Full moon tonight — that\'s lucky! 🌕'],
+  comic:[['Hmm… I\'ll take the tart. As evidence. 🥧','nata'],['The moustache? Born with it, miss.','mustache'],['A selfie? Only my good side. This one.','selfie'],['Hurry? I\'m in a hurry too. For my lunch.','belly'],['My granny drives slower. She\'s 92.','think'],['Let me sniff… espresso or petrol?','sniff'],['I\'m writing slowly on purpose.','write'],['Nobody escapes this belly! I mean… this badge!','dance']],
+  back:['Officer, my uncle is a policeman too!','Just a warning? Pretty please?','This is persecution of people from Maia!','I promise I\'ll do 50 from now on!'],
+  verdict:[['Fine! −5 seconds. Slow down!',5],['Here: a 3-second fine and a smile.',3],['Sign here. No, that\'s my sandwich. −4 s',4],['Fine for excessive charm: −4 s.',4],['The fine is yours, the tart is mine. −6 s',6],['Off you go… but I\'m watching you! 👀',0]],
+  dafter:['Thank you SO much, officer… 😒','Put it on Maia\'s tab!','There goes our snack money…'],lafter:['Bye, officer! 👋','Enjoy your lunch! 🥧','Kisses to the station! 💋']},
+ es:{stop:['¡ALTO! ¡ORILLE EL VEHÍCULO! 🚨','¡PARE AHORA MISMO! 🚨','¡Pare… y baje esa música! 🚨'],
+  hello:['Buenas tardes. ¿Sabe por qué le he parado?','Carné, papeles… y esa sonrisa, por favor.','¿Qué era eso, un rally? Casi tiro mi churro.','El radar marcó 294. Yo dije: "¡qué bonito!".','Manos en el volante. Las dos. Así.','Bonito coche. Lástima de conducción.','Me ha hecho derramar el café con leche.','Estoy de servicio y sin merendar. Mal día.'],
+  rush:['¡Agente, tengo muchísima prisa!','¡Tenemos que llegar antes del atardecer!','Es el café, agente, aún me hace efecto ☕','¡Soy de Maia, allí esto es velocidad normal!','¡El coche va solo, se lo juro!','¿Rapidito? Luna quiere ver salir la luna 🌙','¡Emergencia: los pasteles de nata se enfrían!','¡Multa no, que aún pago el coche!'],
+  luna:['¡Buenas tardes, agente! Qué uniforme tan bonito 🌙','Es buen chico, solo tiene el pie pesado.','¿Un pastel de nata? ¡Calentito! 🥧','La culpa es mía, quería ver el mar.','¡Usted tiene cara de perdonar! 😇','¿Un selfie con nosotros? ¡Venga! 📸','¡Qué bigote tan elegante, agente!','¡Hoy hay luna llena, da suerte! 🌕'],
+  comic:[['Mmm… acepto el pastel. Como prueba. 🥧','nata'],['¿El bigote? De nacimiento, señorita.','mustache'],['¿Selfie? Solo mi lado bueno. Este.','selfie'],['¿Prisa? Prisa tengo yo por merendar.','belly'],['Mi abuela conduce más despacio. Y tiene 92.','think'],['A ver… ¿huele a café o a gasolina?','sniff'],['Escribo despacito a propósito.','write'],['¡Nadie se escapa de esta barriga! Digo… ¡de la ley!','dance']],
+  back:['¡Agente, mi tío también es guardia!','¿Solo un aviso? ¿Por favor?','¡Esto es persecución a los de Maia!','¡Prometo ir a 50 desde ahora!'],
+  verdict:[['¡Multa! −5 segundos. ¡Y más despacio!',5],['Tome: multa de 3 segundos y una sonrisa.',3],['Firme aquí. No, eso es mi bocadillo. −4 s',4],['Multa por exceso de encanto: −4 s.',4],['La multa para usted, el pastel para mí. −6 s',6],['Venga… ¡siga! Pero le estoy vigilando 👀',0]],
+  dafter:['Muchas gracias, agente… 😒','¡Póngalo en la cuenta de Maia!','Adiós a la merienda…'],lafter:['¡Adiós, agente! 👋','¡Buen provecho! 🥧','¡Besos al cuartel! 💋']},
+ fr:{stop:['ARRÊTEZ-VOUS! TOUT DE SUITE! 🚨','STOP! RANGEZ-VOUS! 🚨','Arrêtez… et baissez la musique! 🚨'],
+  hello:['Bonsoir. Vous savez pourquoi je vous arrête?','Permis, carte grise… et ce sourire, s\'il vous plaît.','C\'était quoi, un rallye? J\'ai failli lâcher ma baguette.','Le radar a dit 294. Moi j\'ai dit « oh là là ».','Les mains sur le volant. Les deux. Voilà.','Jolie voiture. Dommage pour la conduite.','Vous m\'avez fait renverser mon café crème.','Je suis en service et sans goûter. Mauvaise journée.'],
+  rush:['Monsieur l\'agent, je suis très pressé!','On doit arriver avant le coucher du soleil!','C\'est l\'expresso, il fait encore effet ☕','Je viens de Maia, là-bas c\'est la vitesse normale!','La voiture roule toute seule, je le jure!','Vite fait? Luna veut voir la lune se lever 🌙','Urgence: les pastéis de nata refroidissent!','Pas d\'amende, je paie encore la voiture!'],
+  luna:['Bonsoir, monsieur l\'agent! Bel uniforme 🌙','C\'est un gentil garçon, juste le pied lourd.','Un pastel de nata? Tout chaud! 🥧','C\'est ma faute, je voulais voir la mer.','Vous avez un visage qui pardonne! 😇','Un selfie avec nous? Allez! 📸','Quelle moustache élégante, monsieur!','Ce soir c\'est la pleine lune, ça porte bonheur! 🌕'],
+  comic:[['Hmm… j\'accepte la pâtisserie. Comme preuve. 🥧','nata'],['La moustache? De naissance, mademoiselle.','mustache'],['Un selfie? Seulement mon bon profil. Celui-ci.','selfie'],['Pressé? Moi je suis pressé de goûter.','belly'],['Ma grand-mère roule moins vite. Elle a 92 ans.','think'],['Je renifle… expresso ou essence?','sniff'],['J\'écris lentement exprès.','write'],['Personne n\'échappe à ce ventre! Euh… à la loi!','dance']],
+  back:['Monsieur, mon oncle est gendarme aussi!','Juste un avertissement? S\'il vous plaît?','C\'est de la persécution contre Maia!','Promis, je roule à 50 maintenant!'],
+  verdict:[['Amende! −5 secondes. Ralentissez!',5],['Voilà: 3 secondes d\'amende et un sourire.',3],['Signez ici. Non, ça c\'est mon sandwich. −4 s',4],['Amende pour excès de charme: −4 s.',4],['L\'amende pour vous, la nata pour moi. −6 s',6],['Allez… filez! Mais je vous surveille 👀',0]],
+  dafter:['Merci beaucoup, monsieur… 😒','Mettez ça sur le compte de Maia!','Adieu le goûter…'],lafter:['Au revoir, monsieur! 👋','Bon appétit! 🥧','Bisous à la brigade! 💋']},
+ it:{stop:['ALT! ACCOSTI SUBITO! 🚨','FERMI TUTTI! 🚨','Accosti… e abbassi la musica! 🚨'],
+  hello:['Buonasera. Sa perché l\'ho fermata?','Patente, libretto… e quel sorriso, prego.','Cos\'era, un rally? Mi è quasi caduto il cornetto.','Il radar ha detto 294. Io ho detto « mamma mia ».','Mani sul volante. Tutte e due. Così.','Bella macchina. Peccato la guida.','Mi ha fatto rovesciare il cappuccino!','Sono in servizio e senza merenda. Brutta giornata.'],
+  rush:['Signor agente, ho una fretta pazzesca!','Dobbiamo arrivare prima del tramonto!','È l\'espresso, fa ancora effetto ☕','Sono di Maia, lì questa è velocità normale!','La macchina va da sola, lo giuro!','Facciamo presto? Luna vuole vedere sorgere la luna 🌙','Emergenza: i pastéis de nata si raffreddano!','Niente multa, sto ancora pagando la macchina!'],
+  luna:['Buonasera, agente! Che bella divisa 🌙','È un bravo ragazzo, ha solo il piede pesante.','Un pastel de nata? Ancora caldo! 🥧','È colpa mia, volevo vedere il mare.','Lei ha la faccia di chi perdona! 😇','Un selfie con noi? Dai! 📸','Che baffi eleganti, agente!','Stasera c\'è la luna piena, porta fortuna! 🌕'],
+  comic:[['Mmm… accetto il dolce. Come prova. 🥧','nata'],['I baffi? Di nascita, signorina.','mustache'],['Un selfie? Solo il mio lato buono. Questo.','selfie'],['Fretta? Io ho fretta di andare a pranzo.','belly'],['Mia nonna guida più piano. E ha 92 anni.','think'],['Annuso… espresso o benzina?','sniff'],['Scrivo piano apposta.','write'],['Nessuno sfugge a questa pancia! Cioè… alla legge!','dance']],
+  back:['Agente, anche mio zio è carabiniere!','Solo un avvertimento? Per favore?','Questa è persecuzione contro Maia!','Prometto, d\'ora in poi vado a 50!'],
+  verdict:[['Multa! −5 secondi. E rallenti!',5],['Ecco: multa di 3 secondi e un sorriso.',3],['Firmi qui. No, quello è il mio panino. −4 s',4],['Multa per eccesso di fascino: −4 s.',4],['La multa a lei, il dolce a me. −6 s',6],['Vada… ma la tengo d\'occhio! 👀',0]],
+  dafter:['Grazie mille, agente… 😒','Lo metta sul conto di Maia!','Addio merenda…'],lafter:['Ciao, agente! 👋','Buon pranzo! 🥧','Baci alla caserma! 💋']},
+ de:{stop:['HALT! SOFORT RECHTS RAN! 🚨','STOPP! POLIZEIKONTROLLE! 🚨','Anhalten… und Musik leiser! 🚨'],
+  hello:['Guten Abend. Wissen Sie, warum ich Sie anhalte?','Führerschein, Fahrzeugschein… und das Lächeln, bitte.','Was war das, eine Rallye? Fast fiel mir die Brezel runter.','Der Blitzer sagte 294. Ich sagte « wunderbar ».','Hände ans Lenkrad. Beide. Genau so.','Schönes Auto. Schade um den Fahrstil.','Sie haben meinen Kaffee verschüttet!','Ich bin im Dienst und ohne Pause. Schlechter Tag.'],
+  rush:['Herr Wachtmeister, ich habe es furchtbar eilig!','Wir müssen vor Sonnenuntergang ankommen!','Das ist der Espresso, der wirkt noch ☕','Ich komme aus Maia, dort ist das normal!','Das Auto fährt von allein, ehrlich!','Schnell bitte? Luna will den Mondaufgang sehen 🌙','Notfall: die Puddingtörtchen werden kalt!','Kein Bußgeld, ich zahle noch das Auto ab!'],
+  luna:['Guten Abend! Was für eine schöne Uniform 🌙','Er ist ein Guter, nur mit schwerem Fuß.','Ein Puddingtörtchen? Noch warm! 🥧','Meine Schuld, ich wollte das Meer sehen.','Sie haben ein verzeihendes Gesicht! 😇','Ein Selfie mit uns? Los! 📸','Was für ein eleganter Schnurrbart!','Heute ist Vollmond, das bringt Glück! 🌕'],
+  comic:[['Hmm… ich nehme das Törtchen. Als Beweis. 🥧','nata'],['Der Schnurrbart? Angeboren, junge Frau.','mustache'],['Ein Selfie? Nur meine gute Seite. Diese.','selfie'],['Eilig? Ich habe es eilig zur Mittagspause.','belly'],['Meine Oma fährt langsamer. Sie ist 92.','think'],['Ich schnüffle… Espresso oder Benzin?','sniff'],['Ich schreibe absichtlich langsam.','write'],['Keiner entkommt diesem Bauch! Äh… dem Gesetz!','dance']],
+  back:['Mein Onkel ist auch Polizist!','Nur eine Verwarnung? Bitte?','Das ist Verfolgung von Leuten aus Maia!','Versprochen, ab jetzt fahre ich 50!'],
+  verdict:[['Bußgeld! −5 Sekunden. Langsamer!',5],['Bitte: 3 Sekunden Strafe und ein Lächeln.',3],['Hier unterschreiben. Nein, das ist mein Brötchen. −4 s',4],['Strafe für zu viel Charme: −4 s.',4],['Das Bußgeld für Sie, das Törtchen für mich. −6 s',6],['Na gut… weiterfahren! Ich beobachte Sie 👀',0]],
+  dafter:['Vielen Dank auch… 😒','Setzen Sie es auf Maias Rechnung!','Tschüss, Snackgeld…'],lafter:['Tschüss, Herr Wachtmeister! 👋','Guten Appetit! 🥧','Grüße an die Wache! 💋']},
+ pl:{stop:['STÓJ! ZJEDŹ NA POBOCZE! 🚨','STOP! KONTROLA DROGOWA! 🚨','Proszę stanąć… i ściszyć muzykę! 🚨'],
+  hello:['Dobry wieczór. Wie pan, dlaczego pana zatrzymałem?','Prawo jazdy, dowód rejestracyjny… i ten uśmiech.','Co to było, rajd? Prawie upuściłem pączka.','Radar pokazał 294. A ja na to: „pięknie".','Ręce na kierownicy. Obie. O tak.','Ładne auto. Szkoda tylko jazdy.','Przez pana wylałem kawę!','Jestem na służbie i bez obiadu. Zły dzień.'],
+  rush:['Panie władzo, strasznie się spieszę!','Musimy dojechać przed zachodem słońca!','To espresso, panie władzo, jeszcze działa ☕','Jestem z Maii, tam to normalna prędkość!','Samochód jedzie sam, przysięgam!','Szybciutko? Luna chce zobaczyć wschód księżyca 🌙','Nagły wypadek: babeczki stygną!','Bez mandatu, jeszcze spłacam auto!'],
+  luna:['Dobry wieczór! Jaki piękny mundur 🌙','To dobry chłopak, tylko ciężka noga.','Babeczkę? Jeszcze ciepła! 🥧','To moja wina, chciałam zobaczyć morze.','Ma pan twarz, która wybacza! 😇','Selfie z nami? No dalej! 📸','Jakie eleganckie wąsy, panie władzo!','Dziś pełnia, to przynosi szczęście! 🌕'],
+  comic:[['Hmm… biorę babeczkę. Jako dowód. 🥧','nata'],['Wąsy? Od urodzenia, proszę pani.','mustache'],['Selfie? Tylko z mojej dobrej strony. Tej.','selfie'],['Pośpiech? Ja się spieszę na obiad.','belly'],['Moja babcia jeździ wolniej. Ma 92 lata.','think'],['Wącham… espresso czy benzyna?','sniff'],['Piszę powoli specjalnie.','write'],['Nikt nie ucieknie przed tym brzuchem! Znaczy… prawem!','dance']],
+  back:['Panie władzo, mój wujek też jest policjantem!','Może tylko pouczenie? Proszę?','To prześladowanie ludzi z Maii!','Obiecuję, od teraz jadę 50!'],
+  verdict:[['Mandat! −5 sekund. Zwolnij!',5],['Proszę: 3 sekundy mandatu i uśmiech.',3],['Proszę podpisać. Nie, to moja kanapka. −4 s',4],['Mandat za nadmiar uroku: −4 s.',4],['Mandat dla pana, babeczka dla mnie. −6 s',6],['No dobrze… jedźcie! Ale mam was na oku 👀',0]],
+  dafter:['Dziękuję bardzo, panie władzo… 😒','Proszę dopisać do rachunku Maii!','Żegnaj, kasa na przekąski…'],lafter:['Do widzenia, panie władzo! 👋','Smacznego! 🥧','Buziaki dla komisariatu! 💋']}
+};
+function P_(k){const L=POL[LANG]||POL.en;return [LANG+k,L[k]||POL.en[k]];}
+function bp(k){const [n,a]=P_(k);return bagPick(n,a);}
 function bust(){
-  police.phase='busted';police.tz=0;
-  const comic=bagPick('comic',COP_COMIC),verdict=bagPick('verdict',COP_VERDICT);
-  const seq=[['cop',bagPick('hello',COP_HELLO)],['d',bagPick('rush',DRV_RUSH)],['w',bagPick('luna',LUNA_NICE)],['cop',comic[0],comic[1]]];
-  if(Math.random()<0.6)seq.push(['d',bagPick('back',DRV_BACK)]);
+  police.phase='busted';const cop=copCfg();
+  const comic=bp('comic'),verdict=bp('verdict');
+  const seq=[['cop',bp('hello')],['d',bp('rush')],['w',bp('luna')],['cop',comic[0],comic[1]]];
+  if(Math.random()<0.5)seq.push(['d',bp('back')]);
   seq.push(['cop',verdict[0],'write',verdict[1]]);
-  busted={t:0,seq,step:-1,next:4.7,phase:'stop',walk:0,anim:'idle',at:0,fine:verdict[1],ticket:null,fast:false};
-  say('cop',bagPick('stop',COP_STOP),2.2,true);sfx('bump');setAnim('w','lookDriver',2.5);
+  busted={t:0,seq,step:-1,next:3.0,phase:'stop',walk:0,anim:'idle',at:0,fine:verdict[1],ticket:null,fast:false,cop};
+  say('cop',cop.local&&Math.random()<0.6?cop.local:bp('stop'),1.9,true);sfx('bump');setAnim('w','lookDriver',2.2);
 }
 function updateBusted(dt){
-  const B=busted;if(B.fast)dt*=3;B.t+=dt;B.at+=dt;
-  // police car pulls in ahead on the driver's side
-  const pz=position+playerZ;police.z=lerp(police.z,pz+segL*(PORTRAIT?5.5:2.4),Math.min(1,dt*2.2));police.offset=lerp(police.offset,clamp(playerX-0.62,-1.4,1.4),Math.min(1,dt*2));
-  if(B.phase==='stop'&&B.t>1.9){B.phase='out';B.anim='walk';B.at=0;sfx('click');}
-  if(B.phase==='out'){B.walk=Math.min(1,B.walk+dt/2.6);if(B.walk>=1){B.phase='talk';B.anim='idle';B.at=0;}else if(B.walk>0.45&&B.walk<0.62)B.anim='hitch';else B.anim='walk';}
+  const B=busted;if(B.fast)dt*=2.5;B.t+=dt;B.at+=dt;
+  const pz=position+playerZ;police.z=lerp(police.z,pz+segL*(PORTRAIT?5.5:2.4),Math.min(1,dt*2.6));police.offset=lerp(police.offset,clamp(playerX-0.62,-1.4,1.4),Math.min(1,dt*2.4));
+  if(B.phase==='stop'&&B.t>1.2){B.phase='out';B.anim='walk';B.at=0;sfx('click');}
+  if(B.phase==='out'){B.walk=Math.min(1,B.walk+dt/1.7);if(B.walk>=1){B.phase='talk';B.anim='idle';B.at=0;B.next=Math.min(B.next,B.t+0.2);}else if(B.walk>0.45&&B.walk<0.62)B.anim='hitch';else B.anim='walk';}
   if(B.phase==='talk'&&B.t>=B.next){B.step++;const L=B.seq[B.step];
     if(!L){B.phase='ticket';B.at=0;B.anim='give';B.ticket={t:0};sfx('pickup');
-      if(B.fine){timeLeft=Math.max(0.5,timeLeft-B.fine);popText('MULTA −'+B.fine+' s',2);sfx('over');}else popText('LIVRE! 🍀',1);
-      setTimeout(()=>{say('d',bagPick('dafter',DRV_AFTER),2.2,true);},500);}
-    else{say(L[0],L[1],2.4,true);B.next=B.t+2.55;if(L[0]==='cop'){B.anim=L[2]||'talk';B.at=0;}else B.anim='idle';
-      if(L[0]==='d')setAnim('d','talk',2.3);if(L[0]==='w')setAnim('w',pick(Math.random,['wave','hairFix','lookDriver']),2.2);
-      if(L[2]==='nata')setAnim('w','point',1.6);if(L[2]==='sing')sfx('pickup');}}
-  if(B.phase==='ticket'){if(B.ticket)B.ticket.t+=dt;if(B.at>2.1){B.phase='back';B.anim='walk';B.at=0;say('w',bagPick('lafter',LUNA_AFTER),2,true);setAnim('w','wave',2);}}
-  if(B.phase==='back'){B.walk=Math.max(0,B.walk-dt/2.0);if(B.walk<=0){busted=null;police.phase='leave';police.speed=maxSpeed*0.5;sfx('click');}}
+      if(B.fine){timeLeft=Math.max(0.5,timeLeft-B.fine);popText(T('fine')+' −'+B.fine+' s',2);sfx('over');}else popText(T('free'),1);
+      setTimeout(()=>{say('d',bp('dafter'),1.9,true);},350);}
+    else{say(L[0],L[1],2.15,true);B.next=B.t+2.1;if(L[0]==='cop'){B.anim=L[2]||'talk';B.at=0;}else B.anim='idle';
+      if(L[0]==='d')setAnim('d','talk',2.0);if(L[0]==='w')setAnim('w',pick(Math.random,['wave','hairFix','lookDriver']),2.0);
+      if(L[2]==='nata')setAnim('w','point',1.4);if(L[2]==='sing')sfx('pickup');}}
+  if(B.phase==='ticket'){if(B.ticket)B.ticket.t+=dt;if(B.at>1.5){B.phase='back';B.anim='walk';B.at=0;say('w',bp('lafter'),1.8,true);setAnim('w','wave',1.8);}}
+  if(B.phase==='back'){B.walk=Math.max(0,B.walk-dt/1.4);if(B.walk<=0){busted=null;police.phase='leave';police.speed=maxSpeed*0.5;sfx('click');}}
 }
-// the cop: round belly, moustache, cap — drawn on the FX canvas, feet at (x,y)
+// the cop: very round, moustache, country hat — drawn on the FX canvas, feet at (x,y)
 function drawCop(g,x,y,k,anim,t,at,face){
+  const cop=(busted&&busted.cop)||COPS.PT;
   g.save();g.translate(x,y);g.scale(k*face,k);
-  const walk=anim==='walk',sw=walk?Math.sin(t*9):0,bob=walk?Math.abs(Math.sin(t*9))*3:0,dance=anim==='dance'?Math.sin(t*10)*6:0;
+  const walk=anim==='walk',sw=walk?Math.sin(t*10):0,bob=walk?Math.abs(Math.sin(t*10))*3:0,dance=anim==='dance'?Math.sin(t*10)*6:0,jig=walk?Math.sin(t*20)*2.5:anim==='belly'?Math.sin(at*16)*3:0;
   g.translate(dance,-bob);
-  ell(g,0,bob,34,6,'rgba(0,0,0,.35)');
-  const blue='#1d2f66',dk='#14204a',skin='#f0b98a';
-  // legs + shoes
-  for(const [lx,ph] of [[-11,sw],[11,-sw]]){g.fillStyle=dk;g.save();g.translate(lx,-38);g.rotate(ph*0.25);g.fillRect(-7,0,14,36);g.fillStyle='#111';rr(g,-9,32,20,8,4);g.fill();g.restore();}
-  // body/belly
-  const bel=anim==='belly'?1+Math.sin(at*14)*0.05:1;
-  g.fillStyle=blue;g.beginPath();g.ellipse(0,-66,34*bel,36,0,0,7);g.fill();
-  g.fillStyle='#2a4590';g.beginPath();g.ellipse(-8,-74,16,18,0,0,7);g.fill();
-  g.fillStyle='#e8e8f0';for(let i=0;i<4;i++)circ(g,0,-94+i*12,1.8,'#d4c060');
-  // belt + buckle
-  const by=anim==='hitch'?-52-Math.abs(Math.sin(at*8))*5:-50;g.fillStyle='#1a1a1a';g.fillRect(-33,by,66,7);g.fillStyle='#e8c23a';g.fillRect(-6,by-1,12,9);
+  ell(g,0,bob,44,7,'rgba(0,0,0,.35)');
+  const U=cop.uni,D=cop.dk,skin='#f2bc8e',skinD='#d99a6c';
+  // short stubby legs + big shoes
+  for(const [lx,ph] of [[-15,sw],[15,-sw]]){g.save();g.translate(lx,-30);g.rotate(ph*0.28);g.fillStyle=D;rr(g,-9,0,18,28,6);g.fill();if(cop.hat==='cara'){g.fillStyle='#c8102e';g.fillRect(-2,0,4,26);}g.fillStyle='#0d0d0d';g.beginPath();g.ellipse(3,30,13,6,0,0,7);g.fill();g.fillStyle='rgba(255,255,255,.35)';g.fillRect(4,26,6,2);g.restore();}
+  // BIG belly with shading
+  const by0=-70,bw=50,bh=46+jig*0.3;
+  const bg=g.createRadialGradient(-14,by0-14,6,0,by0,bw+8);bg.addColorStop(0,'#5a72b8');bg.addColorStop(0.18,U);bg.addColorStop(1,D);
+  g.fillStyle=bg;g.beginPath();g.ellipse(0,by0+jig*0.2,bw+jig*0.4,bh,0,0,7);g.fill();
+  g.fillStyle='rgba(255,255,255,.14)';g.beginPath();g.ellipse(-18,by0-18,14,10,-0.5,0,7);g.fill();
+  if(cop.hat==='cara'){g.strokeStyle='#f4f4f4';g.lineWidth=7;g.beginPath();g.moveTo(-34,by0-36);g.lineTo(30,by0+30);g.stroke();}
+  // straining shirt buttons with gaps
+  for(let i=0;i<5;i++){const yy=by0-38+i*16,xx=Math.sin(i*0.9)*2;if(i>0&&i<4){g.fillStyle=skin;g.beginPath();g.ellipse(xx,yy+8,2.4,3.2,0,0,7);g.fill();}circ(g,xx,yy,2.4,'#e8c23a');}
+  // belt sinking under the belly
+  const bly=anim==='hitch'?-40-Math.abs(Math.sin(at*9))*6:-36;g.fillStyle='#161616';g.beginPath();g.ellipse(0,bly,46,8,0,0,Math.PI);g.fill();g.fillRect(-46,bly-5,92,6);g.fillStyle='#e8c23a';rr(g,-8,bly-6,16,12,2);g.fill();g.fillStyle='#161616';g.fillRect(-4,bly-3,8,6);
   // badge + name tag
-  star5(g,-16,-84,5,'#e8c23a');g.fillStyle='#fff';g.fillRect(6,-88,20,6);g.fillStyle='#1d2f66';g.font='bold 5px sans-serif';g.textAlign='center';g.fillText('BOLINHAS',16,-83.5);
+  star5(g,-24,by0-26,6,'#e8c23a');g.fillStyle='#fff';rr(g,10,by0-32,30,8,2);g.fill();g.fillStyle=D;g.font='bold 5px sans-serif';g.textAlign='center';g.fillText(cop.name.split(' ').pop().slice(0,11),25,by0-26.5);
   // arms by animation
-  const sh=-90;let aL=[Math.PI/2+0.25,Math.PI/2],aR=[Math.PI/2-0.25,Math.PI/2],prop=null;
-  if(walk){aL=[Math.PI/2+0.3+sw*0.4,Math.PI/2+sw*0.3];aR=[Math.PI/2-0.3-sw*0.4,Math.PI/2-sw*0.3];}
+  const sh=-104;let aL=[Math.PI/2+0.35,Math.PI/2+0.1],aR=[Math.PI/2-0.35,Math.PI/2-0.1],prop=null;
+  if(walk){aL=[Math.PI/2+0.4+sw*0.4,Math.PI/2+sw*0.3];aR=[Math.PI/2-0.4-sw*0.4,Math.PI/2-sw*0.3];}
   else if(anim==='hitch'){aL=[Math.PI/2+0.9,0.3];aR=[Math.PI/2-0.9,Math.PI-0.3];}
   else if(anim==='talk'){const w2=Math.sin(at*7)*0.5;aR=[-0.4+w2,-1.2+w2];}
-  else if(anim==='write'||anim==='give'){aL=[Math.PI/2+0.4,-0.2];aR=[Math.PI/2-0.2,anim==='give'&&at>0.7?-0.1:Math.PI+0.5+Math.sin(at*18)*0.15];prop=anim==='give'&&at>0.7?'none':'pad';}
+  else if(anim==='write'||anim==='give'){aL=[Math.PI/2+0.4,-0.2];aR=[Math.PI/2-0.2,anim==='give'&&at>0.6?-0.1:Math.PI+0.5+Math.sin(at*18)*0.15];prop=anim==='give'&&at>0.6?'none':'pad';}
   else if(anim==='nata'){aR=[0.6,-1.9+Math.sin(at*6)*0.2];prop='nata';}
   else if(anim==='selfie'){aR=[-0.9,-0.6];prop='phone';}
   else if(anim==='mustache'){aR=[-0.2,-2.4];}
   else if(anim==='think'){aR=[-0.3,-2.2+Math.sin(at*10)*0.2];}
-  else if(anim==='sniff'){aL=[Math.PI/2+0.25,Math.PI/2];aR=[0.2,-2.0];}
+  else if(anim==='sniff'){aR=[0.2,-2.0];}
   else if(anim==='sing'){aL=[Math.PI+0.5,Math.PI+0.9];aR=[-0.5,-0.9];}
-  else if(anim==='belly'){aL=[Math.PI/2+0.6,-0.3];aR=[Math.PI/2-0.6,Math.PI+0.3];}
+  else if(anim==='belly'){aL=[Math.PI/2+0.7,-0.4];aR=[Math.PI/2-0.7,Math.PI+0.4];}
   else if(anim==='dance'){aL=[Math.PI+0.6+Math.sin(at*10)*0.4,Math.PI+1.2];aR=[-0.6-Math.sin(at*10)*0.4,-1.2];}
-  limb(g,-26,sh,aL[0],18,aL[1],16,9,blue);const hR=limb(g,26,sh,aR[0],18,aR[1],16,9,blue);
-  circ(g,hR[0],hR[1],5,skin);
-  if(prop==='pad'){g.fillStyle='#fff';g.fillRect(-30,-78,18,22);g.fillStyle='#e04040';g.fillRect(-30,-78,18,4);g.strokeStyle='#999';g.lineWidth=1;for(let i=0;i<4;i++){g.beginPath();g.moveTo(-28,-70+i*4);g.lineTo(-14,-70+i*4);g.stroke();}g.fillStyle='#222';g.fillRect(hR[0]-1,hR[1]-8,2,9);}
-  if(prop==='nata'){ell(g,hR[0],hR[1]-5,8,4,'#c8781e');ell(g,hR[0],hR[1]-7,6,2.5,'#f6c55a');}
-  if(prop==='phone'){g.fillStyle='#222';rr(g,hR[0]-5,hR[1]-12,10,16,2);g.fill();if(at%1<0.15){g.fillStyle='rgba(255,255,255,.8)';g.beginPath();g.arc(hR[0],hR[1]-4,14,0,7);g.fill();}}
-  // head
-  const hy=-118+(anim==='sniff'?Math.sin(at*20)*1.5:0);
-  circ(g,0,hy,17,skin);circ(g,-15,hy+2,4,skin);circ(g,15,hy+2,4,skin);
-  circ(g,-9,hy+6,4,'rgba(230,80,80,.45)');circ(g,9,hy+6,4,'rgba(230,80,80,.45)');
+  limb(g,-40,sh,aL[0],20,aL[1],18,12,D);limb(g,-40,sh,aL[0],20,aL[1],18,9,U);const hR=limb(g,40,sh,aR[0],20,aR[1],18,12,D);limb(g,40,sh,aR[0],20,aR[1],18,9,U);
+  const hL=[-40+Math.cos(aL[0])*20+Math.cos(aL[1])*18,sh+Math.sin(aL[0])*20+Math.sin(aL[1])*18];circ(g,hL[0],hL[1],6,skin);circ(g,hR[0],hR[1],6,skin);
+  if(prop==='pad'){g.fillStyle='#fff';g.fillRect(-36,-92,22,26);g.fillStyle='#e04040';g.fillRect(-36,-92,22,5);g.strokeStyle='#999';g.lineWidth=1;for(let i=0;i<4;i++){g.beginPath();g.moveTo(-34,-82+i*4);g.lineTo(-16,-82+i*4);g.stroke();}g.fillStyle='#222';g.fillRect(hR[0]-1,hR[1]-9,2,10);}
+  if(prop==='nata'){ell(g,hR[0],hR[1]-6,9,4.5,'#c8781e');ell(g,hR[0],hR[1]-8,7,3,'#f6c55a');circ(g,hR[0]-2,hR[1]-9,1.2,'#6a3a10');}
+  if(prop==='phone'){g.fillStyle='#222';rr(g,hR[0]-6,hR[1]-14,12,18,2);g.fill();if(at%1<0.15){g.fillStyle='rgba(255,255,255,.85)';g.beginPath();g.arc(hR[0],hR[1]-5,16,0,7);g.fill();}}
+  // head: round, double chin, rosy cheeks, ears
+  const hy=-132+(anim==='sniff'?Math.sin(at*20)*1.5:0)+jig*0.25;
+  g.fillStyle=skinD;g.beginPath();g.ellipse(0,hy+16,15,7,0,0,7);g.fill();
+  g.fillStyle=skin;g.beginPath();g.ellipse(0,hy,20,19,0,0,7);g.fill();circ(g,-19,hy+2,5,skin);circ(g,19,hy+2,5,skin);circ(g,-19,hy+2,2.2,skinD);circ(g,19,hy+2,2.2,skinD);
+  g.fillStyle=skinD;g.beginPath();g.ellipse(0,hy+15,13,4,0,0,Math.PI);g.fill();
+  circ(g,-11,hy+7,5,'rgba(235,90,90,.45)');circ(g,11,hy+7,5,'rgba(235,90,90,.45)');
   // aviators
-  g.fillStyle='#1a1a22';rr(g,-13,hy-4,11,7,3);g.fill();rr(g,2,hy-4,11,7,3);g.fill();g.fillRect(-2,hy-3,4,1.5);g.fillStyle='rgba(120,200,255,.5)';g.fillRect(-11,hy-3,3,2);g.fillRect(4,hy-3,3,2);
-  circ(g,0,hy+4,3.2,'#e09a70');
-  // moustache (twirls when stroked)
-  const mt=anim==='mustache'?Math.sin(at*12)*3:0;g.fillStyle='#4a2a14';g.beginPath();g.moveTo(0,hy+7);g.quadraticCurveTo(-8,hy+5,-15,hy+9+mt);g.quadraticCurveTo(-8,hy+12,0,hy+10);g.quadraticCurveTo(8,hy+12,15,hy+9-mt);g.quadraticCurveTo(8,hy+5,0,hy+7);g.fill();
-  const talking=anim==='talk'||anim==='sing'||(anim!=='walk'&&at<2.3&&Math.sin(at*22)>0);
-  if(talking){ell(g,0,hy+13,3.5,2.5,'#6a1a1a');}
-  // cap
-  g.fillStyle=dk;g.beginPath();g.ellipse(0,hy-14,19,8,0,0,7);g.fill();g.fillStyle=blue;g.fillRect(-16,hy-26,32,12);g.beginPath();g.ellipse(0,hy-26,18,6,0,0,7);g.fill();
-  g.fillStyle='#111';g.beginPath();g.ellipse(4,hy-13,14,4,0.1,0,Math.PI);g.fill();g.fillStyle='#d8d8e0';g.fillRect(-16,hy-17,32,2.5);star5(g,0,hy-21,4,'#e8c23a');
+  g.fillStyle='#16161e';rr(g,-15,hy-5,13,8,3.5);g.fill();rr(g,2,hy-5,13,8,3.5);g.fill();g.fillRect(-2,hy-4,4,1.6);g.fillStyle='rgba(140,210,255,.55)';g.fillRect(-13,hy-4,4,2);g.fillRect(4,hy-4,4,2);
+  // eyebrows
+  g.strokeStyle='#3a2210';g.lineWidth=2.4;const eb=anim==='think'?-2:anim==='talk'?Math.sin(at*9)*1.5:0;g.beginPath();g.moveTo(-15,hy-9+eb);g.lineTo(-3,hy-8);g.moveTo(3,hy-8);g.lineTo(15,hy-9+eb);g.stroke();
+  // nose
+  g.fillStyle='#e8946a';g.beginPath();g.ellipse(0,hy+4,4.6,4,0,0,7);g.fill();g.fillStyle='rgba(255,255,255,.4)';circ(g,-1.5,hy+2.5,1.2,'rgba(255,255,255,.5)');
+  // big handlebar moustache
+  const mt=anim==='mustache'?Math.sin(at*12)*3:0;g.fillStyle='#3e220e';g.beginPath();g.moveTo(0,hy+8);g.quadraticCurveTo(-10,hy+5,-19,hy+10+mt);g.quadraticCurveTo(-22,hy+6+mt,-24,hy+4+mt);g.quadraticCurveTo(-22,hy+14,-10,hy+13);g.quadraticCurveTo(-4,hy+13,0,hy+11);g.quadraticCurveTo(4,hy+13,10,hy+13);g.quadraticCurveTo(22,hy+14,24,hy+4-mt);g.quadraticCurveTo(22,hy+6-mt,19,hy+10-mt);g.quadraticCurveTo(10,hy+5,0,hy+8);g.fill();
+  const talking=anim==='talk'||anim==='sing'||(anim!=='walk'&&at<2.0&&Math.sin(at*22)>0);
+  if(talking){g.fillStyle='#6a1a1a';g.beginPath();g.ellipse(0,hy+15.5,4.5,3,0,0,7);g.fill();g.fillStyle='#fff';g.fillRect(-3,hy+13.5,6,1.4);}
+  if(walk){g.fillStyle='rgba(150,210,255,.85)';const sp=(t*1.4)%1;g.beginPath();g.ellipse(17,hy-8+sp*14,2,3,0,0,7);g.fill();}
+  // hats per country
+  const hc=cop.hatC;
+  if(cop.hat==='tricorn'){g.fillStyle=hc;g.beginPath();g.moveTo(-22,hy-10);g.quadraticCurveTo(-24,hy-34,-6,hy-36);g.lineTo(14,hy-36);g.quadraticCurveTo(26,hy-30,22,hy-10);g.quadraticCurveTo(0,hy-16,-22,hy-10);g.fill();g.fillStyle='rgba(255,255,255,.35)';g.fillRect(-10,hy-33,16,2);g.fillStyle=hc;g.fillRect(8,hy-44,10,10);}
+  else if(cop.hat==='kepi'){g.fillStyle=hc;g.beginPath();g.moveTo(-16,hy-12);g.lineTo(-14,hy-36);g.lineTo(14,hy-38);g.lineTo(16,hy-12);g.fill();g.fillStyle=cop.band;g.fillRect(-16,hy-17,32,3);g.fillRect(-14,hy-36,28,2.5);g.fillStyle='#111';g.beginPath();g.ellipse(5,hy-11,15,4,0.12,0,Math.PI);g.fill();}
+  else if(cop.hat==='bobby'){g.fillStyle=hc;g.beginPath();g.moveTo(-19,hy-10);g.quadraticCurveTo(-20,hy-50,0,hy-54);g.quadraticCurveTo(20,hy-50,19,hy-10);g.fill();g.fillStyle='#111';g.fillRect(-21,hy-12,42,4);star5(g,0,hy-30,6,'#d8dce4');circ(g,0,hy-55,3,'#d8dce4');}
+  else{g.fillStyle=hc;g.beginPath();g.ellipse(0,hy-16,22,8,0,0,7);g.fill();g.fillStyle=cop.hat==='cara'?'#111522':cop.uni;g.fillRect(-18,hy-30,36,14);g.beginPath();g.ellipse(0,hy-30,21,7,0,0,7);g.fill();
+    g.fillStyle='#0d0d0d';g.beginPath();g.ellipse(5,hy-15,16,4.5,0.1,0,Math.PI);g.fill();g.fillStyle=cop.band;g.fillRect(-18,hy-20,36,3);star5(g,0,hy-25,4.5,'#e8c23a');}
   g.restore();
-  // fx above head
-  if(anim==='sing'){for(let i=0;i<3;i++){const p=(at*0.8+i/3)%1;g.globalAlpha=1-p;g.fillStyle='#ffd23f';g.font=`${Math.round(18*k)}px sans-serif`;g.textAlign='center';g.fillText('♪',x+(10+i*8+Math.sin(p*6)*8)*k*face,y-(150+p*50)*k);}g.globalAlpha=1;}
-  if(anim==='think'){g.fillStyle='#fff';g.font=`bold ${Math.round(22*k)}px "Arial Black",sans-serif`;g.textAlign='center';g.fillText('?',x+22*k*face,y-(158+Math.sin(at*4)*4)*k);}
-  if(anim==='sniff'){g.strokeStyle='rgba(255,255,255,.7)';g.lineWidth=2*k;for(let i=0;i<3;i++){const p=(at*1.5+i/3)%1;g.beginPath();g.arc(x+(20+p*30)*k*face,y-120*k,4*k*(1-p)+1,0,7);g.stroke();}}
+  if(anim==='sing'){for(let i=0;i<3;i++){const p=(at*0.8+i/3)%1;g.globalAlpha=1-p;g.fillStyle='#ffd23f';g.font=`${Math.round(20*k)}px sans-serif`;g.textAlign='center';g.fillText('♪',x+(10+i*8+Math.sin(p*6)*8)*k*face,y-(170+p*50)*k);}g.globalAlpha=1;}
+  if(anim==='think'){g.fillStyle='#fff';g.font=`bold ${Math.round(24*k)}px "Arial Black",sans-serif`;g.textAlign='center';g.fillText('?',x+26*k*face,y-(176+Math.sin(at*4)*4)*k);}
+  if(anim==='sniff'){g.strokeStyle='rgba(255,255,255,.7)';g.lineWidth=2*k;for(let i=0;i<3;i++){const p=(at*1.5+i/3)%1;g.beginPath();g.arc(x+(22+p*30)*k*face,y-134*k,4*k*(1-p)+1,0,7);g.stroke();}}
 }
+// the cop: round belly, moustache, cap — drawn on the FX canvas, feet at (x,y)
 function copScreen(){ // where the cop stands right now (FX coords) + scale + facing
   const B=busted,s=carScale,cx=W,cy=(HZY+VS)*2-4;
   const tx=cx-108*s,ty=cy+4,tk=s*0.95;
@@ -1851,11 +2035,11 @@ function copScreen(){ // where the cop stands right now (FX coords) + scale + fa
 }
 function drawBustFX(g){
   const B=busted;if(!B||B.phase==='stop')return;
-  const c=copScreen(),T=perfNow/1000;
-  drawCop(g,c.x,c.y,c.k,B.anim,T,B.at,c.face);
+  const c=copScreen(),TT=perfNow/1000;
+  drawCop(g,c.x,c.y,c.k,B.anim,TT,B.at,c.face);
   if(B.ticket&&B.ticket.t<1.4){const p=B.ticket.t/1.4,s=carScale,x=lerp(c.x+20*s,W-30*s,p),y=lerp(c.y-90*s,(HZY+VS)*2-110*s,p)-Math.sin(p*Math.PI)*60*s;
     g.save();g.translate(x,y);g.rotate(p*9);g.fillStyle='#fffbe8';g.fillRect(-14*s,-9*s,28*s,18*s);g.fillStyle='#e04040';g.fillRect(-14*s,-9*s,28*s,4*s);g.restore();}
-  if(B.phase!=='back'){g.save();g.globalAlpha=0.65+0.35*Math.sin(T*4);g.fillStyle='#fff';g.font=`bold ${Math.round(Math.min(W,H)*0.045)}px "Arial Black",sans-serif`;g.textAlign='center';g.fillText(B.fast?'⏩ ⏩':'toca para acelerar ⏩',W,FX.height-18);g.restore();}
+  if(B.phase!=='back'){g.save();g.globalAlpha=0.65+0.35*Math.sin(TT*4);g.fillStyle='#fff';g.font=`bold ${Math.round(Math.min(W,H)*0.045)}px "Arial Black",sans-serif`;g.textAlign='center';g.fillText(B.fast?'⏩ ⏩':T('tapFast'),W,FX.height-18);g.restore();}
 }
 
 // ------------------------------------------------------------------ update
@@ -1943,7 +2127,7 @@ function update(dt){
     const ns=stageIdx+1;
     if(ns<STAGES.length&&pSeg.index>=cpIdx[ns]){stageIdx=ns;const z=STAGES[ns];
       if(z.leg!==legIdx){legIdx=z.leg;const L=LEGS[legIdx];timeLeft+=L.bonus;sfx('cp');crewEvent('cp');spawnFirework();spawnFirework();
-        showCheckpoint(L.bonus,`ETAPA ${legIdx+1}/4 · ${L.name}`,z.fact);if(police&&police.phase!=='busted')policeGiveUp(true);}
+        showCheckpoint(L.bonus,`${T('stage')} ${legIdx+1}/${LEGS.length} · ${L.name}`,z.fact);if(police&&police.phase!=='busted')policeGiveUp(true);}
       else{showPostcard(z);sfx('pickup');}
       say('w',z.luna,3,true);showMini(4.5);}
     if(pSeg.index>=goalIdx){state='finish';finishT=0;sfx('goal');crewEvent('finish');police=null;busted=null;say('w','CHEGÁMOS! 🌙',4,true);say('d','MADE IN MAIA, BABY!',4,true);}
@@ -2235,7 +2419,7 @@ function drawFigure(g,x,y,rot,who,sit,T,s){
 }
 function drawBubble(g,ax,ay,text,who,t,life,al_){
   const sc=Math.min(1,t/0.12),al=Math.min(1,(life-t)/0.25);g.save();g.globalAlpha=al;
-  const fs=Math.round(Math.min(H,W*0.9)*0.062);g.font=`italic 900 ${fs}px "Arial Black",Impact,sans-serif`;
+  const fs=Math.round(Math.min(H,W*0.9)*0.074);g.font=`italic 900 ${fs}px "Arial Black",Impact,sans-serif`;
   const maxW=FX.width*0.78-fs*1.1,words=text.split(' '),lines=[];let cur='';
   for(const wd of words){const tt=cur?cur+' '+wd:wd;if(g.measureText(tt).width>maxW&&cur){lines.push(cur);cur=wd;}else cur=tt;}lines.push(cur);
   const tw=Math.max(...lines.map(l=>g.measureText(l).width)),lh=fs*1.15,w=(tw+fs*1.1)*sc,h=(lines.length*lh+fs*0.55)*sc;
@@ -2246,7 +2430,7 @@ function drawBubble(g,ax,ay,text,who,t,life,al_){
   rr(g,bx,by,w,h,fs*0.55);g.fill();g.stroke();
   g.beginPath();g.moveTo(tx-fs*0.38,by+h-g.lineWidth);g.lineTo(tx+fs*0.38,by+h-g.lineWidth);g.strokeStyle=col;g.stroke();
   if(sc>0.9){g.fillStyle=bd==='#111'?'#111':bd;g.textAlign='center';g.textBaseline='middle';lines.forEach((l,i)=>g.fillText(l,bx+w/2,by+fs*0.28+lh*(i+0.5)+1));
-    g.font=`italic 900 ${Math.round(fs*0.5)}px "Arial Black",sans-serif`;g.textAlign='left';g.fillStyle=bd;g.fillText(who==='d'?'MAIATO':who==='w'?'LUNA 🌙':'AGENTE BOLINHAS 👮',bx+fs*0.4,by-fs*0.3);}
+    g.font=`italic 900 ${Math.round(fs*0.5)}px "Arial Black",sans-serif`;g.textAlign='left';g.fillStyle=bd;g.fillText(who==='d'?'MAIATO':who==='w'?'LUNA 🌙':((busted&&busted.cop)||copCfg()).name+' 👮',bx+fs*0.4,by-fs*0.3);}
   g.restore();
 }
 function renderFX(){
@@ -2264,11 +2448,11 @@ function renderFX(){
   // speech bubbles
   const s=carScale,cx=W,cy=(HZY+VS)*2-4;
   for(const b of bubbles){let ax,ay;
-    if(b.who==='d'){ax=cx-22*s-30;ay=cy-100*s;}
+    if(b.who==='d'){if(busted&&busted.phase!=='stop'){ax=cx+10*s;ay=cy-150*s;}else{ax=cx-22*s-30;ay=cy-100*s;}}
     else if(b.who==='w'){ax=cx+22*s+30;ay=cy-(crew.w.a==='stand'?124:100)*s;}
-    else if(busted&&busted.phase!=='stop'){const c=copScreen();ax=c.x;ay=c.y-150*c.k;}
+    else if(busted&&busted.phase!=='stop'){const c=copScreen();ax=c.x;ay=c.y-172*c.k;}
     else{if(policeScr){const dw=0.29*roadW*policeScr.sc*HW*2;ax=policeScr.sx*2;ay=policeScr.sy*2-dw*0.8;if(ay<60||ax<0||ax>FX.width){ax=FX.width*0.8;ay=H*0.7;}}else{ax=FX.width*0.8;ay=H*0.7;}}
-    drawBubble(fg,ax,ay,b.text,b.who,b.t,b.life,b.who==='d'?'L':b.who==='w'?'R':'C');}
+    drawBubble(fg,ax,ay,b.text,b.who,b.t,b.life,b.who==='d'?(busted&&busted.phase!=='stop'?'R':'L'):b.who==='w'?'R':'C');}
 }
 
 // ------------------------------------------------------------------ classic analog speedometer
@@ -2326,9 +2510,9 @@ function buildRoute(){
 function updateHUD(){
   if(!['play','finish','over','count'].includes(state))return;
   setT('time',String(Math.ceil(timeLeft)));$('time').classList.toggle('low',timeLeft<10&&state==='play');
-  setT('score',Math.floor(score).toLocaleString('pt-PT'));setT('natas','🥧 NATAS '+natas);
-  setT('stage',`ETAPA ${legIdx+1}/${LEGS.length} · ${STAGES[stageIdx].name}`);
-  if(hudCache.b!==boosts){hudCache.b=boosts;$('boosts').innerHTML='TURBO '+[0,1,2].map(i=>`<span class="${i<boosts?'':'off'}">⚡</span>`).join('');$('boostN').textContent=boosts;$('cBoost').classList.toggle('empty',boosts===0);}
+  setT('score',Math.floor(score).toLocaleString('pt-PT'));setT('natas','🥧 '+T('natas')+' '+natas);
+  setT('stage',`${T('stage')} ${legIdx+1}/${LEGS.length} · ${STAGES[stageIdx].name}`);
+  if(hudCache.b!==boosts){hudCache.b=boosts;$('boosts').innerHTML=T('turbo')+' '+[0,1,2].map(i=>`<span class="${i<boosts?'':'off'}">⚡</span>`).join('');$('boostN').textContent=boosts;$('cBoost').classList.toggle('empty',boosts===0);}
   const prog=clamp((position+playerZ)/goalZ,0,1),r=$('route');r.querySelector('.fill').style.width=(prog*100)+'%';r.querySelector('.car').style.left=(prog*100)+'%';
   r.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('done',i<=legIdx));
   const cw=!!police&&(police.phase==='chase'||police.phase==='ahead');if(hudCache.cw!==cw){hudCache.cw=cw;$('copWarn').classList.toggle('hidden',!cw);}
@@ -2443,6 +2627,7 @@ let settingsFrom='title';
 function syncSettingsUI(){document.querySelectorAll('.seg').forEach(sg=>{const k=sg.dataset.k;let v=settings[k];if(typeof v==='boolean')v=v?'1':'0';sg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===String(v)));});
   $('sens').value=settings.sens;$('volM').value=settings.volM;$('volS').value=settings.volS;}
 document.querySelectorAll('.seg').forEach(sg=>sg.querySelectorAll('button').forEach(b=>b.onclick=()=>{aInit();sfx('click');const k=sg.dataset.k,v=b.dataset.v;
+  if(k==='lang'){setLang(v);settings.lang=v;syncSettingsUI();return;}
   if(k==='ctrl'){setCtrl(v);return;}
   if(k==='auto'){settings.auto=v==='1';store.set('auto2',settings.auto);}
   if(k==='vib'){settings.vib=v==='1';store.set('vib',settings.vib);if(settings.vib)vib(40);}
@@ -2464,10 +2649,9 @@ let ini=(String(store.get('ini','MAI'))+'AAA').slice(0,3).split('');
 let pendingScore=null;
 const qualifies=s=>s>0&&(scores.length<10||s>scores[scores.length-1].s);
 function addScore(n,p){const e={n,s:p.s,st:p.st,w:p.w};scores.push(e);scores.sort((a,b)=>b.s-a.s);scores=scores.slice(0,10);store.set('scores',scores);best=scores[0].s;store.set('best',best);return scores.indexOf(e);}
-function renderTable(el,hl,limit){const L=scores.slice(0,limit||10);
-  el.innerHTML=L.length?L.map((e,i)=>`<tr class="${i===hl?'me':''}" style="animation-delay:${i*0.07}s"><td class="md">${['👑','🥈','🥉'][i]||(i+1)+'.'}</td><td>${e.n}</td><td class="r">${e.s.toLocaleString('pt-PT')}</td><td>${e.w?'🏁 ALGARVE':(STAGES[e.st]?STAGES[e.st].name:'')}</td></tr>`).join(''):'<tr><td>Ainda sem recordes — sê o primeiro! 🌙</td></tr>';}
+function renderTable(el,hl,limit){el.innerHTML=rowsHTML(scores.slice(0,limit||10),hl);}
 function buildSlots(){const el=$('slots');el.innerHTML='';ini.forEach((c,i)=>{const d=document.createElement('div');d.className='slot';d.innerHTML=`<button>▲</button><b>${c}</b><button>▼</button>`;const [up,b,dn]=d.children;const step=k=>{ini[i]=CH[mod(CH.indexOf(ini[i])+k,CH.length)];b.textContent=ini[i];sfx('click');};up.onclick=()=>step(1);dn.onclick=()=>step(-1);el.appendChild(d);});}
-function commitScore(){if(!pendingScore)return -1;const n=ini.join('');store.set('ini',n);const r=addScore(n,pendingScore);pendingScore=null;$('nameEntry').classList.add('hidden');$('bestScore').textContent=best.toLocaleString('pt-PT');return r;}
+function commitScore(){if(!pendingScore)return -1;const n=ini.join('');store.set('ini',n);postGlobal(n,pendingScore);const r=addScore(n,pendingScore);pendingScore=null;$('nameEntry').classList.add('hidden');$('bestScore').textContent=best.toLocaleString('pt-PT');return r;}
 
 // ------------------------------------------------------------------ flow / UI
 const isTouch=matchMedia('(pointer:coarse)').matches||'ontouchstart' in window;
@@ -2485,9 +2669,9 @@ function beginCountdown(){
   show(null);startRace();state='count';inGameUI(true);applyCtrl();calibrate();
   buildRoute();for(const k in hudCache)delete hudCache[k];updateHUD();
   startLights();
-  setTimeout(()=>showPostcard(STAGES[0],'Partida de'),2600);showMini(5);
+  setTimeout(()=>showPostcard(STAGES[0],T('departure')),2600);showMini(5);
 }
-function pauseGame(){if(state!=='play')return;state='paused';$('toast').classList.add('hidden');show('pause');$('pmsg').textContent=pick(Math.random,PAUSE_MSGS);musicStop();engineSound(-1);sirenSound(false);ptrs.clear();evalPtrs();}
+function pauseGame(){if(state!=='play')return;state='paused';$('toast').classList.add('hidden');show('pause');$('pmsg').textContent=pick(Math.random,T('pauseM'));musicStop();engineSound(-1);sirenSound(false);ptrs.clear();evalPtrs();}
 function resumeGame(){show(null);state='play';aInit();musicResume();rects={};requestAnimationFrame(cacheRects);}
 function toMenu(){commitScore();buildTicker();musicStop();state='title';show('title');inGameUI(false);['toast','count'].forEach(i=>$(i).classList.add('hidden'));startRace();speed=maxSpeed*0.4;$('bestScore').textContent=best.toLocaleString('pt-PT');engineSound(-1);sirenSound(false);}
 $('resumeBtn').onclick=resumeGame;$('pauseBtn').onclick=e=>{e.stopPropagation();pauseGame();};
@@ -2496,7 +2680,7 @@ $('restartBtn').onclick=()=>{aInit();musicStart(settings.station);beginCountdown
 $('menuBtn').onclick=toMenu;$('menuBtn2').onclick=toMenu;
 $('againBtn').onclick=()=>{commitScore();aInit();musicStart(settings.station);beginCountdown();};
 $('saveBtn').onclick=()=>{const r=commitScore();renderTable($('overTable'),r,5);sfx('cp');};
-$('hiBtn').onclick=()=>{aInit();sfx('click');state='hiscore';show('hiscore');renderTable($('hiTable'),-1,10);};
+$('hiBtn').onclick=()=>{aInit();sfx('click');state='hiscore';show('hiscore');renderHi();fetchGlobal().then(renderHi);};
 $('hiBack').onclick=()=>{state='title';show('title');};
 $('radioNext').onclick=()=>{setStation((settings.station+1)%SONGS.length);musicStart(settings.station);musicStop();};
 $('calBtn').onclick=()=>{calibrate();sfx('click');showToast('🎯 CENTRO','Calibrado!','Segura o telemóvel na posição de jogo — esse é agora o centro.');};
@@ -2506,11 +2690,12 @@ function checkRotate(){const r=$('rot');if(r)r.classList.add('hidden');}
 function showEnd(win){
   let bonus=0;if(win){bonus=Math.round(timeLeft)*1000;score+=bonus;}
   const fs=Math.floor(score);
-  $('overT').innerHTML=win?'CHEGÁMOS AO ALGARVE! 🌙<small>LUNA &amp; O MAIATO · FIM DA ROTA</small>':'ACABOU O TEMPO!<small>GAME OVER</small>';
+  $('overT').innerHTML=win?winTitle(CUR())+'<small>'+CUR().flag+' '+CUR().name+' · '+(chapter+1<CHAPTERS.length?T('nextC')+': '+CHAPTERS[chapter+1].flag+' '+CHAPTERS[chapter+1].name:T('tourDone'))+'</small>':T('timeUp')+'<small>GAME OVER</small>';
   const m=Math.floor(raceTime/60),s=Math.floor(raceTime%60);
-  $('overS').innerHTML=(win?`Viagem: <b>${m}:${String(s).padStart(2,'0')}</b> · Bónus: <b>+${bonus.toLocaleString('pt-PT')}</b><br>`:`Chegaste a: <b>${STAGES[stageIdx].name}</b> · Etapa ${legIdx+1}/4<br>`)+`🥧 <b>${natas}</b> · Ultrapassagens <b>${passes}</b> · Pontos <b>${fs.toLocaleString('pt-PT')}</b>`;
+  $('overS').innerHTML=(win?`${T('trip')}: <b>${m}:${String(s).padStart(2,'0')}</b> · ${T('bonus')}: <b>+${bonus.toLocaleString('pt-PT')}</b><br>`:`${T('reached')}: <b>${STAGES[stageIdx].name}</b> · ${T('stage')} ${legIdx+1}/${LEGS.length}<br>`)+`🥧 <b>${natas}</b> · ${T('passes')} <b>${passes}</b> · ${T('pts')} <b>${fs.toLocaleString('pt-PT')}</b>`;
   $('overTable').innerHTML='';
-  if(qualifies(fs)){pendingScore={s:fs,st:stageIdx,w:win};$('nameEntry').classList.remove('hidden');buildSlots();}
+  if(win){unlockNext();}store.set('cbest'+chapter,Math.max(chapterBest(chapter),fs));$('nextBtn').classList.toggle('hidden',!(win&&chapter+1<CHAPTERS.length));
+  if(qualifies(fs)||(gScores&&(gScores.length<10||fs>gScores[gScores.length-1].s))){pendingScore={s:fs,st:stageIdx,w:win,c:chapter};$('nameEntry').classList.remove('hidden');buildSlots();}
   else{pendingScore=null;$('nameEntry').classList.add('hidden');renderTable($('overTable'),-1,5);}
   $('toast').classList.add('hidden');endExtras(win,fs);show('over');$('controls').classList.add('hidden');$('pauseBtn').classList.add('hidden');$('ctrlBtn').classList.add('hidden');ptrs.clear();evalPtrs();
 }
@@ -2675,9 +2860,9 @@ function drawMaps(dt){
   const T=perfNow/1000;
   if(vis('tourMap'))drawEuroMap(mapCtx.tourMap,760,500,T,{labels:true});
   const mm=$('miniMap');if(miniT>0){miniT-=dt;mm.classList.add('show');}else mm.classList.remove('show');
-  if(miniT>-0.5&&['play','count','finish'].includes(state))drawPortugalMap(mapCtx.miniMap,240,320,T,zoneProgress());
-  if(vis('pauseMap'))drawPortugalMap(mapCtx.pauseMap,240,320,T,zoneProgress());
-  if(vis('radioMap'))drawPortugalMap(mapCtx.radioMap,240,320,T,0);
+  if(miniT>-0.5&&['play','count','finish'].includes(state))drawChapterMap(mapCtx.miniMap,240,320,T,zoneProgress());
+  if(vis('pauseMap'))drawChapterMap(mapCtx.pauseMap,240,320,T,zoneProgress());
+  if(vis('radioMap'))drawChapterMap(mapCtx.radioMap,240,320,T,0);
   if(vis('endMap'))drawEuroMap(mapCtx.endMap,520,350,T,{labels:true,done:state==='finish'});
 }
 function buildTicker(){const L=scores.slice(0,10);$('ticker').textContent=L.length?'🏆 RECORDES  ·  '+L.map((e,i)=>`${i+1}. ${e.n} ${e.s.toLocaleString('pt-PT')}`).join('   ·   ')+'   ·   MADE IN MAIA 🌙':'🏆 SÊ O PRIMEIRO NOS RECORDES · PORTO ➜ ALGARVE · MADE IN MAIA 🌙 · NEXT: EURO TOUR';}
@@ -2693,7 +2878,7 @@ const TIPS=['🥧 Apanha 10 pastéis de nata para ganhar +5 segundos','⚡ Guard
 const PAUSE_MSGS=['☕ A Luna foi buscar uma bica…','🗺️ O maiato está a estudar o mapa','🥧 Pausa para um pastel de nata','📸 A Luna está a tirar uma selfie com a vista','🎶 Aproveita para mudar de rádio','🌅 Respira fundo. O Algarve espera por ti'];
 const OVER_MSGS=['O elétrico 28 chegou primeiro… 🚋','Até um tuk-tuk teria conseguido! 🛺','Tempo esgotado — mas a vista valeu a pena 🌅','A Luna diz: “para a próxima, menos selfies” 📸','Faltou uma bica turbo ☕⚡','Devagar se vai ao longe… mas não chega ao Algarve 😅','O GPS recalculou… para amanhã 🧭'];
 const WIN_MSGS=['Portugal conquistado. A Europa que se cuide! 🇪🇺','A Luna já está na praia 🌙🏖️','Made in Maia, finished in Faro 🏁','Lua de mel? Lua cheia? Lua no Algarve! 🌙'];
-const COUNT_MSGS=['Apertem os cintos!','Rumo ao Algarve!','Luna pronta? 🌙','Motor quente, bica tomada ☕','Made in Maia, vai!'];
+const COUNT_MSGS=['Apertem os cintos!','Rumo à meta!','Luna pronta? 🌙','Motor quente, bica tomada ☕','Made in Maia, vai!'];
 const ZEMO={porto:'🌉',douro:'🍇',aveiro:'🚣',coimbra:'🎓',oeste:'🏰',lisboa:'🚋',sintra:'🏰',alentejo:'🌾',algarve:'🏖️'};
 // tips rotation on title
 let tipI=Math.floor(Math.random()*TIPS.length);
@@ -2791,23 +2976,23 @@ let toastTimer2=0;
 function toastHTML(html,ms){const t=$('toast');t.innerHTML=html;t.classList.remove('hidden');clearTimeout(toastTimer2);toastTimer2=setTimeout(()=>{const c=t.querySelector('.card2');if(c){c.classList.add('out');setTimeout(()=>t.classList.add('hidden'),480);}else t.classList.add('hidden');},ms);}
 function showToast(a,b,c){toastHTML(`<div class="note"><div class="t1">${a}</div><div class="t2">${b}</div></div>${c?`<br><div class="fact">${c}</div>`:''}`,3600);}
 function showCheckpoint(bonus,sub,fact){
-  toastHTML(`<div class="cpb"><div class="t1">CHECKPOINT!</div><div class="bonus">+<span id="bonusN">0</span> s</div><div class="t2">${sub}</div></div><br><div class="fact">${fact}</div>`,3800);
+  toastHTML(`<div class="cpb"><div class="t1">${T('checkpoint')}</div><div class="bonus">+<span id="bonusN">0</span> s</div><div class="t2">${sub}</div></div><br><div class="fact">${fact}</div>`,3800);
   const t0=performance.now();const step=()=>{const e=$('bonusN');if(!e)return;const k=Math.min(1,(performance.now()-t0)/700);e.textContent=Math.round(bonus*k);if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);
 }
 function showPostcard(z,hi){const sig=pick(Math.random,['beijinhos, Luna 🌙','abraço do maiato 🤙','Luna & o maiato ♥','com amor, MiM ♥ LUNA']);
-  toastHTML(`<div class="card2"><div class="hi">${hi||'Saudações de'}</div><div class="nm">${z.name}</div><div class="sb">${z.sub}</div><div class="fc">${z.fact}</div><div class="sig">${sig}</div><div class="stamp">${ZEMO[z.key]||'🇵🇹'}</div><div class="pmark">PORTUGAL<br>2026<br>CORREIO</div></div>`,4000);}
+  toastHTML(`<div class="card2"><div class="hi">${hi||T('greet')}</div><div class="nm">${z.name}</div><div class="sb">${z.sub}</div><div class="fc">${z.fact}</div><div class="sig">${sig}</div><div class="stamp">${ZEMO[z.key]||z.emo||CUR().flag}</div><div class="pmark">${CUR().name}<br>2026<br>POST</div></div>`,4000);}
 // countdown with start lights
 function startLights(){
-  const c=$('count'),n=$('countN'),L=c.querySelectorAll('.lights i');c.classList.remove('hidden');L.forEach(x=>x.className='');$('cmsg').textContent=pick(Math.random,COUNT_MSGS);
+  const c=$('count'),n=$('countN'),L=c.querySelectorAll('.lights i');c.classList.remove('hidden');L.forEach(x=>x.className='');$('cmsg').textContent=pick(Math.random,T('count'));
   let k=0;const tickN=()=>{n.classList.remove('pop');void n.offsetWidth;n.classList.add('pop');};
   n.textContent='3';tickN();L[0].className='r';sfx('beep');
   const iv=setInterval(()=>{k++;if(k<3){n.textContent=String(3-k);tickN();L[k].className='r';sfx('beep');}
-    else if(k===3){L.forEach(x=>x.className='g');n.textContent='VAI!';tickN();sfx('go');state='play';say('d','Bora, Luna! Rumo ao Algarve!',2.4,true);setTimeout(()=>say('w','Bora! 🌙',1.6,true),900);}
+    else if(k===3){L.forEach(x=>x.className='g');n.textContent=T('goNow');tickN();sfx('go');state='play';say('d','Bora, Luna! Próxima paragem: '+CUR().goal+'!',2.4,true);setTimeout(()=>say('w','Bora! 🌙',1.6,true),900);}
     else{clearInterval(iv);c.classList.add('hidden');}},800);
 }
 // end screen extras: message, animated title, score count-up
 function endExtras(win,fs){
-  $('omsg').textContent=pick(Math.random,win?WIN_MSGS:OVER_MSGS);
+  $('omsg').textContent=pick(Math.random,win?T('winM'):T('overM'));
   const h=$('overT');h.classList.remove('shake','win');void h.offsetWidth;h.classList.add(win?'win':'shake');
   const b=$('bigScore');b.classList.remove('done');const t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/1300),e=1-Math.pow(1-k,3);b.textContent=Math.round(fs*e).toLocaleString('pt-PT');if(k<1)requestAnimationFrame(step);else b.classList.add('done');};requestAnimationFrame(step);
   if(win)for(let i=0;i<4;i++)setTimeout(spawnFirework,i*300);
@@ -2815,7 +3000,7 @@ function endExtras(win,fs){
 
 
 // menu: Euro Tour screen + keyboard navigation + reveal camera
-$('tourBtn').onclick=()=>{aInit();sfx('click');state='tour';show('tour');};
+
 $('tourBack').onclick=()=>{sfx('click');state='title';show('title');};
 let menuSel=0;
 function menuBtns(){return [...document.querySelectorAll('#menu .mbtn')];}
@@ -2833,7 +3018,702 @@ function frame(now){
 }
 
 // ------------------------------------------------------------------ boot
+
+// ================================================================== EURO TOUR — original landmark & scenery drawings
+const lin=(g,pts,col,w)=>{g.strokeStyle=col;g.lineWidth=w;g.lineCap='round';g.beginPath();for(let i=0;i<pts.length;i+=2)i?g.lineTo(pts[i],pts[i+1]):g.moveTo(pts[i],pts[i+1]);g.stroke();};
+function towerSpire(g,x,y,w,h,col){poly(g,[x-w/2,y,x,y-h,x+w/2,y],col);}
+// ---------- SPAIN
+function toroBoard(){return mk(300,230,(g,w,h)=>{ // the giant black bull roadside silhouette (original drawing, no wording)
+  g.strokeStyle='#6a5a4a';g.lineWidth=3;for(let x=70;x<=230;x+=40){g.beginPath();g.moveTo(x,h);g.lineTo(x,120);g.stroke();}
+  g.beginPath();g.moveTo(70,h-10);g.lineTo(230,150);g.moveTo(230,h-10);g.lineTo(70,150);g.stroke();
+  g.fillStyle='#0b0b0d';g.beginPath();
+  g.moveTo(52,92);g.quadraticCurveTo(60,62,96,58);g.quadraticCurveTo(140,40,176,52);g.quadraticCurveTo(214,50,236,66);
+  g.quadraticCurveTo(252,60,258,46);g.lineTo(266,50);g.quadraticCurveTo(262,64,252,74);g.quadraticCurveTo(262,82,264,96);
+  g.quadraticCurveTo(256,110,244,106);g.quadraticCurveTo(232,118,226,124);g.lineTo(230,178);g.lineTo(220,178);g.lineTo(212,130);
+  g.quadraticCurveTo(190,140,170,136);g.lineTo(166,178);g.lineTo(156,178);g.lineTo(150,134);g.quadraticCurveTo(120,138,96,128);
+  g.lineTo(92,178);g.lineTo(82,178);g.lineTo(78,122);g.quadraticCurveTo(66,118,62,128);g.lineTo(58,178);g.lineTo(48,178);g.lineTo(50,112);
+  g.quadraticCurveTo(40,104,34,118);g.quadraticCurveTo(26,96,52,92);g.closePath();g.fill();
+  g.strokeStyle='#0b0b0d';g.lineWidth=5;g.beginPath();g.moveTo(250,68);g.quadraticCurveTo(276,58,282,36);g.stroke();g.beginPath();g.moveTo(244,70);g.quadraticCurveTo(250,50,270,40);g.stroke();
+  g.lineWidth=3;g.beginPath();g.moveTo(44,96);g.quadraticCurveTo(22,120,26,160);g.stroke();
+});}
+function giralda(){return mk(110,320,(g,w,h)=>{const st='#d9a86a',dk='#b8864e';
+  g.fillStyle=st;g.fillRect(18,110,74,h-110);g.fillStyle=dk;g.fillRect(80,110,12,h-110);
+  g.strokeStyle='rgba(120,70,30,.45)';g.lineWidth=1.5;for(let y=130;y<h-10;y+=26){for(let x=26;x<80;x+=18){g.beginPath();g.moveTo(x,y);g.lineTo(x+9,y+10);g.lineTo(x+18,y);g.stroke();}}
+  for(let y=150;y<h-40;y+=44)win(g,46,y,16,26,'#3a2a20');
+  g.fillStyle='#f0dcc0';g.fillRect(24,64,62,48);g.fillStyle='#f4e8d2';g.fillRect(14,104,82,8);
+  for(let i=0;i<3;i++)win(g,30+i*18,72,12,32,'#3a2a20');
+  g.fillStyle='#f0dcc0';g.fillRect(32,40,46,26);g.fillRect(40,22,30,20);g.beginPath();g.ellipse(55,22,15,12,0,Math.PI,0);g.fill();
+  g.fillStyle='#d4a83a';g.fillRect(53,0,4,14);circ(g,55,4,4,'#d4a83a');
+});}
+function plazaEspana(){return mk(360,170,(g,w,h)=>{const br='#c8643a',st='#f0dcc0';
+  g.fillStyle=br;g.beginPath();g.moveTo(10,h);g.lineTo(10,96);g.quadraticCurveTo(180,60,350,96);g.lineTo(350,h);g.fill();
+  g.fillStyle=st;g.beginPath();g.moveTo(10,100);g.quadraticCurveTo(180,64,350,100);g.lineTo(350,92);g.quadraticCurveTo(180,56,10,92);g.fill();
+  for(let i=0;i<14;i++){const x=24+i*23,y=110+Math.abs(i-6.5)*2.2;g.fillStyle=st;rr(g,x,y,16,34,8);g.fill();g.fillStyle='#4a2a20';rr(g,x+3,y+4,10,30,5);g.fill();}
+  g.fillStyle='#2a6fb0';for(let x=14;x<346;x+=8){g.fillRect(x,h-14,6,6);}g.fillStyle='#f2c230';for(let x=18;x<346;x+=8)g.fillRect(x,h-8,6,6);
+  for(const x of [10,316]){g.fillStyle=br;g.fillRect(x,20,34,h-20);g.fillStyle=st;g.fillRect(x-3,18,40,6);g.fillRect(x+4,4,26,16);g.beginPath();g.ellipse(x+17,4,13,10,0,Math.PI,0);g.fill();win(g,x+11,40,12,22,'#3a2a20');win(g,x+11,76,12,22,'#3a2a20');}
+  g.fillStyle=st;g.fillRect(150,52,60,46);poly(g,[146,54,180,30,214,54],'#b8864e');
+});}
+function mezquita(){return mk(300,170,(g,w,h)=>{
+  g.fillStyle='#d8b98a';g.fillRect(0,70,w,h-70);g.fillStyle='#b89466';g.fillRect(0,64,w,8);
+  for(let i=0;i<8;i++){const x=12+i*36;g.fillStyle='#f4ead8';g.fillRect(x,96,30,h-96);
+    for(let k=0;k<10;k++){g.fillStyle=k%2?'#b8302a':'#f4ead8';g.beginPath();g.moveTo(x+15,100);g.arc(x+15,100,15,Math.PI+k*Math.PI/10,Math.PI+(k+1)*Math.PI/10);g.closePath();g.fill();}
+    g.fillStyle='#2a1a14';g.beginPath();g.moveTo(x+4,h);g.lineTo(x+4,104);g.arc(x+15,104,11,Math.PI,0);g.lineTo(x+26,h);g.fill();}
+  g.fillStyle='#d8b98a';g.fillRect(118,0,46,74);g.fillStyle='#e8d0a8';g.fillRect(114,40,54,6);win(g,132,12,18,24,'#3a2a20');circ(g,141,52,7,'#f4ead8');
+});}
+function molino(){return mk(120,180,(g,w,h)=>{
+  poly(g,[34,h,86,h,80,62,40,62],'#fbfbf6');poly(g,[68,h,86,h,80,62,72,62],'#dcdcd2');
+  poly(g,[34,64,60,30,86,64],'#1c1c22');win(g,52,h-40,16,40,'#2b6cb0');g.fillStyle='#2a2a33';g.fillRect(56,90,8,10);
+  const hx=60,hy=50;for(let k=0;k<4;k++){const a=0.5+k*Math.PI/2,ex=hx+Math.cos(a)*56,ey=hy+Math.sin(a)*56;lin(g,[hx,hy,ex,ey],'#4a3a2a',3);
+    g.save();g.translate(hx,hy);g.rotate(a);g.strokeStyle='#5a4a3a';g.lineWidth=1;g.strokeRect(12,-7,42,9);for(let x=18;x<54;x+=7){g.beginPath();g.moveTo(x,-7);g.lineTo(x,2);g.stroke();}g.restore();}
+  circ(g,hx,hy,4,'#1c1c22');
+});}
+function castleES(col='#c9a26a'){return mk(280,170,(g,w,h)=>{const dk='rgba(0,0,0,.18)';
+  g.fillStyle=col;g.fillRect(30,70,220,h-70);g.fillStyle=dk;g.fillRect(200,70,50,h-70);
+  for(let x=30;x<250;x+=16)g.fillRect(x,62,10,10),g.fillStyle=col;
+  for(const [x,hh] of [[20,120],[120,150],[240,110]]){g.fillStyle=col;g.fillRect(x,h-hh,40,hh);g.fillStyle=dk;g.fillRect(x+28,h-hh,12,hh);g.fillStyle=col;for(let k=0;k<4;k++)g.fillRect(x-2+k*12,h-hh-10,8,12);win(g,x+14,h-hh+24,10,18,'#2a1a14');}
+  win(g,128,h-40,26,40,'#2a1a14');
+});}
+function puertaAlcala(){return mk(640,280,(g,w,h)=>{const st='#e4d8c0',dk='#bfae8e';
+  g.fillStyle=st;g.fillRect(0,70,150,h-70);g.fillRect(w-150,70,150,h-70);g.fillRect(0,44,w,40);
+  g.fillStyle=dk;for(const x of [18,70,122,w-138,w-86,w-34]){g.fillRect(x-6,90,12,h-90);}
+  g.fillStyle='#2a2430';rr(g,40,150,46,h-150,22);g.fill();rr(g,w-86,150,46,h-150,22);g.fill();
+  g.fillStyle=st;g.beginPath();g.moveTo(150,84);g.lineTo(150,140);g.quadraticCurveTo(320,10,490,140);g.lineTo(490,84);g.fill();
+  g.fillStyle=dk;g.fillRect(0,80,w,6);g.fillRect(0,42,w,6);
+  g.fillStyle=st;g.fillRect(230,10,180,36);poly(g,[220,12,320,-6,420,12],dk);
+  g.fillStyle='#8a7a60';for(const x of [250,300,340,390]){g.fillRect(x-5,18,10,24);circ(g,x,15,6,'#8a7a60');}
+  g.fillStyle='#c9a14a';g.fillRect(286,26,68,10);
+});}
+function palacioReal(){return mk(360,150,(g,w,h)=>{const st='#f4efe4',dk='#d8cfbc';
+  g.fillStyle=st;g.fillRect(0,40,w,h-40);g.fillStyle=dk;g.fillRect(0,40,w,8);g.fillRect(0,h-30,w,30);
+  for(let i=0;i<18;i++){const x=10+i*19.6;g.fillStyle=dk;g.fillRect(x+12,50,4,h-82);win(g,x,60,10,20);win(g,x,94,10,16);}
+  g.fillStyle=st;g.fillRect(140,18,80,26);poly(g,[136,20,180,4,224,20],dk);g.fillStyle='#d4a83a';circ(g,180,14,4,'#d4a83a');
+  for(let x=4;x<w;x+=24){g.fillStyle='#e8e0cc';g.fillRect(x,30,8,12);}
+});}
+function kioTowers(){return mk(220,280,(g,w,h)=>{
+  const tw=(x0,lean)=>{g.save();g.translate(x0,h);g.transform(1,0,lean,1,0,0);const gr=g.createLinearGradient(-30,0,30,0);gr.addColorStop(0,'#6a8ab0');gr.addColorStop(1,'#a8c4e0');g.fillStyle=gr;g.fillRect(-30,-250,60,250);g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=1;for(let y=-246;y<0;y+=10){g.beginPath();g.moveTo(-30,y);g.lineTo(30,y);g.stroke();}g.fillStyle='#3a4a5a';g.fillRect(-32,-254,64,8);g.restore();};
+  tw(50,0.22);tw(170,-0.22);
+});}
+function pilar(){return mk(340,210,(g,w,h)=>{const st='#e8cfa0',dk='#c8a878';
+  g.fillStyle=st;g.fillRect(30,90,280,h-90);g.fillStyle=dk;g.fillRect(30,90,280,6);
+  const dome=(x,y,r,c)=>{g.fillStyle=st;g.fillRect(x-r,y,2*r,14);g.beginPath();g.ellipse(x,y,r,r*1.15,0,Math.PI,0);g.fillStyle=c;g.fill();g.strokeStyle='#f2c230';g.lineWidth=1.5;for(let k=-2;k<=2;k++){g.beginPath();g.moveTo(x+k*r/3,y);g.quadraticCurveTo(x+k*r/6,y-r,x,y-r*1.15);g.stroke();}circ(g,x,y-r*1.25,3,'#f2c230');};
+  dome(170,80,40,'#2a7a5a');dome(100,92,22,'#2a6fb0');dome(240,92,22,'#2a6fb0');dome(62,96,14,'#2a7a5a');dome(278,96,14,'#2a7a5a');
+  for(const x of [26,292]){g.fillStyle=st;g.fillRect(x,10,26,h-10);g.fillStyle=dk;g.fillRect(x+18,10,8,h-10);g.beginPath();g.ellipse(x+13,10,14,16,0,Math.PI,0);g.fillStyle='#2a6fb0';g.fill();win(g,x+8,40,10,18);win(g,x+8,80,10,18);}
+  for(let i=0;i<8;i++)win(g,62+i*30,130,14,30,'#4a3020');
+});}
+function sagrada(){return mk(240,340,(g,w,h)=>{const st='#c9b38e',dk='#a8926e';
+  g.fillStyle=st;g.fillRect(20,200,200,h-200);g.fillStyle=dk;g.fillRect(170,200,50,h-200);
+  const spire=(x,base,hh,ww)=>{g.fillStyle=st;g.beginPath();g.moveTo(x-ww/2,base);g.quadraticCurveTo(x-ww*0.42,base-hh*0.6,x,base-hh);g.quadraticCurveTo(x+ww*0.42,base-hh*0.6,x+ww/2,base);g.fill();
+    g.fillStyle='rgba(0,0,0,.25)';for(let y=base-10;y>base-hh*0.75;y-=9)g.fillRect(x-ww*0.15,y,ww*0.3,3);
+    const tx=x,ty=base-hh;circ(g,tx,ty,ww*0.18,'#e8402a');circ(g,tx-ww*0.12,ty+4,ww*0.08,'#f2c230');circ(g,tx+ww*0.12,ty+4,ww*0.08,'#2a8a4a');};
+  spire(52,210,170,26);spire(84,210,200,28);spire(156,210,200,28);spire(188,210,170,26);spire(120,200,300,34);
+  g.fillStyle='#8a7050';for(let i=0;i<3;i++){g.beginPath();g.moveTo(54+i*66,h);g.lineTo(54+i*66,250);g.lineTo(76+i*66,230);g.lineTo(98+i*66,250);g.lineTo(98+i*66,h);g.fill();}
+  g.strokeStyle='#e8a030';g.lineWidth=3;g.beginPath();g.moveTo(232,h);g.lineTo(232,80);g.lineTo(200,80);g.stroke();
+});}
+function glories(){return mk(110,280,(g,w,h)=>{g.save();g.beginPath();g.moveTo(10,h);g.lineTo(10,80);g.quadraticCurveTo(10,4,55,4);g.quadraticCurveTo(100,4,100,80);g.lineTo(100,h);g.closePath();g.clip();
+  const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'#3a7ad0');gr.addColorStop(.5,'#2a9a8a');gr.addColorStop(1,'#d8402a');g.fillStyle=gr;g.fillRect(0,0,w,h);
+  const R=rng(5);for(let y=10;y<h;y+=7)for(let x=12;x<100;x+=7){if(R()<.5){g.fillStyle=pick(R,['#fff','#ffd23f','#5ee7ff','#ff8a8a']);g.fillRect(x,y,3,4);}}g.restore();});}
+// ---------- FRANCE
+function carcassonne(){return mk(340,190,(g,w,h)=>{const st='#c8b490',dk='#a89470',rf='#5a5a70';
+  g.fillStyle=dk;g.fillRect(0,130,w,h-130);g.fillStyle=st;g.fillRect(20,90,300,h-90);
+  for(let x=20;x<320;x+=14){g.fillRect(x,82,9,10);}
+  const tw=(x,b,hh,r)=>{g.fillStyle=st;g.fillRect(x-r,b-hh,2*r,hh);g.fillStyle=dk;g.fillRect(x+r*0.4,b-hh,r*0.6,hh);poly(g,[x-r-3,b-hh,x,b-hh-r*2.6,x+r+3,b-hh],rf);win(g,x-3,b-hh+14,6,12,'#2a1a14');};
+  tw(30,h,110,14);tw(90,h-20,120,13);tw(150,h-40,150,16);tw(210,h-20,120,13);tw(270,h-30,130,14);tw(320,h,100,13);tw(120,h-60,70,10);tw(240,h-60,64,10);
+  win(g,160,h-36,24,36,'#2a1a14');
+});}
+function pontGard(){return mk(400,170,(g,w,h)=>{const st='#d8c49a',dk='#b8a47a';g.fillStyle=st;
+  const row=(y,hh,n,ah)=>{const sw=w/n;g.fillStyle=st;g.fillRect(0,y,w,hh);g.fillStyle='rgba(60,40,30,.85)';for(let i=0;i<n;i++){const x=i*sw+sw*0.14,aw=sw*0.72;g.beginPath();g.moveTo(x,y+hh);g.lineTo(x,y+hh-ah+aw/2);g.arc(x+aw/2,y+hh-ah+aw/2,aw/2,Math.PI,0);g.lineTo(x+aw,y+hh);g.fill();}g.fillStyle=dk;g.fillRect(0,y,w,3);};
+  row(100,70,6,60);row(52,48,11,40);row(20,32,30,22);g.fillStyle=dk;g.fillRect(0,16,w,6);
+  g.fillStyle='rgba(80,160,200,.6)';g.fillRect(0,h-8,w,8);
+});}
+function lavender(){return mk(170,46,(g,w,h)=>{for(let r=0;r<3;r++){const y=14+r*12;for(let x=4;x<w;x+=10){ell(g,x,y,7,6,r%2?'#8a5ac8':'#a070e0');ell(g,x,y-3,4,3,'#c0a0f0');}g.fillStyle='#5a7a3a';g.fillRect(0,y+5,w,2);}});}
+function sunflowers(){return mk(160,70,(g,w,h)=>{for(let i=0;i<9;i++){const x=10+i*17,y=24+(i%2)*10;g.fillStyle='#4a7a2a';g.fillRect(x-1,y,3,h-y);for(let k=0;k<10;k++){const a=k*Math.PI/5;ell(g,x+Math.cos(a)*6,y+Math.sin(a)*6,4,2.5,'#ffd23f');}circ(g,x,y,4,'#5a3a1a');}});}
+function fourviere(){return mk(240,190,(g,w,h)=>{const st='#f4efe4',dk='#d8cfbc';
+  g.fillStyle='#4a7a3a';g.beginPath();g.moveTo(0,h);g.quadraticCurveTo(120,120,240,h);g.fill();
+  g.fillStyle=st;g.fillRect(50,80,140,70);g.fillStyle=dk;g.fillRect(50,80,140,6);poly(g,[60,82,120,50,180,82],st);
+  for(const x of [50,190]){g.fillStyle=st;g.fillRect(x-14,40,28,110);for(let k=0;k<4;k++)g.fillRect(x-16+k*9,32,6,10);win(g,x-5,60,10,22);}
+  for(let i=0;i<5;i++)win(g,78+i*18,104,10,30,'#3a3a4a');circ(g,120,64,7,'#3a3a4a');g.fillStyle='#d4a83a';g.fillRect(118,30,4,22);
+});}
+function eiffel(){return mk(200,380,(g,w,h)=>{const c='#7a5a3a',c2='#9a7650';
+  g.fillStyle=c;g.beginPath();g.moveTo(14,h);g.quadraticCurveTo(60,240,88,90);g.lineTo(112,90);g.quadraticCurveTo(140,240,186,h);g.lineTo(150,h);g.quadraticCurveTo(100,280,50,h);g.closePath();g.fill();
+  g.strokeStyle=c2;g.lineWidth=1.2;for(let y=110;y<h;y+=12){const k=(y-90)/(h-90),hw=12+k*k*80;g.beginPath();g.moveTo(w/2-hw,y);g.lineTo(w/2+hw,y-12);g.moveTo(w/2+hw,y);g.lineTo(w/2-hw,y-12);g.stroke();}
+  g.fillStyle=c;g.fillRect(40,h-120,120,10);g.fillRect(70,h-220,60,8);
+  g.beginPath();g.moveTo(88,92);g.lineTo(96,20);g.lineTo(104,20);g.lineTo(112,92);g.fill();g.fillRect(98,0,4,22);g.fillRect(92,18,16,5);
+  g.fillStyle='#ffd27a';for(let i=0;i<10;i++)circ(g,30+i*15,h-115,1.6,'#ffe9a0');
+});}
+function arcTriomphe(){return mk(560,300,(g,w,h)=>{const st='#e8dfc8',dk='#c4b896';
+  g.fillStyle=st;g.fillRect(0,40,150,h-40);g.fillRect(w-150,40,150,h-40);g.fillRect(0,20,w,90);
+  g.fillStyle=dk;g.fillRect(0,18,w,8);g.fillRect(0,46,w,6);g.fillRect(0,104,w,6);
+  for(const x of [20,w-130]){g.fillStyle='rgba(120,100,70,.35)';g.fillRect(x,130,110,70);g.fillStyle=dk;for(let k=0;k<5;k++)circ(g,x+15+k*20,165,8,'rgba(120,100,70,.4)');}
+  g.fillStyle=st;g.beginPath();g.moveTo(150,110);g.lineTo(150,190);g.quadraticCurveTo(280,40,410,190);g.lineTo(410,110);g.fill();
+  g.fillStyle='rgba(120,100,70,.35)';for(let i=0;i<14;i++)g.fillRect(40+i*35,60,22,30);
+});}
+function notreDame(){return mk(240,240,(g,w,h)=>{const st='#cfc4a8',dk='#aa9e80';
+  g.fillStyle=st;g.fillRect(30,90,180,h-90);for(const x of [30,150]){g.fillRect(x,30,60,h-30);g.fillStyle=dk;g.fillRect(x+50,30,10,h-30);g.fillStyle=st;for(let k=0;k<6;k++)g.fillRect(x-2+k*11,22,7,10);win(g,x+12,50,12,40,'#2a2430');win(g,x+34,50,12,40,'#2a2430');}
+  circ(g,120,130,26,dk);circ(g,120,130,20,'#4a3a6a');g.strokeStyle=st;g.lineWidth=1.5;for(let k=0;k<8;k++){const a=k*Math.PI/4;g.beginPath();g.moveTo(120,130);g.lineTo(120+Math.cos(a)*20,130+Math.sin(a)*20);g.stroke();}
+  for(let i=0;i<3;i++){g.fillStyle='#2a2430';g.beginPath();g.moveTo(48+i*58,h);g.lineTo(48+i*58,h-40);g.lineTo(68+i*58,h-60);g.lineTo(88+i*58,h-40);g.lineTo(88+i*58,h);g.fill();}
+  towerSpire(g,120,92,14,70,'#6a6a7a');
+});}
+function sacreCoeur(){return mk(260,200,(g,w,h)=>{const st='#f8f6ee',dk='#dedad0';
+  g.fillStyle=st;g.fillRect(40,100,180,h-100);
+  const dome=(x,y,r)=>{g.fillStyle=st;g.fillRect(x-r*0.8,y,r*1.6,30);g.beginPath();g.ellipse(x,y,r,r*1.3,0,Math.PI,0);g.fill();g.fillStyle=dk;g.fillRect(x-r*0.8,y,r*1.6,4);g.fillStyle=st;g.fillRect(x-3,y-r*1.3-12,6,14);circ(g,x,y-r*1.3-14,4,st);};
+  dome(130,70,44);dome(66,104,22);dome(194,104,22);dome(200,60,12);
+  for(let i=0;i<3;i++){g.fillStyle='#3a3a4a';rr(g,96+i*24,h-48,16,48,8);g.fill();}
+  g.fillStyle='#5a8a4a';g.fillRect(0,h-10,w,10);
+});}
+function parisHouse(c='#efe6d2'){return mk(110,190,(g,w,h)=>{
+  g.fillStyle=c;g.fillRect(4,40,w-8,h-40);g.fillStyle='#5a6070';poly(g,[0,42,10,12,w-10,12,w,42],'#5a6070');
+  for(const x of [22,58,86])win(g,x-6,20,12,16,'#2a2a3a');
+  for(let f=0;f<4;f++){const y=52+f*32;for(const x of [12,44,76]){g.fillStyle='#2b3445';g.fillRect(x,y,20,24);g.fillStyle='rgba(255,220,140,.35)';if((f*3+x)%4===0)g.fillRect(x,y,20,24);}g.strokeStyle='#1a1a1a';g.lineWidth=1.5;g.strokeRect(6,y+20,w-12,6);}
+  g.fillStyle='#b8262a';g.fillRect(4,h-36,w-8,10);g.fillStyle='#3a2a20';g.fillRect(w/2-10,h-26,20,26);
+});}
+function bistro(){return mk(150,100,(g,w,h)=>{g.fillStyle='#b8262a';poly(g,[0,20,w,20,w-10,46,10,46],'#b8262a');g.fillStyle='#fff';for(let x=10;x<w-10;x+=20)g.fillRect(x,20,10,26);
+  for(const x of [30,90]){ell(g,x+10,h-34,16,4,'#3a3a3a');g.fillStyle='#3a3a3a';g.fillRect(x+9,h-34,2,30);}
+  for(const [x,c] of [[24,'#2e86de'],[64,'#e84393'],[110,'#27ae60']]){g.fillStyle=c;g.fillRect(x,h-50,12,20);circ(g,x+6,h-56,6,'#f1c27d');g.fillStyle='#222';g.fillRect(x+1,h-30,4,26);g.fillRect(x+7,h-30,4,26);}
+});}
+function chalet(){return mk(150,140,(g,w,h)=>{g.fillStyle='#e8e0d0';g.fillRect(14,80,w-28,h-80);g.fillStyle='#8a5a32';g.fillRect(14,40,w-28,44);
+  poly(g,[0,46,w/2,6,w,46],'#5a3a22');g.fillStyle='#4a2a14';g.fillRect(0,44,w,4);
+  g.fillStyle='#6a4428';g.fillRect(10,66,w-20,6);g.fillStyle='#e8402a';for(let x=16;x<w-16;x+=8)circ(g,x,64,3,x%16?'#e8402a':'#ffd23f');
+  win(g,30,48,18,14,'#3a2a20');win(g,w-48,48,18,14,'#3a2a20');win(g,28,92,20,22,'#3a4a5a');win(g,w-48,92,20,22,'#3a4a5a');
+  g.fillStyle='#4a2a14';g.fillRect(w/2-10,h-36,20,36);for(let y=44;y<84;y+=8){g.fillStyle='rgba(0,0,0,.15)';g.fillRect(14,y,w-28,1);}
+});}
+function cow(){return mk(110,70,(g,w,h)=>{ell(g,55,h-4,40,5,'rgba(0,0,0,.25)');g.fillStyle='#f4f1ea';rr(g,20,18,66,30,14);g.fill();
+  g.fillStyle='#2a2a2a';ell(g,40,28,10,8,'#2a2a2a');ell(g,66,36,12,7,'#2a2a2a');ell(g,78,22,6,5,'#2a2a2a');
+  for(const x of [26,38,68,80]){g.fillStyle='#f4f1ea';g.fillRect(x,44,6,h-48);g.fillStyle='#3a3a3a';g.fillRect(x,h-8,6,4);}
+  g.fillStyle='#f4f1ea';rr(g,84,10,22,22,8);g.fill();ell(g,98,26,8,5,'#f0b0b0');g.fillStyle='#d4b060';poly(g,[86,10,82,2,90,8],'#d8c8a0');poly(g,[102,10,106,2,98,8],'#d8c8a0');circ(g,90,16,2,'#111');
+  circ(g,86,38,5,'#d4a83a');g.strokeStyle='#5a3a22';g.lineWidth=2;g.beginPath();g.moveTo(84,30);g.lineTo(86,34);g.stroke();lin(g,[20,22,10,40],'#2a2a2a',2);
+});}
+// ---------- ITALY
+function pisa(){return mk(150,300,(g,w,h)=>{g.save();g.translate(75,h);g.rotate(0.09);const st='#f4efe2',dk='#d8d0bc';
+  g.fillStyle=st;g.fillRect(-30,-262,60,262);g.fillStyle=dk;g.fillRect(14,-262,16,262);
+  for(let k=0;k<8;k++){const y=-26-k*30;g.fillStyle=dk;g.fillRect(-33,y,66,4);for(let i=0;i<5;i++){g.fillStyle='rgba(60,50,40,.55)';rr(g,-26+i*11,y-22,7,18,3.5);g.fill();}}
+  g.fillStyle=st;g.fillRect(-22,-288,44,28);g.fillStyle=dk;g.fillRect(-25,-262,50,4);for(let i=0;i<4;i++){g.fillStyle='rgba(60,50,40,.55)';rr(g,-18+i*10,-284,6,16,3);g.fill();}g.restore();});}
+function colosseum(){return mk(360,190,(g,w,h)=>{const st='#d8b88a',dk='#b8946a';
+  g.fillStyle=st;g.beginPath();g.moveTo(0,h);g.lineTo(0,40);g.quadraticCurveTo(180,10,300,30);g.lineTo(300,60);g.lineTo(330,70);g.lineTo(350,h);g.fill();
+  for(let r=0;r<4;r++){const y=50+r*34,n=r===3?0:13;g.fillStyle=dk;g.fillRect(0,y-4,310-r*6,4);for(let i=0;i<n;i++){const x=10+i*22;if(x>300-r*20)break;g.fillStyle='rgba(50,30,20,.75)';g.beginPath();g.moveTo(x,y+26);g.lineTo(x,y+10);g.arc(x+7,y+10,7,Math.PI,0);g.lineTo(x+14,y+26);g.fill();}}
+  for(let i=0;i<14;i++){g.fillStyle='rgba(50,30,20,.4)';g.fillRect(14+i*21,22,6,10);}
+  g.fillStyle=dk;poly(g,[300,30,330,70,350,h,320,h,316,90,300,70],dk);
+});}
+function stPeter(){return mk(320,230,(g,w,h)=>{const st='#efe6d0',dk='#cfc4a8';
+  g.fillStyle=st;g.fillRect(20,120,280,h-120);g.fillStyle=dk;g.fillRect(20,118,280,8);
+  for(let i=0;i<10;i++){g.fillStyle=dk;g.fillRect(36+i*27,132,8,h-150);}
+  g.fillStyle=st;poly(g,[110,122,160,96,210,122],st);g.fillStyle='#8a9aa8';g.fillRect(120,70,80,40);g.beginPath();g.ellipse(160,70,40,52,0,Math.PI,0);g.fill();
+  g.strokeStyle='#aab8c4';g.lineWidth=2;for(let k=-3;k<=3;k++){g.beginPath();g.moveTo(160+k*12,70);g.quadraticCurveTo(160+k*6,30,160,18);g.stroke();}
+  g.fillStyle=st;g.fillRect(150,6,20,14);g.fillRect(158,-4,4,12);
+  for(let i=0;i<12;i++){g.fillStyle='#8a7a60';g.fillRect(28+i*23,108,6,12);circ(g,31+i*23,106,3,'#8a7a60');}
+});}
+function duomoFi(){return mk(320,250,(g,w,h)=>{const wh='#f4efe4',gr='#3a7a5a',pk='#e8b0a0';
+  g.fillStyle=wh;g.fillRect(20,140,230,h-140);for(let x=20;x<250;x+=16){g.fillStyle=gr;g.fillRect(x,140,3,h-140);}g.fillStyle=pk;g.fillRect(20,170,230,6);
+  g.fillStyle=wh;g.fillRect(90,92,110,52);g.fillStyle='#c0503a';g.beginPath();g.moveTo(84,96);g.quadraticCurveTo(88,20,145,10);g.quadraticCurveTo(202,20,206,96);g.fill();
+  g.strokeStyle=wh;g.lineWidth=3;for(const k of [-1,0,1]){g.beginPath();g.moveTo(145+k*40,96);g.quadraticCurveTo(145+k*26,30,145,12);g.stroke();}
+  g.fillStyle=wh;g.fillRect(136,0,18,14);
+  g.fillStyle=wh;g.fillRect(262,30,40,h-30);for(let y=40;y<h;y+=30){g.fillStyle=gr;g.fillRect(262,y,40,4);g.fillStyle=pk;g.fillRect(262,y+14,40,3);win(g,276,y+6,12,16,'#3a3a4a');}g.fillStyle='#c0503a';g.fillRect(258,24,48,8);
+});}
+function campanile(){return mk(90,310,(g,w,h)=>{g.fillStyle='#b8503a';g.fillRect(22,80,46,h-80);g.fillStyle='#9a3a2a';g.fillRect(56,80,12,h-80);
+  for(let x=28;x<62;x+=9){g.fillStyle='rgba(255,255,255,.12)';g.fillRect(x,90,3,h-100);}
+  g.fillStyle='#f4efe4';g.fillRect(18,50,54,32);for(let i=0;i<4;i++){g.fillStyle='#3a3a4a';rr(g,24+i*12,56,8,22,4);g.fill();}g.fillStyle='#e8e0cc';g.fillRect(16,48,58,4);
+  g.fillStyle='#e8e0cc';g.fillRect(22,34,46,16);poly(g,[20,34,45,0,70,34],'#4a8a6a');g.fillStyle='#d4a83a';g.fillRect(43,-2,4,8);
+});}
+function gondola(){return mk(220,110,(g,w,h)=>{g.fillStyle='rgba(40,80,120,.7)';g.fillRect(0,h-14,w,14);
+  g.fillStyle='#111';g.beginPath();g.moveTo(6,h-40);g.quadraticCurveTo(30,h-14,110,h-12);g.quadraticCurveTo(190,h-14,214,h-50);g.lineTo(208,h-52);g.quadraticCurveTo(180,h-26,110,h-24);g.quadraticCurveTo(40,h-26,14,h-44);g.closePath();g.fill();
+  g.fillStyle='#d4a83a';g.fillRect(202,h-66,6,16);g.fillStyle='#c0303a';g.fillRect(90,h-40,40,14);
+  g.fillStyle='#111';g.fillRect(166,h-74,6,40);g.fillStyle='#fff';for(let y=h-90;y<h-62;y+=6){g.fillStyle=((y/6)|0)%2?'#fff':'#1f3a7a';g.fillRect(160,y,18,6);}circ(g,169,h-96,7,'#f1c27d');g.fillStyle='#e8d8a0';g.fillRect(158,h-106,22,5);g.fillStyle='#c0303a';g.fillRect(162,h-108,14,3);
+  lin(g,[176,h-82,120,h-10],'#5a3a22',3);
+});}
+function duomoMi(){return mk(340,230,(g,w,h)=>{const st='#f4efe8',dk='#d8d0c4';
+  g.fillStyle=st;poly(g,[30,h,30,110,170,60,310,110,310,h],st);g.fillStyle=dk;g.fillRect(30,h-14,280,14);
+  for(let i=0;i<15;i++){const x=34+i*19.4,b=110+Math.abs(i-7)*-6+40;const top=b-60-((i%3)?0:30)-Math.max(0,30-Math.abs(i-7)*8);g.fillStyle=st;g.fillRect(x,top,6,h-top);towerSpire(g,x+3,top,8,18,st);circ(g,x+3,top-19,2,'#d4a83a');}
+  for(let i=0;i<5;i++){g.fillStyle='#3a3a4a';g.beginPath();g.moveTo(70+i*44,h);g.lineTo(70+i*44,h-50);g.lineTo(84+i*44,h-66);g.lineTo(98+i*44,h-50);g.lineTo(98+i*44,h);g.fill();}
+  g.fillStyle=st;g.fillRect(166,0,8,64);circ(g,170,0,5,'#d4a83a');
+});}
+// ---------- SWITZERLAND / GERMANY
+function kapell(){return mk(360,150,(g,w,h)=>{g.fillStyle='rgba(60,120,160,.7)';g.fillRect(0,h-30,w,30);
+  for(let x=10;x<w;x+=34){g.fillStyle='#5a3a22';g.fillRect(x,h-56,5,40);}
+  g.fillStyle='#8a5a32';g.fillRect(0,h-60,w,8);g.fillStyle='#a8302a';poly(g,[0,h-58,0,h-74,w,h-80,w,h-60],'#a8302a');g.fillStyle='#e84393';for(let x=8;x<w;x+=12)circ(g,x,h-54,3,x%24?'#e84393':'#ffd23f');
+  g.fillStyle='#c8a878';g.fillRect(230,30,56,h-60);for(let k=0;k<5;k++){g.fillStyle='rgba(0,0,0,.12)';g.fillRect(230,40+k*14,56,2);}poly(g,[224,32,258,0,292,32],'#a8302a');win(g,250,46,12,16,'#2a1a14');
+});}
+function grossmunster(){return mk(200,240,(g,w,h)=>{const st='#e8dcc4',dk='#c4b494';g.fillStyle=st;g.fillRect(20,120,160,h-120);
+  for(const x of [40,120]){g.fillStyle=st;g.fillRect(x,30,40,h-30);g.fillStyle=dk;g.fillRect(x+30,30,10,h-30);g.fillStyle='#3a3a4a';rr(g,x+12,60,16,30,8);g.fill();circ(g,x+20,110,8,'#f4efe4');
+    g.fillStyle=dk;g.fillRect(x-2,26,44,6);g.beginPath();g.ellipse(x+20,26,18,20,0,Math.PI,0);g.fillStyle='#5a6070';g.fill();g.fillRect(x+18,0,4,10);}
+  for(let i=0;i<4;i++)win(g,30+i*40,170,14,28,'#3a3a4a');
+});}
+function jetDeau(){return mk(120,280,(g,w,h)=>{g.fillStyle='rgba(60,120,170,.7)';g.fillRect(0,h-20,w,20);
+  const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'rgba(255,255,255,0)');gr.addColorStop(.2,'rgba(255,255,255,.75)');gr.addColorStop(1,'rgba(255,255,255,.95)');g.fillStyle=gr;
+  g.beginPath();g.moveTo(54,h-20);g.quadraticCurveTo(50,80,62,10);g.quadraticCurveTo(80,40,90,90);g.quadraticCurveTo(72,140,66,h-20);g.fill();});}
+function neuschwanstein(){return mk(300,280,(g,w,h)=>{const st='#f2efe8',dk='#d6d0c4',rf='#3a5a8a';
+  g.fillStyle='#4a5a3a';g.beginPath();g.moveTo(0,h);g.lineTo(20,200);g.quadraticCurveTo(150,160,280,190);g.lineTo(w,h);g.fill();g.fillStyle='#6a6a6a';poly(g,[60,h,80,200,200,190,240,h],'#7a7a72');
+  g.fillStyle=st;g.fillRect(80,110,150,90);g.fillStyle=dk;g.fillRect(200,110,30,90);poly(g,[74,112,155,70,236,112],rf);
+  const tw=(x,b,hh,r)=>{g.fillStyle=st;g.fillRect(x-r,b-hh,2*r,hh);g.fillStyle=dk;g.fillRect(x+r*0.5,b-hh,r*0.5,hh);poly(g,[x-r-2,b-hh,x,b-hh-r*3.4,x+r+2,b-hh],rf);win(g,x-3,b-hh+12,6,12,'#2a2a3a');};
+  tw(90,200,130,12);tw(150,190,170,16);tw(212,200,120,11);tw(240,200,90,9);tw(120,150,60,8);tw(184,150,70,8);
+  for(let i=0;i<6;i++)win(g,96+i*20,150,10,20,'#2a2a3a');
+});}
+function brandenburg(){return mk(600,300,(g,w,h)=>{const st='#e4d4ac',dk='#c4b088';
+  g.fillStyle=st;g.fillRect(0,90,w,40);g.fillStyle=dk;g.fillRect(0,126,w,8);g.fillRect(0,86,w,6);
+  for(const x of [10,80,150,w-170,w-100,w-30]){g.fillStyle=st;g.fillRect(x,130,22,h-130);g.fillStyle=dk;g.fillRect(x+16,130,6,h-130);g.fillRect(x-4,h-14,30,14);}
+  g.fillStyle=st;g.fillRect(170,50,260,44);poly(g,[160,52,300,20,440,52],dk);
+  g.fillStyle='#4a7a5a';g.fillRect(260,10,80,20);for(let k=0;k<4;k++){g.save();g.translate(272+k*18,10);g.fillRect(-4,-10,8,12);g.fillRect(-6,-16,6,8);g.restore();}circ(g,300,-2,6,'#4a7a5a');g.fillRect(298,-14,4,14);
+});}
+function tvTower(){return mk(90,360,(g,w,h)=>{g.fillStyle='#d8dce4';poly(g,[36,h,54,h,50,110,40,110],'#d8dce4');g.fillStyle='#b8bcc4';poly(g,[46,h,54,h,50,110,46,110],'#b8bcc4');
+  const gr=g.createRadialGradient(40,86,4,45,90,26);gr.addColorStop(0,'#e8eef8');gr.addColorStop(1,'#8a96a8');g.fillStyle=gr;g.beginPath();g.arc(45,90,24,0,7);g.fill();g.fillStyle='#3a4a5a';g.fillRect(21,88,48,5);
+  g.fillStyle='#c8ccd4';g.fillRect(43,10,4,58);g.fillStyle='#e8402a';g.fillRect(42,20,6,6);g.fillRect(42,40,6,6);circ(g,45,8,3,'#ff4040');});}
+function kolnDom(){return mk(240,340,(g,w,h)=>{const st='#5a5650',dk='#3e3a36';
+  g.fillStyle=st;g.fillRect(30,180,180,h-180);
+  for(const x of [30,140]){g.fillStyle=st;g.fillRect(x,90,70,h-90);g.fillStyle=dk;g.fillRect(x+56,90,14,h-90);g.beginPath();g.moveTo(x-2,92);g.lineTo(x+35,0);g.lineTo(x+72,92);g.fillStyle=st;g.fill();
+    g.strokeStyle=dk;g.lineWidth=1.5;for(let y=20;y<90;y+=10){const k=y/92;g.beginPath();g.moveTo(x+35-k*36,y);g.lineTo(x+35+k*36,y);g.stroke();}for(let k=0;k<3;k++){g.fillStyle=dk;g.beginPath();g.moveTo(x+12+k*18,h-40);g.lineTo(x+12+k*18,120+k*0);g.lineTo(x+18+k*18,108);g.lineTo(x+24+k*18,120);g.lineTo(x+24+k*18,h-40);g.fill();}}
+  g.fillStyle=dk;g.beginPath();g.moveTo(100,h);g.lineTo(100,220);g.lineTo(120,190);g.lineTo(140,220);g.lineTo(140,h);g.fill();
+});}
+function fachwerk(c='#f4efe4'){return mk(110,170,(g,w,h)=>{g.fillStyle=c;g.fillRect(6,50,w-12,h-50);poly(g,[0,54,w/2,0,w,54],'#a8402a');
+  g.strokeStyle='#4a2a1a';g.lineWidth=4;g.strokeRect(6,50,w-12,h-50);for(const y of [90,130]){g.beginPath();g.moveTo(6,y);g.lineTo(w-6,y);g.stroke();}
+  for(const x of [6,38,72,w-6]){g.beginPath();g.moveTo(x,50);g.lineTo(x,h);g.stroke();}g.lineWidth=3;g.beginPath();g.moveTo(6,90);g.lineTo(38,130);g.moveTo(72,90);g.lineTo(104,130);g.moveTo(38,50);g.lineTo(72,90);g.stroke();
+  win(g,46,98,18,22,'#2b3445');win(g,14,58,16,20,'#2b3445');win(g,80,58,16,20,'#2b3445');g.fillStyle='#e8402a';for(const x of [14,80])for(let k=0;k<4;k++)circ(g,x+2+k*4,80,2.5,'#e8402a');
+  g.fillStyle='#4a2a1a';g.fillRect(14,h-34,20,34);win(g,46,22,18,20,'#2b3445');});}
+function rhineCastle(){return mk(260,190,(g,w,h)=>{g.fillStyle='#4a6a3a';g.beginPath();g.moveTo(0,h);g.quadraticCurveTo(130,90,260,h);g.fill();g.fillStyle='#5a7a4a';for(let i=0;i<6;i++)for(let x=20+i*6;x<240-i*6;x+=10)g.fillRect(x,h-10-i*10,6,2);
+  const st='#c8b8a0';g.fillStyle=st;g.fillRect(70,70,120,60);g.fillRect(110,24,34,60);for(let k=0;k<4;k++)g.fillRect(108+k*10,16,6,10);poly(g,[176,72,196,40,216,72],'#5a5a6a');g.fillRect(180,72,32,58);win(g,122,40,10,14,'#2a2a2a');win(g,90,90,10,14,'#2a2a2a');win(g,150,90,10,14,'#2a2a2a');});}
+// ---------- NETHERLANDS / BELGIUM
+function canalHouse(c='#8a3a2a',top=0){return mk(80,200,(g,w,h)=>{g.fillStyle=c;g.fillRect(6,40,w-12,h-40);
+  if(top===0){g.beginPath();g.moveTo(6,44);g.lineTo(6,34);g.lineTo(18,34);g.lineTo(18,22);g.lineTo(30,22);g.lineTo(30,10);g.lineTo(50,10);g.lineTo(50,22);g.lineTo(62,22);g.lineTo(62,34);g.lineTo(74,34);g.lineTo(74,44);g.fill();}
+  else if(top===1){g.beginPath();g.moveTo(6,44);g.quadraticCurveTo(6,24,24,22);g.quadraticCurveTo(24,6,40,4);g.quadraticCurveTo(56,6,56,22);g.quadraticCurveTo(74,24,74,44);g.fill();}
+  else poly(g,[6,44,40,4,74,44],c);
+  g.fillStyle='#f4f1ea';g.fillRect(6,40,w-12,3);win(g,32,20,16,14,'#2b3445');
+  for(let f=0;f<4;f++){const y=54+f*30;for(const x of [14,46]){g.fillStyle='#f4f1ea';g.fillRect(x-2,y-2,24,24);g.fillStyle='#2b3445';g.fillRect(x,y,20,20);g.fillStyle='#f4f1ea';g.fillRect(x+9,y,2,20);if((f+x)%3===0){g.fillStyle='rgba(255,220,140,.4)';g.fillRect(x,y,20,20);}}}
+  g.fillStyle='#1f3a2a';g.fillRect(w/2-9,h-28,18,28);g.fillStyle='#4a3a2a';g.fillRect(36,4,8,6);});}
+function windmillNL(){return mk(160,220,(g,w,h)=>{const c='#4a3a2e';poly(g,[50,h,110,h,100,80,60,80],c);poly(g,[90,h,110,h,100,80,92,80],'#3a2a20');
+  g.fillStyle='#2a2a2a';g.fillRect(36,140,88,5);lin(g,[40,145,30,h],'#2a2a2a',2);lin(g,[120,145,130,h],'#2a2a2a',2);
+  poly(g,[58,82,80,56,102,82],'#2a3a2a');win(g,72,h-34,16,34,'#2a5a3a');win(g,74,110,12,14,'#f4f1ea');
+  const hx=80,hy=72;for(let k=0;k<4;k++){const a=0.8+k*Math.PI/2;g.save();g.translate(hx,hy);g.rotate(a);lin(g,[0,0,76,0],'#5a4a3a',3);g.strokeStyle='#f4f1ea';g.lineWidth=1.2;g.strokeRect(12,-12,62,12);for(let x=18;x<74;x+=6){g.beginPath();g.moveTo(x,-12);g.lineTo(x,0);g.stroke();}g.restore();}
+  circ(g,hx,hy,5,'#2a2a2a');});}
+function tulips(c){return mk(180,40,(g,w,h)=>{g.fillStyle='#4a8a3a';g.fillRect(0,22,w,h-22);for(let r=0;r<2;r++)for(let x=4+r*5;x<w;x+=9){const y=16+r*10;g.fillStyle='#3a7a2a';g.fillRect(x,y,2,10);ell(g,x+1,y,4,5,c);g.fillStyle='rgba(255,255,255,.35)';g.fillRect(x-1,y-4,2,3);}});}
+function cubeHouses(){return mk(280,160,(g,w,h)=>{for(let i=0;i<4;i++){const x=40+i*62,y=70;g.fillStyle='#6a6a6a';g.fillRect(x-6,y+30,12,h-y-30);
+  g.save();g.translate(x,y);g.rotate(Math.PI/4);g.fillStyle='#f2c230';g.fillRect(-26,-26,52,52);g.fillStyle='#d8a820';g.fillRect(0,-26,26,52);g.fillStyle='#2b3445';g.fillRect(-18,-18,12,12);g.fillRect(6,6,12,12);g.restore();}});}
+function erasmus(){return mk(400,220,(g,w,h)=>{g.fillStyle='rgba(60,110,150,.7)';g.fillRect(0,h-26,w,26);g.fillStyle='#e8ecf2';g.fillRect(0,h-56,w,10);
+  g.fillStyle='#f4f6fa';g.beginPath();g.moveTo(120,h-46);g.lineTo(160,10);g.lineTo(176,10);g.lineTo(150,h-60);g.lineTo(170,h-46);g.fill();
+  g.strokeStyle='rgba(240,244,250,.9)';g.lineWidth=1.3;for(let k=0;k<16;k++){const t=k/16;g.beginPath();g.moveTo(160+t*-20+16,14+t*120);g.lineTo(200+k*12,h-56);g.stroke();g.beginPath();g.moveTo(166-t*24,20+t*110);g.lineTo(120-k*7,h-56);g.stroke();}
+  for(let x=10;x<w;x+=60){g.fillStyle='#c8ccd4';g.fillRect(x,h-46,8,20);}});}
+function atomium(){return mk(240,260,(g,w,h)=>{const P=[[120,30],[60,80],[180,80],[120,130],[60,180],[180,180],[120,230],[30,130],[210,130]];
+  g.strokeStyle='#a8b4c4';g.lineWidth=8;const L=[[0,1],[0,2],[1,3],[2,3],[3,4],[3,5],[4,6],[5,6],[0,3],[3,6],[1,7],[7,4],[2,8],[8,5]];for(const [a,b] of L){g.beginPath();g.moveTo(P[a][0],P[a][1]);g.lineTo(P[b][0],P[b][1]);g.stroke();}
+  for(const [x,y] of P){const gr=g.createRadialGradient(x-8,y-8,2,x,y,22);gr.addColorStop(0,'#ffffff');gr.addColorStop(.4,'#c8d2e0');gr.addColorStop(1,'#6a7890');g.fillStyle=gr;g.beginPath();g.arc(x,y,22,0,7);g.fill();}
+  g.fillStyle='#8a96a8';g.fillRect(114,240,12,20);g.fillRect(40,200,8,60);g.fillRect(192,200,8,60);});}
+function grandPlace(){return mk(260,280,(g,w,h)=>{const st='#cfc4a0',dk='#ab9e78';g.fillStyle=st;g.fillRect(10,120,240,h-120);
+  for(let i=0;i<10;i++){win(g,20+i*23,140,12,26,'#3a3a4a');win(g,20+i*23,190,12,26,'#3a3a4a');}g.fillStyle='#d4a83a';for(let x=14;x<w-10;x+=12)g.fillRect(x,114,6,8);
+  g.fillStyle=st;g.fillRect(112,40,36,90);g.fillStyle=dk;g.fillRect(140,40,8,90);towerSpire(g,130,42,40,40,st);g.fillRect(126,0,8,6);g.fillStyle='#d4a83a';g.fillRect(128,-6,4,10);
+  for(let y=60;y<130;y+=20)win(g,124,y,12,14,'#3a3a4a');for(let i=0;i<5;i++){g.fillStyle='#2a2430';g.beginPath();g.moveTo(30+i*44,h);g.lineTo(30+i*44,h-30);g.arc(46+i*44,h-30,16,Math.PI,0);g.lineTo(62+i*44,h);g.fill();}});}
+function belfry(){return mk(120,300,(g,w,h)=>{const st='#b8805a',dk='#946040';g.fillStyle=st;g.fillRect(24,130,72,h-130);g.fillStyle=dk;g.fillRect(84,130,12,h-130);
+  g.fillStyle=st;g.fillRect(32,60,56,74);g.fillStyle=dk;g.fillRect(78,60,10,74);for(const x of [24,90])for(let k=0;k<3;k++){g.fillStyle=st;g.fillRect(x-4,128-k*0,10,14);}
+  g.fillStyle=st;poly(g,[36,62,60,10,84,62],st);g.fillRect(56,0,8,14);win(g,46,80,12,30,'#2a2a2a');win(g,64,80,12,30,'#2a2a2a');circ(g,60,150,12,'#f4efe4');for(let y=180;y<h-30;y+=40){win(g,40,y,12,24,'#2a2a2a');win(g,68,y,12,24,'#2a2a2a');}});}
+// ---------- UNITED KINGDOM
+function bigBen(){return mk(120,360,(g,w,h)=>{const st='#d8c48e',dk='#b8a46e';g.fillStyle=st;g.fillRect(30,120,60,h-120);g.fillStyle=dk;g.fillRect(78,120,12,h-120);
+  g.strokeStyle=dk;g.lineWidth=1.5;for(let x=38;x<80;x+=8){g.beginPath();g.moveTo(x,130);g.lineTo(x,h);g.stroke();}
+  g.fillStyle=st;g.fillRect(24,70,72,56);g.fillStyle=dk;g.fillRect(22,66,76,6);g.fillRect(22,124,76,6);circ(g,60,98,24,'#2a2a2a');circ(g,60,98,21,'#f8f4e0');
+  g.strokeStyle='#2a2a2a';g.lineWidth=2;g.beginPath();g.moveTo(60,98);g.lineTo(60,82);g.moveTo(60,98);g.lineTo(72,102);g.stroke();for(let k=0;k<12;k++){const a=k*Math.PI/6;g.fillStyle='#2a2a2a';g.fillRect(60+Math.cos(a)*17-1,98+Math.sin(a)*17-1,2,2);}
+  g.fillStyle='#4a6a5a';poly(g,[24,68,60,10,96,68],'#3a5a4a');g.fillStyle='#d4a83a';for(let y=24;y<66;y+=10)g.fillRect(50,y,20,2);g.fillRect(58,0,4,14);});}
+function towerBridge(){return mk(680,320,(g,w,h)=>{const st='#cfc4b0',bl='#5a8ab8';
+  for(const x of [0,w-140]){g.fillStyle=st;g.fillRect(x,40,140,h-40);g.fillStyle='rgba(0,0,0,.12)';g.fillRect(x+110,40,30,h-40);
+    for(const [dx,ww] of [[0,24],[116,24]]){g.fillStyle=st;g.fillRect(x+dx,20,ww,30);towerSpire(g,x+dx+12,22,24,30,'#5a5a6a');}towerSpire(g,x+70,42,90,40,'#5a5a6a');
+    for(let y=70;y<h-60;y+=50){win(g,x+30,y,14,30,'#2a2a3a');win(g,x+96,y,14,30,'#2a2a3a');}g.fillStyle='#2a2430';rr(g,x+50,h-80,40,80,20);g.fill();}
+  g.fillStyle=bl;g.fillRect(140,64,w-280,24);g.strokeStyle='#f4f6fa';g.lineWidth=2;for(let x=150;x<w-150;x+=20){g.beginPath();g.moveTo(x,64);g.lineTo(x+10,88);g.lineTo(x+20,64);g.stroke();}
+  g.strokeStyle=bl;g.lineWidth=8;g.beginPath();g.moveTo(-20,60);g.quadraticCurveTo(70,150,140,150);g.stroke();g.beginPath();g.moveTo(w+20,60);g.quadraticCurveTo(w-70,150,w-140,150);g.stroke();});}
+function londonEye(){return mk(280,290,(g,w,h)=>{const cx=140,cy=140,r=126;g.strokeStyle='#e8ecf2';g.lineWidth=4;g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();g.lineWidth=1;for(let k=0;k<32;k++){const a=k*Math.PI/16;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);g.stroke();}
+  g.beginPath();g.arc(cx,cy,r-10,0,7);g.stroke();for(let k=0;k<32;k++){const a=k*Math.PI/16;ell(g,cx+Math.cos(a)*(r+6),cy+Math.sin(a)*(r+6),6,4,'#cfe8ff');}circ(g,cx,cy,8,'#c8ccd4');
+  lin(g,[cx,cy,cx-50,h],'#e8ecf2',6);lin(g,[cx,cy,cx+50,h],'#e8ecf2',6);});}
+function stonehenge(){return mk(320,120,(g,w,h)=>{g.fillStyle='#7aa04a';g.fillRect(0,h-12,w,12);const c='#8a8a84',d='#6e6e68';
+  for(let i=0;i<6;i++){const x=20+i*50;g.fillStyle=c;g.fillRect(x,30+(i%2)*6,16,h-42-(i%2)*6);g.fillRect(x+24,30+(i%2)*6,16,h-42-(i%2)*6);g.fillStyle=d;g.fillRect(x+10,30,6,h-42);if(i!==3){g.fillStyle=c;g.fillRect(x-4,22+(i%2)*6,48,12);}}
+  g.fillStyle=d;g.save();g.translate(196,h-14);g.rotate(-0.4);g.fillRect(0,-10,46,12);g.restore();});}
+function phoneBox(){return mk(44,110,(g,w,h)=>{g.fillStyle='#d4212a';rr(g,4,10,36,h-10,4);g.fill();g.fillStyle='#b01820';g.fillRect(2,8,40,8);g.fillStyle='#111';g.fillRect(8,18,28,6);g.fillStyle='#fff';g.font='bold 5px sans-serif';g.textAlign='center';g.fillText('TELEPHONE',22,23);
+  for(let y=30;y<h-14;y+=12)for(const x of [9,24]){g.fillStyle='#cfe0f0';g.fillRect(x,y,11,9);}poly(g,[4,10,22,2,40,10],'#d4212a');});}
+function terrace(c='#9a4a32'){return mk(110,170,(g,w,h)=>{g.fillStyle=c;g.fillRect(4,30,w-8,h-30);g.fillStyle='#4a4a54';poly(g,[0,32,10,10,w-10,10,w,32],'#4a4a54');g.fillStyle='#8a3a2a';g.fillRect(20,0,14,14);g.fillRect(76,0,14,14);
+  for(let f=0;f<2;f++)for(const x of [16,62]){g.fillStyle='#f4f1ea';g.fillRect(x-3,44+f*44,36,34);g.fillStyle='#2b3445';g.fillRect(x,47+f*44,30,28);g.fillStyle='#f4f1ea';g.fillRect(x+14,47+f*44,2,28);}
+  g.fillStyle='#f4f1ea';g.fillRect(36,h-46,36,46);g.fillStyle=pick(rng(c.length),['#1f3a7a','#c0303a','#1f5a3a','#111']);g.fillRect(42,h-40,24,40);g.fillStyle='#d4a83a';circ(g,62,h-20,2,'#d4a83a');});}
+function doubleDecker(){return mk(140,190,(g,w,h)=>{ell(g,w/2,h-4,w*0.47,5,'rgba(0,0,0,.35)');g.fillStyle='#111';rr(g,12,h-30,22,26,4);g.fill();rr(g,w-34,h-30,22,26,4);g.fill();
+  g.fillStyle='#c8102e';rr(g,6,10,w-12,h-30,10);g.fill();g.fillStyle='#2b3a55';g.fillRect(16,24,w-32,34);g.fillRect(16,82,w-32,30);g.fillStyle='#f4f1ea';g.fillRect(6,66,w-12,8);
+  g.fillStyle='#ffd23f';g.fillRect(30,124,w-60,14);g.fillStyle='#111';g.font='bold 11px sans-serif';g.textAlign='center';g.fillText('LONDON',w/2,135);g.fillStyle='#ff3030';g.fillRect(12,140,14,8);g.fillRect(w-26,140,14,8);
+  circ(g,40,40,7,'#f1c27d');circ(g,96,42,7,'#8d5524');});}
+function blackCab(){return mk(120,110,(g,w,h)=>{ell(g,w/2,h-4,w*0.46,5,'rgba(0,0,0,.35)');g.fillStyle='#111';rr(g,10,h-24,18,20,4);g.fill();rr(g,w-28,h-24,18,20,4);g.fill();
+  g.fillStyle='#1a1a1e';rr(g,6,40,w-12,h-56,10);g.fill();rr(g,20,10,w-40,40,12);g.fill();g.fillStyle='#3a4a5a';g.fillRect(28,18,w-56,22);g.fillStyle='#ffb020';g.fillRect(w/2-14,4,28,8);g.fillStyle='#111';g.font='bold 6px sans-serif';g.textAlign='center';g.fillText('TAXI',w/2,10.5);
+  g.fillStyle='#ff3030';g.fillRect(10,58,14,8);g.fillRect(w-24,58,14,8);g.fillStyle='#ddd';g.fillRect(w/2-16,66,32,10);});}
+// ---------- RETURN TO PORTUGAL (Galiza · Minho · Maia)
+function santiago(){return mk(280,260,(g,w,h)=>{const st='#c8b896',dk='#a89874',mo='rgba(90,110,70,.35)';g.fillStyle=st;g.fillRect(40,110,200,h-110);
+  for(const x of [30,200]){g.fillStyle=st;g.fillRect(x,30,50,h-30);g.fillStyle=dk;g.fillRect(x+40,30,10,h-30);g.fillStyle=mo;g.fillRect(x,30,50,20);for(let y=50;y<h-40;y+=40)win(g,x+18,y,14,26,'#2a2a2a');
+    g.fillStyle=st;g.fillRect(x+6,10,38,22);g.beginPath();g.ellipse(x+25,10,19,16,0,Math.PI,0);g.fill();g.fillRect(x+22,-6,6,14);}
+  g.fillStyle=st;g.fillRect(100,60,80,60);poly(g,[96,62,140,24,184,62],dk);circ(g,140,90,14,'#2a2a2a');for(let i=0;i<3;i++)win(g,104+i*26,140,16,40,'#2a2a2a');
+  g.fillStyle=dk;for(let i=0;i<6;i++)g.fillRect(40+i*36,h-20-i*0,30,4);});}
+function bomJesus(){return mk(280,240,(g,w,h)=>{g.fillStyle='#4a7a3a';g.beginPath();g.moveTo(0,h);g.lineTo(60,90);g.lineTo(220,90);g.lineTo(w,h);g.fill();
+  g.strokeStyle='#f4efe4';g.lineWidth=7;g.beginPath();g.moveTo(140,h);for(let k=0;k<6;k++){const y=h-k*24;g.lineTo(k%2?110:170,y-12);g.lineTo(140,y-24);}g.stroke();g.strokeStyle='#b8a888';g.lineWidth=1.5;g.stroke();
+  const st='#f4efe4';g.fillStyle=st;g.fillRect(100,40,80,52);for(const x of [96,166]){g.fillRect(x,10,18,82);g.beginPath();g.ellipse(x+9,10,9,12,0,Math.PI,0);g.fill();}poly(g,[110,42,140,22,170,42],'#d8cfbc');win(g,132,56,16,30,'#3a3a4a');g.fillStyle='#d4a83a';g.fillRect(138,10,4,14);});}
+function espigueiro(){return mk(120,110,(g,w,h)=>{const s='#a8a49a',d='#86827a';for(const x of [20,56,92]){g.fillStyle=s;g.fillRect(x-5,h-30,10,30);ell(g,x,h-31,10,4,d);}
+  g.fillStyle=s;g.fillRect(8,40,104,36);g.fillStyle=d;for(let x=14;x<108;x+=8)g.fillRect(x,44,4,28);poly(g,[2,42,60,24,118,42],'#b5532f');g.fillStyle=s;g.fillRect(56,10,4,16);g.fillRect(52,14,12,4);});}
+function torreLidador(){return mk(130,360,(g,w,h)=>{const gr=g.createLinearGradient(30,0,100,0);gr.addColorStop(0,'#cfd8e4');gr.addColorStop(1,'#f4f8fc');g.fillStyle=gr;g.fillRect(34,60,62,h-60);
+  g.strokeStyle='rgba(60,80,110,.35)';g.lineWidth=1;for(let y=70;y<h;y+=8){g.beginPath();g.moveTo(34,y);g.lineTo(96,y);g.stroke();}for(let x=42;x<96;x+=10){g.beginPath();g.moveTo(x,60);g.lineTo(x,h);g.stroke();}
+  g.fillStyle='#e8402a';g.fillRect(30,52,70,10);g.fillStyle='#1a1a1a';g.font='bold 13px "Arial Black",sans-serif';g.textAlign='center';g.save();g.translate(65,200);g.rotate(-Math.PI/2);g.fillStyle='#e8402a';g.fillText('MAIA',0,5);g.restore();
+  g.fillStyle='#c8ccd4';g.fillRect(62,0,6,54);g.fillStyle='#e8402a';circ(g,65,4,4,'#ff4040');g.fillStyle='#2a3a4a';g.fillRect(14,h-40,102,40);});}
+function maiaHeart(){return mk(220,170,(g,w,h)=>{g.fillStyle='#6a5a4a';g.fillRect(40,110,8,60);g.fillRect(172,110,8,60);g.fillStyle='#fff';rr(g,6,10,w-12,104,12);g.fill();g.strokeStyle='#111';g.lineWidth=5;g.stroke();
+  g.fillStyle='#111';g.font='900 30px "Arial Black",sans-serif';g.textAlign='center';g.fillText('MADE IN',w/2,52);g.fillText('MAIA',w/2-14,94);
+  g.fillStyle='#e8263a';g.beginPath();const x=w/2+48,y=72;g.moveTo(x,y+14);g.bezierCurveTo(x-22,y-2,x-12,y-20,x,y-8);g.bezierCurveTo(x+12,y-20,x+22,y-2,x,y+14);g.fill();});}
+
+// ================================================================== EURO TOUR — chapters, generic backgrounds, selection screen
+function flagGen(kind){return mk(52,140,(g,w,h)=>{g.fillStyle='#bbb';g.fillRect(2,0,4,h);circ(g,4,2,3,'#ffd23f');const x=6,y=6,fw=44,fh=30;
+  const H3=(a,b,c,r)=>{const hs=r||[1,1,1],t=hs[0]+hs[1]+hs[2];let yy=y;[a,b,c].forEach((col,i)=>{g.fillStyle=col;const hh=fh*hs[i]/t;g.fillRect(x,yy,fw,hh+0.5);yy+=hh;});};
+  const V3=(a,b,c)=>{[a,b,c].forEach((col,i)=>{g.fillStyle=col;g.fillRect(x+i*fw/3,y,fw/3+0.5,fh);});};
+  if(kind==='ES'){H3('#c60b1e','#ffc400','#c60b1e',[1,2,1]);}
+  else if(kind==='FR')V3('#0055a4','#fff','#ef4135');else if(kind==='IT')V3('#009246','#fff','#ce2b37');else if(kind==='BE')V3('#111','#fdda24','#ef3340');
+  else if(kind==='DE')H3('#111','#dd0000','#ffce00');else if(kind==='NL')H3('#ae1c28','#fff','#21468b');
+  else if(kind==='CH'){g.fillStyle='#da291c';g.fillRect(x+7,y,fh,fh);g.fillStyle='#fff';g.fillRect(x+7+fh/2-3,y+6,6,fh-12);g.fillRect(x+13,y+fh/2-3,fh-12,6);}
+  else if(kind==='GB'){g.fillStyle='#012169';g.fillRect(x,y,fw,fh);g.strokeStyle='#fff';g.lineWidth=6;g.beginPath();g.moveTo(x,y);g.lineTo(x+fw,y+fh);g.moveTo(x+fw,y);g.lineTo(x,y+fh);g.stroke();g.strokeStyle='#c8102e';g.lineWidth=2;g.stroke();g.fillStyle='#fff';g.fillRect(x+fw/2-5,y,10,fh);g.fillRect(x,y+fh/2-5,fw,10);g.fillStyle='#c8102e';g.fillRect(x+fw/2-3,y,6,fh);g.fillRect(x,y+fh/2-3,fw,6);}
+  else if(kind==='GZ'){g.fillStyle='#fff';g.fillRect(x,y,fw,fh);g.strokeStyle='#0a76c8';g.lineWidth=6;g.beginPath();g.moveTo(x,y);g.lineTo(x+fw,y+fh);g.stroke();}
+  g.fillStyle='rgba(0,0,0,.12)';g.fillRect(x+fw-6,y,6,fh);});}
+const LMSET=new Set(['seP','carmo','saoBento','camara','batalha','obidos','fatima','nazare','jeronimos','belem','evora','silves','uniTower','clerigos','mouros','chimney',
+  'giralda','plazaEspana','mezquita','castleES','palacioReal','kio','pilar','sagrada','glories','carcassonne','fourviere','eiffel','notreDame','sacreCoeur','pisa','colosseum','stPeter','duomoFi','campanile','duomoMi',
+  'grossmunster','neuschwanstein','tvTower','kolnDom','cubeHouses','atomium','grandPlace','belfry','bigBen','stonehenge','santiago','bomJesus','torreLidador','maiaHeart','toro']);
+let euBuilt=false;
+function buildEuroSprites(){if(euBuilt)return;euBuilt=true;const s=(k,img,ww,hit=0.6)=>SP[k]={img,ww,hit};
+  s('toro',toroBoard(),2.6,0.9);s('giralda',giralda(),0.95,0.9);s('plazaEspana',plazaEspana(),3.2,0.95);s('mezquita',mezquita(),2.6,0.95);s('molino',molino(),1.0,0.5);s('castleES',castleES(),2.4,0.95);s('castleES2',castleES('#d8b880'),2.2,0.95);
+  s('puertaAlcala',puertaAlcala(),4.4,0);SP.puertaAlcala.pillar=[1.2,2.2];s('palacioReal',palacioReal(),3.0,0.95);s('kio',kioTowers(),2.0,0.95);s('pilar',pilar(),3.0,0.95);s('sagrada',sagrada(),2.0,0.95);s('glories',glories(),0.9,0.9);
+  s('carcassonne',carcassonne(),3.0,0.95);s('pontGard',pontGard(),3.6,0.95);s('lavender',lavender(),1.5,0.15);s('sunfl',sunflowers(),1.4,0.15);s('fourviere',fourviere(),2.0,0.95);s('eiffel',eiffel(),1.8,0.9);
+  s('arcTriomphe',arcTriomphe(),4.4,0);SP.arcTriomphe.pillar=[1.05,2.2];s('notreDame',notreDame(),2.0,0.95);s('sacreCoeur',sacreCoeur(),2.2,0.95);
+  ['#efe6d2','#e8dcc0','#f4ecdc'].forEach((c,i)=>s('parisH'+i,parisHouse(c),1.15,0.95));s('bistro',bistro(),1.2,0.8);s('chalet',chalet(),1.4,0.95);s('cow',cow(),0.8,0.7);
+  s('pisa',pisa(),1.15,0.9);s('colosseum',colosseum(),3.2,0.95);s('stPeter',stPeter(),2.8,0.95);s('duomoFi',duomoFi(),2.8,0.95);s('campanile',campanile(),0.8,0.9);s('gondola',gondola(),1.6,0.6);s('duomoMi',duomoMi(),3.0,0.95);
+  ['#e8b060','#d86a4a','#f0c890','#c8604a','#f2d6a8'].forEach((c,i)=>s('itH'+i,housePorto(c,{laundry:i%2===0}),1.15,0.95));
+  s('kapell',kapell(),3.2,0.95);s('grossmunster',grossmunster(),1.8,0.95);s('jetDeau',jetDeau(),1.0,0.3);s('neuschwanstein',neuschwanstein(),2.6,0.95);
+  s('brandenburg',brandenburg(),5.0,0);SP.brandenburg.pillar=[1.1,2.5];s('tvTower',tvTower(),0.8,0.9);s('kolnDom',kolnDom(),2.0,0.95);s('rhineCastle',rhineCastle(),2.4,0.95);
+  ['#f4efe4','#f2e0b0','#e8d0d0'].forEach((c,i)=>s('fach'+i,fachwerk(c),1.15,0.95));
+  [['#8a3a2a',0],['#5a2a22',1],['#2a3a4a',2],['#a85a3a',1],['#3a4a3a',0],['#6a2a2a',2]].forEach(([c,t],i)=>s('canal'+i,canalHouse(c,t),1.0,0.95));
+  s('windmillNL',windmillNL(),1.3,0.5);['#e8263a','#ffd23f','#e84393','#fff','#ff8a1a'].forEach((c,i)=>s('tulip'+i,tulips(c),1.6,0.1));s('cubeHouses',cubeHouses(),2.6,0.95);s('erasmus',erasmus(),3.6,0.3);
+  s('atomium',atomium(),2.0,0.8);s('grandPlace',grandPlace(),2.4,0.95);s('belfry',belfry(),1.0,0.9);
+  s('bigBen',bigBen(),1.0,0.9);s('towerBridge',towerBridge(),5.0,0);SP.towerBridge.pillar=[1.45,2.5];s('londonEye',londonEye(),2.6,0.4);s('stonehenge',stonehenge(),2.8,0.95);s('phoneBox',phoneBox(),0.3,0.7);
+  ['#9a4a32','#b8604a','#7a3a2a','#c8b090'].forEach((c,i)=>s('terr'+i,terrace(c),1.15,0.95));
+  s('santiago',santiago(),2.6,0.95);s('bomJesus',bomJesus(),2.6,0.95);s('espig',espigueiro(),0.9,0.8);s('torreLidador',torreLidador(),1.0,0.9);s('maiaHeart',maiaHeart(),1.3,0.9);
+  for(const k of ['ES','FR','IT','CH','DE','NL','BE','GB','GZ'])s('flag'+k,flagGen(k),0.3,0.3);
+  SP.dbus={img:doubleDecker(),ww:0.44};SP.cab={img:blackCab(),ww:0.3};
+  SP.fiat0={img:retroCar('#e8402a'),ww:0.26};SP.fiat1={img:retroCar('#f2e8cf'),ww:0.26};SP.fiat2={img:retroCar('#6ac0a8'),ww:0.26};
+  [['pedFl',{legs:'#c8102e',top:'#c8102e',skin:'#e0a57a',hair:'#111',skirt:'#c8102e',long:1}],['pedBe',{legs:'#222',top:'#f4f1ea',skin:'#f1c27d',hair:'#5a3a22',hat:'#1a1a2a'}],
+   ['pedPi',{legs:'#5a4a3a',top:'#8a6a3a',skin:'#e0a57a',hair:'#3a2a1a',pack:'#c8a050'}],['pedDu',{legs:'#2b3a55',top:'#ff8a1a',skin:'#f1c27d',hair:'#e8d080'}]].forEach(([k,o])=>s(k,person(o),0.2,0.5));
+}
+// ---------------------------------------------------------------- stage helper with defaults
+const TR={es:['carW','carR','carS','van','vespa','moto','fiat1','carY','bus'],fr:['carW','carB','carS','retro0','van2','moto2','vespa','carK','bike'],it:['fiat0','fiat1','fiat2','vespa','vespa2','carW','carR','moto','bus'],
+  ch:['carW','carK','carS','van','bike','moto2','carB'],de:['carK','carS','carW','van2','carB','bike','moto'],nl:['bike','bike2','carW','carS','van','carB','bike'],gb:['dbus','cab','carW','carR','van','carB','moto'],pt:['carW','carR','van','carB','vespa','paoVan','moto2','retro1']};
+function Z(o){return Object.assign({curvy:.6,hilly:.5,len:800,tunnels:1,radars:1,facade:'#c8b090',road:['#66626c','#605c66'],grass:['#7d8a5a','#727f51'],rumble:['#d7263d','#f4f4f4'],lane:'#f4f4f4',fog:'#f0b090',fogD:4,
+  sky:[['#2a2a6a',0],['#c06aa0',.5],['#ffd08a',1]],sun:{r:44,y:104,x:1100,c:['#fff6c0','#ff7a54'],stripes:true},signs:[],over:[]},o);}
+const SKY={day:[['#2f6fd0',0],['#8ab8f0',.6],['#ffe6b0',1]],gold:[['#3a3a8a',0],['#d07a8a',.55],['#ffd08a',1]],sunset:[['#24104a',0],['#a8306a',.45],['#ff7a4a',.8],['#ffd27a',1]],
+  dusk:[['#120a3a',0],['#4a2a7a',.5],['#e06a8a',.85],['#ffb07a',1]],night:[['#05031a',0],['#1a1450',.6],['#5a3a8a',1]],grey:[['#4a5a7a',0],['#9aaac0',.6],['#e8dcc8',1]]};
+const SUN={hot:{r:70,y:118,x:1300,c:['#fffbd0','#ff8a3d'],stripes:true},big:{r:86,y:146,x:1000,c:['#ffe27a','#ff3d7f'],stripes:true},mid:{r:46,y:104,x:700,c:['#fff6c0','#ff7a54'],stripes:true},pale:{r:30,y:70,x:1100,c:['#ffffff','#ffe9a0'],stripes:false}};
+// ---------------------------------------------------------------- the chapters
+const CHAPTERS=[
+ {code:'PT',name:'PORTUGAL',flag:'🇵🇹',start:'PORTO',goal:'ALGARVE',color:'#ff3d7f',map:{polys:['PT'],ctx:['ES'],b:[-11.6,-5.0,36.6,42.4]},win:'CHEGÁMOS AO ALGARVE! 🌙',tag:'Porto · Douro · Coimbra · Lisboa · Sintra · Algarve',thumb:['clerigos','arch','jeronimos','pena','belem','galo']},
+ {code:'ES',name:'ESPANHA',flag:'🇪🇸',start:'SEVILHA',goal:'BARCELONA',color:'#ffc400',map:{polys:['ES'],ctx:['PT','FR','AFR'],b:[-9.8,4.0,35.6,44.0]},win:'¡OLÉ! CHEGÁMOS A BARCELONA! 💃',tag:'Sevilha · Córdoba · La Mancha · Madrid · Saragoça · Barcelona',thumb:['giralda','toro','molino','sagrada','puertaAlcala','plazaEspana'],
+  legs:[{name:'ANDALUZIA',bonus:58},{name:'CASTELA',bonus:50},{name:'ARAGÃO & CATALUNHA',bonus:48}],stages:[
+  Z({key:'sevilha',leg:0,birds:true,name:'SEVILHA',sub:'Giralda · Plaza de España · flamenco',curvy:.5,hilly:.3,facade:'#e8c890',grass:['#c8b060','#bca452'],sky:SKY.gold,sun:SUN.hot,fog:'#ffc890',ll:[-5.99,37.39],emo:'💃',traffic:TR.es,
+   deco:[[['whiteB','whiteY'],6,1.6,2.6,.7],['orange',9,1.3,1.6,.7],[['palm1','palm2'],15,1.3,2,.5],['lamp',18,1.12,1.12,1],[['pedFl','ped1','ped2'],11,1.25,1.4,.45]],
+   marks:[['giralda',2.4,1],['plazaEspana',2.6,1],['toro',3.0,1],['flagES',1.2,2]],boards:[['TAPAS & SANGRIA','▸ 500 m'],['FLAMENCO','esta noche 22h'],['FERIA DE ABRIL','olé!'],['GAZPACHO','fresquito']],
+   signs:[[['CÓRDOBA','140'],['MADRID','530']]],luna:'Olé! Vamos dançar flamenco! 💃',fact:'The Giralda began life as a 12th-century minaret and became the bell tower of Seville Cathedral.',
+   bg:{far:[['clouds','rgba(255,220,180,.5)',6],['ridge',176,14,1.2,'#c89060'],['sil','giralda',520,186,80,'#a86a4a'],['city',186,'#b8805a',40]],near:[['fields',204,['#b89048','#a88040']],['trees',206,'#5a6a2a',26,0.9]]}}),
+  Z({key:'cordoba',leg:0,name:'CÓRDOBA',sub:'Mesquita · pátios · olivais',curvy:.6,hilly:.4,grass:['#a8a050','#9c9446'],sky:SKY.day,sun:SUN.pale,fog:'#f0d8a8',ll:[-4.78,37.88],emo:'🕌',traffic:TR.es,
+   deco:[['olive',5,1.8,4,.85],[['whiteB','whiteY'],13,1.6,2.6,.5],['cypress',17,1.5,2,.4],['orange',21,1.3,1.6,.5]],
+   marks:[['mezquita',2.5,1],['castleES',2.6,1],['toro',3.0,2],['flagES',1.2,1]],boards:[['AZEITE','virgen extra'],['PATIOS','mayo · flores'],['SALMOREJO','cordobés'],['TORO','▸ ruta']],
+   signs:[[['JAÉN','▸'],['MADRID','400']]],luna:'Tantos olivais! 🫒',fact:"Córdoba's Mezquita is famous for its forest of red-and-white striped arches.",
+   bg:{far:[['ridge',160,40,3.3,'#8a7a9a'],['ridge',180,22,1.8,'#a0906a']],near:[['ridge',204,8,0.6,'#8a8a3a'],['trees',204,'#4a5a2a',40,0.7]]}}),
+  Z({key:'mancha',leg:1,name:'LA MANCHA',sub:'Moinhos · castelos · Dom Quixote',curvy:.25,hilly:.2,tunnels:0,radars:2,grass:['#d8b860','#ccac52'],sky:SKY.day,sun:SUN.mid,fog:'#ffe0a8',fogD:3,ll:[-3.71,39.40],emo:'🌬️',traffic:TR.es,
+   deco:[['hay',9,1.3,2.6,.5],['olive',12,2.0,3.8,.5],['molino',27,2.0,3.2,.6]],
+   marks:[['molino',2.3,4],['castleES2',2.8,1],['toro',3.0,2],['flagES',1.2,1]],boards:[['QUESO MANCHEGO','curado ▸'],['DON QUIJOTE','ruta ▸'],['MOLINOS','Consuegra 10 km'],['VINO','Valdepeñas']],
+   signs:[[['TOLEDO','90'],['MADRID','140']]],luna:'Olha, gigantes! Ah não, são moinhos 😄',fact:'La Mancha is the land of Don Quixote, who famously mistook windmills for giants.',
+   bg:{far:[['ridge',186,8,2.2,'#c8985a'],['sil','molino',300,188,40,'#8a6a4a'],['sil','molino',360,188,34,'#8a6a4a'],['sil','molino',420,188,40,'#8a6a4a'],['sil','castleES',700,188,40,'#9a7a5a']],near:[['fields',204,['#d8b050','#c8a040','#b89838']]]}}),
+  Z({key:'madrid',leg:1,birds:true,name:'MADRID',sub:'Puerta de Alcalá · Palácio Real · Torres KIO',curvy:.5,hilly:.6,tunnels:2,facade:'#e8dcc4',grass:['#d8d0bc','#ccc4b0'],rumble:['#c60b1e','#ffc400'],sky:SKY.sunset,sun:SUN.big,fog:'#ff9a6a',ll:[-3.70,40.42],emo:'🐻',traffic:['taxi','carW','carR','bus','vespa','moto','carS','carK','fiat0'],
+   deco:[[['parisH0','parisH1','parisH2','shop0','shop1'],5,1.5,2.4,.8],['lamp',14,1.12,1.12,1],['tree1',19,1.3,1.5,.5],[['ped1','ped2','pedFl','ped5'],8,1.25,1.4,.45],['kiosk',80,1.35,1.45,.7]],
+   marks:[['palacioReal',2.6,1],['kio',2.4,1],['flagES',1.2,2]],over:[['puertaAlcala',2]],boards:[['CHURROS','con chocolate'],['BOCADILLO','de calamares'],['MADRID','km 0'],['EL OSO','y el madroño']],
+   signs:[[['ZARAGOZA','320'],['TOLEDO','70']]],luna:'Churros com chocolate! 🍫',fact:'Spain measures all its national road distances from Kilometre Zero in Puerta del Sol, Madrid.',
+   bg:{far:[['clouds','rgba(255,170,190,.45)',6],['city',176,'#5a2d63',70],['sil','kio',420,180,70,'#45204d'],['sil','palacioReal',740,182,40,'#45204d']],near:[['city',206,'#3a2048',50]]}}),
+  Z({key:'zaragoza',leg:2,name:'SARAGOÇA',sub:'Basílica del Pilar · Ebro · Monegros',curvy:.4,hilly:.3,tunnels:0,radars:2,grass:['#c8a878','#bc9c6c'],sky:SKY.gold,sun:SUN.hot,fog:'#ffc890',ll:[-0.88,41.65],emo:'⛪',traffic:TR.es,
+   deco:[['hay',13,1.4,2.6,.4],['olive',11,2.0,3.8,.5],[['whiteY','shop3'],17,1.6,2.4,.4],['cypress',21,1.5,2,.4]],
+   marks:[['pilar',2.6,1],['toro',3.0,1],['castleES',2.8,1],['flagES',1.2,1]],boards:[['EL PILAR','basílica ▸'],['JAMÓN','de Teruel'],['DESIERTO','Monegros'],['CIERZO','¡viento fuerte!']],
+   signs:[[['BARCELONA','300'],['HUESCA','▸']]],luna:'Que cúpulas tão coloridas! ⛪',fact:"Zaragoza's Basílica del Pilar has colourful glazed-tile domes on the banks of the Ebro.",
+   bg:{far:[['ridge',170,30,5.1,'#b8806a'],['sil','pilar',500,190,60,'#8a5a4a']],near:[['sea',200,'#7aa8c8','#3a6a98'],['ridge',214,6,2.1,'#a88a5a']]}}),
+  Z({key:'barcelona',leg:2,birds:true,name:'BARCELONA',sub:'Sagrada Família · Glòries · praias',curvy:.6,hilly:.5,tunnels:1,facade:'#e8c8a0',grass:['#f0cf8a','#e8c37a'],rumble:['#c60b1e','#ffc400'],sky:SKY.dusk,sun:SUN.big,fog:'#ff9e7a',reflect:true,stars:true,moon:{r:16,x:1700,y:40,phase:'crescent'},ll:[2.17,41.39],emo:'🏖️',traffic:['taxi','carY','vespa','vespa2','moto','carW','bus','fiat2'],
+   deco:[[['parisH1','shop2','shop4','itH2','itH4'],6,1.5,2.4,.7],[['palm1','palm2','palm3'],8,1.3,2.2,.7],['lamp',16,1.12,1.12,1],[['umbR','umbB'],15,2.4,3.2,.4],[['ped4','ped6','pedFl'],10,1.25,1.4,.45]],
+   marks:[['sagrada',2.4,1],['glories',2.3,1],['flagES',1.2,2]],boards:[['PAELLA','mixta ▸'],['LA RAMBLA','▸ centro'],['PLATJA','2 km'],['FC','força!']],
+   signs:[[['GIRONA','100'],['FRANÇA','▸']]],luna:'Praia e paella! 🥘',fact:"Gaudí's Sagrada Família has been under construction since 1882.",
+   bg:{far:[['clouds','rgba(255,170,190,.45)',6],['ridge',170,26,2.6,'#4a2a6a'],['city',184,'#3a1a52',80],['sil','sagrada',460,190,96,'#2a1040'],['sil','glories',640,190,62,'#2a1040']],near:[['sea',198,'#c060a0','#2a1050']]}})]},
+ {code:'FR',name:'FRANÇA',flag:'🇫🇷',start:'CARCASSONNE',goal:'ALPES',color:'#0055a4',map:{polys:['FR'],ctx:['ES','IT','CH','DE','BE','GB'],b:[-5.2,8.6,42.2,51.4]},win:'C\'EST MAGNIFIQUE! CHEGÁMOS AOS ALPES! 🗼',tag:'Carcassonne · Provença · Lyon · Paris · Alpes',thumb:['eiffel','arcTriomphe','carcassonne','sacreCoeur','lavender','notreDame'],
+  legs:[{name:'SUL',bonus:58},{name:'LYON & PARIS',bonus:52},{name:'ALPES',bonus:30}],stages:[
+  Z({key:'carcassonne',leg:0,name:'CARCASSONNE',sub:'Cité medieval · vinhas',curvy:.6,hilly:.6,grass:['#8aa04a','#7e9442'],sky:SKY.gold,sun:SUN.mid,fog:'#f0c090',ll:[2.35,43.21],emo:'🏰',traffic:TR.fr,
+   deco:[['vines',3,1.3,2.8,.9],['cypress',15,1.8,2.4,.5],['sunfl',19,1.4,2.2,.5],['flagFR',60,1.2,1.2,.5]],
+   marks:[['carcassonne',2.6,1],['castleES2',2.8,1],['flagFR',1.2,1]],boards:[['CASSOULET','maison ▸'],['VIN','du Languedoc'],['LA CITÉ','▸ 2 km'],['BONJOUR!','bienvenue']],
+   signs:[[['TOULOUSE','90'],['MONTPELLIER','▸']]],luna:'Um castelo de conto de fadas! 🏰',fact:'La Cité de Carcassonne has two rings of walls and 52 towers.',
+   bg:{far:[['ridge',150,40,2.7,'#8a7ab0'],['sil','carcassonne',560,180,70,'#6a5a8a']],near:[['ridge',204,12,1.1,'#6a8a3a'],['trees',204,'#3a5a2a',30,0.8]]}}),
+  Z({key:'provence',leg:0,birds:true,name:'PROVENÇA',sub:'Lavanda · Pont du Gard · girassóis',curvy:.5,hilly:.4,tunnels:0,grass:['#9a8ac8','#8e7ebc'],sky:SKY.day,sun:SUN.pale,fog:'#e8d0f0',fogD:3.5,ll:[4.53,43.95],emo:'💜',traffic:TR.fr,
+   deco:[['lavender',2,1.3,3.4,.95],['cypress',13,1.6,2.4,.5],['olive',17,2.6,4,.4],['sunfl',23,1.4,2.4,.4]],
+   marks:[['pontGard',3.2,1],['flagFR',1.2,2]],boards:[['LAVANDE','miel & savon'],['PONT DU GARD','▸ romain'],['CROISSANT','tout chaud'],['PASTIS','santé!']],
+   signs:[[['AVIGNON','▸'],['LYON','230']]],luna:'Cheira a lavanda! 💜',fact:'The Pont du Gard is a Roman aqueduct bridge built in the 1st century AD.',
+   bg:{far:[['ridge',160,30,4.4,'#8a9ac8'],['sil','pontGard',420,192,48,'#7a7aa8']],near:[['fields',202,['#9a7ad8','#7aa04a','#8a6ac8','#7a9a3a']]]}}),
+  Z({key:'lyon',leg:1,name:'LYON',sub:'Fourvière · traboules · Rhône',curvy:.6,hilly:.7,tunnels:2,facade:'#e8c8a0',grass:['#7a9a5a','#6e8e52'],sky:SKY.sunset,sun:SUN.big,fog:'#ff9a7a',ll:[4.83,45.76],emo:'🦁',traffic:TR.fr,
+   deco:[[['parisH0','parisH2','itH1','itH3','shop0'],5,1.5,2.4,.8],['lamp',15,1.12,1.12,1],['bistro',40,1.5,1.6,.6],[['pedBe','ped2','ped3'],9,1.25,1.4,.45]],
+   marks:[['fourviere',2.5,1],['flagFR',1.2,2]],boards:[['BOUCHON','lyonnais ▸'],['FÊTE DES LUMIÈRES','8 décembre'],['QUENELLES','à volonté'],['RHÔNE','& Saône']],
+   signs:[[['PARIS','460'],['GENÈVE','150']]],luna:'Que jantar vamos ter! 🍷',fact:"Lyon is famous for its 'bouchons' and its Festival of Lights every December.",
+   bg:{far:[['clouds','rgba(255,170,190,.45)',5],['ridge',150,30,3.1,'#5a3a6a'],['sil','fourviere',520,166,50,'#45204d'],['city',190,'#5a2d63',60]],near:[['sea',198,'#d0708a','#4a3570']]}}),
+  Z({key:'paris',leg:1,birds:true,name:'PARIS',sub:'Torre Eiffel · Arco do Triunfo · Notre-Dame · Montmartre',curvy:.5,hilly:.5,tunnels:2,facade:'#efe6d2',grass:['#d8d0bc','#ccc4b0'],rumble:['#0055a4','#f4f4f4'],sky:SKY.dusk,sun:SUN.mid,fog:'#e88ab0',stars:true,moon:{r:20,x:400,y:46,phase:'full'},ll:[2.35,48.86],emo:'🗼',traffic:['taxi','carW','carS','retro0','vespa','moto','bus','carK','bike'],
+   deco:[[['parisH0','parisH1','parisH2'],4,1.5,2.4,.9],['lamp',12,1.12,1.12,1],['bistro',30,1.5,1.6,.7],['tree1',17,1.3,1.5,.5],[['pedBe','ped1','ped6','ped2'],7,1.25,1.4,.5],['kiosk',70,1.35,1.45,.6]],
+   marks:[['eiffel',2.4,2],['notreDame',2.4,1],['sacreCoeur',2.6,1],['flagFR',1.2,2]],over:[['arcTriomphe',2]],boards:[['CROISSANT','& café crème'],['LOUVRE','▸ musée'],['MACARONS','Paris ♥'],['MOULIN ROUGE','ce soir'],['JE T\'AIME','MiM ♥ LUNA']],
+   signs:[[['CHAMPS-ÉLYSÉES','▸'],['LYON','460']]],luna:'Paris, a cidade do amor! 🗼💕',fact:'The Eiffel Tower was built for the 1889 World Fair and was meant to stand for only 20 years.',
+   bg:{far:[['clouds','rgba(255,170,220,.4)',6],['city',182,'#3a2060',90],['sil','eiffel',480,190,130,'#2a1048'],['sil','sacreCoeur',820,184,44,'#2a1048'],['sil','notreDame',220,188,40,'#2a1048']],near:[['sea',200,'#e080b0','#2a1a58'],['city',214,'#20123a',30]]}}),
+  Z({key:'alpes',leg:2,name:'ALPES',sub:'Mont Blanc · Chamonix · chalés',curvy:1,hilly:1,tunnels:3,radars:0,facade:'#8a7a6a',grass:['#5a8a4a','#527e44'],rumble:['#0055a4','#f4f4f4'],sky:SKY.day,sun:SUN.pale,fog:'#c8d8f0',fogD:6,ll:[6.87,45.92],emo:'🏔️',traffic:TR.ch,
+   deco:[['pine',4,1.5,3.2,.8],['chalet',13,1.8,2.6,.6],['cow',19,1.6,3,.5],['flagFR',80,1.2,1.2,.5]],
+   marks:[['chalet',2.2,2],['flagFR',1.2,1]],boards:[['FONDUE','& raclette'],['TÉLÉPHÉRIQUE','▸ Mont Blanc'],['NEIGE','pneus hiver!'],['CHAMONIX','▸ 5 km']],
+   signs:[[['MONT BLANC','▸'],['ITALIA','◂ tunnel']]],luna:'Neve! Quero fondue! 🧀',fact:'Mont Blanc, at about 4,800 m, is the highest mountain in Western Europe.',
+   bg:{far:[['mount',196,'#7a8ab8','#ffffff',[[150,120,180],[420,150,240],[700,110,200],[930,130,200]]]],near:[['mount',206,'#4a6a5a','#e8f0ff',[[100,60,160],[380,50,140],[640,70,180],[900,55,160]]],['trees',206,'#2a4a3a',40,0.9]]}})]},
+ {code:'IT',name:'ITÁLIA',flag:'🇮🇹',start:'PISA',goal:'MILÃO',color:'#009246',map:{polys:['IT','SIC','SAR'],ctx:['FR','CH','AT','EAST','COR'],b:[6.0,19.0,36.5,47.3]},win:'MAMMA MIA! CHEGÁMOS A MILÃO! 🍕',tag:'Pisa · Florença · Roma · Veneza · Milão',thumb:['colosseum','pisa','duomoFi','gondola','stPeter','campanile'],
+  legs:[{name:'TOSCANA',bonus:58},{name:'ROMA',bonus:30},{name:'NORTE',bonus:52}],stages:[
+  Z({key:'pisa',leg:0,birds:true,name:'PISA',sub:'Torre inclinada · Piazza dei Miracoli',curvy:.5,hilly:.4,grass:['#8aa04a','#7e9442'],sky:SKY.day,sun:SUN.pale,fog:'#f0e0c0',ll:[10.40,43.72],emo:'🍕',traffic:TR.it,
+   deco:[['cypress',5,1.6,2.6,.7],[['itH0','itH2','itH4'],12,1.6,2.4,.5],['vines',9,2.6,3.6,.6],['olive',17,2.6,4,.4],['flagIT',70,1.2,1.2,.5]],
+   marks:[['pisa',2.3,2],['flagIT',1.2,2]],boards:[['PIZZA','margherita ▸'],['GELATO','artigianale'],['TORRE','pende ma non cade'],['CIAO!','benvenuti']],
+   signs:[[['FIRENZE','80'],['ROMA','350']]],luna:'Tira a foto a segurar a torre! 📸',fact:'The Leaning Tower of Pisa started tilting during construction in the 12th century.',
+   bg:{far:[['ridge',160,30,6.6,'#8a9ac8'],['sil','pisa',560,190,70,'#7a7a98']],near:[['ridge',204,10,1.4,'#6a8a3a'],['trees',204,'#3a5a2a',40,0.6]]}}),
+  Z({key:'firenze',leg:0,name:'FLORENÇA',sub:'Duomo · Ponte Vecchio · Toscana',curvy:.7,hilly:.8,grass:['#9aa050','#8e9446'],facade:'#e8b060',sky:SKY.gold,sun:SUN.mid,fog:'#ffc890',ll:[11.26,43.77],emo:'🎨',traffic:TR.it,
+   deco:[[['itH0','itH1','itH3','itH4','shop0'],6,1.5,2.4,.7],['cypress',7,2.6,3.6,.7],['lamp',16,1.12,1.12,1],[['ped1','ped2','pedDu'],12,1.25,1.4,.4]],
+   marks:[['duomoFi',2.6,1],['flagIT',1.2,2]],boards:[['BISTECCA','alla fiorentina'],['UFFIZI','▸ museo'],['CHIANTI','vino rosso'],['VESPA','noleggio']],
+   signs:[[['ROMA','280'],['SIENA','▸']]],luna:'Que arte! Que cúpula! 🎨',fact:"Brunelleschi's dome on Florence Cathedral is still the largest brick dome ever built.",
+   bg:{far:[['ridge',156,38,7.1,'#8a6a8a'],['ridge',178,18,2.5,'#a8826a'],['sil','duomoFi',520,186,64,'#6a3a4a']],near:[['ridge',206,10,0.9,'#7a8a3a'],['trees',206,'#3a4a2a',30,1.0]]}}),
+  Z({key:'roma',leg:1,birds:true,name:'ROMA',sub:'Coliseu · São Pedro · Vespas',curvy:.5,hilly:.7,tunnels:2,facade:'#e8b060',grass:['#d8c8a8','#ccbc9c'],rumble:['#009246','#f4f4f4'],sky:SKY.sunset,sun:SUN.big,fog:'#ff9a6a',ll:[12.49,41.89],emo:'🏛️',traffic:['fiat0','fiat1','fiat2','vespa','vespa2','vespa','taxi','bus','moto'],
+   deco:[[['itH0','itH1','itH2','itH3','itH4'],5,1.5,2.4,.8],['pine',9,2.6,3.6,.6],['lamp',14,1.12,1.12,1],[['ped1','ped2','pedDu','ped5'],8,1.25,1.4,.45],['kiosk',70,1.35,1.45,.6]],
+   marks:[['colosseum',2.6,1],['stPeter',2.6,1],['flagIT',1.2,2]],boards:[['CARBONARA','vera romana'],['COLOSSEO','▸ 1 km'],['FONTANA DI TREVI','lancia una moneta'],['SPQR','dal 753 a.C.']],
+   signs:[[['VATICANO','▸'],['FIRENZE','280']]],luna:'Vamos atirar uma moeda à Fontana! 🪙',fact:'The Colosseum could hold around 50,000 spectators in Roman times.',
+   bg:{far:[['clouds','rgba(255,170,190,.45)',6],['city',182,'#5a2d50',70],['sil','stPeter',380,190,60,'#3a1838'],['sil','colosseum',720,192,40,'#3a1838'],['trees',190,'#2a1a2a',12,1.3]],near:[['city',208,'#3a1a40',40]]}}),
+  Z({key:'veneza',leg:2,birds:true,name:'VENEZA',sub:'Gôndolas · Campanile · canais',curvy:.4,hilly:.1,tunnels:0,facade:'#d86a4a',grass:['#4a7ab0','#4272a8'],sky:SKY.dusk,sun:SUN.big,fog:'#ff9eaa',reflect:true,stars:true,ll:[12.33,45.44],emo:'🛶',traffic:['vespa','bike','carW','fiat1','bus','moto'],
+   deco:[[['itH0','itH1','itH2','itH3','itH4'],5,1.6,2.4,.8],['gondola',9,2.6,3.6,.6],['lamp',16,1.12,1.12,1],[['ped1','ped6','pedDu'],12,1.25,1.4,.4]],
+   marks:[['campanile',2.4,2],['flagIT',1.2,2]],boards:[['GONDOLA','giro romantico'],['CARNEVALE','maschere'],['SPRITZ','aperitivo'],['RIALTO','▸ ponte']],
+   signs:[[['MILANO','270'],['VERONA','▸']]],luna:'Um passeio de gôndola, amor? 🛶💕',fact:'Venice is built on 118 small islands linked by more than 400 bridges.',
+   bg:{far:[['city',186,'#5a2a5a',70],['sil','campanile',520,190,90,'#3a1a40']],near:[['sea',198,'#e070a0','#2a1a58']]}}),
+  Z({key:'milao',leg:2,name:'MILÃO',sub:'Duomo · moda · Lago di Como',curvy:.6,hilly:.5,tunnels:2,facade:'#e8dcc4',grass:['#7a9a5a','#6e8e52'],rumble:['#009246','#f4f4f4'],sky:SKY.gold,sun:SUN.mid,fog:'#f0c0a0',ll:[9.19,45.46],emo:'👠',traffic:['fiat0','fiat2','carK','carW','vespa','taxi','bus','moto2'],
+   deco:[[['parisH0','parisH1','itH1','itH3','shop2'],5,1.5,2.4,.8],['lamp',14,1.12,1.12,1],['tree1',19,1.3,1.5,.5],[['ped3','ped6','pedBe'],8,1.25,1.4,.5]],
+   marks:[['duomoMi',2.6,1],['flagIT',1.2,2]],boards:[['MODA','settimana ▸'],['RISOTTO','alla milanese'],['PANETTONE','tutto l\'anno'],['LAGO DI COMO','▸ 50 km']],
+   signs:[[['COMO','50'],['SVIZZERA','▸']]],luna:'Quero ir às compras! 👠',fact:'Milan Cathedral took nearly six centuries to complete and has about 135 spires.',
+   bg:{far:[['mount',176,'#8a9ac8','#ffffff',[[200,70,200],[500,90,260],[820,70,220]]],['city',190,'#6a4a6a',60],['sil','duomoMi',520,192,50,'#4a2a4a']],near:[['city',208,'#4a3048',30]]}})]},
+ {code:'CH',name:'SUÍÇA',flag:'🇨🇭',start:'ZERMATT',goal:'ZURIQUE',color:'#da291c',map:{polys:['CH'],ctx:['FR','IT','DE','AT'],b:[5.6,10.8,45.6,48.0]},win:'CHEGÁMOS A ZURIQUE! QUE CHOCOLATE! 🍫',tag:'Matterhorn · Lucerna · Genebra · Zurique',thumb:['chalet','kapell','cow','grossmunster','jetDeau','flagCH'],
+  legs:[{name:'ALPES',bonus:62},{name:'CIDADES',bonus:40}],stages:[
+  Z({key:'zermatt',leg:0,name:'MATTERHORN',sub:'Zermatt · vacas · chalés',curvy:1,hilly:1,tunnels:3,radars:0,grass:['#5a9a4a','#529044'],rumble:['#da291c','#f4f4f4'],sky:SKY.day,sun:SUN.pale,fog:'#d0e0f8',fogD:6,ll:[7.75,46.02],emo:'🏔️',traffic:TR.ch,
+   deco:[['pine',4,1.5,3.2,.8],['chalet',10,1.8,2.6,.6],['cow',11,1.6,3,.6],['flagCH',60,1.2,1.2,.5]],
+   marks:[['chalet',2.2,3],['flagCH',1.2,2]],boards:[['CHOCOLAT','suisse ▸'],['FONDUE','& raclette'],['ZERMATT','sem carros'],['GRÜEZI!','willkommen']],
+   signs:[[['LUZERN','200'],['GENÈVE','▸']]],luna:'As vacas têm sinos! 🔔🐄',fact:'The Matterhorn (4,478 m) is one of the most photographed mountains on Earth.',
+   bg:{far:[['mount',196,'#8a9ac8','#ffffff',[[300,190,170],[560,110,240],[820,120,220]]]],near:[['mount',206,'#4a7a5a','#e8f0ff',[[120,50,160],[420,60,180],[760,55,160]]],['trees',206,'#2a4a3a',40,0.9]]}}),
+  Z({key:'lucerna',leg:0,birds:true,name:'LUCERNA',sub:'Kapellbrücke · lago · Genebra',curvy:.6,hilly:.6,tunnels:1,grass:['#6a9a5a','#5e8e52'],sky:SKY.gold,sun:SUN.mid,fog:'#f0c8b0',ll:[8.31,47.05],emo:'🌉',traffic:TR.ch,
+   deco:[[['fach0','fach1','fach2','chalet'],6,1.6,2.4,.7],['lamp',16,1.12,1.12,1],['tree1',13,2.6,3.6,.5],[['ped1','ped5','pedBe'],12,1.25,1.4,.4]],
+   marks:[['kapell',3.0,1],['jetDeau',2.8,1],['flagCH',1.2,2]],boards:[['RELÓGIOS','precisão ▸'],['LAGO','passeios de barco'],['KAPELLBRÜCKE','1333'],['ROSTI','& salsichas']],
+   signs:[[['ZÜRICH','50'],['BERN','▸']]],luna:'Que lago tão bonito! 🌉',fact:"Lucerne's covered wooden Chapel Bridge dates back to the 14th century.",
+   bg:{far:[['mount',180,'#8a8ab8','#ffffff',[[200,90,220],[520,110,240],[860,90,220]]],['sil','kapell',520,198,40,'#5a5a88']],near:[['sea',200,'#a0c0e0','#3a5a90']]}}),
+  Z({key:'zurique',leg:1,name:'ZURIQUE',sub:'Grossmünster · bancos · chocolate',curvy:.5,hilly:.5,tunnels:2,facade:'#e8dcc4',grass:['#d8d0bc','#ccc4b0'],rumble:['#da291c','#f4f4f4'],sky:SKY.sunset,sun:SUN.big,fog:'#ff9a7a',ll:[8.54,47.37],emo:'🍫',traffic:['carK','carS','carW','bike','van2','bus','moto'],
+   deco:[[['fach0','fach1','fach2','parisH1','shop0'],5,1.5,2.4,.8],['lamp',14,1.12,1.12,1],['tree1',19,1.3,1.5,.5],[['ped3','pedBe','ped5'],9,1.25,1.4,.45]],
+   marks:[['grossmunster',2.4,1],['flagCH',1.2,2]],boards:[['CHOCOLATE','▸ fábrica'],['BANK','privé'],['TRAM','Zürich'],['MiM ♥ LUNA','road trip']],
+   signs:[[['DEUTSCHLAND','▸'],['BASEL','80']]],luna:'Chocolate, chocolate, chocolate! 🍫',fact:'Switzerland eats more chocolate per person than almost any other country.',
+   bg:{far:[['clouds','rgba(255,170,190,.45)',5],['mount',170,'#6a4a8a','#ffd8e8',[[240,70,240],[640,80,260]]],['city',188,'#4a2a5a',60],['sil','grossmunster',520,192,50,'#2a1438']],near:[['sea',200,'#d0708a','#4a3570']]}})]},
+ {code:'DE',name:'ALEMANHA',flag:'🇩🇪',start:'BAVIERA',goal:'COLÓNIA',color:'#ffce00',map:{polys:['DE'],ctx:['FR','CH','AT','NL','BE','DK','EAST'],b:[5.5,15.3,47.2,55.2]},win:'WUNDERBAR! CHEGÁMOS A COLÓNIA! 🥨',tag:'Neuschwanstein · Floresta Negra · Berlim · Reno · Colónia',thumb:['neuschwanstein','brandenburg','tvTower','kolnDom','fach0','rhineCastle'],
+  legs:[{name:'SUL',bonus:58},{name:'BERLIM',bonus:30},{name:'RENO',bonus:50}],stages:[
+  Z({key:'baviera',leg:0,birds:true,name:'BAVIERA',sub:'Neuschwanstein · Alpes · cerveja',curvy:.8,hilly:.9,tunnels:2,grass:['#5a9a4a','#529044'],sky:SKY.day,sun:SUN.pale,fog:'#d0e0f8',fogD:5,ll:[10.75,47.56],emo:'🏰',traffic:TR.de,
+   deco:[['pine',4,1.6,3.2,.8],[['fach0','fach1','fach2'],11,1.6,2.4,.5],['cow',19,2,3,.4],['flagDE',70,1.2,1.2,.5]],
+   marks:[['neuschwanstein',2.8,1],['flagDE',1.2,2]],boards:[['BRETZEL','frisch ▸'],['BIERGARTEN','prost! 🍺'],['OKTOBERFEST','München'],['SCHLOSS','▸ 3 km']],
+   signs:[[['MÜNCHEN','120'],['STUTTGART','▸']]],luna:'O castelo da Bela Adormecida! 🏰',fact:"Neuschwanstein Castle was built for King Ludwig II and inspired many fairy-tale castles.",
+   bg:{far:[['mount',192,'#8a9ac8','#ffffff',[[160,100,220],[480,130,240],[820,110,240]]],['sil','neuschwanstein',600,192,70,'#5a6a98']],near:[['ridge',206,14,1.6,'#4a7a3a'],['trees',206,'#2a4a2a',40,1.0]]}}),
+  Z({key:'floresta',leg:0,name:'FLORESTA NEGRA',sub:'Pinhais · relógios de cuco · bolo',curvy:1,hilly:.8,tunnels:2,radars:0,grass:['#3a6a3a','#346034'],sky:SKY.grey,sun:SUN.pale,fog:'#a8b8a8',fogD:7,ll:[8.20,48.10],emo:'🌲',traffic:TR.de,
+   deco:[['pine',2,1.3,3.2,.95],['fern',4,1.15,1.6,.6],[['fach0','fach2'],23,1.6,2.4,.4]],
+   marks:[['rhineCastle',2.8,1],['flagDE',1.2,1]],boards:[['KUCKUCKSUHR','▸ werkstatt'],['SCHWARZWÄLDER','kirschtorte'],['WALD','achtung hirsche!'],['NEBEL','langsam!']],
+   signs:[[['FREIBURG','▸'],['BERLIN','780']]],luna:'Bolo Floresta Negra! 🍰',fact:'The cuckoo clock is closely associated with the Black Forest.',
+   bg:{far:[['ridge',150,40,8.8,'#3a4a5a'],['ridge',174,28,3.2,'#2a3a3a']],near:[['trees',204,'#1a2a1a',60,1.2]]}}),
+  Z({key:'berlim',leg:1,birds:true,name:'BERLIM',sub:'Portas de Brandemburgo · torre da TV · Muro',curvy:.4,hilly:.2,tunnels:2,facade:'#d8d0bc',grass:['#c8c4b8','#bcb8ac'],rumble:['#111','#ffce00'],sky:SKY.night,sun:{r:24,y:60,x:1300,c:['#ffffff','#e8e8ff'],stripes:false},fog:'#5a4a8a',stars:true,moon:{r:22,x:400,y:40,phase:'full'},ll:[13.40,52.52],emo:'🐻',traffic:['carK','carS','carW','taxi','bus','bike','moto','retro1'],
+   deco:[[['parisH0','parisH2','shop0','shop3'],5,1.5,2.4,.8],['lamp',12,1.12,1.12,1],['tree1',17,1.3,1.5,.5],[['ped3','ped5','pedBe'],9,1.25,1.4,.45],['kiosk',70,1.35,1.45,.6]],
+   marks:[['tvTower',2.4,2],['flagDE',1.2,2]],over:[['brandenburg',2]],boards:[['CURRYWURST','mit Pommes'],['DÖNER','▸ 24h'],['MAUER','1961–1989'],['TECHNO','heute nacht']],
+   signs:[[['HAMBURG','290'],['KÖLN','570']]],luna:'Berlim à noite é linda! 🌙',fact:'The Brandenburg Gate became a symbol of German reunification after the Wall fell in 1989.',
+   bg:{far:[['city',176,'#2a1a4a',90],['sil','tvTower',520,190,150,'#140a2a'],['sil','brandenburg',780,192,30,'#140a2a']],near:[['city',210,'#100820',40]]}}),
+  Z({key:'colonia',leg:2,birds:true,name:'RENO & COLÓNIA',sub:'Catedral de Colónia · castelos do Reno',curvy:.7,hilly:.6,tunnels:1,facade:'#c8b8a0',grass:['#6a9a4a','#5e8e42'],sky:SKY.gold,sun:SUN.mid,fog:'#f0c0a0',ll:[6.96,50.94],emo:'⛪',traffic:TR.de,
+   deco:[['vines',3,1.3,2.8,.8],[['fach0','fach1','fach2'],9,1.6,2.4,.6],['lamp',17,1.12,1.12,1],['tree1',21,2.6,3.4,.4]],
+   marks:[['kolnDom',2.6,1],['rhineCastle',2.8,2],['flagDE',1.2,2]],boards:[['KÖLSCH','kalt ▸'],['RHEIN','schifffahrt'],['DOM','▸ 2 km'],['KARNEVAL','alaaf!']],
+   signs:[[['AMSTERDAM','260'],['BRUXELLES','▸']]],luna:'Que catedral tão alta! ⛪',fact:"Cologne Cathedral's twin spires rise about 157 m — it took over 600 years to finish.",
+   bg:{far:[['ridge',160,34,4.2,'#7a6a8a'],['sil','rhineCastle',260,180,40,'#5a4a6a'],['city',190,'#6a4a5a',50],['sil','kolnDom',620,194,100,'#3a2a3a']],near:[['sea',200,'#e0a080','#4a4a7a']]}})]},
+ {code:'NL',name:'HOLANDA',flag:'🇳🇱',start:'ROTERDÃO',goal:'AMSTERDÃO',color:'#ff8a1a',map:{polys:['NL'],ctx:['BE','DE','GB'],b:[3.0,7.4,50.6,53.7]},win:'GEWELDIG! CHEGÁMOS A AMSTERDÃO! 🌷',tag:'Roterdão · Tulipas · Moinhos · Amsterdão',thumb:['windmillNL','tulip0','canal0','cubeHouses','erasmus','canal3'],
+  legs:[{name:'ROTERDÃO',bonus:30},{name:'TULIPAS & AMSTERDÃO',bonus:58}],stages:[
+  Z({key:'roterdao',leg:0,birds:true,name:'ROTERDÃO',sub:'Casas Cubo · Ponte Erasmus · porto',curvy:.4,hilly:.1,tunnels:1,facade:'#c8c4bc',grass:['#7a9a5a','#6e8e52'],rumble:['#ff8a1a','#f4f4f4'],sky:SKY.grey,sun:SUN.pale,fog:'#c8d0d8',ll:[4.48,51.92],emo:'🧊',traffic:TR.nl,
+   deco:[[['canal2','canal4','shop2'],6,1.6,2.4,.6],['lamp',14,1.12,1.12,1],[['pedDu','ped5'],10,1.25,1.4,.4]],
+   marks:[['cubeHouses',2.6,1],['erasmus',3.2,1],['flagNL',1.2,2]],boards:[['HAVEN','grootste van Europa'],['STROOPWAFEL','vers ▸'],['KUBUSWONINGEN','▸'],['FIETS','pas op! 🚲']],
+   signs:[[['AMSTERDAM','80'],['DEN HAAG','▸']]],luna:'Casas aos cubos! 🧊',fact:'Rotterdam has one of the largest seaports in the world.',
+   bg:{far:[['city',178,'#5a6a7a',80],['sil','erasmus',560,196,70,'#4a5a6a']],near:[['sea',200,'#a8b8c8','#3a4a68']]}}),
+  Z({key:'tulipas',leg:1,name:'TULIPAS & MOINHOS',sub:'Kinderdijk · campos de flores',curvy:.25,hilly:0,tunnels:0,radars:2,grass:['#5a9a3a','#529034'],sky:SKY.day,sun:SUN.mid,fog:'#d8e8f0',fogD:3,ll:[4.64,51.88],emo:'🌷',traffic:TR.nl,
+   deco:[[['tulip0','tulip1','tulip2','tulip3','tulip4'],2,1.3,3.6,.95],['windmillNL',15,2.4,3.4,.6],['cow',27,2,3.4,.4]],
+   marks:[['windmillNL',2.4,4],['flagNL',1.2,1]],boards:[['TULPEN','▸ Keukenhof'],['KAAS','Gouda & Edam'],['MOLENS','Kinderdijk'],['KLOMPEN','houten schoenen']],
+   signs:[[['AMSTERDAM','40'],['UTRECHT','▸']]],luna:'Tantas cores! Que lindo! 🌷',fact:'The 19 windmills of Kinderdijk are a UNESCO World Heritage site.',
+   bg:{far:[['ridge',190,3,1.1,'#7a9a6a'],['sil','windmillNL',240,192,46,'#4a5a5a'],['sil','windmillNL',400,192,40,'#4a5a5a'],['sil','windmillNL',600,192,50,'#4a5a5a'],['sil','windmillNL',840,192,40,'#4a5a5a']],near:[['fields',202,['#e8263a','#ffd23f','#e84393','#ffffff','#ff8a1a','#5a9a3a']]]}}),
+  Z({key:'amsterdao',leg:1,birds:true,name:'AMSTERDÃO',sub:'Canais · bicicletas · casas tortas',curvy:.5,hilly:.1,tunnels:1,facade:'#8a3a2a',grass:['#4a7ab0','#4272a8'],rumble:['#ae1c28','#f4f4f4'],sky:SKY.dusk,sun:SUN.big,fog:'#ff9eaa',reflect:true,stars:true,ll:[4.90,52.37],emo:'🚲',traffic:['bike','bike2','bike','carW','van','bike2','moto'],
+   deco:[[['canal0','canal1','canal2','canal3','canal4','canal5'],4,1.5,2.3,.95],['lamp',12,1.12,1.12,1],[['pedDu','ped1','ped6'],8,1.25,1.4,.5]],
+   marks:[['flagNL',1.2,3]],boards:[['CANAL TOUR','▸ boten'],['FIETSEN','verhuur'],['MUSEUMPLEIN','▸'],['TULPEN','markt']],
+   signs:[[['CENTRUM','▸'],['BRUSSEL','210']]],luna:'Vamos alugar bicicletas! 🚲',fact:'Amsterdam has more bicycles than people — roughly 880,000 bikes.',
+   bg:{far:[['city',184,'#4a2a5a',90]],near:[['sea',198,'#e070a0','#2a1a58']]}})]},
+ {code:'BE',name:'BÉLGICA',flag:'🇧🇪',start:'BRUGES',goal:'BRUXELAS',color:'#fdda24',map:{polys:['BE'],ctx:['NL','FR','DE','GB'],b:[2.4,6.5,49.4,51.6]},win:'CHEGÁMOS A BRUXELAS! WAFFLES! 🧇',tag:'Bruges · Gante · Bruxelas · Atomium',thumb:['atomium','belfry','grandPlace','canal1','canal5','flagBE'],
+  legs:[{name:'FLANDRES',bonus:40},{name:'BRUXELAS',bonus:34}],stages:[
+  Z({key:'bruges',leg:0,birds:true,name:'BRUGES',sub:'Belfort · canais · chocolate',curvy:.6,hilly:.1,tunnels:0,facade:'#8a3a2a',grass:['#6a9a4a','#5e8e42'],sky:SKY.gold,sun:SUN.mid,fog:'#f0c0a0',ll:[3.22,51.21],emo:'🧇',traffic:['bike','carW','carK','van','bike2','bus'],
+   deco:[[['canal0','canal1','canal3','canal5'],5,1.5,2.4,.8],['lamp',14,1.12,1.12,1],[['ped1','ped6','pedBe'],10,1.25,1.4,.45]],
+   marks:[['belfry',2.4,2],['flagBE',1.2,2]],boards:[['WAFFLES','▸ warm'],['FRITES','met mayo'],['PRALINES','chocolade'],['BIER','300 soorten']],
+   signs:[[['GENT','50'],['BRUXELLES','100']]],luna:'Waffles com chocolate! 🧇',fact:'The historic centre of Bruges is a UNESCO World Heritage site.',
+   bg:{far:[['city',184,'#7a4a4a',70],['sil','belfry',520,192,90,'#4a2a2a']],near:[['sea',200,'#e0a080','#4a4a7a']]}}),
+  Z({key:'bruxelas',leg:1,birds:true,name:'BRUXELAS',sub:'Atomium · Grand-Place · BD',curvy:.5,hilly:.4,tunnels:2,facade:'#e8dcc4',grass:['#d8d0bc','#ccc4b0'],rumble:['#111','#fdda24'],sky:SKY.sunset,sun:SUN.big,fog:'#ff9a7a',ll:[4.35,50.85],emo:'⚛️',traffic:['carK','carS','carW','taxi','bus','bike','moto'],
+   deco:[[['canal1','canal3','parisH0','shop0','shop1'],5,1.5,2.4,.8],['lamp',13,1.12,1.12,1],[['ped3','pedBe','ped2'],9,1.25,1.4,.45],['kiosk',70,1.35,1.45,.6]],
+   marks:[['atomium',2.6,1],['grandPlace',2.5,1],['flagBE',1.2,2]],boards:[['BANDA DESENHADA','▸ museu'],['MOULES-FRITES','spécialité'],['ATOMIUM','1958'],['EUROPA','▸ parlamento']],
+   signs:[[['CALAIS','▸ ferry'],['LONDON','370']]],luna:'Parece uma molécula gigante! ⚛️',fact:'The Atomium was built for the 1958 World Expo and shows an iron crystal magnified 165 billion times.',
+   bg:{far:[['clouds','rgba(255,170,190,.45)',5],['city',184,'#4a2a5a',70],['sil','atomium',420,192,80,'#2a1438'],['sil','grandPlace',740,192,60,'#2a1438']],near:[['city',210,'#2a1838',40]]}})]},
+ {code:'GB',name:'REINO UNIDO',flag:'🇬🇧',start:'DOVER',goal:'LONDRES',color:'#c8102e',map:{polys:['GB'],ctx:['IE','FR','BE','NL'],b:[-6.5,2.5,49.8,55.8]},win:'BRILLIANT! CHEGÁMOS A LONDRES! 💂',tag:'Dover · Stonehenge · Londres',thumb:['bigBen','towerBridge','londonEye','stonehenge','phoneBox','dbus'],
+  legs:[{name:'INGLATERRA',bonus:56},{name:'LONDRES',bonus:34}],stages:[
+  Z({key:'dover',leg:0,birds:true,name:'DOVER',sub:'Falésias brancas · campos verdes',curvy:.6,hilly:.6,tunnels:1,grass:['#5a9a3a','#529034'],sky:SKY.grey,sun:SUN.pale,fog:'#c8d4dc',fogD:5,ll:[1.31,51.13],emo:'🏴',traffic:TR.gb,
+   deco:[['tree1',7,1.6,3.4,.6],[['terr0','terr1','terr3'],13,1.6,2.4,.4],['cow',17,2,3.4,.4],['phoneBox',60,1.25,1.3,.6]],
+   marks:[['flagGB',1.2,3]],boards:[['TEA TIME','▸ 5 o\'clock'],['FISH & CHIPS','▸ 1 mile'],['MIND THE GAP','& the cliffs'],['KEEP LEFT','… ou não 😅']],
+   signs:[[['LONDON','120'],['CANTERBURY','▸']]],luna:'Aqui conduz-se pela esquerda! 😱',fact:'The White Cliffs of Dover are made of chalk and rise up to about 110 m.',
+   bg:{far:[['sea',186,'#9ab0c8','#5a7090'],['cliffs',176,'#f4f4f0']],near:[['ridge',206,10,1.3,'#5a8a3a'],['trees',206,'#2a4a2a',20,0.8]]}}),
+  Z({key:'stonehenge',leg:0,name:'STONEHENGE',sub:'Pedras antigas · Salisbury',curvy:.4,hilly:.3,tunnels:0,radars:2,grass:['#7aa04a','#6e9442'],sky:SKY.gold,sun:SUN.hot,fog:'#f0c8a0',fogD:3,ll:[-1.83,51.18],emo:'🪨',traffic:TR.gb,
+   deco:[['hay',13,1.4,2.6,.4],['tree1',11,2.6,3.6,.4],['cow',23,2,3.4,.4]],
+   marks:[['stonehenge',2.8,2],['flagGB',1.2,1]],boards:[['STONEHENGE','3000 BC'],['CREAM TEA','scones ▸'],['DRUIDS','solstício'],['SHEEP','crossing']],
+   signs:[[['LONDON','140'],['BATH','▸']]],luna:'Como é que puseram isto aqui? 🪨',fact:'Stonehenge was built in stages starting around 3000 BC.',
+   bg:{far:[['ridge',186,10,1.8,'#8a9a5a'],['sil','stonehenge',520,192,30,'#5a5a4a']],near:[['fields',204,['#8ab04a','#7aa040']]]}}),
+  Z({key:'londres',leg:1,birds:true,name:'LONDRES',sub:'Big Ben · Tower Bridge · London Eye',curvy:.5,hilly:.3,tunnels:2,facade:'#9a4a32',grass:['#c8c4b8','#bcb8ac'],rumble:['#c8102e','#f4f4f4'],sky:SKY.dusk,sun:SUN.mid,fog:'#c890b0',stars:true,moon:{r:18,x:1500,y:44,phase:'full'},ll:[-0.12,51.50],emo:'💂',traffic:['dbus','cab','dbus','cab','carW','van','bike'],
+   deco:[[['terr0','terr1','terr2','terr3','shop1'],5,1.5,2.4,.8],['lamp',12,1.12,1.12,1],['phoneBox',22,1.25,1.3,.7],[['pedBe','ped3','ped5'],8,1.25,1.4,.5]],
+   marks:[['bigBen',2.4,1],['londonEye',3.0,1],['flagGB',1.2,2]],over:[['towerBridge',1]],boards:[['FISH & CHIPS','▸'],['MIND THE GAP','underground'],['TEA','& biscuits'],['GOD SAVE','the MiM ♥ LUNA']],
+   signs:[[['WESTMINSTER','▸'],['PORTUGAL','◂ ferry']]],luna:'Quero ver o Big Ben a tocar! 🔔',fact:"'Big Ben' is actually the name of the great bell inside the Elizabeth Tower.",
+   bg:{far:[['city',180,'#3a2a5a',90],['sil','bigBen',380,192,120,'#1a1238'],['sil','londonEye',620,194,90,'#1a1238'],['sil','towerBridge',860,194,50,'#1a1238']],near:[['sea',200,'#c080b0','#2a1a58']]}})]},
+ {code:'PT2',name:'REGRESSO',flag:'🏠',start:'SANTIAGO',goal:'MAIA',color:'#05d9e8',map:{polys:['PT'],ctx:['ES'],b:[-9.6,-7.0,40.6,43.2]},win:'CASA! CHEGÁMOS À MAIA! ❤️',tag:'Santiago · Minho · Braga · MAIA',thumb:['maiaHeart','torreLidador','bomJesus','santiago','espig','galo'],
+  legs:[{name:'GALIZA',bonus:52},{name:'MINHO',bonus:46},{name:'MAIA',bonus:32}],stages:[
+  Z({key:'santiago',leg:0,name:'SANTIAGO',sub:'Catedral · peregrinos · espigueiros',curvy:.7,hilly:.7,tunnels:1,facade:'#c8b896',grass:['#4a8a3a','#428034'],sky:SKY.grey,sun:SUN.pale,fog:'#b8c8c0',fogD:6,ll:[-8.54,42.88],emo:'🐚',traffic:TR.es,
+   deco:[['espig',9,1.6,2.6,.6],['tree1',5,1.8,3.6,.7],['fern',4,1.15,1.6,.5],[['pedPi','pedPi','ped5'],11,1.25,1.4,.5],['flagGZ',80,1.2,1.2,.5]],
+   marks:[['santiago',2.6,1],['toro',3.0,1],['flagGZ',1.2,2]],boards:[['POLBO','á feira'],['CAMIÑO','▸ 0 km'],['QUEIMADA','meigas fóra!'],['BOM CAMIÑO','🐚']],
+   signs:[[['VIGO','90'],['PORTUGAL','▸']]],luna:'Bom caminho, peregrinos! 🐚',fact:'Santiago de Compostela is the end of the Camino de Santiago pilgrimage routes.',
+   bg:{far:[['ridge',150,36,5.5,'#5a6a7a'],['sil','santiago',520,184,70,'#4a5a5a']],near:[['ridge',206,12,1.7,'#3a6a3a'],['trees',206,'#1a3a1a',50,1.0]]}}),
+  Z({key:'minho',leg:1,birds:true,name:'MINHO',sub:'Viana · Braga · Bom Jesus · vinho verde',curvy:.8,hilly:.8,tunnels:1,facade:'#e8dcc4',grass:['#4a9a3a','#429034'],sky:SKY.gold,sun:SUN.mid,fog:'#f0c8a0',ll:[-8.42,41.55],emo:'🍇',traffic:TR.pt,
+   deco:[['vines',3,1.3,2.8,.8],['espig',13,1.6,2.6,.5],[['houseP0','houseP2','whiteB'],11,1.6,2.4,.5],['cypress',17,1.6,2.2,.4],['flag',80,1.2,1.2,.5]],
+   marks:[['bomJesus',2.6,1],['galo',1.35,2],['flag',1.2,2]],boards:[['VINHO VERDE','fresquinho ▸'],['BOM JESUS','escadório ▸'],['ROMARIA','Senhora d\'Agonia'],['CALDO VERDE','& broa']],
+   signs:[[['BRAGA','▸'],['MAIA','40']]],luna:'Já cheira a casa! 💚',fact:'The Bom Jesus do Monte sanctuary in Braga has a famous zig-zag Baroque stairway.',
+   bg:{far:[['ridge',156,36,3.9,'#6a7a9a'],['sil','bomJesus',520,184,60,'#4a5a6a']],near:[['ridge',206,12,0.8,'#3a7a3a'],['trees',206,'#1a4a1a',40,0.9]]}}),
+  Z({key:'maia',leg:2,birds:true,name:'MAIA',sub:'Torre Lidador · Zoo · casa!',curvy:.5,hilly:.5,tunnels:1,facade:'#e8dcc4',grass:['#6a9a4a','#5e8e42'],rumble:['#e8263a','#f4f4f4'],sky:SKY.sunset,sun:SUN.big,fog:'#ff9a7a',stars:true,moon:{r:20,x:1650,y:40,phase:'full'},ll:[-8.62,41.24],emo:'❤️',traffic:TR.pt,
+   deco:[[['houseP0','houseP1','houseP3','houseP4','shop0','shop1'],5,1.5,2.4,.8],['lamp',14,1.12,1.12,1],['maiaHeart',60,1.4,1.5,.8],[['ped1','ped2','ped5','ped6'],8,1.25,1.4,.5]],
+   marks:[['torreLidador',2.4,2],['maiaHeart',1.6,3],['flag',1.2,3]],boards:[['MADE IN MAIA','orgulho maiato ❤️'],['ZOO DA MAIA','▸ 1 km'],['TORRE LIDADOR','92 m'],['BEM-VINDOS','a casa!'],['MiM ♥ LUNA','fim da viagem']],
+   signs:[[['MAIA','0'],['PORTO','8']]],luna:'Casa doce casa! ❤️🌙',fact:'Torre Lidador, in the centre of Maia, is a 92-metre tower you can visit for the view.',
+   bg:{far:[['clouds','rgba(255,170,190,.45)',6],['city',182,'#5a2d63',70],['sil','torreLidador',520,192,110,'#3a1848']],near:[['city',208,'#3a2048',40]]}})]}
+];
+// map Portugal legs/stages into chapter 0 (they live in the original LEGS/STAGES)
+CHAPTERS[0].legs=LEGS;CHAPTERS[0].stages=STAGES;
+STAGES.forEach(st=>{const r=PT_ROUTE.find(x=>x[0]===st.key);if(r)st.ll=[r[2],r[3]];st.emo=ZEMO[st.key];});
+let chapter=0;
+function CUR(){return CHAPTERS[chapter];}
+// ---------------------------------------------------------------- generic background painter for new stages
+function tintSil(key,hh,col){const sp=SP[key];if(!sp)return null;const im=sp.img,ww=Math.max(1,Math.round(im.width*hh/im.height));return mk(ww,Math.round(hh),(g,w,h)=>{g.drawImage(im,0,0,w,h);g.globalCompositeOperation='source-in';g.fillStyle=col;g.fillRect(0,0,w,h);});}
+function paintOps(g,ops,R){for(const op of ops){const t=op[0];
+  if(t==='ridge'){ridge(g,op[1],op[2],op[3],op[4],KS1);}
+  else if(t==='clouds'){clouds(g,R,op[1],op[2]);}
+  else if(t==='mount'){const [_,base,col,snow,peaks]=op;g.fillStyle=col;g.beginPath();g.moveTo(0,LH);g.lineTo(0,base);for(const [x,hh,ww] of peaks){g.lineTo(x-ww/2,base);g.lineTo(x-ww*0.12,base-hh*0.8);g.lineTo(x,base-hh);g.lineTo(x+ww*0.15,base-hh*0.75);g.lineTo(x+ww/2,base);}g.lineTo(LW,base);g.lineTo(LW,LH);g.fill();
+    g.fillStyle=snow;for(const [x,hh,ww] of peaks){g.beginPath();g.moveTo(x-ww*0.12-2,base-hh*0.8);g.lineTo(x,base-hh);g.lineTo(x+ww*0.15+2,base-hh*0.75);g.lineTo(x+ww*0.08,base-hh*0.7);g.lineTo(x,base-hh*0.78);g.lineTo(x-ww*0.06,base-hh*0.7);g.fill();}}
+  else if(t==='sea'){const gr=g.createLinearGradient(0,op[1],0,LH);gr.addColorStop(0,op[2]);gr.addColorStop(1,op[3]);g.fillStyle=gr;g.fillRect(0,op[1],LW,LH-op[1]);g.fillStyle='rgba(255,230,190,.4)';for(let i=0;i<60;i++)g.fillRect(R()*LW,op[1]+2+R()*(LH-op[1]-4),6+R()*16,1);}
+  else if(t==='city'){const [_,y,col,n]=op;for(let i=0;i<n;i++){const x=R()*LW,w=10+R()*26,hh=8+R()*34;g.fillStyle=col;g.fillRect(x,y-hh,w,hh+LH);g.fillStyle='rgba(255,210,120,.55)';for(let yy=y-hh+3;yy<y-2;yy+=5)for(let xx=x+2;xx<x+w-2;xx+=5)if(R()<.3)g.fillRect(xx,yy,2,2);}}
+  else if(t==='sil'){const [_,k,x,base,hh,col]=op;const c=tintSil(k,hh,col);if(c)g.drawImage(c,x-c.width/2,base-c.height);}
+  else if(t==='trees'){const [_,y,col,n,sz]=op;for(let i=0;i<n;i++){const x=R()*LW,s=(0.6+R()*0.6)*sz;g.fillStyle=col;g.fillRect(x-1,y-6*s,2,6*s);ell(g,x,y-9*s,6*s,6*s,col);}}
+  else if(t==='fields'){const [_,y,cols]=op;let yy=y,k=0;while(yy<LH){const hh=2+(yy-y)*0.16;g.fillStyle=cols[k%cols.length];g.fillRect(0,yy,LW,hh+1);yy+=hh;k++;}}
+  else if(t==='cliffs'){const [_,y,col]=op;g.fillStyle=col;g.beginPath();g.moveTo(0,LH);g.lineTo(0,y);for(let x=0;x<=380;x+=10)g.lineTo(x,y+Math.sin(x*0.07)*3+(x>300?(x-300)*0.3:0));g.lineTo(400,LH);g.fill();g.beginPath();g.moveTo(LW,LH);g.lineTo(LW,y+6);for(let x=LW;x>=700;x-=10)g.lineTo(x,y+6+Math.sin(x*0.05)*3+(x<760?(760-x)*0.3:0));g.lineTo(680,LH);g.fill();g.fillStyle='#5a9a3a';g.fillRect(0,y-3,380,4);g.fillRect(720,y+3,LW-720,4);}
+}}
+function genericBG(st,R){return{far:mk(LW,LH,g=>paintOps(g,st.bg.far,R)),near:mk(LW,LH,g=>paintOps(g,st.bg.near,R))};}
+// ---------------------------------------------------------------- unlock progress
+let unlocked=Math.max(0,Math.min(CHAPTERS.length-1,+store.get('unlock',0)||0));
+function unlockNext(){if(chapter+1<CHAPTERS.length&&unlocked<chapter+1){unlocked=chapter+1;store.set('unlock',unlocked);return true;}return false;}
+// ---------------------------------------------------------------- switch chapter: rebuild track & visuals
+function loadChapter(ci){
+  chapter=clamp(ci,0,CHAPTERS.length-1);const C=CUR();buildEuroSprites();
+  LEGS=C.legs;STAGES=C.stages;for(const k in BG)delete BG[k];
+  SP.gateStart={img:gate(T('start')+' · '+C.start,'cp'),ww:3.2,hit:0};SP.gateGoal={img:gate(T('goal')+' · '+C.goal,'goal'),ww:3.2,hit:0};refreshPoliceCar();
+  buildTrack();resetCars();store.set('chapter',chapter);
+  for(let i=0;i<STAGES.length;i++)setTimeout(()=>{if(STAGES===C.stages)buildBG(i);},30+i*25);
+  updatePlayLabel();
+}
+function updatePlayLabel(){const C=CUR();C.name=CNAME(C);const el=document.querySelector('#playBtn small');if(el)el.textContent=C.flag+' '+C.name;}
+// ---------------------------------------------------------------- 16-bit postcard thumbnails per chapter (built from the landmark art, pixelated)
+const thumbCache={};
+function chapterThumb(ci){if(thumbCache[ci])return thumbCache[ci];buildEuroSprites();const C=CHAPTERS[ci],st=C.stages[C.stages.length-1],W0=160,H0=100;
+  const lo=mk(W0,H0,(g,w,h)=>{const sk=g.createLinearGradient(0,0,0,h*0.62);(st.sky||SKY.sunset).forEach(([c,p])=>sk.addColorStop(p,c));g.fillStyle=sk;g.fillRect(0,0,w,h);
+    const s=st.sun||SUN.big;const sx=w*0.5,sy=h*0.5,sr=Math.min(26,s.r*0.32);const sg=g.createLinearGradient(0,sy-sr,0,sy+sr);sg.addColorStop(0,s.c[0]);sg.addColorStop(1,s.c[1]);g.fillStyle=sg;g.beginPath();g.arc(sx,sy,sr,0,7);g.fill();
+    if(s.stripes){g.fillStyle=sk;for(let i=0;i<4;i++)g.fillRect(0,sy+3+i*4,w,1+i*0.6);}
+    const hz=h*0.62;g.fillStyle=st.grass?st.grass[0]:'#7a8a5a';g.fillRect(0,hz,w,h-hz);
+    const R=rng(ci*7+3);const ks=C.thumb;const pos=[[0.13,0.95,0.55],[0.87,0.95,0.55],[0.3,0.72,0.42],[0.7,0.72,0.42],[0.5,0.64,0.3],[0.08,0.66,0.3]];
+    const order=[4,2,3,5,0,1];for(const oi of order){const k=ks[oi%ks.length];const sp=SP[k];if(!sp)continue;const [px,py,hs]=pos[oi];const im=sp.img;let hh=h*hs*(im.height/im.width>1.2?1.15:0.8);const ww=im.width*hh/im.height;if(ww>w*0.5){hh*=w*0.5/ww;}g.drawImage(im,px*w-im.width*hh/im.height/2,py*h-hh,im.width*hh/im.height,hh);}
+    g.fillStyle=st.road?st.road[0]:'#66626c';g.beginPath();g.moveTo(w*0.47,hz);g.lineTo(w*0.53,hz);g.lineTo(w*0.8,h);g.lineTo(w*0.2,h);g.fill();g.fillStyle='#f4f4f4';for(let i=0;i<4;i++){const t0=i/4+0.05,t1=t0+0.1;g.beginPath();g.moveTo(w/2-0.5-t0*1.5,hz+(h-hz)*t0);g.lineTo(w/2+0.5+t0*1.5,hz+(h-hz)*t0);g.lineTo(w/2+0.5+t1*1.5,hz+(h-hz)*t1);g.lineTo(w/2-0.5-t1*1.5,hz+(h-hz)*t1);g.fill();}
+    g.fillStyle='#d62828';rr(g,w/2-9,h-14,18,9,3);g.fill();g.fillStyle='#ffd23f';g.fillRect(w/2-7,h-10,3,2);g.fillRect(w/2+4,h-10,3,2);
+  });
+  const big=mk(W0*3,H0*3,(g,w,h)=>{g.imageSmoothingEnabled=false;g.drawImage(lo,0,0,w,h);g.fillStyle='rgba(0,0,0,.12)';for(let y=0;y<h;y+=3)g.fillRect(0,y,w,1);});
+  return thumbCache[ci]=big;}
+// ---------------------------------------------------------------- chapter-aware route map (minimap / pause / radio / end)
+function drawChapterMap(g,w,h,T,zoneF){
+  const C=CUR();g.clearRect(0,0,w,h);const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#0c0626');bg.addColorStop(1,'#1d0b3e');g.fillStyle=bg;g.fillRect(0,0,w,h);
+  const [L0,L1,A0,A1]=C.map.b,kx=Math.cos((A0+A1)/2*Math.PI/180),s=Math.min(w/((L1-L0)*kx),h/(A1-A0));
+  const ox=(w-(L1-L0)*kx*s)/2,oy=(h-(A1-A0)*s)/2,P=(lon,lat)=>[ox+(lon-L0)*kx*s,oy+(A1-lat)*s];
+  for(const k of C.map.ctx||[]){if(!EU[k])continue;drawPoly(g,EU[k],P);g.fillStyle='#241243';g.fill();g.strokeStyle='#43306e';g.lineWidth=1;g.stroke();}
+  g.save();g.shadowColor=C.color;g.shadowBlur=12;for(const k of C.map.polys){drawPoly(g,EU[k],P);const pg=g.createLinearGradient(0,0,0,h);pg.addColorStop(0,'#5a2a8a');pg.addColorStop(1,'#a8306a');g.fillStyle=pg;g.fill();}g.restore();
+  g.strokeStyle='#ffd23f';g.lineWidth=1.5;for(const k of C.map.polys){drawPoly(g,EU[k],P);g.stroke();}
+  const pts=STAGES.map(z=>P(z.ll[0],z.ll[1]));
+  g.save();g.setLineDash([4,4]);g.lineDashOffset=-T*20;g.strokeStyle='rgba(5,217,232,.8)';g.lineWidth=2;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.restore();
+  const zi=Math.floor(zoneF),zf=zoneF-zi;g.strokeStyle='#ffd23f';g.lineWidth=3;g.beginPath();for(let i=0;i<=Math.min(zi,pts.length-1);i++)i?g.lineTo(pts[i][0],pts[i][1]):g.moveTo(pts[i][0],pts[i][1]);
+  let cx=pts[Math.min(zi,pts.length-1)][0],cy=pts[Math.min(zi,pts.length-1)][1];if(zi<pts.length-1){cx=lerp(pts[zi][0],pts[zi+1][0],zf);cy=lerp(pts[zi][1],pts[zi+1][1],zf);g.lineTo(cx,cy);}g.stroke();
+  const fs=Math.max(8,Math.round(h*0.045));
+  STAGES.forEach((z,i)=>{const [x,y]=pts[i];const first=i===0||STAGES[i-1].leg!==z.leg,done=i<=zi;circ(g,x,y,first?5:3,done?'#ffd23f':'#1b0b3a');g.strokeStyle=done?'#fff':'#05d9e8';g.lineWidth=1.3;g.beginPath();g.arc(x,y,first?5:3,0,7);g.stroke();
+    const right=x<w*0.6;g.font=`${first?'900':'700'} ${first?fs:Math.round(fs*0.8)}px "Arial Black",sans-serif`;g.fillStyle=done?'#fff':'rgba(255,255,255,.65)';g.textAlign=right?'left':'right';g.fillText(z.name.length>14?z.name.slice(0,13)+'…':z.name,x+(right?8:-8),y+fs*0.35);});
+  const pulse=0.5+0.5*Math.sin(T*6);g.fillStyle='rgba(255,61,61,.35)';g.beginPath();g.arc(cx,cy,6+pulse*5,0,7);g.fill();g.fillStyle='#e0262f';rr(g,cx-6,cy-4,12,8,2);g.fill();g.strokeStyle='#fff';g.lineWidth=1.5;g.stroke();
+  g.font=`900 ${Math.round(fs*1.1)}px "Arial Black",sans-serif`;g.textAlign='left';g.fillStyle='#ffd23f';g.shadowColor='#000';g.shadowBlur=4;g.fillText(C.flag+' '+C.name,6,fs*1.3);g.shadowBlur=0;
+}
+
+// ---------------------------------------------------------------- Euro Tour selection screen (map + 16-bit postcard cards)
+const CH_POS={PT:[-8.2,39.7],ES:[-3.7,40.3],FR:[2.4,46.8],IT:[12.6,42.6],CH:[8.1,46.8],DE:[10.4,51.0],NL:[5.4,52.3],BE:[4.6,50.6],GB:[-1.6,52.8],PT2:[-8.62,41.24]};
+let tourSel=0,tourNodes=[];
+function drawTourMap(g,w,h,T,sel){
+  g.clearRect(0,0,w,h);const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#0c0626');bg.addColorStop(1,'#1d0b3e');g.fillStyle=bg;g.fillRect(0,0,w,h);
+  g.strokeStyle='rgba(255,61,127,.12)';g.lineWidth=1;for(let x=0;x<w;x+=w/16){g.beginPath();g.moveTo(x,0);g.lineTo(x,h);g.stroke();}for(let y=0;y<h;y+=h/12){g.beginPath();g.moveTo(0,y);g.lineTo(w,y);g.stroke();}
+  const kx=Math.cos(46*Math.PI/180),L0=-11.2,L1=17.5,A0=35.4,A1=58.6,s=Math.min(w/((L1-L0)*kx),h/(A1-A0));
+  const ox=(w-(L1-L0)*kx*s)/2,oy=(h-(A1-A0)*s)/2,P=(lon,lat)=>[ox+(lon-L0)*kx*s,oy+(A1-lat)*s];
+  const st=ci=>ci<unlocked?'done':ci===unlocked?'open':'lock';
+  const codeOf={};CHAPTERS.forEach((c,i)=>{const k=c.code==='PT2'?'PT':c.code;if(codeOf[k]===undefined||c.code!=='PT2')codeOf[k]=i;});
+  for(const k in EU){drawPoly(g,EU[k],P);const ci=codeOf[k==='SIC'||k==='SAR'?'IT':k];const s2=ci!==undefined?st(ci):null;const isSel=ci===sel||(k==='PT'&&sel===CHAPTERS.length-1);
+    g.fillStyle=k==='AFR'?'#170a30':isSel?'#7a2a8a':s2==='done'?'#4a2a7a':s2==='open'?'#3a1f66':s2==='lock'?'#2a1650':'#20103e';g.fill();g.strokeStyle=isSel?'#ffd23f':s2?'#a46bff':'#43306e';g.lineWidth=isSel?2:1;g.stroke();}
+  const pts=CHAPTERS.map(c=>P(...CH_POS[c.code]));
+  g.save();g.setLineDash([6,6]);g.lineDashOffset=-T*24;g.lineWidth=2.5;
+  for(let i=0;i<pts.length-1;i++){g.strokeStyle=i<unlocked?'#ffd23f':'rgba(5,217,232,.55)';g.shadowColor=g.strokeStyle;g.shadowBlur=i<unlocked?8:0;g.beginPath();g.moveTo(...pts[i]);const mx=(pts[i][0]+pts[i+1][0])/2,my=(pts[i][1]+pts[i+1][1])/2-20;g.quadraticCurveTo(mx,my,...pts[i+1]);g.stroke();}
+  g.restore();
+  tourNodes=[];const fs=Math.max(10,Math.round(s*0.62)),pulse=0.5+0.5*Math.sin(T*4);
+  CHAPTERS.forEach((c,i)=>{const [x,y]=pts[i],S=st(i),isSel=i===sel;tourNodes.push([x,y,i]);
+    if(isSel){g.fillStyle=`rgba(255,210,63,${0.25+pulse*0.2})`;g.beginPath();g.arc(x,y,16+pulse*8,0,7);g.fill();}
+    const r=isSel?13:10;circ(g,x,y,r+2,'#fff');circ(g,x,y,r,S==='done'?'#27ae60':S==='open'?c.color:'#3a2a5a');
+    g.font=`${Math.round(r*1.15)}px sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(S==='lock'?'🔒':S==='done'?'✓':c.flag,x,y+1);
+    g.font=`900 ${fs}px "Arial Black",sans-serif`;g.textBaseline='alphabetic';g.lineWidth=3;g.strokeStyle='#000';const lbl=(i+1)+' · '+c.name;const ly=c.code==='PT2'?y-r-6:y+r+fs+2;g.strokeText(lbl,x,ly);g.fillStyle=isSel?'#ffd23f':S==='lock'?'rgba(255,255,255,.55)':'#fff';g.fillText(lbl,x,ly);});
+  // the little red car on the current chapter
+  const [cx,cy]=pts[Math.min(unlocked,pts.length-1)];g.fillStyle='#e0262f';rr(g,cx-9,cy-28+Math.sin(T*6)*2,18,10,3);g.fill();g.strokeStyle='#fff';g.lineWidth=1.5;g.stroke();
+}
+function drawEuroMap(g,w,h,T,o={}){drawTourMap(g,w,h,T,chapter);}
+function chapterBest(ci){return +store.get('cbest'+ci,0)||0;}
+function renderTourCard(){
+  const ci=tourSel,C=CHAPTERS[ci],S=ci<unlocked?'done':ci===unlocked?'open':'lock';
+  const cv=$('tThumb'),g=cv.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,cv.width,cv.height);g.drawImage(chapterThumb(ci),0,0,cv.width,cv.height);
+  if(S==='lock'){g.fillStyle='rgba(10,2,30,.55)';g.fillRect(0,0,cv.width,cv.height);}
+  $('tLock').classList.toggle('hidden',S!=='lock');$('tNum').textContent=`${ci+1}/${CHAPTERS.length}`;
+  $('tName').innerHTML=`<span class="tf">${C.flag}</span> ${C.name}`;$('tTag').textContent=C.tag;
+  const b=chapterBest(ci);$('tStat').innerHTML=S==='lock'?T('unlockHint').replace('{x}','<b>'+CHAPTERS[ci-1].name+'</b>'):(S==='done'?T('complete'):T('nextTrack'))+(b?` · 🏆 ${b.toLocaleString('pt-PT')}`:'')+` · ${C.stages.length} ${T('zones')}`;
+  const pb=$('tPlay');pb.disabled=S==='lock';pb.classList.toggle('locked',S==='lock');pb.querySelector('b').textContent=S==='lock'?T('locked'):T('play');
+  $('tDots').innerHTML=CHAPTERS.map((c,i)=>`<i class="${i===ci?'on':''} ${i<unlocked?'done':i>unlocked?'lock':''}"></i>`).join('');
+  const card=$('tcard');card.classList.remove('flip');void card.offsetWidth;card.classList.add('flip');card.style.setProperty('--cc',C.color);
+}
+function tourGo(d){tourSel=clamp(tourSel+d,0,CHAPTERS.length-1);sfx('click');renderTourCard();}
+function openTour(){aInit();sfx('click');state='tour';show('tour');tourSel=Math.min(unlocked,chapter);renderTourCard();}
+function playChapter(ci){if(ci>unlocked)return;if(ci!==chapter||STAGES!==CHAPTERS[ci].stages)loadChapter(ci);
+  FS.enter();if(settings.ctrl==='tilt'&&tilt.ang==null)enableTilt().then(ok=>{if(!ok)tiltFail();});
+  show('radio');state='radio';setStation(settings.station);musicStart(settings.station);}
+$('tourBtn').onclick=openTour;
+$('tPrev').onclick=()=>tourGo(-1);$('tNext').onclick=()=>tourGo(1);
+$('tPlay').onclick=()=>{if(tourSel<=unlocked){sfx('click');playChapter(tourSel);}else sfx('bump');};
+$('tourMap').addEventListener('pointerdown',e=>{const r=e.currentTarget.getBoundingClientRect(),x=(e.clientX-r.left)*e.currentTarget.width/r.width,y=(e.clientY-r.top)*e.currentTarget.height/r.height;
+  let best=null,bd=1e9;for(const [nx,ny,i] of tourNodes){const d=Math.hypot(nx-x,ny-y);if(d<bd){bd=d;best=i;}}if(best!==null&&bd<60){tourSel=best;sfx('click');renderTourCard();}});
+(()=>{let sx=null;const c=$('tcard');c.addEventListener('pointerdown',e=>{sx=e.clientX;});c.addEventListener('pointerup',e=>{if(sx!==null&&Math.abs(e.clientX-sx)>40)tourGo(e.clientX<sx?1:-1);sx=null;});})();
+addEventListener('keydown',e=>{if(state!=='tour')return;if(e.key==='ArrowLeft')tourGo(-1);else if(e.key==='ArrowRight')tourGo(1);else if(e.key==='Enter'||e.key===' ')$('tPlay').click();else if(e.key==='Escape')$('tourBack').click();});
+// ---------------------------------------------------------------- global high scores (madeinmaia.pt API, falls back to this device)
+const SCORE_API='/api/outrunning/scores';let gScores=null;
+function fetchGlobal(){return fetch(SCORE_API,{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.ok){gScores=j.scores;}return gScores;}).catch(()=>null);}
+function postGlobal(n,ps){try{fetch(SCORE_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({n,s:ps.s,c:ps.c||0,w:!!ps.w})}).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.ok){gScores=j.scores;if(state==='hiscore')renderHi();}}).catch(()=>{});}catch(e){}}
+function rowsHTML(L,hl){return L.length?L.map((e,i)=>{const C=CHAPTERS[e.c||0]||CHAPTERS[0];return `<tr class="${i===hl?'me':''}" style="animation-delay:${i*0.07}s"><td class="md">${['👑','🥈','🥉'][i]||(i+1)+'.'}</td><td>${e.n}</td><td class="r">${(+e.s).toLocaleString('pt-PT')}</td><td>${C.flag} ${e.w?'🏁 '+C.goal:C.name}</td></tr>`;}).join(''):'<tr><td>'+T('noRec')+'</td></tr>';}
+function renderHi(){const g=$('hiTableG');if(g)g.innerHTML=gScores?rowsHTML(gScores,-1):'<tr><td>'+T('loading')+'</td></tr>';renderTable($('hiTable'),-1,10);}
+
 resize();buildSprites();buildTrack();applyCtrl();
+{const c0=+store.get('chapter',0)||0;if(c0>0&&c0<=unlocked)loadChapter(c0);else updatePlayLabel();fetchGlobal();}
+settings.lang=LANG;applyLang();
+$('nextBtn').onclick=()=>{commitScore();if(chapter+1<CHAPTERS.length){loadChapter(chapter+1);aInit();musicStart(settings.station);beginCountdown();}};
+
 tilePat=ctx.createPattern(mk(12,12,g=>tiles(g,0,0,12,12,12)),'repeat');
 if(settings.ctrl==='tilt')listenTilt();
 $('bestScore').textContent=best.toLocaleString('pt-PT');
