@@ -74,8 +74,11 @@ main{padding-bottom:92px}
 .ri.tw img{animation:riTw 1.6s steps(2) infinite}@keyframes riTw{50%{filter:brightness(1.35) drop-shadow(0 0 6px #ffd36a)}}
 .ri.wobble img{animation:riWob 2.6s ease-in-out infinite;transform-origin:50% 100%}@keyframes riWob{20%{transform:rotate(-3deg)}40%{transform:rotate(3deg)}60%{transform:rotate(0)}}
 .ri.flick .glow{animation:riFlick 3.5s steps(1) infinite}@keyframes riFlick{0%,60%,64%,100%{opacity:1}62%{opacity:.35}80%{opacity:.75}}
+.editing #heroWrap{pointer-events:none;opacity:.55}
 .editing .ri{outline:2px dashed rgba(255,201,60,.7);outline-offset:3px;border-radius:8px;touch-action:none}
 .editing .ri.sel{outline:3px solid #ffd23f;box-shadow:0 0 18px rgba(255,210,63,.5)}
+.surfline{position:absolute;height:6px;border-radius:3px;background:rgba(255,210,63,.35);border:1.5px dashed #ffd23f;z-index:118;pointer-events:none}.surfline.hot{background:#a6ff3c;border-color:#a6ff3c;box-shadow:0 0 12px #a6ff3c}
+.ri.perched img{filter:drop-shadow(0 3px 3px rgba(0,0,0,.4))}
 .ritb{position:absolute;transform:translateX(-50%);z-index:120;display:flex;gap:6px;background:rgba(14,11,36,.92);border:1.5px solid #ffd23f;border-radius:14px;padding:5px}
 .ritb button{width:38px;height:34px;border-radius:10px;border:none;background:rgba(255,255,255,.1);color:#fff;font-size:17px;cursor:pointer}
 .editBtn{position:absolute;z-index:8;left:10px;bottom:10px;font-family:'Barlow Condensed';font-weight:800;font-size:15px;border-radius:12px;border:1.5px solid rgba(255,201,60,.7);background:rgba(10,8,30,.75);color:#ffd23f;padding:6px 12px;cursor:pointer}
@@ -1548,6 +1551,16 @@ const RI={
  game:{n:'Game Station',st:1,h:[.3,.42,.5,.58,.64],cat:'station',fn:'game',anim:{glow:'#5ad8ff',gy:.25,flick:1},d:'+10% mini-game coins per tier'},
  work:{n:'Workbench',st:1,h:[.28,.44,.46,.54,.6],cat:'station',fn:'work',anim:{glow:'#ffcf7a',gy:.3},d:'-10% crafting cost per tier · tinker for materials'},
  aqua:{n:'Aquarium',st:1,h:[.2,.22,.3,.46,.52],cat:'station',fn:'aqua',anim:{glow:'#5af0ff',gy:.45,bubbles:1},d:'-8% happiness drain per tier · feed the fish'},
+ side_table:{n:'Side Table',h:.2,cat:'furniture',comfort:2,src:'shop',price:70,surf:[[.06,.94,.13]]},
+ coffee_table:{n:'Coffee Table',h:.14,cat:'furniture',comfort:3,src:'shop',price:120,surf:[[.1,.9,.25]]},
+ chest:{n:'Treasure Chest',h:.18,cat:'furniture',comfort:3,src:'shop',price:140,surf:[[.12,.88,.05]],fn:'chest'},
+ plank_shelf:{n:'Plank Shelf',h:.06,cat:'furniture',comfort:1,src:'shop',price:50,kind:'wall',surf:[[.04,.96,.12]]},
+ vase:{n:'Flower Vase',h:.12,cat:'decor',comfort:2,src:'shop',price:45,sway:1},
+ plush:{n:'FÆLIX Plush',h:.1,cat:'decor',comfort:3,src:'shop',price:75,fn:'hug'},
+ cactus:{n:'Happy Cactus',h:.11,cat:'decor',comfort:2,src:'shop',price:40},
+ desk_lamp:{n:'Desk Lamp',h:.13,cat:'decor',comfort:2,src:'shop',price:65,anim:{glow:'#ffe2a0',gy:.45},fn:'light'},
+ snow_globe:{n:'Snow Globe',h:.11,cat:'decor',comfort:3,src:'shop',price:95,anim:{glow:'#bfe9ff',gy:.4,sparkle:1}},
+ book_stack:{n:'Book Stack',h:.07,cat:'decor',comfort:1,src:'shop',price:35},
  race:{n:'Racing Rig',st:1,h:[.32,.3,.34,.36,.37],cat:'station',fn:'race',anim:{glow:'#5ad8ff',gy:.22,flick:1},d:'+8% mini-game XP per tier · tap to race'},
  snack:{n:'Snack Machine',st:1,h:[.22,.3,.38,.4,.4],cat:'station',fn:'snack',anim:{glow:'#ffcf7a',gy:.4},d:'Free snack: more energy, shorter wait per tier'},
  groom:{n:'Grooming Spa',st:1,h:[.13,.3,.32,.38,.38],cat:'station',fn:'groom',anim:{glow:'#9ff4ff',gy:.4,bubbles:1},d:'Instant bath · mess builds 10% slower per tier'},
@@ -1580,14 +1593,14 @@ const RI={
  sofa_bed:{n:'Lounger',h:.16,cat:'furniture',comfort:3,src:'shop',price:120,fn:'sit'},
  dome_bed:{n:'Dome Nook',h:.22,cat:'furniture',comfort:4,src:'shop',price:180,fn:'sit',anim:{glow:'#5af0ff',gy:.3}},
  pod_bed:{n:'Pod Nook',h:.26,cat:'furniture',comfort:5,src:'explore',fn:'sit',anim:{glow:'#5af0ff',gy:.4}},
- nightstand:{n:'Nightstand',h:.2,cat:'furniture',comfort:2,src:'shop',price:70,anim:{glow:'#ffb35a',gy:.1},fn:'light'},
- bookshelf:{n:'Bookshelf',h:.3,cat:'furniture',comfort:4,src:'shop',price:180},
- cabinet:{n:'Cabinet',h:.34,cat:'furniture',comfort:2,src:'shop',price:140},
- drawers:{n:'Drawers',h:.22,cat:'furniture',comfort:2,src:'shop',price:110},
- wall_shelf:{n:'Wall Shelf',h:.12,cat:'furniture',comfort:2,src:'explore',kind:'wall',anim:{glow:'#5af0ff',gy:.4}},
- tool_desk:{n:'Tool Desk',h:.3,cat:'furniture',comfort:2,src:'shop',price:200},
- retro_desk:{n:'Retro Desk',h:.3,cat:'furniture',comfort:3,src:'shop',price:220,anim:{glow:'#5af0ff',gy:.25,flick:1},fn:'screen'},
- tool_cart:{n:'Tool Cart',h:.25,cat:'furniture',comfort:2,src:'explore'},
+ nightstand:{n:'Nightstand',h:.2,cat:'furniture',comfort:2,src:'shop',price:70,anim:{glow:'#ffb35a',gy:.1},fn:'light',surf:[[.06,.94,.37]]},
+ bookshelf:{n:'Bookshelf',h:.3,cat:'furniture',comfort:4,src:'shop',price:180,surf:[[.14,.86,.47],[.14,.86,.86]]},
+ cabinet:{n:'Cabinet',h:.34,cat:'furniture',comfort:2,src:'shop',price:140,surf:[[.1,.9,.05]]},
+ drawers:{n:'Drawers',h:.22,cat:'furniture',comfort:2,src:'shop',price:110,surf:[[.08,.92,.1]]},
+ wall_shelf:{n:'Wall Shelf',h:.12,cat:'furniture',comfort:2,src:'explore',kind:'wall',anim:{glow:'#5af0ff',gy:.4},surf:[[.05,.95,.8]]},
+ tool_desk:{n:'Tool Desk',h:.3,cat:'furniture',comfort:2,src:'shop',price:200,surf:[[.03,.97,.45]]},
+ retro_desk:{n:'Retro Desk',h:.3,cat:'furniture',comfort:3,src:'shop',price:220,anim:{glow:'#5af0ff',gy:.25,flick:1},fn:'screen',surf:[[.03,.97,.45]]},
+ tool_cart:{n:'Tool Cart',h:.25,cat:'furniture',comfort:2,src:'explore',surf:[[.1,.9,.3]]},
  toolbox:{n:'Toolbox',h:.12,cat:'furniture',comfort:1,src:'explore'},
  robo_dock:{n:'Robo Dock',h:.25,cat:'furniture',comfort:3,src:'explore',anim:{glow:'#5af0ff',gy:.25}},
  // tech
@@ -1641,15 +1654,25 @@ function drawDepthGrid(){const W=RV.worldW,H=RV.H,vx=W/2,vy=H*.38;let s='';const
   for(let i=-8;i<=8;i++){const xb=vx+i*W/10;const t=(H*.62-vy)/(H-vy);s+=`<line x1="${vx+(xb-vx)*t}" y1="${H*.62}" x2="${xb}" y2="${H}" stroke="rgba(255,210,63,.25)" stroke-width="1"/>`}
   const sc=$('#roomScroll');[['BACK',.68],['MIDDLE',.78],['FRONT',.91]].forEach(([n,y])=>{for(let k=0;k<Math.ceil(W/400);k++)s+=`<text x="${k*400+14}" y="${y*H}" fill="rgba(255,210,63,.75)" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="13">${n}</text>`});
   $('#depthGrid').setAttribute('viewBox',`0 0 ${W} ${H}`);$('#depthGrid').innerHTML=s}
+const canPerch=d=>d&&!d.st&&!d.surf&&d.kind!=='wall'&&d.kind!=='rug'&&(d.h<=.22);
+function geo(it,depth=0){const d=RI[it.id];if(!d)return null;const key=RI[it.id].st?it.id+Math.max(1,S.room.tiers[it.id]||1):it.id,ar=RDIM[key]?RDIM[key][0]/RDIM[key][1]:1;
+  if(it.on&&depth<2){const p=S.room.items.find(i=>i.u===it.on),pg=p&&geo(p,depth+1),sf=pg&&RI[p.id].surf&&RI[p.id].surf[it.s||0];
+    if(sf){let f=sf[0]+(sf[1]-sf[0])*clamp(it.ox??.5,0,1);if(p.flip)f=1-f;const sc=pg.sc,h=riH(it)*1.18*RV.H*sc,cx=pg.cx-pg.w/2+pg.w*f,base=pg.base-pg.h+pg.h*sf[2];it.x=cx/RV.worldW;it.y=RI[p.id].kind==='wall'?.86:p.y;
+      return{cx,base,h,w:h*ar,sc,z:pg.z+2+(it.s||0)*3,child:1}}
+    delete it.on}
+  const sc=d.kind==='wall'?1:depthS(it.y),h=riH(it)*1.18*RV.H*sc;return{cx:it.x*RV.worldW,base:it.y*RV.H,h,w:h*ar,sc:d.kind==='wall'?depthS(.82):sc,z:depthZ(d,it.y)}}
+function surfaces(skip){const out=[];for(const p of S.room.items){const d=RI[p.id];if(!d||!d.surf||p.u===skip)continue;const g=geo(p);d.surf.forEach((sf,i)=>{let a=g.cx-g.w/2+g.w*sf[0],b=g.cx-g.w/2+g.w*sf[1];if(p.flip){const a2=g.cx+g.w/2-g.w*sf[1];b=g.cx+g.w/2-g.w*sf[0];a=a2}out.push({p,i,a,b,y:g.base-g.h+g.h*sf[2],tol:Math.max(26,g.h*.18)})})}return out}
 function renderItems(){const box=$('#roomItems');box.innerHTML='';
-  for(const it of S.room.items){const d=RI[it.id];if(!d)continue;const h=riH(it)*1.18*RV.H*(d.kind==='wall'?1:depthS(it.y));const el=document.createElement('div');
-    const an=d.anim||{};el.className='ri'+(d.sway?' sway':'')+(d.tw?' tw':'')+(an.bob?' bob':'')+(an.wobble?' wobble':'')+(an.flick?' flick':'')+(RV.sel===it.u?' sel':'')+((d.fn==='light'&&S.room.lights[it.u]===0)?' off':'');
-    el.dataset.u=it.u;el.style.left=it.x*RV.worldW+'px';el.style.top=(it.y*RV.H-h)+'px';el.style.height=h+'px';
-    el.style.zIndex=depthZ(d,it.y);
+  const order=[...S.room.items].sort((a,b)=>(a.on?1:0)-(b.on?1:0));
+  for(const it of order){const d=RI[it.id];if(!d)continue;const g=geo(it);if(!g)continue;const el=document.createElement('div');
+    const an=d.anim||{};el.className='ri'+(d.sway?' sway':'')+(d.tw?' tw':'')+(an.bob?' bob':'')+(an.wobble?' wobble':'')+(an.flick?' flick':'')+(RV.sel===it.u?' sel':'')+((d.fn==='light'&&S.room.lights[it.u]===0)?' off':'')+(g.child?' perched':'');
+    el.dataset.u=it.u;el.style.left=g.cx+'px';el.style.top=(g.base-g.h)+'px';el.style.height=g.h+'px';el.style.zIndex=g.z;
     el.innerHTML=`${an.glow?`<div class="glow" style="--gc:${an.glow}88;top:${(an.gy||.4)*100}%;${an.gs?'--gs:'+an.gs:''}"></div>`:''}<img src="${riImg(it.id)}" style="${it.flip?'transform:scaleX(-1)':''}" draggable="false" alt="${d.n}">`;
     box.appendChild(el)}
-  if(RV.edit&&RV.sel){const it=S.room.items.find(i=>i.u===RV.sel);if(it){const tb=document.createElement('div');tb.className='ritb';const h=riH(it)*RV.H;tb.style.left=it.x*RV.worldW+'px';tb.style.top=Math.max(4,it.y*RV.H-h*1.05-46)+'px';
-    tb.innerHTML=`${RI[it.id].kind==='wall'?'':`<button data-rt="back">▲</button><span class="dz">${depthName(it.y)}</span><button data-rt="front">▼</button>`}<button data-rt="flip">↔</button><button data-rt="store">📦</button><button data-rt="ok">✓</button>`;box.appendChild(tb)}}
+  if(RV.edit&&RV.drag&&RV.drag.moved&&canPerch(RI[RV.drag.it.id])){for(const sf of surfaces(RV.drag.it.u)){const ln=document.createElement('div');ln.className='surfline'+(RV.drag.it.on===sf.p.u&&(RV.drag.it.s||0)===sf.i?' hot':'');ln.style.left=sf.a+'px';ln.style.width=(sf.b-sf.a)+'px';ln.style.top=(sf.y-3)+'px';box.appendChild(ln)}}
+  if(RV.edit&&RV.sel){const it=S.room.items.find(i=>i.u===RV.sel);if(it){const g=geo(it),tb=document.createElement('div');tb.className='ritb';tb.style.left=g.cx+'px';tb.style.top=Math.max(4,g.base-g.h*1.05-46)+'px';
+    const dep=it.on?`<button data-rt="drop" title="Put on floor">⬇</button><span class="dz">On ${RI[(S.room.items.find(i=>i.u===it.on)||{}).id]?.n||''}</span>`:RI[it.id].kind==='wall'?'':`<button data-rt="back">▲</button><span class="dz">${depthName(it.y)}</span><button data-rt="front">▼</button>`;
+    tb.innerHTML=`${dep}<button data-rt="flip">↔</button><button data-rt="store">📦</button><button data-rt="ok">✓</button>`;box.appendChild(tb)}}
   $('#stage').classList.toggle('editing',RV.edit)}
 function placePet(instant){const b=roomBounds();RV.PX=clamp(RV.PX,b.min,b.max);const hw=$('#heroWrap'),au=$('#aura');if(instant){hw.style.transition='none';au.style.transition='none'}
   hw.style.left=RV.PX*RV.worldW+'px';au.style.left=RV.PX*RV.worldW+'px';const pw=$('#stage').clientWidth,ds=depthS(RV.PY)/depthS(.87);hw.style.width=(parseFloat(hw.dataset.pct||100)/100*pw*ds)+'px';au.style.width=pw*.78*ds+'px';if(!S.asleep){hw.style.bottom=(1-RV.PY)*100+'%';hw.style.zIndex=Math.round(10+RV.PY*80);au.style.bottom=(1-RV.PY-.01)*100+'%';au.style.zIndex=Math.round(9+RV.PY*80)}
@@ -1657,10 +1680,10 @@ function placePet(instant){const b=roomBounds();RV.PX=clamp(RV.PX,b.min,b.max);c
 function walkTo(x,cb,y){const b=roomBounds();x=clamp(x,b.min,b.max);if(y!==undefined){RV.PY=clamp(y,.74,.97);placePet(false)}const dist=Math.abs(x-RV.PX)*RV.worldW+(y!==undefined?40:0),dur=Math.max(.35,dist/110);if(dist<6){cb&&cb();return}
   turnTo(x<RV.PX);const hw=$('#heroWrap'),au=$('#aura');setTimeout(()=>{hw.style.transition=`left ${dur}s linear, width .8s`;au.style.transition=`left ${dur}s linear`;RV.PX=x;hw.style.left=x*RV.worldW+'px';au.style.left=x*RV.worldW+'px';SA.walkUntil=performance.now()+dur*1000;
     if(cb)setTimeout(cb,dur*1000+60)},S.asleep?0:230)}
-function followPet(force){const sc=$('#roomScroll');if(!force&&performance.now()-RV.userT<4000)return;const vw=sc.clientWidth,px=RV.PX*RV.worldW,tgt=clamp(px-vw/2,0,RV.worldW-vw);if(force||Math.abs(sc.scrollLeft-tgt)>vw*.28)sc.scrollTo({left:tgt,behavior:force?'auto':'smooth'})}
+function followPet(force){if(RV.edit&&!force)return;const sc=$('#roomScroll');if(!force&&performance.now()-RV.userT<4000)return;const vw=sc.clientWidth,px=RV.PX*RV.worldW,tgt=clamp(px-vw/2,0,RV.worldW-vw);if(force||Math.abs(sc.scrollLeft-tgt)>vw*.28)sc.scrollTo({left:tgt,behavior:force?'auto':'smooth'})}
 const IDLE_AT={aqua:[['curious','Fishies!'],['look',''],['happy','']],screen:[['dance',''],['think','Hmm…'],['happy','Ooh!']],game:[['race',''],['happy','Play?']],race:[['race','Vroom!']],
  music:[['dance','♪'],['party','']],light:[['sunbathe','Warm…'],['yawn','']],sit:[['sitdown',''],['yawn','']],bed:[['yawn',''],['stretch','']],work:[['think','Hmm…'],['upgrade','']],snack:[['beg','Snack?'],['eat','']],
- groom:[['stretch',''],['scratch','']],read:[['study',''],['think','']],climb:[['jump',''],['catchtail','']],aqua2:[['curious','']]};
+ groom:[['stretch',''],['scratch','']],read:[['study',''],['think','']],climb:[['jump',''],['catchtail','']],chest:[['curious','Treasure?'],['dig','']],hug:[['inlove','♥'],['happy','']],aqua2:[['curious','']]};
 function idleAt(it){const d=RI[it.id];const key=d.fn||'x';const L=IDLE_AT[key]||[['curious','Ooh!'],['look',''],['sniff','']];const [p,txt]=pick(L);if(!sprPlay(p))sprPose(p,1600);if(txt)say(txt,1100);turnTo(it.x<RV.PX)}
 function roomWander(){if(S.asleep||busy||SA.once||SA.pose||RV.edit)return false;if(Math.random()>.14)return true;
   const b=roomBounds(),vis=S.room.items.filter(i=>RI[i.id]&&RI[i.id].kind!=='rug'&&RI[i.id].kind!=='wall');
@@ -1819,7 +1842,7 @@ let musT=null;function playTune(){clearInterval(musT);const notes=[523,659,784,6
 /* interactions */
 function cool(k,min){const t=S.room.cool[k]||0;if(now()-t<min*60e3)return Math.ceil((min*60e3-(now()-t))/60e3);S.room.cool[k]=now();return 0}
 function useItem(it){const d=RI[it.id];if(S.stage==='egg'){toast('Hatch your egg first');return}if(S.asleep&&d.fn!=='bed'){say('Zzz…');return}
-  const go=cb=>walkTo(it.x+(it.x>RV.PX?-.07:.07),cb,clamp(RI[it.id].kind==='wall'?.86:it.y+.03,.74,.97));
+  const go=cb=>walkTo(it.x+(it.on?0:(it.x>RV.PX?-.07:.07)),cb,clamp(RI[it.id].kind==='wall'?.86:it.y+(it.on?.06:.03),.74,.97));
   switch(d.fn){
    case'bed':go(()=>openBed());break;
    case'game':go(()=>{sprPose('happy',800);setTimeout(()=>go2('play'),700)});break;
@@ -1832,6 +1855,8 @@ function useItem(it){const d=RI[it.id];if(S.stage==='egg'){toast('Hatch your egg
    case'snack':go(()=>{const t=tierOf('snack'),w=cool('snack',300-45*t);if(w){toast(`Restocking · ${w} min`);sprPose('beg',1200);return}const g=12+6*t;S.energy=clamp(S.energy+g);S.happy=clamp(S.happy+3);sprPose('eat',1400,()=>sprPose('happy',900));lvKick('chew');SFX.munch();toast(`Snack time! +${g} energy`);save();renderAll()});break;
    case'groom':go(()=>{const t=tierOf('groom'),w=cool('groom',200-25*t);if(w){toast(`Spa is drying · ${w} min`);return}S.mess=0;S.health=clamp(S.health+10+5*t);burst('bubbles',26,heroPoint(.5,.5));sprPose('stretch',900,()=>sprPose('recover',1100));SFX.whoosh();mission('clean');toast('Spa day! ✨ Sparkly clean');save();renderAll()});break;
    case'read':go(()=>{const t=tierOf('read'),w=cool('read',150);if(w){toast(`Book finished · next story in ${w} min`);return}sprPlay('study',{loops:2});S.bond=clamp(S.bond+3+t);addXP(10+6*t);S.base.cosmic+=.5;toast(`Story time 📖 +${10+6*t} XP`);save();renderAll()});break;
+   case'chest':go(()=>{const w=cool('chest',360);if(w){toast(`The chest is empty · ${w} min`);sprPose('curious',1000);return}const k=pick(['shard','leaf','scrap','spore']);S.inv[k]=(S.inv[k]||0)+1;S.coins+=15;sprPose('celebrate',1400);burst('sparks',14,heroPoint(.5,.4));SFX.coin();toast(`Found in the chest: ${ITEMS[k][1]} + 15 ⚡`);save();renderAll()});break;
+   case'hug':go(()=>{sprPose('inlove',1800);burst('hearts',8);S.bond=clamp(S.bond+2);save()});break;
    case'climb':go(()=>{sprPlay('jump',{then:()=>sprPose('cheer',1200)});lvKick('hop',1.3);S.happy=clamp(S.happy+3);save()});break;
    case'sit':go(()=>{sprPlay('sitdown');S.rest=clamp(S.rest+2);toast('Comfy! 🛋️')});break;
    default:go(()=>{sprPose('curious',1400);say('Ooh!',900)})}}
@@ -1839,12 +1864,17 @@ function go2(t){go(t)}
 /* edit / drag */
 function roomPointer(){const box=$('#roomItems'),sc=$('#roomScroll');
   box.addEventListener('pointerdown',e=>{const tb=e.target.closest('[data-rt]');if(tb){e.stopPropagation();const it=S.room.items.find(i=>i.u===RV.sel);if(!it)return;const a=tb.dataset.rt;
-      if(a==='flip')it.flip=!it.flip;if(a==='back'||a==='front'){const d=RI[it.id],yr=d.kind==='rug'?[.66,.99]:[.64,.98];it.y=clamp(it.y+(a==='back'?-.04:.04),yr[0],yr[1])}if(a==='store'){S.room.items=S.room.items.filter(i=>i!==it);RV.sel=null;if(S.room.music===it.u)S.room.music=0;toast('Stored')}if(a==='ok')RV.sel=null;SFX.tap();save();renderItems();return}
+      if(a==='flip')it.flip=!it.flip;if(a==='drop'){delete it.on;it.y=Math.min(.97,it.y+.06)}if(a==='back'||a==='front'){const d=RI[it.id],yr=d.kind==='rug'?[.66,.99]:[.64,.98];it.y=clamp(it.y+(a==='back'?-.04:.04),yr[0],yr[1])}if(a==='store'){S.room.items.forEach(c=>{if(c.on===it.u){delete c.on;c.y=Math.min(.97,it.y+.04)}});S.room.items=S.room.items.filter(i=>i!==it);RV.sel=null;if(S.room.music===it.u)S.room.music=0;toast('Stored')}if(a==='ok')RV.sel=null;SFX.tap();save();renderItems();return}
     const el=e.target.closest('.ri');if(!el)return;const it=S.room.items.find(i=>i.u===+el.dataset.u);if(!it)return;
     if(!RV.edit){e.stopPropagation();RV.tap={it,x:e.clientX,y:e.clientY};return}
-    e.preventDefault();e.stopPropagation();sc.style.overflowX='hidden';RV.drag={it,sx:e.clientX,sy:e.clientY,ox:it.x,oy:it.y,moved:false};try{el.setPointerCapture(e.pointerId)}catch(_){}});
+    e.preventDefault();e.stopPropagation();sc.style.overflowX='hidden';const g0=geo(it);RV.drag={it,sx:e.clientX,sy:e.clientY,ox:it.x,oy:it.y,cx:g0.cx,base:g0.base,moved:false};try{el.setPointerCapture(e.pointerId)}catch(_){}});
   box.addEventListener('pointermove',e=>{const D=RV.drag;if(!D)return;const dx=e.clientX-D.sx,dy=e.clientY-D.sy;if(Math.abs(dx)+Math.abs(dy)>6)D.moved=true;if(!D.moved)return;
-    const d=RI[D.it.id],b=roomBounds(),yr=d.kind==='wall'?[.3,.56]:d.kind==='rug'?[.66,.99]:[.64,.98];D.it.x=clamp(D.ox+dx/RV.worldW,b.min,b.max);D.it.y=clamp(D.oy+dy/RV.H,yr[0],yr[1]);RV.sel=D.it.u;renderItems()});
+    const d=RI[D.it.id],b=roomBounds(),yr=d.kind==='wall'?[.3,.56]:d.kind==='rug'?[.66,.99]:[.64,.98];
+    if(canPerch(d)){const cx=D.cx+dx,base=D.base+dy;let best=null;for(const sf of surfaces(D.it.u)){if(cx<sf.a-8||cx>sf.b+8)continue;const dd=Math.abs(base-sf.y);if(dd<sf.tol&&(!best||dd<best.dd))best={...sf,dd,cx}}
+      if(best){const was=D.it.on;D.it.on=best.p.u;D.it.s=best.i;let f=clamp((cx-best.a)/(best.b-best.a),0,1);if(best.p.flip)f=1-f;D.it.ox=f;if(was!==best.p.u)tone(1200,.05,0,'triangle',.04)}
+      else{if(D.it.on)tone(500,.04,0,'triangle',.03);delete D.it.on;D.it.x=clamp(cx/RV.worldW,b.min,b.max);D.it.y=clamp(base/RV.H,yr[0],yr[1])}}
+    else{D.it.x=clamp(D.ox+dx/RV.worldW,b.min,b.max);D.it.y=clamp(D.oy+dy/RV.H,yr[0],yr[1])}
+    RV.sel=D.it.u;renderItems()});
   const up=e=>{const D=RV.drag;if(D){RV.drag=null;sc.style.overflowX='';if(!D.moved){RV.sel=RV.sel===D.it.u?null:D.it.u}SFX.tap();save();renderItems()}
     const T=RV.tap;if(T){RV.tap=null;if(Math.abs(e.clientX-T.x)+Math.abs(e.clientY-T.y)<8)useItem(T.it)}};
   box.addEventListener('pointerup',up);box.addEventListener('pointercancel',()=>{RV.drag=null;RV.tap=null;sc.style.overflowX=''});
