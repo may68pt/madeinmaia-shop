@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
       {source:"/coin-flip",destination:"/coin-flip/index.html"},
       // "Outrunning Portugal — Rota do Sol" arcade road-trip game (static files in public/outrunning-portugal/)
       {source:"/outrunning-portugal",destination:"/outrunning-portugal/index.html"},
+      // "FÆLIX" bio-tech virtual pet (static files in public/petz/)
+      {source:"/petz",destination:"/petz/index.html"},
     ],
     afterFiles:[],
     fallback:[],
