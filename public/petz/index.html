@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0c0a1f">
 <base href="/petz/">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" href="icon-192.png">
@@ -20,6 +20,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-grad
 .h,h2,h3{font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:800;letter-spacing:.2px}
 .wrap{max-width:520px;margin:0 auto;padding:0 12px}
 /* HUD */
+.standalone .hud{padding-top:env(safe-area-inset-top)}
 .hud{position:sticky;top:0;z-index:8;background:linear-gradient(rgba(12,10,31,.96),rgba(12,10,31,.82));backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .hud .wrap{display:flex;align-items:center;gap:10px;padding:8px 12px}
 .av{width:50px;height:50px;border-radius:50%;border:2px solid var(--gd);box-shadow:0 0 12px rgba(255,201,60,.5);background:radial-gradient(circle,#2a2160,#120f2b);overflow:hidden;flex:none;position:relative}
@@ -365,6 +366,12 @@ input.tx{font-size:20px;font-family:'Barlow Condensed';font-weight:800}
 #game canvas{touch-action:none;max-width:520px;width:100%;height:100%}
 #game .gh{position:absolute;top:calc(10px + env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:space-between;align-items:center;max-width:520px;margin:0 auto;padding:0 14px;font-family:'Barlow Condensed';font-weight:800;font-size:20px;pointer-events:none}
 #game .gx{pointer-events:auto;background:rgba(255,255,255,.1);border:1px solid var(--line);color:#fff;border-radius:10px;padding:4px 10px;font-family:'Barlow Condensed';font-weight:800;cursor:pointer}
+.appBar{position:sticky;top:0;z-index:12;display:none;align-items:center;gap:8px;padding:8px 12px;background:linear-gradient(90deg,#ff7a1a,#ff3fd8);color:#fff;font-family:'Barlow Condensed';font-weight:700;font-size:15px}
+.appBar.on{display:flex}.appBar span{flex:1}.appBar button{border:none;border-radius:10px;padding:5px 12px;font-family:'Barlow Condensed';font-weight:800;font-size:15px;cursor:pointer;background:#fff;color:#14112e}
+.appBar #appBarX{background:transparent;color:#fff;padding:4px 6px}.appBar.upd{background:linear-gradient(90deg,#3f9dff,#3ff0ff);color:#14112e}
+.isteps{counter-reset:st;padding:0;margin:10px 0;list-style:none}.isteps li{counter-increment:st;display:flex;gap:10px;align-items:center;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--line);margin-top:7px;line-height:1.25}
+.isteps li::before{content:counter(st);flex:none;width:26px;height:26px;border-radius:50%;background:var(--or);color:#14112e;font-family:'Barlow Condensed';font-weight:800;display:flex;align-items:center;justify-content:center}
+.isteps svg{width:24px;height:24px;flex:none;stroke:#3fa0ff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
 .toast{position:fixed;left:50%;top:12px;transform:translateX(-50%) translateY(-90px);z-index:60;background:linear-gradient(90deg,#2a2466,#1a1640);border:1.5px solid var(--cy);box-shadow:0 0 18px rgba(63,240,255,.5);color:#fff;font-family:'Barlow Condensed';font-weight:800;font-size:16px;padding:8px 16px;border-radius:14px;transition:transform .3s cubic-bezier(.3,1.4,.5,1);max-width:92vw;text-align:center}
 .toast.on{transform:translateX(-50%) translateY(0)}
 .lvup{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;pointer-events:none}
@@ -376,6 +383,8 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
 </style>
 </head>
 <body>
+<div id="appBar" class="appBar"><span>📲 Get <b>FÆLIX</b> as an app — updates itself</span><button id="appBarBtn">Install</button><button id="appBarX" aria-label="Close">✕</button></div>
+<div id="updBar" class="appBar upd"><span>✨ New FÆLIX update ready</span><button id="updBtn">Update</button></div>
 <header class="hud"><div class="wrap">
   <div class="av"><img id="avImg" alt=""></div>
   <div class="hinfo"><div class="hn"><span id="hName">FÆLIX</span> <span class="hrt">♡</span></div><div class="hl"><b id="hLv">Lv.1</b> · <span id="hStage">Egg</span></div><div class="xp"><i id="xpFill"></i><span id="xpTxt">XP 0 / 100</span></div></div>
@@ -1177,10 +1186,10 @@ function renderJournal(){
      <div class="sec"><h2>Sleep styles</h2><small>${unlockedSleep().length}/8 unlocked</small></div><div class="bedg">${Object.entries(SLEEP).map(([k,b])=>{const u=b.u();return`<div class="bed ${u?'':'lock'}"><span class="e">${u?b.e:'🔒'}</span><b>${b.n}</b><small>${u?b.d:b.ut}</small></div>`}).join('')}</div>
      <div class="sec"><h2>Lore</h2><small>${S.lore.length} found</small></div>${S.lore.length?S.lore.map(l=>{const z=Object.values(ZONES).find(z=>z.lore.includes(l));return`<div class="lore"><b>${z?z.n:''}</b>${l}</div>`}).join(''):'<p class="muted">Explore zones to uncover the story of Maia.</p>'}`}
   $$('[data-char]').forEach(d=>d.onclick=()=>{const r=ROSTER.find(x=>x.id===d.dataset.char);if(!charUnlocked(r)){SFX.no();toast('🔒 Locked');return}if(S.char===r.id||S.stage==='egg'){toast(S.stage==='egg'?'Hatch your egg first':'Already active');return}SFX.yay();useChar(r.id).then(()=>{go('home')})});
-  if(jTab==='set'){$('#j-set').innerHTML=`<div class="panel" style="margin-top:10px"><div class="btns" style="margin-top:0"><button class="btn" id="bShare">📸 Share card</button><button class="btn cy" id="bRescue">🛟 Rescue code</button><button class="btn gh" id="bRename">✏️ Rename</button><button class="btn gh" id="bTL">${S.flags.timelapse?'⏩ Time-lapse on':'🕐 Real time'}</button><button class="btn gh" id="bMute">${S.mute?'🔇 Sound off':'🔊 Sound on'}</button></div></div>
+  if(jTab==='set'){$('#j-set').innerHTML=`<div class="panel" style="margin-top:10px"><div class="btns" style="margin-top:0"><button class="btn" id="bShare">📸 Share card</button><button class="btn cy" id="bRescue">🛟 Rescue code</button><button class="btn gh" id="bRename">✏️ Rename</button><button class="btn o" id="bInstall">📲 Install app</button><button class="btn gh" id="bTL">${S.flags.timelapse?'⏩ Time-lapse on':'🕐 Real time'}</button><button class="btn gh" id="bMute">${S.mute?'🔇 Sound off':'🔊 Sound on'}</button></div></div>
      <div class="panel" style="margin-top:10px"><b class="h" style="font-size:18px">Redeem a gift code</b><textarea id="rIn" placeholder="Paste a FXGIFT code"></textarea><div class="btns"><button class="btn" id="rGo">Redeem</button></div></div>
      <p class="muted" style="margin:12px 4px">Your FÆLIX lives on this phone. Save a rescue code to bring it back on any device. Generation ${S.gen}.</p>`;
-    $('#bShare').onclick=share;$('#bRescue').onclick=rescue;$('#bRename').onclick=()=>{if(S.stage==='egg')return toast('Hatch first');askName()};$('#bMute').onclick=()=>{S.mute=!S.mute;save();renderJournal()};$('#bTL').onclick=()=>{S.flags.timelapse=!S.flags.timelapse;SKY.tintKey='';save();renderJournal();toast(S.flags.timelapse?'Time-lapse: a full day every 2 minutes':'Back to real time')};
+    $('#bShare').onclick=share;$('#bRescue').onclick=rescue;$('#bRename').onclick=()=>{if(S.stage==='egg')return toast('Hatch first');askName()};$('#bMute').onclick=()=>{S.mute=!S.mute;save();renderJournal()};$('#bInstall').onclick=()=>openInstall();$('#bTL').onclick=()=>{S.flags.timelapse=!S.flags.timelapse;SKY.tintKey='';save();renderJournal();toast(S.flags.timelapse?'Time-lapse: a full day every 2 minutes':'Back to real time')};
     $('#rGo').onclick=()=>{try{const o=dec($('#rIn').value.trim().replace(/^FXGIFT-/,''));if(!ITEMS[o.i])throw 0;if(S.redeemed.includes(o.id)){toast('Already redeemed');return}S.redeemed.push(o.id);S.inv[o.i]=(S.inv[o.i]||0)+o.n;SFX.yay();toast(`${o.f} sent you ${ITEMS[o.i][1]} ${ITEMS[o.i][0]}!`);save();renderAll()}catch(e){SFX.no();toast('That code doesn\'t look right')}}}
 }
 
@@ -1923,6 +1932,45 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
   addEventListener('resize',()=>{layoutRoom();followPet(true)});setInterval(roomFx,450)}
 
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
+
+/* ============ APP: install button, auto-updates, pet transfer ============ */
+const FAELIX_BUILD='202611021504';
+const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
+ safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
+addEventListener('appinstalled',()=>{$('#appBar').classList.remove('on');toast('FÆLIX installed! Open it from your home screen 🎉');S.flags.installed=1;save()});
+function showAppBar(){if(APP.standalone||!APP.onSite)return;if(S&&S.flags&&S.flags.appBarHide>Date.now())return;$('#appBar').classList.add('on')}
+$('#appBarBtn').onclick=()=>openInstall();$('#appBarX').onclick=()=>{$('#appBar').classList.remove('on');S.flags.appBarHide=Date.now()+3*864e5;save()};
+const SHARE_ICO='<svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
+const ADD_ICO='<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>';
+function transferCode(){const o={...S};delete o.mute;o.log=(o.log||[]).slice(0,8);return enc(o)}
+function stampTransfer(){if(!APP.onSite||S.stage==='egg')return;try{history.replaceState(null,'',location.pathname.replace(/\/$/,'')+'?pet='+transferCode())}catch(e){}}
+function openInstall(){SFX.tap();
+  if(APP.standalone){toast('You are already using the app ✨');return}
+  if(APP.deferred){APP.deferred.prompt();APP.deferred.userChoice.then(r=>{if(r.outcome==='accepted'){$('#appBar').classList.remove('on')}APP.deferred=null});return}
+  stampTransfer();
+  const ios=APP.ios,body=ios?(APP.safari?`<ol class="isteps"><li><span>Tap the <b>Share</b> button ${SHARE_ICO} in Safari's toolbar (bottom of the screen, or top on iPad)</span></li><li><span>Scroll down and tap <b>Add to Home Screen</b> ${ADD_ICO}</span></li><li><span>Tap <b>Add</b>. FÆLIX appears on your home screen like an app</span></li></ol>`
+      :`<p>On iPhone, apps can only be added from <b>Safari</b>. Open this page in Safari:</p><p style="font-family:'Barlow Condensed';font-weight:800;font-size:20px;text-align:center;color:var(--cy)">madeinmaia.pt/petz</p><p class="muted">Then tap Share ${SHARE_ICO} → Add to Home Screen ${ADD_ICO}.</p>`)
+    :`<ol class="isteps"><li><span>Open your browser menu <b>⋮</b></span></li><li><span>Tap <b>Install app</b> or <b>Add to Home screen</b></span></li><li><span>Open FÆLIX from your home screen</span></li></ol>`;
+  modal(`<h3>📲 FÆLIX app</h3><p>Add FÆLIX to your home screen: it opens full-screen like a real app, and <b>updates itself</b> whenever we improve it.</p>${body}
+   <div class="panel" style="margin-top:10px"><b class="h" style="font-size:16px">🛟 Bring ${S.stage==='egg'?'your pet':S.name} with you</b><p class="muted" style="margin:4px 0">Your pet comes along automatically when you add from this page. If it doesn't, paste this rescue code in the app (Journal → Settings → Rescue code).</p>
+   <textarea readonly id="trOut">FAELIX-${transferCode()}</textarea><div class="btns"><button class="btn cy" id="trCopy">Copy code</button></div></div>
+   <div class="btns"><button class="btn gh" data-x>Got it</button></div>`);
+  $('#trCopy').onclick=()=>copy($('#trOut').value)}
+function importFromUrl(){try{const q=new URLSearchParams(location.search),c=q.get('pet');if(!c)return;history.replaceState(null,'',location.pathname);
+  const fresh=!S||S.stage==='egg';if(!fresh)return;const o=dec(c);if(!o.base||!o.variant)return;const mute=S.mute;S=Object.assign(newEgg(),o,{mute});save();setTimeout(()=>toast(`Welcome home, ${S.name}! 🏠`),1200)}catch(e){}}
+async function initApp(){
+  if(APP.standalone){document.documentElement.classList.add('standalone');try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}}
+  else setTimeout(showAppBar,20000);
+  if(!APP.onSite||!('serviceWorker' in navigator))return;
+  try{const reg=await navigator.serviceWorker.register('/petz/sw.js',{scope:'/petz/'});
+    const ready=w=>{if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)$('#updBar').classList.add('on')})};
+    if(reg.waiting&&navigator.serviceWorker.controller)$('#updBar').classList.add('on');
+    reg.addEventListener('updatefound',()=>ready(reg.installing));
+    $('#updBtn').onclick=()=>{const w=reg.waiting;save();if(w)w.postMessage('skip');else location.reload()};
+    let reloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloading)return;reloading=true;location.reload()});
+    const chk=()=>{reg.update().catch(()=>{});fetch('/petz/index.html',{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/FAELIX_BUILD='([^']+)'/);if(m&&m[1]!==FAELIX_BUILD)$('#updBar').classList.add('on')}).catch(()=>{})};document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()});setInterval(chk,30*60e3)}catch(e){}}
+
 /* ============ SPRITE ENGINE ============ */
 let SPR=null,sprImg={},PK=null,ROSTER=[];const PACKS={};
 /* ===== CHARACTER PACKS: roles + fallback chains ===== */
@@ -2188,15 +2236,15 @@ function boot(){ensureRoom();if(RV.H&&$('#world').style.width)layoutRoom();stopS
   const gap=now()-(S.lastSeen||now());S.lastSeen=now();if(S.stage!=='egg'&&!S.asleep&&!S.gone)setTimeout(()=>{sprPlay(gap>6*HOUR?'missed':'greet');if(gap>6*HOUR){say('I missed you! 💖',2200);burst('hearts',8)}else say(pick(['Hi! 👋','Hey you!','You\'re back!']),1600)},700)}
 
 /* ============ start ============ */
-S=store.get();if(!S||S.v!==3||!S.base)S=newEgg();
+S=store.get();if(!S||S.v!==3||!S.base)S=newEgg();importFromUrl();
 initScene();
 window.addEventListener('resize',()=>{sizeStage()});
-boot();loadSprites();initRoom();
+boot();loadSprites();initRoom();initApp();
 requestAnimationFrame(frame);
 setInterval(lifeTick,900);
 setInterval(check,8000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
-window.__fx={sky:()=>({h:SKY.hour,k:SKY.moodKey,dk:SKY.dk,sh:SKY.shaft}),dbg:()=>({SA:{once:SA.once,pose:SA.pose,rect:SA.rect},LV:{sx:LV.sx,sy:LV.sy,y:LV.y,rot:LV.rot,sway:LV.sway},pk:PK&&PK.id,spr:document.querySelector("#stage").className,wrap:document.querySelector("#heroWrap").style.cssText,pose:document.querySelector("#heroPose").getAttribute("style"),anims:document.querySelector("#heroPose").getAnimations().length}),get S(){return S},set S(v){S=v},skip(h){S.last-=h*HOUR;if(S.hatchedAt)S.hatchedAt-=h*HOUR;check()},check,go,renderAll,setHero,act,burst,boot};
+window.__fx={openInstall,transferCode,sky:()=>({h:SKY.hour,k:SKY.moodKey,dk:SKY.dk,sh:SKY.shaft}),dbg:()=>({SA:{once:SA.once,pose:SA.pose,rect:SA.rect},LV:{sx:LV.sx,sy:LV.sy,y:LV.y,rot:LV.rot,sway:LV.sway},pk:PK&&PK.id,spr:document.querySelector("#stage").className,wrap:document.querySelector("#heroWrap").style.cssText,pose:document.querySelector("#heroPose").getAttribute("style"),anims:document.querySelector("#heroPose").getAnimations().length}),get S(){return S},set S(v){S=v},skip(h){S.last-=h*HOUR;if(S.hatchedAt)S.hatchedAt-=h*HOUR;check()},check,go,renderAll,setHero,act,burst,boot};
 })();
 </script>
 </body>
