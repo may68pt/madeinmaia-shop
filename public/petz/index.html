@@ -155,6 +155,7 @@ main{padding-bottom:92px}
 #bubble.on{opacity:1;transform:translateX(-50%) scale(1)}
 .chipS{position:absolute;z-index:7;left:10px;top:10px;display:flex;align-items:center;gap:6px;background:rgba(10,8,30,.75);border:1.5px solid var(--sc,#3ff0ff);border-radius:12px;padding:3px 9px 3px 5px;font-family:'Barlow Condensed';font-weight:800;font-size:13px;text-transform:uppercase;box-shadow:0 0 12px var(--sc,#3ff0ff)}
 .chipS svg{width:34px;height:16px}
+.chipT.moodChip{top:68px;color:#fff;font-size:13px;background:rgba(10,8,30,.7);border:1px solid rgba(255,255,255,.12)}.moodChip.pop{animation:mpop .5s cubic-bezier(.3,1.8,.5,1)}@keyframes mpop{0%{transform:scale(.6)}100%{transform:scale(1)}}
 .chipT{position:absolute;z-index:7;left:10px;top:44px;background:rgba(10,8,30,.6);border-radius:10px;padding:2px 8px;font-family:'Barlow Condensed';font-weight:700;font-size:12px;color:var(--mute)}
 .side{position:absolute;z-index:7;right:10px;top:10px;display:flex;flex-direction:column;gap:8px}
 .side button{width:42px;height:42px;border-radius:12px;background:rgba(10,8,30,.7);border:1.5px solid rgba(63,240,255,.6);box-shadow:0 0 10px rgba(63,240,255,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
@@ -368,6 +369,22 @@ input.tx{font-size:20px;font-family:'Barlow Condensed';font-weight:800}
 #game .gx{pointer-events:auto;background:rgba(255,255,255,.1);border:1px solid var(--line);color:#fff;border-radius:10px;padding:4px 10px;font-family:'Barlow Condensed';font-weight:800;cursor:pointer}
 .haveOne{position:absolute;left:50%;bottom:calc(4% + 34px);transform:translateX(-50%);z-index:6;display:none;border:1px solid var(--line);background:rgba(12,10,31,.7);color:#cfc8ff;border-radius:99px;padding:6px 14px;font-family:'Barlow Condensed';font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
 .isEgg .haveOne{display:block}
+.av{cursor:pointer}.av:active{transform:scale(.94)}
+.prof h3{margin:0;font-size:30px;line-height:1}.phead{display:flex;gap:12px;align-items:center}.pport{width:118px;height:118px;flex:none;border-radius:22px;background:radial-gradient(circle at 50% 65%,rgba(63,240,255,.25),rgba(12,10,31,.9) 70%);border:1px solid var(--line);overflow:hidden}.pport canvas{width:100%;height:100%}
+.pid{flex:1;min-width:0}.ptags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.ptags span{font-family:'Barlow Condensed';font-weight:700;font-size:13px;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.07);border:1px solid var(--line)}
+.psec{font-family:'Barlow Condensed';font-style:italic;font-weight:800;text-transform:uppercase;font-size:18px;margin:14px 2px 6px;color:#fff;letter-spacing:.5px}
+.pcard{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.pmood{display:flex;gap:12px;align-items:flex-start;margin-top:12px;background:linear-gradient(135deg,rgba(255,95,184,.12),rgba(63,240,255,.08))}.pme{font-size:48px;line-height:1;animation:pmb 2.4s ease-in-out infinite}@keyframes pmb{50%{transform:scale(1.12) rotate(-6deg)}}
+.pint{height:7px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden;margin:5px 0 3px}.pint i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#3ff0ff,#ff5fb8)}
+.preason{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.preason span{font-size:12px;padding:3px 8px;border-radius:99px;background:rgba(0,0,0,.25)}
+.pbar{display:grid;grid-template-columns:96px 1fr 62px;gap:8px;align-items:center;margin:5px 0;font-size:13px}.pbar div{height:9px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden}.pbar i{display:block;height:100%;border-radius:9px;max-width:100%;box-shadow:0 0 8px currentColor}.pbar b{text-align:right;font-family:'Barlow Condensed';font-size:14px}
+.ptraits{display:flex;flex-direction:column;gap:3px;margin-top:8px;font-size:12px;color:var(--mute)}
+.pzones{display:grid;gap:7px}.pz{display:flex;gap:10px;align-items:center;padding:7px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(90deg,color-mix(in srgb,var(--zc) 18%,transparent),transparent)}.pz img{width:54px;height:40px;object-fit:cover;border-radius:9px}.pz div{flex:1}.pz b{display:block;font-family:'Barlow Condensed';font-size:16px}.pz small{font-size:12px;color:var(--mute)}.pz.lock{opacity:.5;filter:grayscale(.7)}
+.pzb{height:5px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:4px}.pzb i{display:block;height:100%;background:var(--zc)}
+.pdash{display:flex;gap:12px;align-items:center}.pring{width:112px;flex:none}.pring circle{fill:none;stroke-width:9;stroke-linecap:round}.pring text{fill:#fff;font-family:'Barlow Condensed';font-weight:800;font-size:22px;text-anchor:middle;dominant-baseline:middle}.pring text.s{font-size:10px;fill:#aaa;font-weight:600}
+.pparts{flex:1;font-size:12px}.pparts span{color:var(--mute)}
+.ptiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.ptile{text-align:center;padding:8px 2px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line)}.ptile span{font-size:20px;display:block}.ptile b{display:block;font-family:'Barlow Condensed';font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ptile small{font-size:10px;color:var(--mute);line-height:1.1;display:block}
+.pbest{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:14px}.pbest span{flex:1}.pbest b{font-family:'Barlow Condensed';font-size:17px}.pbest em{font-style:normal;color:#ffc93c;width:46px;text-align:right}.pbest u{text-decoration:none;color:rgba(255,255,255,.18)}
 .appBar{position:sticky;top:0;z-index:12;display:none;align-items:center;gap:8px;padding:8px 12px;background:linear-gradient(90deg,#ff7a1a,#ff3fd8);color:#fff;font-family:'Barlow Condensed';font-weight:700;font-size:15px}
 .appBar.on{display:flex}.appBar span{flex:1}.appBar button{border:none;border-radius:10px;padding:5px 12px;font-family:'Barlow Condensed';font-weight:800;font-size:15px;cursor:pointer;background:#fff;color:#14112e}
 .appBar #appBarX{background:transparent;color:#fff;padding:4px 6px}.appBar.upd{background:linear-gradient(90deg,#3f9dff,#3ff0ff);color:#14112e}
@@ -408,7 +425,7 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
     <div id="emote"></div>
     <div id="bubble"></div>
     <div class="chipS" id="stateChip"></div>
-    <div class="chipT" id="timeChip"></div>
+    <div class="chipT" id="timeChip"></div><div class="chipT moodChip" id="moodChip"></div>
     <div class="side">
       <button id="sRoom" aria-label="Room" style="font-size:20px">🛋️</button>
       <button id="sShare" aria-label="Share"><svg class="ico" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
@@ -687,8 +704,8 @@ function expr(){
   if(exprOverride&&exprT>now())return exprOverride;
   if(S.asleep)return SL&&SL.eye||'sleep';
   if(S.health<25)return'dizzy';
+  if(typeof moodNow==='function'){const m=moodNow().k,M={ecstatic:'stars',happy:'happy',playful:'happy',content:'normal',hungry:'wow',sleepy:'yawn',sad:'sad',grumpy:'angry',sick:'dizzy'};if(m!=='content')return M[m]||'normal'}
   const st=calState();if(st==='inverted')return'dash';if(st==='hybrid')return'inf';if(st==='overclocked')return'angry';
-  if(S.energy<25||S.happy<25||S.rest<15)return'sad';
   if(S.bond>85&&S.happy>70)return'love';
   if(S.happy>60)return'happy';return'normal';
 }
@@ -1688,7 +1705,7 @@ function renderItems(){const box=$('#roomItems');box.innerHTML='';
 function placePet(instant){const b=roomBounds();RV.PX=clamp(RV.PX,b.min,b.max);const hw=$('#heroWrap'),au=$('#aura');if(instant){hw.style.transition='none';au.style.transition='none'}
   hw.style.left=RV.PX*RV.worldW+'px';au.style.left=RV.PX*RV.worldW+'px';const pw=$('#stage').clientWidth,ds=depthS(RV.PY)/depthS(.87);hw.style.width=(parseFloat(hw.dataset.pct||100)/100*pw*ds)+'px';au.style.width=pw*.78*ds+'px';if(!S.asleep){hw.style.bottom=(1-RV.PY)*100+'%';hw.style.zIndex=Math.round(10+RV.PY*80);au.style.bottom=(1-RV.PY-.01)*100+'%';au.style.zIndex=Math.round(9+RV.PY*80)}
   if(instant)requestAnimationFrame(()=>{hw.style.transition='';au.style.transition=''})}
-function walkTo(x,cb,y){const b=roomBounds();x=clamp(x,b.min,b.max);if(y!==undefined){RV.PY=clamp(y,.74,.97);placePet(false)}const dist=Math.abs(x-RV.PX)*RV.worldW+(y!==undefined?40:0),dur=Math.max(.35,dist/110);if(dist<6){cb&&cb();return}
+function walkTo(x,cb,y,fast){SA.dash=!!fast;const b=roomBounds();x=clamp(x,b.min,b.max);if(y!==undefined){RV.PY=clamp(y,.74,.97);placePet(false)}const dist=Math.abs(x-RV.PX)*RV.worldW+(y!==undefined?40:0),dur=fast?Math.max(.25,dist/340):Math.max(.35,dist/110);if(dist<6){cb&&cb();return}
   turnTo(x<RV.PX);const hw=$('#heroWrap'),au=$('#aura');setTimeout(()=>{hw.style.transition=`left ${dur}s linear, width .8s`;au.style.transition=`left ${dur}s linear`;RV.PX=x;hw.style.left=x*RV.worldW+'px';au.style.left=x*RV.worldW+'px';SA.walkUntil=performance.now()+dur*1000;
     if(cb)setTimeout(cb,dur*1000+60)},S.asleep?0:230)}
 function followPet(force){if(RV.edit&&!force)return;const sc=$('#roomScroll');if(!force&&performance.now()-RV.userT<4000)return;const vw=sc.clientWidth,px=RV.PX*RV.worldW,tgt=clamp(px-vw/2,0,RV.worldW-vw);if(force||Math.abs(sc.scrollLeft-tgt)>vw*.28)sc.scrollTo({left:tgt,behavior:force?'auto':'smooth'})}
@@ -1834,7 +1851,7 @@ function tintCity(img,h,dk){if(!img)return null;const c=document.createElement('
 function applyMood(h,t){const [a,b,k]=keyAt(MOOD,h),ca=rgbaParse(a[1]),cb=rgbaParse(b[1]);const c=ca.map((v,i)=>v+(cb[i]-v)*k),shaft=a[2]+(b[2]-a[2])*k;
   const key=c.map(v=>v.toFixed(2)).join()+shaft.toFixed(2);if(SKY.moodKey===key)return;SKY.moodKey=key;
   $('#mood').style.background=`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${c[3]})`;
-  const dk=darkness(h),wl=$('#lampGlow'),wl2=$('#lampGlow2');[wl,wl2].forEach(e=>{e.style.opacity=.35+dk*.9;e.style.transform=`translate(-50%,-50%) scale(${1+dk*.9})`});
+  const dk=darkness(h),wl=$('#lampGlow'),wl2=$('#lampGlow2');[wl,wl2].forEach((e,j)=>{const off=(S.room.sconceOff||{})[j?'b':'a'];e.style.opacity=off?0:.35+dk*.9;e.style.transform=`translate(-50%,-50%) scale(${1+dk*.9})`});
   SKY.shaft=shaft;SKY.dk=dk;const tc=$('#timeChip');if(tc){const hh=Math.floor(h),mm=Math.floor((h%1)*60);tc.textContent=`${h<5.5||h>21?'🌙':h<7?'🌅':h<17.5?'☀️':h<20.5?'🌇':'🌆'} ${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')} · ${moodName(h)}${S.flags&&S.flags.timelapse?' · ⏩':''}`}}
 function moodName(h){return h<5?'Night':h<6.5?'Dawn':h<9?'Morning':h<16.5?'Daylight':h<18.6?'Golden hour':h<20.2?'Sunset':h<21.5?'Dusk':'Night'}
 /* light shafts from the window + night-lights for glowing items (drawn on the fx layer) */
@@ -1936,13 +1953,13 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='202611021513';
+const FAELIX_BUILD='202611021641';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
 addEventListener('appinstalled',()=>{$('#appBar').classList.remove('on');toast('FÆLIX installed! Open it from your home screen 🎉');S.flags.installed=1;save()});
 function showAppBar(){if(APP.standalone||!APP.onSite)return;if(S&&S.flags&&S.flags.appBarHide>Date.now())return;$('#appBar').classList.add('on')}
-$('#haveOne').onclick=e=>{e.stopPropagation();openLink()};$('#appBarBtn').onclick=()=>openInstall();$('#appBarX').onclick=()=>{$('#appBar').classList.remove('on');S.flags.appBarHide=Date.now()+3*864e5;save()};
+document.querySelector('.hud .av').onclick=openProfile;$('#haveOne').onclick=e=>{e.stopPropagation();openLink()};$('#appBarBtn').onclick=()=>openInstall();$('#appBarX').onclick=()=>{$('#appBar').classList.remove('on');S.flags.appBarHide=Date.now()+3*864e5;save()};
 const SHARE_ICO='<svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
 const ADD_ICO='<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>';
 function transferCode(){const o={...S};delete o.mute;o.log=(o.log||[]).slice(0,8);return enc(o)}
@@ -2047,8 +2064,8 @@ function hasRole(role){return !!(SPR&&(SPR.anims[role]||SPR.poses[role]))}
 async function loadPack(id){if(PACKS[id])return PACKS[id];const base='c/'+id+'/',m=await (await fetch(base+'pack.json')).json(),byFile={};
   const files=new Set([m.atlas,...Object.values(m.anims).map(a=>a.file)].filter(Boolean));
   await Promise.all([...files].map(f=>new Promise(r=>{const i=new Image();i.onload=r;i.onerror=r;i.src=base+f;byFile[f]=i})));
-  const img={poses:byFile[m.atlas]};for(const k in m.anims)img[k]=byFile[m.anims[k].file];
-  return PACKS[id]={id,meta:m,img,SPR:{anims:m.anims,poses:m.poses||{},ptips:m.ptips||{},sleep:m.sleep||{},name:m.name}}}
+  const img={poses:byFile[m.atlas]};for(const k in m.anims)img[k]=byFile[m.anims[k].file];let face=null;try{face=await (await fetch(base+'face.json')).json()}catch(e){}
+  return PACKS[id]={id,meta:m,img,SPR:{anims:m.anims,poses:m.poses||{},ptips:m.ptips||{},sleep:m.sleep||{},name:m.name,face}}}
 function charUnlocked(r){const u=r.unlock;if(!u)return true;if(u.level&&lvInfo().l<u.level)return false;if(u.bond&&S.bond<u.bond)return false;if(u.zone&&!S.zones[u.zone])return false;return true}
 async function useChar(id,silent){try{const P=await loadPack(id);PK=P;SPR=P.SPR;sprImg=P.img;S.char=id;SA.once=null;SA.pose=null;SA.baseAlt='idle';LV.trail=[];save();setHero(true);
   if(!silent){sprPlay('greet');lvKick('glow');lvKick('ping');toast(`${P.meta.name} joined!`);addLog('🧬','New look',`${S.name} is now a ${P.meta.name}.`)}renderAll()}catch(e){toast('Could not load that character')}}
@@ -2066,15 +2083,86 @@ function sprBase(ts){
   const B=role=>{const r=res(role);return r?(r.t==='a'?{anim:r.r}:{pose:r.r}):{anim:'idle'}};
   if(S.asleep)return B(sleepMap(S.sleepStyle).hold);
   if(S.health<25)return B('dizzy');
-  if(ts<SA.walkUntil)return B('walk');
+  if(ts<SA.walkUntil)return B(SA.dash?'run':'walk');
   if(S.energy<25)return B('beg');
   if(S.happy<25||S.rest<15)return B('bored');
   if(ts>SA.altT){SA.altT=ts+rnd(14000,26000);const nb=SA.baseAlt==='idle'&&res('sitidle').r!==res('idle').r?'sitidle':'idle';if(nb!==SA.baseAlt){SA.baseAlt=nb;if(nb==='sitidle')sprPlay('sitdown');else sprPlay('standup')}}
   return B(SA.baseAlt);
 }
 function sleepMap(st){return Object.assign({in:'sleep_in',hold:SLEEPPOSE[st]||'sl_curl'},(SPR&&SPR.sleep&&SPR.sleep[st])||{})}
-function drawAnim(name,f){const a=SPR.anims[name];LV.cur=name;drawLiving(sprImg[name],f*a.w,0,a.w,a.h,a.ax,a.tips&&a.tips[f])}
-function drawPose(name){const p=SPR.poses[name];LV.cur=name;drawLiving(sprImg.poses,p[0],p[1],p[2],p[3],p[4],SPR.ptips&&SPR.ptips[name])}
+function drawAnim(name,f){const a=SPR.anims[name];LV.cur=name;const fv=SPR.face&&SPR.face.anims[name]&&SPR.face.anims[name][f],fc=faceFrame(sprImg[name],f*a.w,0,a.w,a.h,fv);if(fc)return drawLiving(fc,0,0,a.w,a.h,a.ax,a.tips&&a.tips[f]);drawLiving(sprImg[name],f*a.w,0,a.w,a.h,a.ax,a.tips&&a.tips[f])}
+function drawPose(name){const p=SPR.poses[name];LV.cur=name;const fv=SPR.face&&SPR.face.poses[name],fc=faceFrame(sprImg.poses,p[0],p[1],p[2],p[3],fv);if(fc)return drawLiving(fc,0,0,p[2],p[3],p[4],SPR.ptips&&SPR.ptips[name]);drawLiving(sprImg.poses,p[0],p[1],p[2],p[3],p[4],SPR.ptips&&SPR.ptips[name])}
+/* ============ MOODS + BOLD FACE: neon eyes painted onto the sprite's visor ============ */
+const MOODS={
+ ecstatic:{n:'Ecstatic',e:'🤩'},happy:{n:'Happy',e:'😄'},content:{n:'Content',e:'🙂'},playful:{n:'Playful',e:'😜'},
+ sleepy:{n:'Sleepy',e:'😪'},hungry:{n:'Hungry',e:'🥺'},sad:{n:'Sad',e:'😢'},grumpy:{n:'Grumpy',e:'😤'},sick:{n:'Unwell',e:'😵‍💫'},
+ asleep:{n:'Dreaming',e:'😴'},proud:{n:'Proud',e:'😎'},love:{n:'In love',e:'🥰'},surprised:{n:'Surprised',e:'😲'}};
+const FACE={k:'content',i:.5,ov:null,ovT:0,blinkT:0,blink:0,cv:null,cx:null,tear:0,last:'content'};
+/* the pet's mood from its stats; intensity 0..1 drives how exaggerated the face gets */
+function moodNow(){if(S.stage==='egg')return{k:'content',i:0};
+  if(S.asleep)return{k:'asleep',i:.6};
+  const c=v=>clamp(v,0,1);
+  if(S.health<25)return{k:'sick',i:c((25-S.health)/25)*.6+.4};
+  if(S.energy<25)return{k:'hungry',i:c((25-S.energy)/25)*.6+.4};
+  if(S.rest<20)return{k:'sleepy',i:c((20-S.rest)/20)*.6+.4};
+  if(S.happy<25)return{k:'sad',i:c((25-S.happy)/25)*.6+.4};
+  if(S.mess>=2)return{k:'grumpy',i:S.mess/3};
+  if(S.happy>85&&S.bond>70)return{k:'ecstatic',i:c((S.happy-85)/15)*.5+.5};
+  if(S.happy>65)return{k:'happy',i:c((S.happy-65)/35)*.6+.4};
+  if(S.happy>50&&S.energy>70)return{k:'playful',i:.5};
+  return{k:'content',i:.4}}
+/* map the old one-word expressions to bold faces */
+const EXPR2FACE={love:'love',happy:'happy',eat:'munch',wow:'surprised',stars:'stars',sad:'sad',angry:'grumpy',dizzy:'sick',yawn:'yawn',dash:'proud',inf:'stars',sleep:'asleep',normal:'content',blink:'content'};
+function faceNow(){const t=performance.now();
+  if(FACE.ov&&t<FACE.ovT)return{k:FACE.ov,i:1};
+  if(exprOverride&&exprT>now()&&EXPR2FACE[exprOverride])return{k:EXPR2FACE[exprOverride],i:.9};
+  return moodNow()}
+function faceFx(k,ms=1600){FACE.ov=k;FACE.ovT=performance.now()+ms}
+function setMoodChip(){const el=$('#moodChip');if(!el)return;const m=moodNow();if(S.stage==='egg'){el.style.display='none';return}el.style.display='';
+  const d=MOODS[m.k]||MOODS.content,txt=`${d.e} ${d.n}`;if(el.textContent!==txt){el.textContent=txt;if(FACE.last!==m.k){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}FACE.last=m.k}}
+const FCV=document.createElement('canvas'),FCX=FCV.getContext('2d');
+function paintFace(x,v,sw,sh){const [cx,cy,rx,ry]=v,t=performance.now(),f=faceNow(),k=f.k,I=f.i,col=eyeColor();
+  // blinking
+  if(t>FACE.blinkT){FACE.blinkT=t+rnd(2200,5200);FACE.blink=t}const bl=t-FACE.blink<140&&!['asleep','sleepy','sick','love','stars','proud','yawn'].includes(k);
+  const one=rx<ry*1.22,fw=one?.0:.07,gap=rx*.43,base=ry*.42*(1+.28*I),lw=Math.max(2.2,ry*.2*(1+.25*I));
+  const eyes=one?[[cx+rx*.12,cy]]:[[cx-gap+rx*fw,cy],[cx+gap+rx*fw,cy]];
+  x.save();
+  // wipe the painted eyes: black glass + soft reflection
+  x.beginPath();x.ellipse(cx,cy,rx*.93,ry*.9,0,0,7);x.fillStyle='#05050d';x.fill();x.clip();
+  const gl=x.createLinearGradient(0,cy-ry,0,cy+ry);gl.addColorStop(0,'rgba(255,255,255,.10)');gl.addColorStop(.35,'rgba(255,255,255,0)');x.fillStyle=gl;x.fillRect(cx-rx,cy-ry,rx*2,ry*2);
+  x.strokeStyle=col;x.fillStyle=col;x.lineWidth=lw;x.lineCap='round';x.lineJoin='round';x.shadowColor=col;x.shadowBlur=ry*.35;
+  const bob=Math.sin(t/(170-60*I))*ry*.1*I,S_=s=>s;
+  const arcUp=(ex,ey,s)=>{x.beginPath();x.moveTo(ex-s,ey+s*.45);x.quadraticCurveTo(ex,ey-s*1.1,ex+s,ey+s*.45);x.stroke()};
+  const arcDn=(ex,ey,s)=>{x.beginPath();x.moveTo(ex-s,ey-s*.2);x.quadraticCurveTo(ex,ey+s*.8,ex+s,ey-s*.2);x.stroke()};
+  const heart=(ex,ey,s)=>{x.beginPath();x.moveTo(ex,ey+s*.95);x.bezierCurveTo(ex-s*1.6,ey-s*.1,ex-s*.75,ey-s*1.3,ex,ey-s*.45);x.bezierCurveTo(ex+s*.75,ey-s*1.3,ex+s*1.6,ey-s*.1,ex,ey+s*.95);x.fill()};
+  const star=(ex,ey,s,r0)=>{x.beginPath();for(let i=0;i<10;i++){const a=r0-Math.PI/2+i*Math.PI/5,rr=i%2?s*.42:s;x.lineTo(ex+Math.cos(a)*rr,ey+Math.sin(a)*rr)}x.closePath();x.fill()};
+  const pill=(ex,ey,w,h)=>{x.beginPath();x.ellipse(ex,ey,w,h,0,0,7);x.fill()};
+  const shine=(ex,ey,s)=>{x.save();x.shadowBlur=0;x.fillStyle='#fff';pill(ex-s*.3,ey-s*.38,s*.24,s*.24);pill(ex+s*.25,ey+s*.2,s*.11,s*.11);x.restore()};
+  const blush=()=>{x.save();x.shadowBlur=ry*.4;x.shadowColor='#ff5fb8';x.fillStyle='rgba(255,95,184,.55)';eyes.forEach(([ex,ey])=>pill(ex+(one?rx*.1:0),ey+ry*.55,base*.7,base*.28));x.restore()};
+  const s=base;
+  if(bl){eyes.forEach(([ex,ey])=>{x.beginPath();x.moveTo(ex-s*.8,ey);x.lineTo(ex+s*.8,ey);x.stroke()})}
+  else switch(k){
+   case'ecstatic':case'stars':{const r=t/600;eyes.forEach(([ex,ey],j)=>star(ex,ey+bob,s*(1.25+.25*Math.sin(t/140+j)),r*(j?-1:1)));if(k==='ecstatic')blush();break}
+   case'love':{eyes.forEach(([ex,ey],j)=>{x.fillStyle='#ff5fb8';x.shadowColor='#ff5fb8';heart(ex,ey,s*(1.05+.22*Math.abs(Math.sin(t/260+j*.4))))});blush();break}
+   case'happy':case'munch':case'playful':{const sz=k==='munch'?s*.85:s*1.15;eyes.forEach(([ex,ey],j)=>{if(k==='playful'&&j===1&&!one){x.beginPath();x.moveTo(ex-sz*.8,ey+bob);x.lineTo(ex+sz*.5,ey-sz*.4+bob);x.moveTo(ex-sz*.8,ey+bob);x.lineTo(ex+sz*.5,ey+sz*.4+bob);x.stroke()}else arcUp(ex,ey+bob+(k==='munch'?Math.sin(t/90)*ry*.06:0),sz)});if(I>.7||k==='munch')blush();break}
+   case'proud':{eyes.forEach(([ex,ey])=>arcUp(ex,ey-ry*.05+bob,s*1.3));blush();
+     x.save();x.shadowBlur=ry*.5;x.fillStyle='#fff';const sp=(t/220)%1;star(cx+rx*.62,cy-ry*.45,ry*.22*(1-sp)+ry*.05,t/300);x.restore();break}
+   case'content':{eyes.forEach(([ex,ey])=>{const lx=Math.sin(t/2300)*s*.25;pill(ex+lx,ey,s*.55,s*1.0);shine(ex+lx,ey,s*.85)});break}
+   case'surprised':{eyes.forEach(([ex,ey])=>{x.beginPath();x.arc(ex,ey,s*(1.1+.1*Math.sin(t/60)),0,7);x.stroke();pill(ex,ey,s*.32,s*.32)});break}
+   case'hungry':{const w=Math.sin(t/120)*s*.06;eyes.forEach(([ex,ey])=>{pill(ex,ey,s*(.95+.15*I),s*(1.05+.15*I));x.save();x.shadowBlur=0;x.fillStyle='#fff';pill(ex-s*.35+w,ey-s*.4,s*.32,s*.32);pill(ex+s*.3-w,ey+s*.25,s*.16,s*.16);pill(ex-s*.05,ey+s*.55,s*.1,s*.1);x.restore()});break}
+   case'sleepy':case'yawn':{const dr=.5+.5*Math.sin(t/900);eyes.forEach(([ex,ey])=>{x.beginPath();x.moveTo(ex-s,ey+s*.1*dr);x.quadraticCurveTo(ex,ey+s*(.55+.25*dr),ex+s,ey+s*.1*dr);x.stroke();x.globalAlpha=.6;x.beginPath();x.moveTo(ex-s*.9,ey-s*.25);x.lineTo(ex+s*.9,ey-s*.25+s*.1*dr);x.stroke();x.globalAlpha=1});
+     if(k==='yawn'){x.beginPath();x.ellipse(cx+(one?rx*.1:rx*.05),cy+ry*.5,s*.45,s*.4*(1+.3*Math.sin(t/200)),0,0,7);x.stroke()}break}
+   case'asleep':{eyes.forEach(([ex,ey])=>arcDn(ex,ey,s*.95));break}
+   case'sad':{eyes.forEach(([ex,ey])=>{x.beginPath();x.moveTo(ex-s*.9,ey-s*.15);x.quadraticCurveTo(ex,ey-s*.75,ex+s*.9,ey-s*.15);x.stroke();x.beginPath();x.moveTo(ex-s*.75,ey-s*.95);x.lineTo(ex+s*.6,ey-s*1.25);x.stroke()});
+     const ph=(t/1100)%1;x.save();x.fillStyle='#7fd8ff';x.shadowColor='#7fd8ff';eyes.forEach(([ex,ey],j)=>{const p=(ph+j*.5)%1,ty=ey+s*.2+p*ry*.9;x.globalAlpha=1-p*.6;x.beginPath();x.moveTo(ex+s*.55,ty-s*.6);x.quadraticCurveTo(ex+s*1.05,ty+s*.15,ex+s*.55,ty+s*.4);x.quadraticCurveTo(ex+s*.05,ty+s*.15,ex+s*.55,ty-s*.6);x.fill()});x.restore();break}
+   case'grumpy':{const sh=Math.sin(t/45)*ry*.04*I;eyes.forEach(([ex,ey],j)=>{const d=(j===0&&!one)?1:-1;x.beginPath();x.moveTo(ex-s*.9*d+sh,ey-s*.7);x.lineTo(ex+s*.8*d+sh,ey-s*.1);x.stroke();pill(ex+sh,ey+s*.35,s*.5,s*.3)});break}
+   case'sick':{const r=t/260;eyes.forEach(([ex,ey],j)=>{x.beginPath();for(let a=0;a<12;a+=.3){const rr=s*1.05*a/12,an=a+r*(j?-1:1);x.lineTo(ex+Math.cos(an)*rr,ey+Math.sin(an)*rr)}x.stroke()});break}
+   default:eyes.forEach(([ex,ey])=>pill(ex,ey,s*.42,s*.82));
+  }
+  x.restore()}
+function faceFrame(img,sx,sy,sw,sh,v){if(!v||S.stage==='egg')return null;if(FCV.width!==sw||FCV.height!==sh){FCV.width=sw;FCV.height=sh}else FCX.clearRect(0,0,sw,sh);
+  FCX.drawImage(img,sx,sy,sw,sh,0,0,sw,sh);try{paintFace(FCX,v,sw,sh)}catch(e){}return FCV}
+
 /* ---------- LIVING LAYER: procedural motion on top of sprites ---------- */
 const LV={sx:1,sy:1,vsx:0,vsy:0,rot:0,vr:0,y:0,vy:0,jelly:0,sway:0,look:0,shk:0,t:0,last:0,tip:null,tipS:null,trail:[],pings:[],lines:[],nextPing:0,nextLeaf:0,nextMote:0,step:0,walk:0,cur:'',chew:0,glow:0};
 function lvKick(k,a=1){
@@ -2143,6 +2231,75 @@ function sprLife(){if(!sprMode()||S.asleep||busy||SA.once||SA.pose||S.gone)retur
   if(S.health<25||S.energy<25||S.happy<25)return;
   const LA=[...LIFE_ANIM,'front','turn','scan_a','ping','dig','play_a','wash','interact','land_a'].filter(hasRole),LP=LIFE_POSE.filter(l=>hasRole(l[0]));if(LA.length&&(Math.random()<.7||!LP.length)){sprPlay(pick(LA))}else if(LP.length){const [p,txt]=pick(LP);{sprPose(p,1700);if(txt)say(txt,1200);if(p==='sneeze'||p==='hiccup')tone(p==='sneeze'?300:900,.1,0,'square',.03)}}}
 
+/* ============ PROFILE SHEET: tap the avatar ============ */
+function moodReasons(){const r=[];const add=(c,t)=>{if(c)r.push(t)};
+  add(S.happy>80,'💖 Having a great time');add(S.happy<35,'💔 Feeling ignored');add(S.energy<30,'🍓 Tummy rumbling');add(S.energy>80,'⚡ Full of energy');
+  add(S.rest<30,'🌙 Needs a nap');add(S.health<40,'🩹 Not feeling well');add(S.mess>=2,'🧼 Room is messy');add(S.bond>80,'🤝 Loves you lots');add(now()-S.lastCare<20*60e3,'✨ Just got some attention');
+  return r.slice(0,4)}
+function zoneStatus(k){const z=ZONES[k],l=lvInfo().l,n=S.zones[k]||0,lore=(z.lore||[]).length,got=(S.lore||[]).filter(x=>String(x).startsWith(k)).length;
+  if(l<z.lv)return{t:`🔒 Unlocks at Lv.${z.lv}`,p:0,c:'lock'};if(!n)return{t:'🧭 Ready to explore',p:0,c:'new'};const p=Math.min(1,n/5);return{t:`✅ Explored ×${n}${S.inv[z.relic]?' · relic found':''}`,p,c:'ok'}}
+function progressScore(){const zs=Object.keys(ZONES),games=Object.keys(GAMES2);
+  const parts=[['Regions',zs.filter(k=>S.zones[k]).length/zs.length],['Variants',S.seen.length/8],['Room goals',GOALS.filter(g=>S.room&&S.room.goals[g.id]).length/GOALS.length],
+   ['Game stars',games.reduce((a,g)=>a+((S.gstars||{})[g]||0),0)/(games.length*3)],['Room size',((S.room&&S.room.lv)||1)/(ROOMLV.length-1)],['Level',Math.min(1,lvInfo().l/20)]];
+  return{parts,total:parts.reduce((a,p)=>a+Math.min(1,p[1]),0)/parts.length}}
+let profT=null;
+function openProfile(){if(!S)return;SFX.tap();const L=lvInfo(),v=VAR[curVariant()],m=moodNow(),md=MOODS[m.k]||MOODS.content,sh=shares(),days=S.hatchedAt?Math.max(1,Math.floor((now()-S.hatchedAt)/864e5)+1):0;
+  const bar=(lbl,val,col,txt)=>`<div class="pbar"><span>${lbl}</span><div><i style="width:${clamp(val)}%;background:${col}"></i></div><b>${txt??Math.round(val)+'%'}</b></div>`;
+  const P=progressScore(),ring=(p,c)=>{const C=2*Math.PI*44;return`<svg viewBox="0 0 100 100" class="pring"><circle cx="50" cy="50" r="44" stroke="rgba(255,255,255,.1)"/><circle cx="50" cy="50" r="44" stroke="${c}" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-p)}" transform="rotate(-90 50 50)"/><text x="50" y="50">${Math.round(p*100)}%</text><text x="50" y="66" class="s">complete</text></svg>`};
+  const tile=(e,n,l)=>`<div class="ptile"><span>${e}</span><b>${n}</b><small>${l}</small></div>`;
+  const egg=S.stage==='egg';
+  modal(`<div class="prof">
+   <div class="phead"><div class="pport"><canvas id="pCan" width="300" height="300"></canvas></div>
+    <div class="pid"><h3>${S.name}</h3><div class="ptags"><span style="color:${RCOL[v.r]}">${v.r} · ${v.n}</span><span>${egg?'Egg':stageName()}</span><span>Lv.${L.l}</span>${egg?'':`<span>${buildName()}</span>`}</div>
+    <div class="xp" style="margin-top:6px"><i style="width:${L.x/L.need*100}%"></i><span>XP ${L.x} / ${L.need}</span></div><small class="muted">Gen ${S.gen} · ${egg?'not hatched yet':'day '+days+' together'}</small></div></div>
+   ${egg?'':`<div class="pcard pmood"><div class="pme">${md.e}</div><div style="flex:1"><b class="h" style="font-size:20px">${md.n}</b><div class="pint"><i style="width:${Math.round(m.i*100)}%"></i></div><small class="muted">Mood intensity · state: ${STATES[calState()]?STATES[calState()][0]:calState()}</small>
+    <div class="preason">${moodReasons().map(r=>`<span>${r}</span>`).join('')||'<span>🙂 All good</span>'}</div></div></div>`}
+   <div class="psec">Vitals</div><div class="pcard">${bar('💗 Happy',S.happy,'#ff5fb8')}${bar('🍴 Energy',S.energy,'#ffb13b')}${bar('✨ Health',S.health,'#8dff4a')}${bar('🌙 Rest',S.rest,'#7f8cff')}${bar('🤝 Bond',S.bond,'#ff7a1a')}${bar('🧼 Tidy',100-S.mess/3*100,'#3ff0ff',['Spotless','A bit messy','Messy','Very messy'][S.mess]||'')}</div>
+   <div class="psec">Characteristics</div><div class="pcard">${Object.keys(TRAITS).map(k=>bar(TRAITS[k][1]+' '+TRAITS[k][0],sh[k]*100*2.2,TRAITS[k][2],Math.round(sh[k]*100)+'%')).join('')}
+    <div class="ptraits"><span>Top traits: <b>${topTraits()}</b></span><span>Signals: ${(S.signals||[]).map(s=>ELEM[s]?ELEM[s].e:'◆').join(' ')}</span><span>Calibration: <b>${S.calib.mode}</b></span></div></div>
+   <div class="psec">Regions</div><div class="pzones">${Object.entries(ZONES).map(([k,z])=>{const st=zoneStatus(k);return`<div class="pz ${st.c}" style="--zc:${z.c}"><img src="a/${z.img}.webp" alt="" onerror="this.style.display='none'"><div><b>${z.n}</b><small>${st.t}</small><div class="pzb"><i style="width:${st.p*100}%"></i></div></div></div>`}).join('')}</div>
+   <div class="psec">Progress</div><div class="pcard pdash">${ring(P.total,'#ffc93c')}<div class="pparts">${P.parts.map(([n,p])=>`<div><span>${n}</span><div class="pint"><i style="width:${Math.min(1,p)*100}%"></i></div></div>`).join('')}</div></div>
+   <div class="ptiles">${tile('📅',days,'days together')}${tile('🎮',S.flags.games||0,'games played')}${tile('⚔️',S.flags.wins||0,'battles won')}${tile('🗺️',Object.values(S.zones).reduce((a,b)=>a+b,0),'expeditions')}
+    ${tile('🌙',S.sleeps||0,'bedtimes')}${tile('🧬',S.seen.length+'/8','variants seen')}${tile('🏠',(ROOMLV[(S.room&&S.room.lv)||1]||{}).n||'Attic','room')}${tile('🛋️',S.room?Object.values(S.room.owned).reduce((a,b)=>a+b,0):0,'room items')}</div>
+   <div class="psec">Best scores</div><div class="pcard">${Object.entries(GAMES2).map(([g,d])=>`<div class="pbest"><span>${d.n}</span><b>${(S.bests||{})[g]||0}</b><em>${'★'.repeat((S.gstars||{})[g]||0)}<u>${'★'.repeat(3-((S.gstars||{})[g]||0))}</u></em></div>`).join('')}</div>
+   <div class="btns"><button class="btn cy" id="pShare">📸 Share card</button><button class="btn gh" data-x>Close</button></div></div>`);
+  $('#pShare').onclick=()=>{closeM();share()};
+  clearInterval(profT);const cv=$('#pCan'),cx=cv.getContext('2d');
+  const draw=()=>{if(!document.body.contains(cv)){clearInterval(profT);return}cx.clearRect(0,0,300,300);
+    if(!sprMode()){const im=$('#avImg');if(im.complete&&im.naturalWidth){const s=Math.min(300/im.naturalWidth,300/im.naturalHeight);cx.drawImage(im,150-im.naturalWidth*s/2,150-im.naturalHeight*s/2,im.naturalWidth*s,im.naturalHeight*s)}return}
+    const pk=(PK&&PK.meta.portrait)||'happy',r=res(pk);let img,sx,sy,w,h,fv;
+    if(r&&r.t==='p'){const p=SPR.poses[r.r];img=sprImg.poses;[sx,sy,w,h]=p;fv=SPR.face&&SPR.face.poses[r.r]}else{const a=SPR.anims.idle,f=Math.floor(performance.now()/1000*a.fps)%a.n;img=sprImg.idle;sx=f*a.w;sy=0;w=a.w;h=a.h;fv=SPR.face&&SPR.face.anims.idle[f]}
+    const src=faceFrame(img,sx,sy,w,h,fv)||img,s=Math.min(280/w,280/h),b=1+.02*Math.sin(performance.now()/400);if(src!==img){sx=0;sy=0}
+    cx.save();cx.filter=sprFilter()||'none';cx.translate(150,292);cx.scale(s,s*b);cx.drawImage(src,sx,sy,w,h,-w/2,-h,w,h);cx.restore()};
+  draw();profT=setInterval(draw,60)}
+
+/* ============ BEDTIME: dash round the room switching the lamps off ============ */
+function sconces(){if(!RV.worldW)return[];const L=[{sc:'a',x:RV.imgW*.403/RV.worldW}];if(S.room.lv>=3)L.push({sc:'b',x:(RV.imgW*2-RV.imgW*.403)/RV.worldW});return L.filter(s=>!(S.room.sconceOff||{})[s.sc])}
+function litLamps(){return S.room.items.filter(it=>RI[it.id]&&RI[it.id].fn==='light'&&S.room.lights[it.u]!==0)}
+function lampPt(t){const st=$('#stage').getBoundingClientRect();
+  if(t.sc){const e=$(t.sc==='a'?'#lampGlow':'#lampGlow2').getBoundingClientRect();return{x:e.left-st.left+e.width/2,y:e.top-st.top+e.height/2,w:60,h:60}}
+  const e=document.querySelector(`#roomItems [data-u="${t.it.u}"]`);if(!e)return null;const r=e.getBoundingClientRect();return{x:r.left-st.left+r.width/2,y:r.top-st.top+r.height*.3,w:r.width,h:r.height*.5}}
+function switchOff(t,on){if(t.sc){S.room.sconceOff=S.room.sconceOff||{};if(on)delete S.room.sconceOff[t.sc];else S.room.sconceOff[t.sc]=1}else{S.room.lights[t.it.u]=on?1:0;renderItems()}}
+function lightsOut(done){if(!S.room||!RV.worldW){done();return}
+  const T=[...litLamps().map(it=>({it,x:it.x,y:clamp(RI[it.id].kind==='wall'?.86:it.y+(it.on?.06:.03),.74,.97),hi:RI[it.id].kind==='wall'||!!it.on})),...sconces().map(s=>({sc:s.sc,x:s.x,y:.8,hi:1}))];
+  if(!T.length){done();return}
+  // one clean sweep across the room, starting from the end nearest the pet
+  const order=[...T].sort((a,b)=>a.x-b.x);if(order.length>1&&Math.abs(order[order.length-1].x-RV.PX)<Math.abs(order[0].x-RV.PX))order.reverse();
+  busy=true;S.room.autoOff=order.map(t=>t.sc?{sc:t.sc}:{u:t.it.u});save();
+  closeM&&closeM();faceFx('proud',1600);say(pick(['Lights out! 💡','Bedtime patrol!','Wait, the lamps!']),1400);lvKick('squash',.8);lvKick('lines');SFX.whoosh&&SFX.whoosh();
+  const step=i=>{if(i>=order.length){faceFx('happy',1400);sprPose('happy',700,()=>{busy=false;done()});return}const t=order[i];
+    {const sc=$('#roomScroll'),vw=sc.clientWidth;RV.userT=0;sc.scrollTo({left:clamp(t.x*RV.worldW-vw/2,0,RV.worldW-vw),behavior:'smooth'})}
+    walkTo(t.x+(t.x>RV.PX?-.05:.05),()=>{turnTo(t.x<RV.PX);
+      faceFx('surprised',350);lvKick('squash',.7);
+      setTimeout(()=>{faceFx('proud',1500);if(t.hi){sprPlay('jump')||lvKick('hop',1.4)}else lvKick('hop',.8)},180);
+      setTimeout(()=>{switchOff(t,false);tone(1500,.03,0,'square',.05);tone(380,.07,.05,'square',.04);const p=lampPt(t);if(p){burst('sparks',14,p);burst('ring',1,p)}
+        const fl=$('#mood');if(fl){fl.animate([{filter:'brightness(.4)'},{filter:'none'}],{duration:420,easing:'ease-out'})}
+        say(pick(['Click!','Off! ✨','Nighty night, lamp!','Ta-daa!','*click* 😎']),900);
+        sprPose(pick(['cheer','celebrate','happy']),750,()=>step(i+1))},520)},t.y,true)};
+  setTimeout(()=>step(0),450)}
+function lightsBackOn(){const L=(S.room&&S.room.autoOff)||[];if(!L.length)return;delete S.room.autoOff;
+  L.forEach((o,i)=>setTimeout(()=>{const it=o.u?S.room.items.find(x=>x.u===o.u):null;if(o.u&&!it)return;switchOff(o.sc?{sc:o.sc}:{it},true);tone(900+i*120,.05,0,'triangle',.04)},2200+i*350));save()}
+
 /* ============ SLEEP ENGINE ============ */
 const SLEEP={
  curl:{n:'Cosy Curl',e:'🛏️',d:'A huge yawn, then curls up tight.',u:()=>true,ut:'Starter'},
@@ -2171,7 +2328,7 @@ function lullaby(){[523,659,784,659,587,523,392,523].forEach((f,i)=>tone(f,.5,i*
 function yawnSnd(){for(let i=0;i<10;i++)tone(620-i*32,.12,i*.08,'sine',.03)}
 
 let wakeT=[];
-function startSleep(id,intro=true){
+function startSleep(id,intro=true){if(intro&&!S.asleep&&!busy&&S.room&&(litLamps().length||sconces().length)&&!startSleep.go){startSleep.go=1;lightsOut(()=>{startSleep.go=0;startSleep(id,true)});return}startSleep.go=0;
   stopSleep();wakeT.forEach(clearTimeout);wakeT=[];exprOverride=null;
   if(!id||id==='random'||!SLEEP[id]||!SLEEP[id].u())id=pick(unlockedSleep());
   S.asleep=true;S.sleepStyle=id;if(intro)S.sleeps=(S.sleeps||0)+1;
@@ -2250,7 +2407,7 @@ function sleepTick(){const id=SL.id,r=Math.random(),el=performance.now()-SL.t0;
     if(ev==='talk')say(pick(TALK()),1800);
     if(ev==='smile'){setExpr('happy',1600);burst('hearts',2,headTop())}
     if(ev==='twitch')act('a-wobble')}}
-function wakeUp(auto){if(!S.asleep&&!SL)return;S.asleep=false;stopSleep();$('#heroWrap').style.bottom='';$('#heroWrap').style.zIndex='';placePet(false);if(S.room){const bd=S.room.items.find(i=>i.id==='bed');if(bd)setTimeout(()=>walkTo(bd.x+.1),1600)}renderAll();sprPlay('standup',{then:()=>sprPlay('greet')});
+function wakeUp(auto){if(!S.asleep&&!SL)return;S.asleep=false;lightsBackOn();stopSleep();$('#heroWrap').style.bottom='';$('#heroWrap').style.zIndex='';placePet(false);if(S.room){const bd=S.room.items.find(i=>i.id==='bed');if(bd)setTimeout(()=>walkTo(bd.x+.1),1600)}renderAll();sprPlay('standup',{then:()=>sprPlay('greet')});
   setExpr('sleep',500);wakeT=[setTimeout(()=>setExpr('blink',250),500),setTimeout(()=>setExpr('wow',600),800),setTimeout(()=>setExpr('happy',1800),1400),setTimeout(()=>act('a-hop'),950),setTimeout(()=>burst('sparks',14,headTop()),300)];
   act('a-stretch');
   say(auto?'Good morning! ☀️':(S.rest<60?'Five more minutes… 😪':'Good morning! ☀️'),2000);[523,659,784,1047].forEach((f,i)=>tone(f,.18,.3+i*.1,'sine',.04));save()}
@@ -2299,10 +2456,10 @@ initScene();
 window.addEventListener('resize',()=>{sizeStage()});
 boot();loadSprites();initRoom();initApp();initSync();
 requestAnimationFrame(frame);
-setInterval(lifeTick,900);
+setInterval(lifeTick,900);setInterval(setMoodChip,1500);
 setInterval(check,8000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
-window.__fx={save,openInstall,CLOUD,APP,syncPull,syncPush,openLink,claimCode,transferCode,sky:()=>({h:SKY.hour,k:SKY.moodKey,dk:SKY.dk,sh:SKY.shaft}),dbg:()=>({SA:{once:SA.once,pose:SA.pose,rect:SA.rect},LV:{sx:LV.sx,sy:LV.sy,y:LV.y,rot:LV.rot,sway:LV.sway},pk:PK&&PK.id,spr:document.querySelector("#stage").className,wrap:document.querySelector("#heroWrap").style.cssText,pose:document.querySelector("#heroPose").getAttribute("style"),anims:document.querySelector("#heroPose").getAnimations().length}),get S(){return S},set S(v){S=v},skip(h){S.last-=h*HOUR;if(S.hatchedAt)S.hatchedAt-=h*HOUR;check()},check,go,renderAll,setHero,act,burst,boot};
+window.__fx={openProfile,closeM,faceFrame,get SPR(){return SPR},get sprImg(){return sprImg},save,lightsOut,startSleep,wakeUp,faceFx,moodNow,FACE,get RV(){return RV},openInstall,CLOUD,APP,syncPull,syncPush,openLink,claimCode,transferCode,sky:()=>({h:SKY.hour,k:SKY.moodKey,dk:SKY.dk,sh:SKY.shaft}),dbg:()=>({SA:{once:SA.once,pose:SA.pose,rect:SA.rect},LV:{sx:LV.sx,sy:LV.sy,y:LV.y,rot:LV.rot,sway:LV.sway},pk:PK&&PK.id,spr:document.querySelector("#stage").className,wrap:document.querySelector("#heroWrap").style.cssText,pose:document.querySelector("#heroPose").getAttribute("style"),anims:document.querySelector("#heroPose").getAnimations().length}),get S(){return S},set S(v){S=v},skip(h){S.last-=h*HOUR;if(S.hatchedAt)S.hatchedAt-=h*HOUR;check()},check,go,renderAll,setHero,act,burst,boot};
 })();
 </script>
 </body>
