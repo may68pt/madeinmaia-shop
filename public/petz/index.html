@@ -49,11 +49,42 @@ main{padding-bottom:92px}
 /* STAGE */
 .stage{position:relative;height:420px;border-radius:22px;overflow:hidden;margin-top:10px;border:1.5px solid rgba(160,140,255,.4);box-shadow:0 0 24px rgba(139,92,246,.35)}
 #scene,#fx{position:absolute;inset:0;width:100%;height:100%}
+#scene{z-index:2;pointer-events:none}#night{z-index:3}
+#roomScroll{position:absolute;inset:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:1;overscroll-behavior-x:contain}
+#roomScroll::-webkit-scrollbar{display:none}
+#world{position:relative;height:100%;background:#2a1a3a}
+.roomBg{position:absolute;top:0;left:0;height:100%;width:auto;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.lampGlow{position:absolute;top:26%;width:150px;height:150px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,214,140,.55),transparent 65%);mix-blend-mode:screen;animation:lamp 4s ease-in-out infinite;pointer-events:none;z-index:1}
+@keyframes lamp{50%{opacity:.7;transform:translate(-50%,-50%) scale(.92)}}
+.roomLock{position:absolute;top:0;left:0;height:100%;z-index:70;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;background:repeating-linear-gradient(135deg,rgba(14,10,30,.88) 0 22px,rgba(40,26,60,.88) 22px 44px);border-right:3px dashed rgba(255,201,60,.6);font-family:'Barlow Condensed';font-weight:800;font-size:20px;color:#ffd27a}
+.roomLock small{font-size:13px;color:#fff;opacity:.8}
+.roomLock.east{width:110px;border-right:none;border-left:3px dashed rgba(255,201,60,.6);left:auto}
+.ri{position:absolute;transform:translateX(-50%);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ri img{height:100%;width:auto;display:block;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35));pointer-events:none;user-select:none}
+.ri .glow{position:absolute;left:50%;width:150%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,var(--gc) 0%,transparent 62%);mix-blend-mode:screen;animation:riGlow var(--gs,3.2s) ease-in-out infinite;pointer-events:none;z-index:-1}
+.ri.off .glow{display:none}.ri.off img{filter:brightness(.7) drop-shadow(0 6px 6px rgba(0,0,0,.35))}
+@keyframes riGlow{50%{opacity:.55;transform:translate(-50%,-50%) scale(.9)}}
+.ri.bob img{animation:riBob 3.2s ease-in-out infinite}@keyframes riBob{50%{transform:translateY(-7%)}}
+.ri.wobble img{animation:riWob 2.6s ease-in-out infinite;transform-origin:50% 100%}@keyframes riWob{20%{transform:rotate(-3deg)}40%{transform:rotate(3deg)}60%{transform:rotate(0)}}
+.ri.flick .glow{animation:riFlick 3.5s steps(1) infinite}@keyframes riFlick{0%,60%,64%,100%{opacity:1}62%{opacity:.35}80%{opacity:.75}}
+.editing .ri{outline:2px dashed rgba(255,201,60,.7);outline-offset:3px;border-radius:8px;touch-action:none}
+.editing .ri.sel{outline:3px solid #ffd23f;box-shadow:0 0 18px rgba(255,210,63,.5)}
+.ritb{position:absolute;transform:translateX(-50%);z-index:120;display:flex;gap:6px;background:rgba(14,11,36,.92);border:1.5px solid #ffd23f;border-radius:14px;padding:5px}
+.ritb button{width:38px;height:34px;border-radius:10px;border:none;background:rgba(255,255,255,.1);color:#fff;font-size:17px;cursor:pointer}
+.editBtn{position:absolute;z-index:8;left:10px;bottom:10px;font-family:'Barlow Condensed';font-weight:800;font-size:15px;border-radius:12px;border:1.5px solid rgba(255,201,60,.7);background:rgba(10,8,30,.75);color:#ffd23f;padding:6px 12px;cursor:pointer}
+.editBtn.on{background:#ffd23f;color:#14112e}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rcard{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:6px;text-align:center;display:flex;flex-direction:column;gap:3px}
+.rcard img{width:100%;height:70px;object-fit:contain}
+.rcard b{font-family:'Barlow Condensed';font-weight:800;font-size:14px;line-height:1}
+.rcard small{font-size:11px;color:var(--mute);line-height:1.15}
+.rbtn{font-size:13px!important;padding:5px 8px!important;margin-top:auto}
+.rst{display:flex;gap:10px;align-items:center;margin-top:8px}.rst img{width:64px;height:64px;object-fit:contain}.rst>div{flex:1;display:flex;flex-direction:column;gap:3px}.rst b{font-size:17px}
 #fx{pointer-events:none;z-index:6}
-#aura{position:absolute;left:50%;bottom:12%;width:78%;aspect-ratio:1;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,var(--aura,rgba(63,240,255,.55)) 0%,transparent 62%);mix-blend-mode:screen;animation:auraP 3.4s ease-in-out infinite;z-index:2;pointer-events:none;transition:background .6s,left 2.6s ease-in-out}
+#aura{position:absolute;left:50%;bottom:12%;width:78%;z-index:49;aspect-ratio:1;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,var(--aura,rgba(63,240,255,.55)) 0%,transparent 62%);mix-blend-mode:screen;animation:auraP 3.4s ease-in-out infinite;z-index:2;pointer-events:none;transition:background .6s,left 2.6s ease-in-out}
 #aura.dual{background:radial-gradient(circle at 35% 50%,var(--aura) 0%,transparent 50%),radial-gradient(circle at 65% 50%,var(--aura2) 0%,transparent 50%)}
 @keyframes auraP{50%{opacity:.6;transform:translateX(-50%) scale(1.08)}}
-#heroWrap{position:absolute;bottom:13%;left:50%;width:70%;transform:translateX(-50%);z-index:4;transition:left 2.6s ease-in-out,width .8s;cursor:pointer}
+#heroWrap{position:absolute;bottom:13%;left:50%;width:70%;transform:translateX(-50%);z-index:50;transition:left 2.6s ease-in-out,width .8s;cursor:pointer}
 #heroFlip{transition:none}
 #heroFlip.l{transform:scaleX(-1)}
 #heroBreath{transform-origin:50% 100%;animation:breathe 3.2s ease-in-out infinite}
@@ -345,19 +376,25 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
 <!-- HOME -->
 <section class="page on" id="p-home">
   <div class="stage" id="stage">
-    <canvas id="scene"></canvas>
-    <div id="night"></div><div id="aura"></div>
+    <div id="roomScroll"><div id="world"><img id="roomBg" class="roomBg" src="r/room.webp" alt="" draggable="false"><img id="roomBg2" class="roomBg" src="r/room.webp" alt="" draggable="false" style="transform:scaleX(-1)">
+      <div id="lampGlow" class="lampGlow"></div><div id="lampGlow2" class="lampGlow"></div>
+      <div id="roomLock" class="roomLock"><span>🔒<br>Alcove<br><small>Expand room</small></span></div><div id="roomLock2" class="roomLock east"><span>🚧<br>East wing<br><small>Expand room</small></span></div>
+      <div id="roomItems"></div><div id="aura"></div>
     <div id="heroWrap"><div id="heroFlip"><div id="heroBreath"><div id="heroPose"><div id="heroAct"><img id="hero" alt="Your FÆLIX" draggable="false"><canvas id="spr" width="520" height="380"></canvas><div id="visor"><svg id="eyes" viewBox="0 0 100 50"></svg></div><div id="eggCore"></div><svg id="cracks" viewBox="0 0 100 100" preserveAspectRatio="none"></svg></div></div></div></div><div id="shadow"></div></div>
+    </div></div>
+    <canvas id="scene"></canvas><div id="night"></div>
     <canvas id="fx"></canvas>
     <div id="emote"></div>
     <div id="bubble"></div>
     <div class="chipS" id="stateChip"></div>
     <div class="chipT" id="timeChip"></div>
     <div class="side">
+      <button id="sRoom" aria-label="Room" style="font-size:20px">🛋️</button>
       <button id="sShare" aria-label="Share"><svg class="ico" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
       <button id="sCustom" aria-label="Customise"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></button>
       <button id="sCal" aria-label="Calibrate"><svg class="ico" viewBox="0 0 24 24"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
+    <button id="editBtn" class="editBtn">✏️ Edit</button>
     <div class="tapHint" id="tapHint">Tap the egg to hatch</div>
   </div>
   <div class="stats" id="stats"></div>
@@ -544,7 +581,7 @@ function shares(){const e=eff(),t=Object.values(e).reduce((a,b)=>a+b,0);const o=
 function buildName(){const r=Object.entries(eff()).sort((a,b)=>b[1]-a[1]).slice(0,2).map(e=>e[0]).sort().join('+');return BUILDS[r]||'Mosskeeper'}
 function topTraits(){return Object.entries(eff()).sort((a,b)=>b[1]-a[1]).slice(0,2).map(e=>TRAITS[e[0]][0]).join(' + ')}
 function calState(){if(S.asleep)return'dormant';if(S.calib.mode==='inverse')return'inverted';if(S.calib.mode==='hybrid')return'hybrid';if(S.overUntil>now())return'overclocked';return'aligned'}
-function addXP(n){if(S.overUntil>now())n=Math.round(n*1.5);const b=lvInfo().l;S.xp+=n;const a=lvInfo().l;if(a>b){S.coins+=20*(a-b);if(Math.floor(a/5)>Math.floor(b/5))S.gems++;levelUp(a)}}
+function addXP(n){if(S.overUntil>now())n=Math.round(n*1.5);n=Math.round(n*(1+comfort()/400));const b=lvInfo().l;S.xp+=n;const a=lvInfo().l;if(a>b){S.coins+=20*(a-b);if(Math.floor(a/5)>Math.floor(b/5))S.gems++;levelUp(a)}}
 function addLog(icon,title,text){S.log.unshift({t:now(),i:icon,ti:title,tx:text});S.log=S.log.slice(0,60)}
 function dayN(){return S.hatchedAt?Math.floor((now()-S.hatchedAt)/864e5)+1:0}
 
@@ -555,8 +592,8 @@ function simulate(){
   dt=Math.min(dt,24*45);
   const inv=S.calib.mode==='inverse',eq=S.eq;
   while(dt>0){const h=Math.min(dt,.25);dt-=h;
-    if(S.asleep){S.energy-=2*h;S.happy-=.7*h;S.rest+=22*h;S.bond-=.3*h;S.health-=S.mess*1.4*h;if(S.rest>=100){S.asleep=false;S.wokeUp=true}}
-    else{S.energy-=6*h*(eq.core?.75:1);S.happy-=4.4*h*(inv?1.3:1);S.rest-=4*h;S.bond-=1.1*h;
+    if(S.asleep){S.energy-=2*h;S.happy-=.7*h;S.rest+=22*h*(1+.15*(tierOf('bed')-1>0?tierOf('bed')-1:0));S.bond-=.3*h;S.health-=S.mess*1.4*h;if(S.rest>=100){S.asleep=false;S.wokeUp=true}}
+    else{S.energy-=6*h*(eq.core?.75:1);S.happy-=4.4*h*(inv?1.3:1)*(1-.08*tierOf('aqua'));S.rest-=4*h;S.bond-=1.1*h*(1-comfort()/250);
       S.messT+=h;if(S.messT>=3.5){S.messT=0;if(S.mess<3)S.messNew=1;S.mess=Math.min(3,S.mess+1)}
       S.health-=(.8+S.mess*3.4)*h*(eq.armour?.75:1);
       if(eq.biomods)S.happy+=S.plants.length*.4*h;
@@ -610,7 +647,7 @@ function setHero(force){
   const k=heroKey();const img=$('#hero');
   if(k!==curHeroKey||force){img.src='a/'+k+'.webp';curHeroKey=k}
   img.style.filter=heroFilter(k)+' drop-shadow(0 6px 14px rgba(0,0,0,.45))';
-  const sm=sprMode();$('#stage').classList.toggle('sprmode',sm);$('#heroWrap').style.width=(sm?{baby:76,juv:89,teen:100,adult:108}[stageKey()]:heroWidth())+'%';$('#spr').style.filter=sprFilter()+' drop-shadow(0 6px 12px rgba(0,0,0,.45))';
+  const sm=sprMode();$('#stage').classList.toggle('sprmode',sm);$('#heroWrap').dataset.pct=(sm?{baby:56,juv:64,teen:72,adult:78}[stageKey()]:heroWidth()*.8);if(typeof placePet==='function'&&S.room)placePet(false);$('#spr').style.filter=sprFilter()+' drop-shadow(0 6px 12px rgba(0,0,0,.45))';
   const vz=VISOR[k],vs=$('#visor');
   if(vz){const [x,y,w,h]=vz,ix=.13,iy=.2;vs.style.display='block';vs.style.left=(x+w*ix)*100+'%';vs.style.top=(y+h*iy)*100+'%';vs.style.width=w*(1-2*ix)*100+'%';vs.style.height=h*(1-2*iy)*100+'%'}else vs.style.display='none';
   if(sm)vs.style.display='none';
@@ -695,8 +732,8 @@ function initScene(){const r=rng(5);stars=Array.from({length:60},()=>({x:r(),y:r
 const MUSH=[[.08,.86,'#ff5f9e',1],[.14,.88,'#ff9a3c',.7],[.9,.85,'#ff5f9e',.9],[.95,.88,'#ffc93c',.6],[.82,.9,'#ff9a3c',.55]];
 function drawScene(t){
   if(!SW)return;const key=S.look+tod()+SW;if(key!==sceneKey||!staticLayer){staticLayer=buildStatic(S.look,tod());sceneKey=key}
-  sx.setTransform(1,0,0,1,0,0);sx.drawImage(staticLayer,0,0);sx.setTransform(DPR,0,0,DPR,0,0);
-  const W=SW,H=SH;
+  sx.setTransform(1,0,0,1,0,0);if(ROOM)sx.clearRect(0,0,sc.width,sc.height);else sx.drawImage(staticLayer,0,0);sx.setTransform(DPR,0,0,DPR,0,0);
+  const W=SW,H=SH;if(!ROOM){
   for(const s of stars){const a=.35+.65*Math.abs(Math.sin(t/900+s.p));sx.fillStyle=`rgba(255,255,255,${a})`;sx.fillRect(s.x*W,s.y*H,s.s,s.s)}
   // waterfall
   const wx=W*.84,wy=H*.51,wh=H*.29;const wg=sx.createLinearGradient(0,wy,0,wy+wh);wg.addColorStop(0,'rgba(140,240,255,.85)');wg.addColorStop(1,'rgba(140,240,255,.1)');sx.fillStyle=wg;sx.fillRect(wx-7,wy,14,wh);
@@ -709,6 +746,7 @@ function drawScene(t){
   // plants
   sx.font='28px serif';sx.textAlign='center';sx.textBaseline='bottom';
   S.plants.slice(0,3).forEach((p,i)=>{const X=W*[.24,.76,.36][i],Y=H*[.86,.87,.9][i];sx.save();sx.translate(X,Y);sx.rotate(Math.sin(t/800+i)*.08);sx.shadowColor='#8dff4a';sx.shadowBlur=10;sx.fillText(ITEMS[p][1],0,0);sx.restore()});
+  }
   // mess
   for(let i=0;i<S.mess;i++){const X=W*(.62+i*.08),Y=H*.89;sx.fillStyle='#5d3a7a';sx.beginPath();sx.ellipse(X,Y,12,6,0,0,7);sx.fill();sx.fillStyle='#7a4fa0';sx.beginPath();sx.arc(X-2,Y-5,6,0,7);sx.fill();
     sx.strokeStyle='rgba(166,255,60,.6)';sx.lineWidth=1.5;sx.beginPath();const o=Math.sin(t/300+i)*3;sx.moveTo(X-4,Y-14);sx.quadraticCurveTo(X-8+o,Y-20,X-4,Y-26);sx.moveTo(X+4,Y-14);sx.quadraticCurveTo(X+o,Y-20,X+4,Y-26);sx.stroke()}
@@ -784,7 +822,8 @@ function frame(ts){
 function lifeTick(){
   if(S.stage==='egg'||S.gone)return;
   if(Math.random()<.18&&!blink){blink=true;drawEyes();setTimeout(()=>{blink=false;drawEyes()},140)}
-  if(!S.asleep&&!busy&&!SA.once&&!SA.pose&&Math.random()<.12){const nw=rnd(-14,14);if(Math.abs(nw-wander)>4)SA.walkUntil=performance.now()+2500;dirL=nw<wander;wander=nw;$('#heroWrap').style.left=`calc(50% + ${wander}%)`;$('#aura').style.left=`calc(50% + ${wander}%)`;turnTo(dirL);lookX=0}
+  if(S.room&&!roomWander()){}
+  if(S.room)followPet(false);
   if(S.asleep&&SL)sleepTick();
   if(S.health<25&&Math.random()<.2)burst('sparks',2,heroPoint(.7,.15));
   if(!S.asleep&&!busy&&Math.random()<.05)act(pick(['a-hop','a-wobble']));
@@ -822,7 +861,7 @@ function renderMissions(){ensureMissions();const ms=S.missions;$('#mDate').textC
 function isStreak(){const y=new Date(Date.now()-864e5);return S.reward.day===dayKey(y)}
 function claimReward(){if(S.stage==='egg'){toast('Hatch your egg first');return}
   let n=isStreak()?S.reward.n%5+1:1;S.reward={day:dayKey(),n};const R=[[()=>{S.coins+=50},'+50 ⚡'],[()=>{S.inv.shard=(S.inv.shard||0)+2},'+2 🔷'],[()=>{S.coins+=100},'+100 ⚡'],[()=>{S.gems+=1},'+1 💎'],[()=>{S.gems+=2;const r=pick(['chip','tablet','coin','lens']);S.inv[r]=(S.inv[r]||0)+1},'+2 💎 + a relic']];
-  R[n-1][0]();SFX.yay();burst('confetti',30);sprPose('celebrate',2000);toast('Daily reward: '+R[n-1][1]);save();renderAll()}
+  R[n-1][0]();if(n===5&&S.room){const it=roomDrop('shop');if(it)setTimeout(()=>grantItem(it,'daily reward'),600)}SFX.yay();burst('confetti',30);sprPose('celebrate',2000);toast('Daily reward: '+R[n-1][1]);save();renderAll()}
 
 /* ============ CARE ============ */
 const CARE=[['feed','Feed','🍴','Energy','energy','linear-gradient(90deg,#ff5f9e,#ff9a3c)'],['clean','Clean','✨','Health','health','linear-gradient(90deg,#8b5cf6,#c05cf6)'],['play','Play','🎮','Happiness','happy','linear-gradient(90deg,#ff3f8a,#ff7a5a)'],
@@ -855,7 +894,7 @@ function renderPlayOld(){$('#orbitBest').textContent=S.best?`Best: ${S.best} · 
   $$('[data-g]').forEach(g=>g.onclick=()=>{if(!canPlay())return;({catch:openCatch,sync:openSync,battle:openBattle})[g.dataset.g]()})}
 function canPlay(){if(S.stage==='egg'){SFX.no();toast('Hatch your egg first');return false}if(S.gone)return false;if(S.asleep){SFX.no();toast(S.name+' is sleeping 💤');return false}if(S.rest<10){SFX.no();toast(S.name+' is too tired. Let it rest.');return false}return true}
 $('#featOrbit').onclick=()=>startGame('orbit');
-function gameDone(coins,xp,label){const inv=S.calib.mode==='inverse';if(inv)coins=Math.round(coins*1.5);S.coins+=coins;addXP(xp);S.happy=clamp(S.happy+8);S.rest=clamp(S.rest-7);S.energy=clamp(S.energy-5);mission('game');save();renderAll();return`+${coins} ⚡${inv?' (inverse bonus)':''} · +${xp} XP`}
+function gameDone(coins,xp,label){const inv=S.calib.mode==='inverse';if(inv)coins=Math.round(coins*1.5);coins=Math.round(coins*(1+.1*tierOf('game')));S.flags.games=(S.flags.games||0)+1;S.coins+=coins;addXP(xp);S.happy=clamp(S.happy+8);S.rest=clamp(S.rest-7);S.energy=clamp(S.energy-5);mission('game');save();renderAll();return`+${coins} ⚡${inv?' (inverse bonus)':''} · +${xp} XP`}
 
 /* --- Orbit Dash --- */
 let OD=null;
@@ -994,6 +1033,7 @@ function expedition(k){
     else{S.happy=clamp(S.happy-4);logs.push('⚡ A glitch drone spooked it!');SFX.no()}
     room++;if(room<3)draw();else fin()};
   const fin=()=>{for(const it in found)S.inv[it]=(S.inv[it]||0)+found[it];S.zones[k]=(S.zones[k]||0)+1;S.base[z.trait]+=2;S.base.cosmic+=.5;mission('explore');
+    if(S.room&&(first||Math.random()<.25)){const it=roomDrop('explore')||roomDrop('shop');if(it){logs.push(`📦 Found a crate: ${RI[it].n}! (in your Room storage)`);setTimeout(()=>grantItem(it,'found in '+z.n),400)}}
     if(first){addLog('🗺️','New zone: '+z.n,`${S.name} explored ${z.n} for the first time.`);const lk={forest:'forest',crystal:'crystal',cosmic:'cosmic'}[k];if(lk&&!S.looks.includes(lk)){S.looks.push(lk);logs.push(`🎨 New look unlocked: ${LOOKS[lk][0]}`)}}
     const res=`+${15+(first?20:0)} XP`;setTimeout(()=>sprPose('land',1100,()=>sprPose(Object.keys(found).length?'celebrate':'happy',1600)),200);addXP(15+(first?20:0));save();
     $('#modal').innerHTML=`<h3>Back from ${z.n}</h3><div class="log">${logs.join('<br>')}</div><p class="h" style="font-size:24px;margin-top:10px">${Object.entries(found).map(([i,n])=>ITEMS[i][1]+'×'+n).join(' ')||''}</p><p>${res}</p><div class="btns"><button class="btn" data-x>Done</button></div>`;bindX();renderAll()};
@@ -1066,13 +1106,13 @@ function renderCust(){
   const k=heroKey();$('#custImg').src='a/'+k+'.webp';$('#custImg').style.filter=heroFilter(k);
   $$('#custTabs button').forEach(b=>b.classList.toggle('on',b.dataset.c===custTab));
   let h='';
-  if(custTab==='modules')h=`<div class="sec"><h2 style="font-size:18px">Modules & bio-implants</h2><small>Craft from materials</small></div><div class="invg">`+Object.entries(MODS).map(([k,[n,e,d,rc]])=>{const own=S.mods[k],eq=S.eq[k],can=Object.entries(rc).every(([i,q])=>(S.inv[i]||0)>=q);
+  if(custTab==='modules')h=`<div class="sec"><h2 style="font-size:18px">Modules & bio-implants</h2><small>Craft from materials</small></div><div class="invg">`+Object.entries(MODS).map(([k,[n,e,d,rc]])=>{rc=rcq(rc);const own=S.mods[k],eq=S.eq[k],can=Object.entries(rc).every(([i,q])=>(S.inv[i]||0)>=q);
      return`<div class="it ${eq?'eq':''} ${own||can?'':'lock'}" data-mod="${k}"><span class="e">${e}</span><small>${n}</small>${own?(eq?'<span class="tag">ON</span>':''):`<span class="tag">${Object.entries(rc).map(([i,q])=>ITEMS[i][1]+q).join('')}</span>`}</div>`}).join('')+`</div><p class="muted" id="modInfo" style="margin-top:8px">Tap a module to craft or equip it.</p>`;
   if(custTab==='looks')h=`<div class="invg" style="margin-top:10px">`+Object.entries(LOOKS).map(([k,[n,how,cost]])=>{const own=S.looks.includes(k);return`<div class="it ${S.look===k?'eq':''} ${own?'':'lock'}" data-look="${k}"><span class="e">${{ruins:'🏛️',forest:'🌳',crystal:'💎',cosmic:'🪐'}[k]}</span><small>${n}</small>${own?'':`<span class="tag">${cost}⚡</span>`}</div>`}).join('')+`</div><p class="muted" style="margin-top:8px">Scenes unlock when you explore their zone, or buy them with ⚡.</p>`;
   if(custTab==='plants'){const owned=Object.keys(ITEMS).filter(i=>ITEMS[i][2]==='plant'&&(S.inv[i]||0)>0);h=`<div class="invg" style="margin-top:10px">`+(owned.length?owned.map(p=>`<div class="it ${S.plants.includes(p)?'eq':''}" data-plant="${p}"><span class="e">${ITEMS[p][1]}</span><small>${ITEMS[p][0]}</small><b>${S.inv[p]}</b></div>`).join(''):'')+`</div><p class="muted" style="margin-top:8px">${owned.length?'Place up to 3 plants in your scene.':'Find plants while exploring and in Crystal Catch.'}${S.eq.biomods?' Biomods active: plants boost happiness.':''}</p>`}
   if(custTab==='effects')h=`<div class="invg" style="margin-top:10px">`+Object.entries(EFFECTS).map(([k,[n,e,cost]])=>{const own=S.effects.includes(k);return`<div class="it ${S.effect===k?'eq':''} ${own?'':'lock'}" data-fx="${k}"><span class="e">${e||'⭕'}</span><small>${n}</small>${own?'':`<span class="tag">${k==='glitch'?cost+'💎':cost+'⚡'}</span>`}</div>`}).join('')+`</div>`;
   $('#custList').innerHTML=h;
-  $$('[data-mod]').forEach(d=>d.onclick=()=>{const k=d.dataset.mod,[n,e,desc,rc]=MODS[k];
+  $$('[data-mod]').forEach(d=>d.onclick=()=>{const k=d.dataset.mod;let [n,e,desc,rc]=MODS[k];rc=rcq(rc);
     if(S.mods[k]){S.eq[k]=!S.eq[k];SFX.tap();mission('craft');toast(`${n} ${S.eq[k]?'equipped':'removed'} · ${desc}`)}
     else{if(!Object.entries(rc).every(([i,q])=>(S.inv[i]||0)>=q)){SFX.no();$('#modInfo').textContent=`${n}: ${desc}. Needs ${Object.entries(rc).map(([i,q])=>q+'× '+ITEMS[i][0]).join(', ')}.`;return}
       for(const i in rc)S.inv[i]-=rc[i];S.mods[k]=true;S.eq[k]=true;S.base.tech+=2;SFX.yay();sprPose('upgrade',1800,()=>sprPose('powerup',1200));toast(`${e} ${n} crafted! ${desc}`);mission('craft');addLog('🔧','Module crafted',`${S.name} got new ${n}.`);addXP(20)}
@@ -1150,7 +1190,7 @@ async function share(){if(S.stage==='egg'){toast('Hatch it first!');return}
 function rescue(){const o={...S};delete o.mute;
   modal(`<h3>🛟 Rescue code</h3><p class="muted">Save this somewhere safe. It brings ${S.name} back on any phone.</p><textarea readonly id="rcOut">FAELIX-${enc(o)}</textarea><div class="btns"><button class="btn cy" id="rcCopy">Copy code</button></div><p class="muted">Bring one back here (replaces the one on this phone):</p><textarea id="rcIn" placeholder="Paste rescue code"></textarea><div class="btns"><button class="btn" id="rcLoad">Bring it back</button><button class="btn gh" data-x>Close</button></div>`);
   $('#rcCopy').onclick=()=>copy($('#rcOut').value);
-  $('#rcLoad').onclick=()=>{try{const o=dec($('#rcIn').value.trim().replace(/^FAELIX-/,''));if(!o.base||!o.variant)throw 0;const mute=S.mute;S=Object.assign(newEgg(),o,{mute});save();closeM();boot();SFX.yay();toast(S.name+' is back!')}catch(e){SFX.no();toast('That code doesn\'t look right')}}}
+  $('#rcLoad').onclick=()=>{try{const o=dec($('#rcIn').value.trim().replace(/^FAELIX-/,''));if(!o.base||!o.variant)throw 0;const mute=S.mute,rm=S.room;S=Object.assign(newEgg(),o,{mute});if(!S.room)S.room=rm;save();closeM();boot();SFX.yay();toast(S.name+' is back!')}catch(e){SFX.no();toast('That code doesn\'t look right')}}}
 function askName(){modal(`<h3>Name your FÆLIX</h3><input class="tx" id="nm" maxlength="12" value="${S.name}"><div class="btns"><button class="btn" id="nmOk">That's the one</button><button class="btn gh" id="nmR">🎲 Another</button></div>`,true);
   $('#nmR').onclick=()=>{SFX.tap();$('#nm').value=pick(NAMES)};$('#nmOk').onclick=()=>{const v=$('#nm').value.trim();if(v)S.name=v.slice(0,12);save();closeM();SFX.ok();say(`Hi, I'm ${S.name}! 👋`,2400);setExpr('love',2000);burst('hearts',8);renderAll()}}
 
@@ -1489,6 +1529,188 @@ function renderPlay(){const B=S.bests||{},ST=S.gstars||{};const stars=id=>[0,1,2
     return`<div class="panel gcard" data-g="${id}" style="${lock?'opacity:.55':''}"><div class="gi" style="background:${g.bg};overflow:hidden">${th?`<img src="${th}" style="width:118%;margin-top:6px">`:'🎮'}</div><div><b>${g.n}${lock?' 🔒':''}</b><span>${g.d}</span><div style="font-size:15px;margin-top:2px">${stars(id)} <span class="muted">${B[id]?'Best '+B[id]+(g.unit||''):''}</span></div></div><div class="rt">${g.rw}<br>›</div></div>`}).join('');
   $$('[data-g]').forEach(c=>c.onclick=()=>startGame(c.dataset.g))}
 
+
+/* ============ ROOM: scrollable, expandable, furnished ============ */
+const RDIM={};let ROOM=true;
+const RI={
+ // stations (tiers 1-5)
+ bed:{n:'Bed',st:1,h:[.22,.3,.36,.5,.58],cat:'station',fn:'bed',d:'Better sleep: +15% rest per tier'},
+ game:{n:'Game Station',st:1,h:[.3,.42,.5,.58,.64],cat:'station',fn:'game',anim:{glow:'#5ad8ff',gy:.25,flick:1},d:'+10% mini-game coins per tier'},
+ work:{n:'Workbench',st:1,h:[.28,.44,.46,.54,.6],cat:'station',fn:'work',anim:{glow:'#ffcf7a',gy:.3},d:'-10% crafting cost per tier · tinker for materials'},
+ aqua:{n:'Aquarium',st:1,h:[.2,.22,.3,.46,.52],cat:'station',fn:'aqua',anim:{glow:'#5af0ff',gy:.45,bubbles:1},d:'-8% happiness drain per tier · feed the fish'},
+ // collectibles
+ ufo_lamp:{n:'UFO Lava Lamp',h:.21,cat:'decor',comfort:6,src:'goal',anim:{glow:'#ff6fd0',gy:.6,gs:'2.4s'},fn:'light'},
+ mushroom_lamp:{n:'Mushroom Lamp',h:.21,cat:'decor',comfort:5,src:'goal',anim:{glow:'#ffb35a',gy:.4},fn:'light'},
+ crystal:{n:'Floating Crystal',h:.22,cat:'decor',comfort:6,src:'goal',anim:{glow:'#6ff0ff',gy:.35,bob:1,sparkle:1}},
+ swirl_orb:{n:'Swirl Orb',h:.16,cat:'decor',comfort:5,src:'goal',anim:{glow:'#ffb13b',gy:.4,bob:1}},
+ hoverboard:{n:'Hoverboard',h:.11,cat:'decor',comfort:4,src:'goal',anim:{glow:'#5af0ff',gy:.7,bob:1}},
+ incubator:{n:'Egg Incubator',h:.21,cat:'decor',comfort:4,src:'goal',anim:{glow:'#ffe08a',gy:.5,wobble:1}},
+ astro_helmet:{n:'Astro Helmet',h:.17,cat:'decor',comfort:4,src:'goal',anim:{glow:'#8b8dff',gy:.4}},
+ astro_figures:{n:'Astro Figures',h:.13,cat:'decor',comfort:3,src:'goal'},
+ pixel_dragon:{n:'Pixel Dragon',h:.18,cat:'decor',comfort:4,src:'goal'},
+ mini_arcade:{n:'Mini Arcade',h:.16,cat:'decor',comfort:4,src:'goal',anim:{glow:'#ff5f8a',gy:.4,flick:1},fn:'screen'},
+ boombox:{n:'Boombox',h:.15,cat:'decor',comfort:4,src:'goal',fn:'music'},
+ // furniture
+ rug:{n:'Round Rug',h:.1,cat:'furniture',comfort:3,src:'shop',price:60,kind:'rug'},
+ beanbag:{n:'Beanbag',h:.18,cat:'furniture',comfort:4,src:'shop',price:90,fn:'sit'},
+ armchair:{n:'Armchair',h:.24,cat:'furniture',comfort:4,src:'shop',price:160,fn:'sit'},
+ sofa:{n:'Sofa',h:.26,cat:'furniture',comfort:6,src:'shop',price:240,fn:'sit'},
+ cushion_bed:{n:'Cushion Bed',h:.1,cat:'furniture',comfort:3,src:'explore',fn:'sit'},
+ sofa_bed:{n:'Lounger',h:.16,cat:'furniture',comfort:3,src:'shop',price:120,fn:'sit'},
+ dome_bed:{n:'Dome Nook',h:.22,cat:'furniture',comfort:4,src:'shop',price:180,fn:'sit',anim:{glow:'#5af0ff',gy:.3}},
+ pod_bed:{n:'Pod Nook',h:.26,cat:'furniture',comfort:5,src:'explore',fn:'sit',anim:{glow:'#5af0ff',gy:.4}},
+ nightstand:{n:'Nightstand',h:.2,cat:'furniture',comfort:2,src:'shop',price:70,anim:{glow:'#ffb35a',gy:.1},fn:'light'},
+ bookshelf:{n:'Bookshelf',h:.3,cat:'furniture',comfort:4,src:'shop',price:180},
+ cabinet:{n:'Cabinet',h:.34,cat:'furniture',comfort:2,src:'shop',price:140},
+ drawers:{n:'Drawers',h:.22,cat:'furniture',comfort:2,src:'shop',price:110},
+ wall_shelf:{n:'Wall Shelf',h:.12,cat:'furniture',comfort:2,src:'explore',kind:'wall',anim:{glow:'#5af0ff',gy:.4}},
+ tool_desk:{n:'Tool Desk',h:.3,cat:'furniture',comfort:2,src:'shop',price:200},
+ retro_desk:{n:'Retro Desk',h:.3,cat:'furniture',comfort:3,src:'shop',price:220,anim:{glow:'#5af0ff',gy:.25,flick:1},fn:'screen'},
+ tool_cart:{n:'Tool Cart',h:.25,cat:'furniture',comfort:2,src:'explore'},
+ toolbox:{n:'Toolbox',h:.12,cat:'furniture',comfort:1,src:'explore'},
+ robo_dock:{n:'Robo Dock',h:.25,cat:'furniture',comfort:3,src:'explore',anim:{glow:'#5af0ff',gy:.25}},
+ // tech
+ flat_tv:{n:'Flat TV',h:.24,cat:'tech',comfort:4,src:'shop',price:260,anim:{glow:'#4fd8ff',gy:.3,flick:1},fn:'screen'},
+ arcade:{n:'Arcade Cabinet',h:.36,cat:'tech',comfort:5,src:'shop',price:320,anim:{glow:'#5affd0',gy:.3,flick:1},fn:'screen'},
+ holo:{n:'Holo Projector',h:.2,cat:'tech',comfort:5,src:'explore',anim:{glow:'#5af0ff',gy:.35,bob:1,sparkle:1}},
+ radio:{n:'Retro Radio',h:.14,cat:'tech',comfort:3,src:'explore',fn:'music'},
+ record:{n:'Record Player',h:.14,cat:'tech',comfort:4,src:'shop',price:180,fn:'music'},
+ speaker:{n:'Neon Speaker',h:.14,cat:'tech',comfort:4,src:'shop',price:150,fn:'music',anim:{glow:'#5af0ff',gy:.5}}
+};
+const STATIONS=['bed','game','work','aqua'];
+const STCOST=[null,[0,{}],[260,{leaf:2,scrap:2}],[520,{shard:3,scrap:3}],[900,{shard:4,spore:3,scrap:4},1],[1500,{shard:6,spore:5,scrap:6},2]];
+const STBUY={bed:0,game:150,work:120,aqua:100};
+const GOALS=[
+ {id:'hatch',d:'Hatch your egg',it:'incubator',c:()=>S.stage!=='egg'},
+ {id:'lv5',d:'Reach level 5',it:'mushroom_lamp',c:()=>lvInfo().l>=5},
+ {id:'lv10',d:'Reach level 10',it:'crystal',c:()=>lvInfo().l>=10},
+ {id:'orbit',d:'Score 900 in Orbit Dash',it:'ufo_lamp',c:()=>(S.bests||{}).orbit>=900},
+ {id:'run',d:'Score 1200 in Ruins Run',it:'hoverboard',c:()=>(S.bests||{}).run>=1200},
+ {id:'catch',d:'Score 800 in Crystal Catch',it:'swirl_orb',c:()=>(S.bests||{}).catch>=800},
+ {id:'sync',d:'Get 3 stars in Signal Sync',it:'boombox',c:()=>((S.gstars||{}).sync||0)>=3},
+ {id:'wins',d:'Win 5 friendly battles',it:'astro_helmet',c:()=>(S.flags.wins||0)>=5},
+ {id:'expl',d:'Complete 5 expeditions',it:'astro_figures',c:()=>Object.values(S.zones||{}).reduce((a,b)=>a+b,0)>=5},
+ {id:'bond',d:'Reach 90% bond',it:'pixel_dragon',c:()=>S.bond>=90},
+ {id:'games',d:'Play 20 mini-games',it:'mini_arcade',c:()=>(S.flags.games||0)>=20}
+];
+const ROOMLV=[null,{n:'Attic'},{n:'Attic + Alcove',cost:400,mat:{scrap:4,shard:3},lv:3},{n:'East Wing',cost:1200,gems:2,mat:{shard:6,scrap:6},lv:6}];
+function ensureRoom(){if(S.room)return;S.room={lv:1,owned:{bed:1,rug:1},tiers:{bed:1,game:0,work:0,aqua:0},items:[{u:1,id:'bed',x:.62,y:.86},{u:2,id:'rug',x:.55,y:.93}],goals:{},next:3,cool:{},music:0,lights:{}}}
+const riImg=id=>'r/'+(RI[id].st?id+Math.max(1,S.room.tiers[id]||1):id)+'.webp';
+const riH=it=>{const d=RI[it.id];return RI[it.id].st?d.h[Math.max(1,S.room.tiers[it.id]||1)-1]:d.h};
+function comfort(){if(!S.room)return 0;let c=0;for(const it of S.room.items){const d=RI[it.id];c+=d.st?(S.room.tiers[it.id]||1)*4:(d.comfort||1)}return Math.min(100,c)}
+const tierOf=k=>S.room?S.room.tiers[k]||0:0;
+const placed=k=>S.room&&S.room.items.some(i=>i.id===k);
+let RV={H:420,imgW:840,worldW:840,edit:false,sel:null,userT:0,PX:.5,drag:null};
+function roomBounds(){return{min:S.room.lv>=2?.04:.38*RV.imgW/RV.worldW+.03,max:.97}}
+function layoutRoom(){const st=$('#stage');RV.H=st.clientHeight||420;const a=RDIM.room?RDIM.room[0]/RDIM.room[1]:2;RV.imgW=Math.round(RV.H*a);RV.worldW=RV.imgW*(S.room.lv>=3?2:1);
+  const w=$('#world');w.style.width=RV.worldW+'px';
+  $('#roomBg2').style.display=S.room.lv>=3?'block':'none';$('#roomBg2').style.left=RV.imgW+'px';
+  const lk=$('#roomLock');lk.style.display=S.room.lv<2?'flex':'none';lk.style.width=RV.imgW*.37+'px';
+  const lk2=$('#roomLock2');lk2.style.display=S.room.lv<3?'flex':'none';lk2.style.left=RV.worldW+'px';
+  $('#lampGlow2').style.display=S.room.lv>=3?'block':'none';$('#lampGlow2').style.left=(RV.imgW*2-RV.imgW*.403)+'px';$('#lampGlow').style.left=RV.imgW*.403+'px';
+  renderItems();placePet(true)}
+function renderItems(){const box=$('#roomItems');box.innerHTML='';
+  for(const it of S.room.items){const d=RI[it.id];if(!d)continue;const h=riH(it)*1.18*RV.H*(.82+.32*(it.y-.66)/.3);const el=document.createElement('div');
+    const an=d.anim||{};el.className='ri'+(an.bob?' bob':'')+(an.wobble?' wobble':'')+(an.flick?' flick':'')+(RV.sel===it.u?' sel':'')+((d.fn==='light'&&S.room.lights[it.u]===0)?' off':'');
+    el.dataset.u=it.u;el.style.left=it.x*RV.worldW+'px';el.style.top=(it.y*RV.H-h)+'px';el.style.height=h+'px';
+    el.style.zIndex=d.kind==='rug'?2:it.y<.87?Math.round(10+it.y*30):Math.round(60+it.y*30);
+    el.innerHTML=`${an.glow?`<div class="glow" style="--gc:${an.glow}88;top:${(an.gy||.4)*100}%;${an.gs?'--gs:'+an.gs:''}"></div>`:''}<img src="${riImg(it.id)}" style="${it.flip?'transform:scaleX(-1)':''}" draggable="false" alt="${d.n}">`;
+    box.appendChild(el)}
+  if(RV.edit&&RV.sel){const it=S.room.items.find(i=>i.u===RV.sel);if(it){const tb=document.createElement('div');tb.className='ritb';const h=riH(it)*RV.H;tb.style.left=it.x*RV.worldW+'px';tb.style.top=Math.max(4,it.y*RV.H-h*1.05-46)+'px';
+    tb.innerHTML=`<button data-rt="flip">↔</button><button data-rt="store">📦</button><button data-rt="ok">✓</button>`;box.appendChild(tb)}}
+  $('#stage').classList.toggle('editing',RV.edit)}
+function placePet(instant){const b=roomBounds();RV.PX=clamp(RV.PX,b.min,b.max);const hw=$('#heroWrap'),au=$('#aura');if(instant){hw.style.transition='none';au.style.transition='none'}
+  hw.style.left=RV.PX*RV.worldW+'px';au.style.left=RV.PX*RV.worldW+'px';const pw=$('#stage').clientWidth;hw.style.width=(parseFloat(hw.dataset.pct||100)/100*pw)+'px';au.style.width=pw*.78+'px';
+  if(instant)requestAnimationFrame(()=>{hw.style.transition='';au.style.transition=''})}
+function walkTo(x,cb){const b=roomBounds();x=clamp(x,b.min,b.max);const dist=Math.abs(x-RV.PX)*RV.worldW,dur=Math.max(.35,dist/110);if(dist<6){cb&&cb();return}
+  turnTo(x<RV.PX);const hw=$('#heroWrap'),au=$('#aura');setTimeout(()=>{hw.style.transition=`left ${dur}s linear, width .8s`;au.style.transition=`left ${dur}s linear`;RV.PX=x;hw.style.left=x*RV.worldW+'px';au.style.left=x*RV.worldW+'px';SA.walkUntil=performance.now()+dur*1000;
+    if(cb)setTimeout(cb,dur*1000+60)},S.asleep?0:230)}
+function followPet(force){const sc=$('#roomScroll');if(!force&&performance.now()-RV.userT<4000)return;const vw=sc.clientWidth,px=RV.PX*RV.worldW,tgt=clamp(px-vw/2,0,RV.worldW-vw);if(force||Math.abs(sc.scrollLeft-tgt)>vw*.28)sc.scrollTo({left:tgt,behavior:force?'auto':'smooth'})}
+function roomWander(){if(S.asleep||busy||SA.once||SA.pose||RV.edit)return false;if(Math.random()>.14)return true;
+  const b=roomBounds(),vis=S.room.items.filter(i=>RI[i.id]&&RI[i.id].fn&&RI[i.id].kind!=='rug');
+  if(vis.length&&Math.random()<.3){const it=pick(vis);walkTo(it.x+(Math.random()<.5?-1:1)*.06,()=>{sprPose(pick(['curious','happy','sitidle']),1500)})}
+  else walkTo(clamp(RV.PX+rnd(-.25,.25),b.min,b.max));return true}
+/* item loops (particles) */
+function roomFx(){if(!S.room||document.hidden)return;const st=$('#stage').getBoundingClientRect();
+  for(const it of S.room.items){const d=RI[it.id];if(!d)continue;const an=d.anim||{};const el=document.querySelector(`.ri[data-u="${it.u}"]`);if(!el)continue;const r=el.getBoundingClientRect();if(r.right<st.left||r.left>st.right)continue;
+    const X=r.left-st.left,Y=r.top-st.top;
+    if((an.bubbles||it.id==='aqua')&&Math.random()<.5)spawn('bubble',X+r.width*rnd(.25,.75),Y+r.height*rnd(.35,.7),{vy:rnd(-.9,-.4),vx:rnd(-.2,.2),g:0,s:rnd(.3,.7),dec:.02});
+    if(an.sparkle&&Math.random()<.35)spawn('spark',X+r.width*rnd(.2,.8),Y+r.height*rnd(.1,.6),{vy:rnd(-.5,0),vx:0,g:0,col:an.glow,s:rnd(.3,.6),dec:.03});
+    if(d.fn==='music'&&S.room.music===it.u&&Math.random()<.6)spawn('note',X+r.width*rnd(.2,.8),Y+r.height*.2,{vy:rnd(-1.4,-.7),vx:rnd(-.6,.6),e:pick(['♪','♫','♬']),col:pick(['#ff6fd0','#5af0ff','#ffd23f']),dec:.012,s:rnd(.8,1.2),g:0})}
+  if(S.room.music&&!S.asleep&&!SA.once&&!SA.pose&&Math.random()<.15)sprPose(pick(['dance','happy','party']),1400)}
+let musT=null;function playTune(){clearInterval(musT);const notes=[523,659,784,659,587,698,880,698,523,659,784,1047];let i=0;musT=setInterval(()=>{if(!S.room.music){clearInterval(musT);return}tone(notes[i%notes.length],.18,0,'triangle',.035);if(i%2===0)tone(130,.12,0,'sine',.04);i++},300)}
+/* interactions */
+function cool(k,min){const t=S.room.cool[k]||0;if(now()-t<min*60e3)return Math.ceil((min*60e3-(now()-t))/60e3);S.room.cool[k]=now();return 0}
+function useItem(it){const d=RI[it.id];if(S.stage==='egg'){toast('Hatch your egg first');return}if(S.asleep&&d.fn!=='bed'){say('Zzz…');return}
+  const go=cb=>walkTo(it.x+(it.x>RV.PX?-.07:.07),cb);
+  switch(d.fn){
+   case'bed':go(()=>openBed());break;
+   case'game':go(()=>{sprPose('happy',800);setTimeout(()=>go2('play'),700)});break;
+   case'work':go(()=>{const w=cool('work',240);if(w){toast(`Workbench cooling down · ${w} min`);sprPose('think',1200);return}const k=pick(['shard','leaf','scrap','spore']),n=1+Math.floor(tierOf('work')/2);S.inv[k]=(S.inv[k]||0)+n;sprPose('upgrade',1600);burst('sparks',14,heroPoint(.5,.4));SFX.coin();toast(`Tinkered: +${n} ${ITEMS[k][1]} ${ITEMS[k][0]}`);save();renderAll()});break;
+   case'aqua':go(()=>{const w=cool('aqua',120);if(w){toast(`The fish are full · ${w} min`);return}const g=6+tierOf('aqua')*2;S.happy=clamp(S.happy+g);sprPose('curious',1500);for(let i=0;i<14;i++)setTimeout(()=>roomFx(),i*80);SFX.ok();toast(`Fed the fish · +${g} happiness`);save();renderAll()});break;
+   case'screen':go(()=>{const w=cool('scr'+it.u,30);sprPose(pick(['dance','happy','think']),1800);if(!w){S.happy=clamp(S.happy+4);toast('Screen time! +4 happiness');save();renderAll()}});break;
+   case'music':S.room.music=S.room.music===it.u?0:it.u;if(S.room.music){playTune();toast('♪ Music on');go(()=>sprPose('dance',2000))}else toast('Music off');save();break;
+   case'light':S.room.lights[it.u]=S.room.lights[it.u]===0?1:0;tone(S.room.lights[it.u]?900:500,.06);renderItems();save();break;
+   case'sit':go(()=>{sprPlay('sitdown');S.rest=clamp(S.rest+2);toast('Comfy! 🛋️')});break;
+   default:go(()=>{sprPose('curious',1400);say('Ooh!',900)})}}
+function go2(t){go(t)}
+/* edit / drag */
+function roomPointer(){const box=$('#roomItems'),sc=$('#roomScroll');
+  box.addEventListener('pointerdown',e=>{const tb=e.target.closest('[data-rt]');if(tb){e.stopPropagation();const it=S.room.items.find(i=>i.u===RV.sel);if(!it)return;const a=tb.dataset.rt;
+      if(a==='flip')it.flip=!it.flip;if(a==='store'){S.room.items=S.room.items.filter(i=>i!==it);RV.sel=null;if(S.room.music===it.u)S.room.music=0;toast('Stored')}if(a==='ok')RV.sel=null;SFX.tap();save();renderItems();return}
+    const el=e.target.closest('.ri');if(!el)return;const it=S.room.items.find(i=>i.u===+el.dataset.u);if(!it)return;
+    if(!RV.edit){e.stopPropagation();RV.tap={it,x:e.clientX,y:e.clientY};return}
+    e.preventDefault();e.stopPropagation();sc.style.overflowX='hidden';RV.drag={it,sx:e.clientX,sy:e.clientY,ox:it.x,oy:it.y,moved:false};el.setPointerCapture&&el.setPointerCapture(e.pointerId)});
+  box.addEventListener('pointermove',e=>{const D=RV.drag;if(!D)return;const dx=e.clientX-D.sx,dy=e.clientY-D.sy;if(Math.abs(dx)+Math.abs(dy)>6)D.moved=true;if(!D.moved)return;
+    const d=RI[D.it.id],b=roomBounds(),yr=d.kind==='wall'?[.3,.56]:d.kind==='rug'?[.72,.98]:[.68,.98];D.it.x=clamp(D.ox+dx/RV.worldW,b.min,b.max);D.it.y=clamp(D.oy+dy/RV.H,yr[0],yr[1]);RV.sel=D.it.u;renderItems()});
+  const up=e=>{const D=RV.drag;if(D){RV.drag=null;sc.style.overflowX='';if(!D.moved){RV.sel=RV.sel===D.it.u?null:D.it.u}SFX.tap();save();renderItems()}
+    const T=RV.tap;if(T){RV.tap=null;if(Math.abs(e.clientX-T.x)+Math.abs(e.clientY-T.y)<8)useItem(T.it)}};
+  box.addEventListener('pointerup',up);box.addEventListener('pointercancel',()=>{RV.drag=null;RV.tap=null;sc.style.overflowX=''});
+  ['pointerdown','wheel','touchstart'].forEach(ev=>sc.addEventListener(ev,()=>{RV.userT=performance.now()},{passive:true}));
+  $('#roomLock').onclick=()=>openRoom('up');$('#roomLock2').onclick=()=>openRoom('up');
+  $('#editBtn').onclick=()=>{if(S.stage==='egg'){toast('Hatch your egg first');return}RV.edit=!RV.edit;RV.sel=null;SFX.tap();$('#editBtn').classList.toggle('on',RV.edit);$('#editBtn').innerHTML=RV.edit?'✓ Done':'✏️ Edit';if(RV.edit)toast('Drag furniture · tap to flip or store');renderItems()};
+  $('#sRoom').onclick=()=>{SFX.tap();openRoom('store')}}
+/* panel */
+function roomCount(id){return (S.room.owned[id]||0)-S.room.items.filter(i=>i.id===id).length}
+function grantItem(id,why){S.room.owned[id]=(S.room.owned[id]||0)+1;toast(`🎁 New for your room: ${RI[id].n}`);addLog('🎁','New room item',`${S.name} got ${RI[id].n}${why?' — '+why:''}.`);SFX.yay();save()}
+function roomDrop(pool){const c=Object.keys(RI).filter(k=>!RI[k].st&&(pool==='any'||RI[k].src===pool)&&!(S.room.owned[k]));return c.length?pick(c):null}
+function dealsToday(){const r=rng(dayKey().split('-').reduce((a,b)=>a*31+ +b,11));const shop=Object.keys(RI).filter(k=>RI[k].src==='shop');const out=[];while(out.length<3&&out.length<shop.length){const k=shop[(r()*shop.length)|0];if(!out.includes(k))out.push(k)}return out}
+function priceOf(k){return dealsToday().includes(k)?Math.round(RI[k].price*.7):RI[k].price}
+let roomTab='store';
+function openRoom(tab){if(tab)roomTab=tab;ensureRoom();const c=comfort(),xpb=Math.round(c/4);
+  const tabs=[['store','📦 Storage'],['shop','🛒 Shop'],['up','⬆️ Upgrades'],['goals','🏆 Goals']];
+  const card=(k,extra,btn)=>`<div class="rcard"><img src="${riImg(k)}" alt=""><b>${RI[k].n}</b><small>${extra||''}</small>${btn||''}</div>`;
+  let body='';
+  if(roomTab==='store'){const ids=Object.keys(S.room.owned).filter(k=>roomCount(k)>0);
+    body=ids.length?`<div class="rgrid">${ids.map(k=>card(k,(RI[k].st?'Tier '+tierOf(k)+' · ':'')+'+'+(RI[k].st?tierOf(k)*4:RI[k].comfort||1)+' comfort'+(roomCount(k)>1?' · ×'+roomCount(k):''),`<button class="btn cy rbtn" data-place="${k}">Place</button>`)).join('')}</div>`:'<p class="muted">Everything you own is in the room. Get more from the Shop, Goals, daily rewards and expeditions.</p>'}
+  if(roomTab==='shop'){const deals=dealsToday();const ks=Object.keys(RI).filter(k=>RI[k].src==='shop').sort((a,b)=>(deals.includes(b)-deals.includes(a))||RI[a].price-RI[b].price);
+    body=`<p class="muted">Daily deals −30% · new deals every day</p><div class="rgrid">${ks.map(k=>{const own=S.room.owned[k],p=priceOf(k),deal=deals.includes(k);return card(k,deal?`<s>${RI[k].price}</s> <b style="color:var(--lm)">${p} ⚡ DEAL</b>`:`${p} ⚡ · +${RI[k].comfort} comfort`,own?'<button class="btn gh rbtn" disabled>Owned</button>':`<button class="btn rbtn" data-buy="${k}" ${S.coins<p?'disabled':''}>Buy</button>`)}).join('')}</div>
+     <p class="muted" style="margin-top:10px">Rare items (pods, holo projector, radio, shelves…) are only found on expeditions.</p>`}
+  if(roomTab==='up'){const L=S.room.lv,N=ROOMLV[L+1];
+    body=`<div class="panel" style="margin-bottom:10px"><b class="h" style="font-size:18px">🏠 Room · Level ${L}: ${ROOMLV[L].n}</b>${N?`<p class="muted">Next: <b style="color:#fff">${N.n}</b> — ${L===1?'opens the left alcove':'adds a whole new wing to scroll into'}. Needs pet level ${N.lv}.</p><p>${N.cost} ⚡${N.gems?' · '+N.gems+' 💎':''} · ${Object.entries(N.mat).map(([m,q])=>ITEMS[m][1]+'×'+q+(S.inv[m]>=q?'':' ❌')).join(' ')}</p><button class="btn o" id="roomUp">Expand room</button>`:'<p class="muted">Fully expanded!</p>'}</div>
+     ${STATIONS.map(k=>{const t=tierOf(k),nx=t+1,c=STCOST[nx];const own=t>0;
+      if(!own)return`<div class="panel rst"><img src="r/${k}1.webp"><div><b class="h">${RI[k].n}</b><small class="muted">${RI[k].d}</small><button class="btn cy rbtn" data-sbuy="${k}" ${S.coins<STBUY[k]?'disabled':''}>Get · ${STBUY[k]} ⚡</button></div></div>`;
+      return`<div class="panel rst"><img src="r/${k}${t}.webp"><div><b class="h">${RI[k].n} · Tier ${t}/5</b><small class="muted">${RI[k].d}</small>${c?`<small>Next: ${c[0]} ⚡ · ${Object.entries(c[1]).map(([m,q])=>ITEMS[m][1]+'×'+q).join(' ')}${c[2]?' · room lv '+(c[2]+1):''} · pet lv ${nx*2}</small><button class="btn rbtn" data-sup="${k}">Upgrade → ${nx}</button>`:'<small style="color:var(--lm)">Max tier ✨</small>'}</div>${c?`<img src="r/${k}${nx}.webp" style="opacity:.5">`:''}</div>`}).join('')}`}
+  if(roomTab==='goals'){body=`<div>${GOALS.map(g=>{const done=S.room.goals[g.id];return`<div class="mrow ${done?'done':''}"><div class="ck">${done?'✓':''}</div><img src="r/${g.it}.webp" style="width:38px;height:38px;object-fit:contain"><div class="t">${g.d}<br><small class="muted">${RI[g.it].n}</small></div></div>`}).join('')}</div>`}
+  modal(`<h3>🛋️ ${S.name}'s Room</h3><div class="row" style="gap:8px"><span class="muted" style="white-space:nowrap">Comfort ${c}</span><div class="bar" style="flex:1"><i style="width:${c}%;background:linear-gradient(90deg,#ffb35a,#ff6fd0)"></i></div><span class="muted">+${xpb}% XP</span></div>
+    <div class="tabs">${tabs.map(([k,l])=>`<button data-rtab="${k}" class="${roomTab===k?'on':''}">${l}</button>`).join('')}</div>${body}<div class="btns"><button class="btn gh" data-x>Close</button></div>`);
+  $$('[data-rtab]').forEach(b=>b.onclick=()=>{SFX.tap();openRoom(b.dataset.rtab)});
+  $$('[data-place]').forEach(b=>b.onclick=()=>{const k=b.dataset.place,sc=$('#roomScroll'),bd=roomBounds();const x=clamp((sc.scrollLeft+sc.clientWidth/2)/RV.worldW,bd.min,bd.max);const u=S.room.next++;
+    S.room.items.push({u,id:k,x,y:RI[k].kind==='wall'?.45:RI[k].kind==='rug'?.94:.88});RV.edit=true;RV.sel=u;$('#editBtn').classList.add('on');$('#editBtn').innerHTML='✓ Done';closeM();go('home');save();renderItems();SFX.ok();toast('Drag it where you like')});
+  $$('[data-buy]').forEach(b=>b.onclick=()=>{const k=b.dataset.buy,p=priceOf(k);if(S.coins<p)return;S.coins-=p;S.room.owned[k]=1;SFX.coin();toast(`${RI[k].n} bought!`);save();renderAll();openRoom('store')});
+  $$('[data-sbuy]').forEach(b=>b.onclick=()=>{const k=b.dataset.sbuy;if(S.coins<STBUY[k])return;S.coins-=STBUY[k];S.room.tiers[k]=1;S.room.owned[k]=1;SFX.yay();toast(`${RI[k].n} unlocked!`);save();renderAll();openRoom('store')});
+  $$('[data-sup]').forEach(b=>b.onclick=()=>{const k=b.dataset.sup,nx=tierOf(k)+1,c=STCOST[nx];
+    if(lvInfo().l<nx*2){SFX.no();toast(`Needs pet level ${nx*2}`);return}if(c[2]&&S.room.lv<c[2]+1){SFX.no();toast(`Expand your room first`);return}
+    if(S.coins<c[0]||Object.entries(c[1]).some(([m,q])=>(S.inv[m]||0)<q)){SFX.no();toast('Not enough ⚡ or materials');return}
+    S.coins-=c[0];for(const m in c[1])S.inv[m]-=c[1][m];S.room.tiers[k]=nx;SFX.level();burst('confetti',30);toast(`${RI[k].n} → Tier ${nx}!`);addLog('⬆️','Room upgrade',`${RI[k].n} reached tier ${nx}.`);save();layoutRoom();renderAll();openRoom('up')});
+  const ru=$('#roomUp');if(ru)ru.onclick=()=>{const N=ROOMLV[S.room.lv+1];if(lvInfo().l<N.lv){SFX.no();toast(`Needs pet level ${N.lv}`);return}
+    if(S.coins<N.cost||(N.gems&&S.gems<N.gems)||Object.entries(N.mat).some(([m,q])=>(S.inv[m]||0)<q)){SFX.no();toast('Not enough resources');return}
+    S.coins-=N.cost;if(N.gems)S.gems-=N.gems;for(const m in N.mat)S.inv[m]-=N.mat[m];S.room.lv++;SFX.level();burst('confetti',40);toast(`🏠 Room expanded: ${N.n}!`);addLog('🏠','Room expanded',`The room grew: ${N.n}.`);save();closeM();go('home');layoutRoom();setTimeout(()=>{$('#roomScroll').scrollTo({left:S.room.lv>=3?RV.imgW*.8:0,behavior:'smooth'})},300);renderAll()}}
+function checkGoals(){if(!S.room)return;for(const g of GOALS){if(!S.room.goals[g.id]&&g.c()){S.room.goals[g.id]=1;grantItem(g.it,g.d)}}}
+async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch('r/dims.json')).json())}catch(e){}RDIM.room=[1774,887];roomPointer();layoutRoom();followPet(true);
+  addEventListener('resize',()=>{layoutRoom();followPet(true)});setInterval(roomFx,450)}
+
+const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 /* ============ SPRITE ENGINE ============ */
 let SPR=null,sprImg={},PK=null,ROSTER=[];const PACKS={};
 /* ===== CHARACTER PACKS: roles + fallback chains ===== */
@@ -1636,7 +1858,7 @@ function startSleep(id,intro=true){
   if(!id||id==='random'||!SLEEP[id]||!SLEEP[id].u())id=pick(unlockedSleep());
   S.asleep=true;S.sleepStyle=id;if(intro)S.sleeps=(S.sleeps||0)+1;
   SL={id,t0:performance.now(),timers:[],anims:[],data:{},eye:'sleep',intro,mic:now()+6000};
-  wander=0;$('#heroWrap').style.left='50%';$('#aura').style.left='50%';
+  if(S.room){const bd=S.room.items.find(i=>i.id==='bed');if(bd){RV.PX=bd.x;placePet(true);const h=riH(bd)*1.18*RV.H;$('#heroWrap').style.bottom=((1-bd.y)*RV.H+h*.22)+'px';$('#heroWrap').style.zIndex=99;setTimeout(()=>followPet(true),50)}}
   SINTRO[id](intro);if(intro)sprPlay(sleepMap(id).in);
   if(intro)addLog('🌙','Bedtime',`${S.name} went to sleep: ${SLEEP[id].n}.`);
   save();renderAll();
@@ -1710,7 +1932,7 @@ function sleepTick(){const id=SL.id,r=Math.random(),el=performance.now()-SL.t0;
     if(ev==='talk')say(pick(TALK()),1800);
     if(ev==='smile'){setExpr('happy',1600);burst('hearts',2,headTop())}
     if(ev==='twitch')act('a-wobble')}}
-function wakeUp(auto){if(!S.asleep&&!SL)return;S.asleep=false;stopSleep();renderAll();sprPlay('standup',{then:()=>sprPlay('greet')});
+function wakeUp(auto){if(!S.asleep&&!SL)return;S.asleep=false;stopSleep();$('#heroWrap').style.bottom='';$('#heroWrap').style.zIndex='';if(S.room){const bd=S.room.items.find(i=>i.id==='bed');if(bd)setTimeout(()=>walkTo(bd.x+.1),1600)}renderAll();sprPlay('standup',{then:()=>sprPlay('greet')});
   setExpr('sleep',500);wakeT=[setTimeout(()=>setExpr('blink',250),500),setTimeout(()=>setExpr('wow',600),800),setTimeout(()=>setExpr('happy',1800),1400),setTimeout(()=>act('a-hop'),950),setTimeout(()=>burst('sparks',14,headTop()),300)];
   act('a-stretch');
   say(auto?'Good morning! ☀️':(S.rest<60?'Five more minutes… 😪':'Good morning! ☀️'),2000);[523,659,784,1047].forEach((f,i)=>tone(f,.18,.3+i*.1,'sine',.04));save()}
@@ -1732,11 +1954,11 @@ $$('[data-tab]').forEach(t=>t.onclick=()=>{SFX.tap();go(t.dataset.tab)});
 function renderAll(){renderHUD();setHero();renderStats();renderQuick();renderChips();renderMissions();
   const on=id=>$('#p-'+id).classList.contains('on');if(on('care'))renderCare();if(on('play'))renderPlay();if(on('explore'))renderExplore();if(on('lab'))renderLab();if(on('journal'))renderJournal();drawEyes()}
 let lastNeedK='';
-function check(){
+function check(){try{checkGoals()}catch(e){}
   simulate();ensureMissions();
   if(S.gone&&!S.goneShown){S.goneShown=true;SFX.sad();act('a-evolve');$('#hero').style.opacity='.2';
     modal(`<h3>Signal lost 🛸</h3><p>${S.name} drifted back to the ruins it came from.</p><p>But its core left something behind… a new egg is glowing.</p><div class="btns"><button class="btn" id="newEgg">Care for the new egg</button></div>`,true);
-    $('#newEgg').onclick=()=>{S=newEgg(S);save();closeM();$('#hero').style.opacity='1';boot()};return}
+    $('#newEgg').onclick=()=>{const rm=S.room;S=newEgg(S);S.room=rm;save();closeM();$('#hero').style.opacity='1';boot()};return}
   const st=stageKey();
   if(S.stage!=='egg'&&!S.gone&&st!==S.lastStage){S.lastStage=st;addLog('✨','Evolved!',`${S.name} grew into a ${stageName()}.`);SFX.level();act('a-evolve');burst('ring',1);burst('confetti',40);setTimeout(()=>{setHero(true)},600);
     modal(`<h3>✨ ${S.name} evolved!</h3><img src="a/${heroKey()}.webp" style="width:100%;max-height:260px;object-fit:contain;filter:${heroFilter(heroKey())} drop-shadow(0 0 20px ${VAR[curVariant()].eye})"><p style="text-align:center">${S.name} is now a <b>${stageName()}</b> on the <b>${buildName()} Path</b>.</p><div class="btns"><button class="btn" data-x>Amazing</button></div>`)}
@@ -1750,14 +1972,14 @@ function check(){
   document.title=(n.length?'(!) ':'')+(S.stage==='egg'?'FÆLIX — Scan to hatch':`${S.name} · FÆLIX`);
   save();renderAll();
 }
-function boot(){stopSleep();curHeroKey='';busy=false;$('#cracks').innerHTML='';$('#hero').style.opacity='1';sizeStage();setHero(true);check();
+function boot(){ensureRoom();if(RV.H&&$('#world').style.width)layoutRoom();stopSleep();curHeroKey='';busy=false;$('#cracks').innerHTML='';$('#hero').style.opacity='1';sizeStage();setHero(true);check();
   const gap=now()-(S.lastSeen||now());S.lastSeen=now();if(S.stage!=='egg'&&!S.asleep&&!S.gone)setTimeout(()=>{sprPlay(gap>6*HOUR?'missed':'greet');if(gap>6*HOUR){say('I missed you! 💖',2200);burst('hearts',8)}else say(pick(['Hi! 👋','Hey you!','You\'re back!']),1600)},700)}
 
 /* ============ start ============ */
 S=store.get();if(!S||S.v!==3||!S.base)S=newEgg();
 initScene();
 window.addEventListener('resize',()=>{sizeStage()});
-boot();loadSprites();
+boot();loadSprites();initRoom();
 requestAnimationFrame(frame);
 setInterval(lifeTick,900);
 setInterval(check,8000);
