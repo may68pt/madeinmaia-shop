@@ -385,13 +385,13 @@ input.tx{font-size:20px;font-family:'Barlow Condensed';font-weight:800}
 .pparts{flex:1;font-size:12px}.pparts span{color:var(--mute)}
 .ptiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.ptile{text-align:center;padding:8px 2px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line)}.ptile span{font-size:20px;display:block}.ptile b{display:block;font-family:'Barlow Condensed';font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ptile small{font-size:10px;color:var(--mute);line-height:1.1;display:block}
 .pbest{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:14px}.pbest span{flex:1}.pbest b{font-family:'Barlow Condensed';font-size:17px}.pbest em{font-style:normal;color:#ffc93c;width:46px;text-align:right}.pbest u{text-decoration:none;color:rgba(255,255,255,.18)}
-.appBar{position:sticky;top:0;z-index:12;display:none;align-items:center;gap:8px;padding:8px 12px;background:linear-gradient(90deg,#ff7a1a,#ff3fd8);color:#fff;font-family:'Barlow Condensed';font-weight:700;font-size:15px}
-.appBar.on{display:flex}.appBar span{flex:1}.appBar button{border:none;border-radius:10px;padding:5px 12px;font-family:'Barlow Condensed';font-weight:800;font-size:15px;cursor:pointer;background:#fff;color:#14112e}
+.appBar{position:fixed;left:10px;right:10px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:40;max-width:520px;margin:0 auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 18px rgba(255,63,216,.35);display:none;align-items:center;gap:8px;padding:10px 12px;background:linear-gradient(90deg,#ff7a1a,#ff3fd8);color:#fff;font-family:'Barlow Condensed';font-weight:700;font-size:15px}
+.appBar.on{display:flex;animation:abUp .45s cubic-bezier(.2,1.4,.4,1)}@keyframes abUp{from{transform:translateY(140%);opacity:0}}#appBar.on+#updBar.on{bottom:calc(140px + env(safe-area-inset-bottom))}.appBar span{flex:1}.appBar button{border:none;border-radius:10px;padding:5px 12px;font-family:'Barlow Condensed';font-weight:800;font-size:15px;cursor:pointer;background:#fff;color:#14112e}
 .appBar #appBarX{background:transparent;color:#fff;padding:4px 6px}.appBar.upd{background:linear-gradient(90deg,#3f9dff,#3ff0ff);color:#14112e}
 .isteps{counter-reset:st;padding:0;margin:10px 0;list-style:none}.isteps li{counter-increment:st;display:flex;gap:10px;align-items:center;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--line);margin-top:7px;line-height:1.25}
 .isteps li::before{content:counter(st);flex:none;width:26px;height:26px;border-radius:50%;background:var(--or);color:#14112e;font-family:'Barlow Condensed';font-weight:800;display:flex;align-items:center;justify-content:center}
 .isteps svg{width:24px;height:24px;flex:none;stroke:#3fa0ff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
-.toast{position:fixed;left:50%;top:12px;transform:translateX(-50%) translateY(-90px);z-index:60;background:linear-gradient(90deg,#2a2466,#1a1640);border:1.5px solid var(--cy);box-shadow:0 0 18px rgba(63,240,255,.5);color:#fff;font-family:'Barlow Condensed';font-weight:800;font-size:16px;padding:8px 16px;border-radius:14px;transition:transform .3s cubic-bezier(.3,1.4,.5,1);max-width:92vw;text-align:center}
+.toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top));transform:translateX(-50%) translateY(-90px);z-index:60;background:linear-gradient(90deg,#2a2466,#1a1640);border:1.5px solid var(--cy);box-shadow:0 0 18px rgba(63,240,255,.5);color:#fff;font-family:'Barlow Condensed';font-weight:800;font-size:16px;padding:8px 16px;border-radius:14px;transition:transform .3s cubic-bezier(.3,1.4,.5,1);max-width:92vw;text-align:center}
 .toast.on{transform:translateX(-50%) translateY(0)}
 .lvup{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;pointer-events:none}
 .lvup.on{display:flex}
@@ -1953,7 +1953,7 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='202611021641';
+const FAELIX_BUILD='202611021652';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
