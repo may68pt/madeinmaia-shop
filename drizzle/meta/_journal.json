@@ -176,6 +176,13 @@
       "when": 1793490000000,
       "tag": "0024_outrunning_scores",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793632000000,
+      "tag": "0025_petz_saves",
+      "breakpoints": true
     }
   ]
 }

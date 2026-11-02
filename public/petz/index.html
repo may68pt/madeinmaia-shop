@@ -366,6 +366,8 @@ input.tx{font-size:20px;font-family:'Barlow Condensed';font-weight:800}
 #game canvas{touch-action:none;max-width:520px;width:100%;height:100%}
 #game .gh{position:absolute;top:calc(10px + env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:space-between;align-items:center;max-width:520px;margin:0 auto;padding:0 14px;font-family:'Barlow Condensed';font-weight:800;font-size:20px;pointer-events:none}
 #game .gx{pointer-events:auto;background:rgba(255,255,255,.1);border:1px solid var(--line);color:#fff;border-radius:10px;padding:4px 10px;font-family:'Barlow Condensed';font-weight:800;cursor:pointer}
+.haveOne{position:absolute;left:50%;bottom:calc(4% + 34px);transform:translateX(-50%);z-index:6;display:none;border:1px solid var(--line);background:rgba(12,10,31,.7);color:#cfc8ff;border-radius:99px;padding:6px 14px;font-family:'Barlow Condensed';font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
+.isEgg .haveOne{display:block}
 .appBar{position:sticky;top:0;z-index:12;display:none;align-items:center;gap:8px;padding:8px 12px;background:linear-gradient(90deg,#ff7a1a,#ff3fd8);color:#fff;font-family:'Barlow Condensed';font-weight:700;font-size:15px}
 .appBar.on{display:flex}.appBar span{flex:1}.appBar button{border:none;border-radius:10px;padding:5px 12px;font-family:'Barlow Condensed';font-weight:800;font-size:15px;cursor:pointer;background:#fff;color:#14112e}
 .appBar #appBarX{background:transparent;color:#fff;padding:4px 6px}.appBar.upd{background:linear-gradient(90deg,#3f9dff,#3ff0ff);color:#14112e}
@@ -414,7 +416,7 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
       <button id="sCal" aria-label="Calibrate"><svg class="ico" viewBox="0 0 24 24"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
     <button id="editBtn" class="editBtn">✏️ Edit</button>
-    <div class="tapHint" id="tapHint">Tap the egg to hatch</div>
+    <div class="tapHint" id="tapHint">Tap the egg to hatch</div><button class="haveOne" id="haveOne">Already have a FÆLIX? Link it ☁️</button>
   </div>
   <div class="stats" id="stats"></div>
   <div class="quick" id="quick"></div>
@@ -585,7 +587,7 @@ function newEgg(parent){
    missions:null,reward:parent?parent.reward:{day:'',n:0},best:parent?parent.best:0,overUntil:0,lastCare:0,lastStage:'egg',
    gen:parent?parent.gen+1:1,mute:parent?parent.mute:false,redeemed:parent?parent.redeemed:[],flags:{}};
 }
-function save(){store.set(S)}
+function save(){if(typeof CLOUD!=='undefined'&&Date.now()-CLOUD.touch<6000){S.t=Date.now();CLOUD.dirty=true;syncSoon()}store.set(S)}
 const xpNeed=l=>100+(l-1)*60;
 function lvInfo(){let l=1,x=S.xp;while(x>=xpNeed(l)&&l<99){x-=xpNeed(l);l++}return{l,x,need:xpNeed(l)}}
 function stageKey(){if(S.stage==='egg')return'egg';const g=S.growth;return g<72?'baby':g<360?'juv':g<744?'teen':'adult'}
@@ -868,7 +870,7 @@ function renderChips(){const st=calState(),d=STATES[st];const c=$('#stateChip');
   const t=tod();if(SKY.win)SKY.moodKey='';else $('#timeChip').textContent={dawn:'🌅 Dawn',day:'☀️ Day',dusk:'🌆 Dusk',night:'🌙 Night'}[t]+(S.calib.mode==='temporal'?' · Temporal':'');
   const n=needLow(),em=$('#emote');if(n.length&&!S.asleep&&S.stage!=='egg'){const [i,tx]=NEEDTX[n[0]];em.innerHTML=`<span>${i}</span>${tx}`;em.classList.add('on')}else em.classList.remove('on');
   $('#stage').classList.toggle('night',S.asleep);$('#stage').classList.toggle('sleep',S.asleep);$('#stage').classList.toggle('sad',!S.asleep&&S.stage!=='egg'&&(S.happy<25||S.energy<20));
-  $('#tapHint').style.display=S.stage==='egg'?'block':'none'}
+  $('#tapHint').style.display=S.stage==='egg'?'block':'none';document.body.classList.toggle('isEgg',S.stage==='egg'&&APP.onSite)}
 function visorIcon(kind,col){const E=d=>`<path d="${d}" stroke="${col}" stroke-width="3" fill="none" stroke-linecap="round" style="filter:drop-shadow(0 0 3px ${col})"/>`;
   const m={happy:E('M6 11 Q10 4 14 11')+E('M20 11 Q24 4 28 11'),angry:E('M6 6 L14 10')+E('M28 6 L20 10'),dash:E('M5 8 L9 8')+E('M11 8 L15 8')+E('M19 8 L23 8')+E('M25 8 L29 8'),inf:E('M17 8 C13 2 7 2 7 8 C7 14 13 14 17 8 C21 2 27 2 27 8 C27 14 21 14 17 8'),sleep:E('M6 7 Q10 12 14 7')+E('M20 7 Q24 12 28 7')};
   return`<svg viewBox="0 0 34 16">${m[kind]}</svg>`}
@@ -1186,10 +1188,10 @@ function renderJournal(){
      <div class="sec"><h2>Sleep styles</h2><small>${unlockedSleep().length}/8 unlocked</small></div><div class="bedg">${Object.entries(SLEEP).map(([k,b])=>{const u=b.u();return`<div class="bed ${u?'':'lock'}"><span class="e">${u?b.e:'🔒'}</span><b>${b.n}</b><small>${u?b.d:b.ut}</small></div>`}).join('')}</div>
      <div class="sec"><h2>Lore</h2><small>${S.lore.length} found</small></div>${S.lore.length?S.lore.map(l=>{const z=Object.values(ZONES).find(z=>z.lore.includes(l));return`<div class="lore"><b>${z?z.n:''}</b>${l}</div>`}).join(''):'<p class="muted">Explore zones to uncover the story of Maia.</p>'}`}
   $$('[data-char]').forEach(d=>d.onclick=()=>{const r=ROSTER.find(x=>x.id===d.dataset.char);if(!charUnlocked(r)){SFX.no();toast('🔒 Locked');return}if(S.char===r.id||S.stage==='egg'){toast(S.stage==='egg'?'Hatch your egg first':'Already active');return}SFX.yay();useChar(r.id).then(()=>{go('home')})});
-  if(jTab==='set'){$('#j-set').innerHTML=`<div class="panel" style="margin-top:10px"><div class="btns" style="margin-top:0"><button class="btn" id="bShare">📸 Share card</button><button class="btn cy" id="bRescue">🛟 Rescue code</button><button class="btn gh" id="bRename">✏️ Rename</button><button class="btn o" id="bInstall">📲 Install app</button><button class="btn gh" id="bTL">${S.flags.timelapse?'⏩ Time-lapse on':'🕐 Real time'}</button><button class="btn gh" id="bMute">${S.mute?'🔇 Sound off':'🔊 Sound on'}</button></div></div>
+  if(jTab==='set'){$('#j-set').innerHTML=`<div class="panel" style="margin-top:10px"><div class="btns" style="margin-top:0"><button class="btn" id="bShare">📸 Share card</button><button class="btn cy" id="bRescue">🛟 Rescue code</button><button class="btn gh" id="bRename">✏️ Rename</button><button class="btn cy" id="bLink">☁️ Link device</button><button class="btn o" id="bInstall">📲 Install app</button><button class="btn gh" id="bTL">${S.flags.timelapse?'⏩ Time-lapse on':'🕐 Real time'}</button><button class="btn gh" id="bMute">${S.mute?'🔇 Sound off':'🔊 Sound on'}</button></div></div>
      <div class="panel" style="margin-top:10px"><b class="h" style="font-size:18px">Redeem a gift code</b><textarea id="rIn" placeholder="Paste a FXGIFT code"></textarea><div class="btns"><button class="btn" id="rGo">Redeem</button></div></div>
-     <p class="muted" style="margin:12px 4px">Your FÆLIX lives on this phone. Save a rescue code to bring it back on any device. Generation ${S.gen}.</p>`;
-    $('#bShare').onclick=share;$('#bRescue').onclick=rescue;$('#bRename').onclick=()=>{if(S.stage==='egg')return toast('Hatch first');askName()};$('#bMute').onclick=()=>{S.mute=!S.mute;save();renderJournal()};$('#bInstall').onclick=()=>openInstall();$('#bTL').onclick=()=>{S.flags.timelapse=!S.flags.timelapse;SKY.tintKey='';save();renderJournal();toast(S.flags.timelapse?'Time-lapse: a full day every 2 minutes':'Back to real time')};
+     <p class="muted" style="margin:12px 4px">☁️ ${syncLabel()}. Link your other devices to share the same FÆLIX. Generation ${S.gen}.</p>`;
+    $('#bShare').onclick=share;$('#bRescue').onclick=rescue;$('#bRename').onclick=()=>{if(S.stage==='egg')return toast('Hatch first');askName()};$('#bMute').onclick=()=>{S.mute=!S.mute;save();renderJournal()};$('#bLink').onclick=openLink;$('#bInstall').onclick=()=>openInstall();$('#bTL').onclick=()=>{S.flags.timelapse=!S.flags.timelapse;SKY.tintKey='';save();renderJournal();toast(S.flags.timelapse?'Time-lapse: a full day every 2 minutes':'Back to real time')};
     $('#rGo').onclick=()=>{try{const o=dec($('#rIn').value.trim().replace(/^FXGIFT-/,''));if(!ITEMS[o.i])throw 0;if(S.redeemed.includes(o.id)){toast('Already redeemed');return}S.redeemed.push(o.id);S.inv[o.i]=(S.inv[o.i]||0)+o.n;SFX.yay();toast(`${o.f} sent you ${ITEMS[o.i][1]} ${ITEMS[o.i][0]}!`);save();renderAll()}catch(e){SFX.no();toast('That code doesn\'t look right')}}}
 }
 
@@ -1934,13 +1936,13 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='202611021504';
+const FAELIX_BUILD='202611021513';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
 addEventListener('appinstalled',()=>{$('#appBar').classList.remove('on');toast('FÆLIX installed! Open it from your home screen 🎉');S.flags.installed=1;save()});
 function showAppBar(){if(APP.standalone||!APP.onSite)return;if(S&&S.flags&&S.flags.appBarHide>Date.now())return;$('#appBar').classList.add('on')}
-$('#appBarBtn').onclick=()=>openInstall();$('#appBarX').onclick=()=>{$('#appBar').classList.remove('on');S.flags.appBarHide=Date.now()+3*864e5;save()};
+$('#haveOne').onclick=e=>{e.stopPropagation();openLink()};$('#appBarBtn').onclick=()=>openInstall();$('#appBarX').onclick=()=>{$('#appBar').classList.remove('on');S.flags.appBarHide=Date.now()+3*864e5;save()};
 const SHARE_ICO='<svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
 const ADD_ICO='<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>';
 function transferCode(){const o={...S};delete o.mute;o.log=(o.log||[]).slice(0,8);return enc(o)}
@@ -1953,10 +1955,10 @@ function openInstall(){SFX.tap();
       :`<p>On iPhone, apps can only be added from <b>Safari</b>. Open this page in Safari:</p><p style="font-family:'Barlow Condensed';font-weight:800;font-size:20px;text-align:center;color:var(--cy)">madeinmaia.pt/petz</p><p class="muted">Then tap Share ${SHARE_ICO} → Add to Home Screen ${ADD_ICO}.</p>`)
     :`<ol class="isteps"><li><span>Open your browser menu <b>⋮</b></span></li><li><span>Tap <b>Install app</b> or <b>Add to Home screen</b></span></li><li><span>Open FÆLIX from your home screen</span></li></ol>`;
   modal(`<h3>📲 FÆLIX app</h3><p>Add FÆLIX to your home screen: it opens full-screen like a real app, and <b>updates itself</b> whenever we improve it.</p>${body}
-   <div class="panel" style="margin-top:10px"><b class="h" style="font-size:16px">🛟 Bring ${S.stage==='egg'?'your pet':S.name} with you</b><p class="muted" style="margin:4px 0">Your pet comes along automatically when you add from this page. If it doesn't, paste this rescue code in the app (Journal → Settings → Rescue code).</p>
-   <textarea readonly id="trOut">FAELIX-${transferCode()}</textarea><div class="btns"><button class="btn cy" id="trCopy">Copy code</button></div></div>
+   <div class="panel" style="margin-top:10px"><b class="h" style="font-size:16px">☁️ ${S.stage==='egg'?'Your pet':S.name} comes too</b><p class="muted" style="margin:4px 0">The app opens already linked to this pet, and progress stays in sync with the site. If it ever opens with an egg, tap <b>Already have a FÆLIX?</b> and type:</p>
+   <div id="trCode" style="font-family:'Barlow Condensed';font-weight:800;font-size:36px;letter-spacing:7px;text-align:center;color:var(--cy)">${S.stage==='egg'?'—':'…'}</div></div>
    <div class="btns"><button class="btn gh" data-x>Got it</button></div>`);
-  $('#trCopy').onclick=()=>copy($('#trOut').value)}
+  if(S.stage!=='egg'&&APP.onSite)linkCode().then(c=>{const el=$('#trCode');if(el)el.textContent=c||'offline';if(c){const m=document.querySelector('link[rel=manifest]');if(m)m.href='/api/petz/manifest?link='+c}})}
 function importFromUrl(){try{const q=new URLSearchParams(location.search),c=q.get('pet');if(!c)return;history.replaceState(null,'',location.pathname);
   const fresh=!S||S.stage==='egg';if(!fresh)return;const o=dec(c);if(!o.base||!o.variant)return;const mute=S.mute;S=Object.assign(newEgg(),o,{mute});save();setTimeout(()=>toast(`Welcome home, ${S.name}! 🏠`),1200)}catch(e){}}
 async function initApp(){
@@ -1970,6 +1972,62 @@ async function initApp(){
     $('#updBtn').onclick=()=>{const w=reg.waiting;save();if(w)w.postMessage('skip');else location.reload()};
     let reloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloading)return;reloading=true;location.reload()});
     const chk=()=>{reg.update().catch(()=>{});fetch('/petz/index.html',{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/FAELIX_BUILD='([^']+)'/);if(m&&m[1]!==FAELIX_BUILD)$('#updBar').classList.add('on')}).catch(()=>{})};document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()});setInterval(chk,30*60e3)}catch(e){}}
+
+
+/* ============ CLOUD CLOUD: same pet & progress on every device (no account) ============ */
+const CLOUD={id:null,key:null,rev:0,dirty:false,busy:false,touch:0,last:0,ok:null,T:null,api:'/api/petz'};
+try{Object.assign(CLOUD,JSON.parse(localStorage.getItem('faelix.sync')||'{}'))}catch(e){}
+const syncStore=()=>{try{localStorage.setItem('faelix.sync',JSON.stringify({id:CLOUD.id,key:CLOUD.key,rev:CLOUD.rev,last:CLOUD.last}))}catch(e){}};
+const syncOn=()=>APP.onSite&&!!CLOUD.id;
+['pointerdown','keydown'].forEach(e=>addEventListener(e,()=>{CLOUD.touch=Date.now()},true));
+function syncData(){const o={...S};delete o.mute;delete o._sync;return o}
+function syncSoon(){if(!APP.onSite)return;clearTimeout(CLOUD.T);CLOUD.T=setTimeout(syncPush,Math.max(2500,8000-(Date.now()-CLOUD.last)))}
+async function api(method,body,q=''){const r=await fetch(CLOUD.api+q,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,cache:'no-store',keepalive:!!(body&&method==='PUT'&&document.hidden)});
+  let j={};try{j=await r.json()}catch(e){}j.status=r.status;return j}
+function adopt(data,rev,why){const mute=S.mute,rm=S.room;S=Object.assign(newEgg(),data,{mute});if(!S.room)S.room=rm;CLOUD.rev=rev;CLOUD.dirty=false;store.set(S);syncStore();
+  closeM();boot();renderAll();if(why)toast(why)}
+async function syncCreate(){if(!APP.onSite||CLOUD.id||CLOUD.busy||S.stage==='egg')return;CLOUD.busy=true;
+  try{S.t=S.t||Date.now();const j=await api('POST',{action:'create',t:S.t,data:syncData()});if(j.ok){CLOUD.id=j.id;CLOUD.key=j.key;CLOUD.rev=j.rev;CLOUD.last=Date.now();CLOUD.ok=true;CLOUD.dirty=false;syncStore()}}catch(e){CLOUD.ok=false}CLOUD.busy=false}
+async function syncPush(){if(!syncOn()){if(APP.onSite&&S.stage!=='egg')syncCreate();return}
+  if(!CLOUD.dirty||CLOUD.busy)return;CLOUD.busy=true;
+  try{const j=await api('PUT',{id:CLOUD.id,key:CLOUD.key,base:CLOUD.rev,t:S.t||Date.now(),data:syncData()});
+    if(j.ok){CLOUD.rev=j.rev;CLOUD.dirty=false;CLOUD.ok=true;CLOUD.last=Date.now();syncStore()}
+    else if(j.conflict){if((j.t||0)>(S.t||0))adopt(j.data,j.rev,`Synced ${j.data.name||'your FÆLIX'} from your other device ☁️`);else{CLOUD.rev=j.rev;CLOUD.busy=false;return syncPush()}}
+    else if(j.status===404){CLOUD.id=null;CLOUD.key=null;syncStore()}else CLOUD.ok=false}catch(e){CLOUD.ok=false}
+  CLOUD.busy=false}
+async function syncPull(){if(!syncOn()||CLOUD.busy)return;CLOUD.busy=true;let push=false;
+  try{const j=await api('GET',null,`?id=${CLOUD.id}&key=${CLOUD.key}`);
+    if(j.ok){CLOUD.ok=true;CLOUD.last=Date.now();
+      if(j.rev!==CLOUD.rev){if((j.t||0)>(S.t||0))adopt(j.data,j.rev,CLOUD.rev?`Synced from your other device ☁️`:'');else{CLOUD.rev=j.rev;CLOUD.dirty=true;push=true}}
+      syncStore()}
+    else if(j.status===404){CLOUD.id=null;CLOUD.key=null;syncStore()}}catch(e){CLOUD.ok=false}
+  CLOUD.busy=false;if(push)syncPush()}
+async function linkCode(){if(!syncOn()){await syncCreate()}if(!syncOn())return null;
+  try{const j=await api('POST',{action:'pair',id:CLOUD.id,key:CLOUD.key});return j.ok?j.code:null}catch(e){return null}}
+async function claimCode(code,silent){code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(code.length<6){if(!silent)toast('Codes have 6 letters');return false}
+  try{const j=await api('POST',{action:'claim',code});
+    if(!j.ok){if(!silent){SFX.no();toast(j.status===404?'That code expired, make a new one':'Could not link, try again')}return false}
+    if(CLOUD.id===j.id&&!silent)toast('Already linked ✓');
+    CLOUD.id=j.id;CLOUD.key=j.key;CLOUD.ok=true;CLOUD.last=Date.now();
+    if(S.stage==='egg'||(j.t||0)>=(S.t||0)||!silent)adopt(j.data,j.rev,`${j.data.name||'Your FÆLIX'} is here! ☁️ Linked`);else{CLOUD.rev=j.rev;syncStore()}
+    SFX.yay();return true}catch(e){if(!silent)toast('No connection');return false}}
+function syncLabel(){if(!APP.onSite)return'Cloud sync works on madeinmaia.pt/petz';if(!CLOUD.id)return S.stage==='egg'?'Hatch your egg to turn on cloud sync':'Not synced yet';
+  const m=Math.round((Date.now()-CLOUD.last)/60000);return(CLOUD.ok===false?'⚠️ Offline, will sync later':'✅ Synced')+(CLOUD.last?` · ${m<1?'just now':m+' min ago'}`:'')}
+async function openLink(){SFX.tap();
+  modal(`<h3>☁️ Your FÆLIX everywhere</h3><p>Same pet, same progress on your phone, the app and any other device. No account needed.</p>
+   <div class="panel" style="margin-top:8px"><b class="h" style="font-size:16px">Add another device</b><p class="muted" style="margin:4px 0">On the other phone, open <b>madeinmaia.pt/petz</b> → Journal → Settings → <b>Link device</b> and type:</p>
+   <div id="lkCode" style="font-family:'Barlow Condensed';font-weight:800;font-size:44px;letter-spacing:8px;text-align:center;color:var(--cy);margin:6px 0">${S.stage==='egg'?'—':'…'}</div><p class="muted" id="lkNote" style="text-align:center;margin:0">${S.stage==='egg'?'Hatch your egg first':'Valid for 30 minutes'}</p></div>
+   <div class="panel" style="margin-top:10px"><b class="h" style="font-size:16px">Link this device</b><p class="muted" style="margin:4px 0">Got a code from another device? This replaces the pet on this one.</p>
+   <input class="tx" id="lkIn" maxlength="8" placeholder="ABC123" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase;letter-spacing:4px;text-align:center"><div class="btns"><button class="btn" id="lkGo">Link</button></div></div>
+   <p class="muted" style="margin:8px 4px">${syncLabel()}</p><div class="btns"><button class="btn gh" data-x>Close</button></div>`);
+  $('#lkGo').onclick=async()=>{const v=$('#lkIn').value;if(S.stage!=='egg'&&!confirm('Replace '+S.name+' on this device with the linked pet?'))return;await claimCode(v)};
+  if(S.stage!=='egg'&&APP.onSite){const c=await linkCode();const el=$('#lkCode');if(el){el.textContent=c||'offline';if(!c)$('#lkNote').textContent='Connect to the internet to get a code'}}
+  else if(!APP.onSite){$('#lkCode').textContent='—';$('#lkNote').textContent='Open madeinmaia.pt/petz to link devices'}}
+function initSync(){if(!APP.onSite)return;
+  const q=new URLSearchParams(location.search),lk=q.get('link');if(lk){history.replaceState(null,'',location.pathname);claimCode(lk,true)}
+  if(CLOUD.id)syncPull();else setTimeout(syncCreate,3000);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){if(CLOUD.dirty){clearTimeout(CLOUD.T);syncPush()}}else syncPull()});
+  setInterval(()=>{if(!document.hidden){if(CLOUD.dirty)syncPush();else syncPull()}},45000)}
 
 /* ============ SPRITE ENGINE ============ */
 let SPR=null,sprImg={},PK=null,ROSTER=[];const PACKS={};
@@ -2239,12 +2297,12 @@ function boot(){ensureRoom();if(RV.H&&$('#world').style.width)layoutRoom();stopS
 S=store.get();if(!S||S.v!==3||!S.base)S=newEgg();importFromUrl();
 initScene();
 window.addEventListener('resize',()=>{sizeStage()});
-boot();loadSprites();initRoom();initApp();
+boot();loadSprites();initRoom();initApp();initSync();
 requestAnimationFrame(frame);
 setInterval(lifeTick,900);
 setInterval(check,8000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
-window.__fx={openInstall,transferCode,sky:()=>({h:SKY.hour,k:SKY.moodKey,dk:SKY.dk,sh:SKY.shaft}),dbg:()=>({SA:{once:SA.once,pose:SA.pose,rect:SA.rect},LV:{sx:LV.sx,sy:LV.sy,y:LV.y,rot:LV.rot,sway:LV.sway},pk:PK&&PK.id,spr:document.querySelector("#stage").className,wrap:document.querySelector("#heroWrap").style.cssText,pose:document.querySelector("#heroPose").getAttribute("style"),anims:document.querySelector("#heroPose").getAnimations().length}),get S(){return S},set S(v){S=v},skip(h){S.last-=h*HOUR;if(S.hatchedAt)S.hatchedAt-=h*HOUR;check()},check,go,renderAll,setHero,act,burst,boot};
+window.__fx={save,openInstall,CLOUD,APP,syncPull,syncPush,openLink,claimCode,transferCode,sky:()=>({h:SKY.hour,k:SKY.moodKey,dk:SKY.dk,sh:SKY.shaft}),dbg:()=>({SA:{once:SA.once,pose:SA.pose,rect:SA.rect},LV:{sx:LV.sx,sy:LV.sy,y:LV.y,rot:LV.rot,sway:LV.sway},pk:PK&&PK.id,spr:document.querySelector("#stage").className,wrap:document.querySelector("#heroWrap").style.cssText,pose:document.querySelector("#heroPose").getAttribute("style"),anims:document.querySelector("#heroPose").getAnimations().length}),get S(){return S},set S(v){S=v},skip(h){S.last-=h*HOUR;if(S.hatchedAt)S.hatchedAt-=h*HOUR;check()},check,go,renderAll,setHero,act,burst,boot};
 })();
 </script>
 </body>
