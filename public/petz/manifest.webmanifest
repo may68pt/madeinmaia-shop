@@ -1,6 +1,6 @@
 {
- "name": "FÆLIX — The Bio-Tech Companion",
- "short_name": "FÆLIX",
+ "name": "Petz",
+ "short_name": "Petz",
  "start_url": "/petz",
  "scope": "/petz",
  "display": "standalone",
