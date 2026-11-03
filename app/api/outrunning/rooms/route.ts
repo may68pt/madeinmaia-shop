@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
-import { roomAction, RoomError } from '@/lib/outrunning/rooms';
+import { roomAction, RoomError, validRoomOrigin } from '@/lib/outrunning/rooms';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   const headers = { 'Cache-Control': 'no-store' };
-  const origin = request.headers.get('origin');
-  if (origin && origin !== new URL(request.url).origin) return NextResponse.json({ ok: false, error: 'Invalid origin.' }, { status: 403, headers });
+  if (!validRoomOrigin(request)) return NextResponse.json({ ok: false, error: 'Invalid origin.' }, { status: 403, headers });
   const text = await request.text();
   if (text.length > 2048) return NextResponse.json({ ok: false, error: 'Request too large.' }, { status: 413, headers });
   try {
