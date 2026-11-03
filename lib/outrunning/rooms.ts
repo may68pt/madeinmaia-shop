@@ -72,3 +72,15 @@ export function roomAction(body: Record<string, unknown>, ip: string, now = Date
   }
   return snapshot(room, me, now);
 }
+
+// Next.js may use an internal URL behind Render's reverse proxy. The browser's
+// Origin must match the public Host header, rather than that internal address.
+export function validRoomOrigin(request: Request) {
+  const origin = request.headers.get('origin');
+  if (!origin) return true;
+  try {
+    const url = new URL(origin);
+    const host = request.headers.get('x-forwarded-host')?.split(',')[0].trim() || request.headers.get('host') || new URL(request.url).host;
+    return (url.protocol === 'https:' || url.protocol === 'http:') && url.host === host;
+  } catch { return false; }
+}

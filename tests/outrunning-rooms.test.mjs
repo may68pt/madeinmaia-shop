@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { roomAction } from '../lib/outrunning/rooms.ts';
+import { roomAction, validRoomOrigin } from '../lib/outrunning/rooms.ts';
 const t=1_800_000_000_000;
 test('two private players, ready handshake, shared countdown, state exchange and immutable result',()=>{
  const a=roomAction({action:'create',chapter:0,name:'Paulo'},'a',t);
@@ -26,4 +26,10 @@ test('lobby departure frees the second seat and malformed input is rejected',()=
  roomAction({action:'leave',code:a.code,token:b.token},'e',t+1);
  assert.ok(roomAction({action:'join',code:a.code},'f',t+2).token);
  assert.throws(()=>roomAction({action:'create',chapter:NaN},'g',t),/route/);
+});
+
+test('public origins work behind Next.js and Render internal URLs; foreign origins fail',()=>{
+ assert.ok(validRoomOrigin(new Request('http://0.0.0.0:3000/api/outrunning/rooms',{headers:{host:'madeinmaia.pt',origin:'https://madeinmaia.pt'}})));
+ assert.ok(validRoomOrigin(new Request('http://localhost:3000/api/outrunning/rooms',{headers:{host:'internal:3000','x-forwarded-host':'madeinmaia.pt',origin:'https://madeinmaia.pt'}})));
+ assert.ok(!validRoomOrigin(new Request('http://localhost:3000/api/outrunning/rooms',{headers:{host:'madeinmaia.pt',origin:'https://other.example'}})));
 });
