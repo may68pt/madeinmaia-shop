@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 export function GET(request: Request) {
   const link = (new URL(request.url).searchParams.get("link") ?? "").replace(/[^A-Za-z0-9]/g, "").slice(0, 8);
   return NextResponse.json({
-    name: "FÆLIX — The Bio-Tech Companion",
-    short_name: "FÆLIX",
+    name: "Petz",
+    short_name: "Petz",
     id: "/petz",
     start_url: link ? `/petz?link=${link}` : "/petz",
     scope: "/petz",
