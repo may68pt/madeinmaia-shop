@@ -7,8 +7,9 @@
 <base href="/petz/">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta property="og:title" content="FÆLIX — Scan to hatch yours"><meta property="og:description" content="Your own bio-tech companion. Made in Maia."><meta property="og:image" content="https://madeinmaia.pt/petz/icon-512.png"><meta property="og:url" content="https://madeinmaia.pt/petz">
-<title>FÆLIX — The Bio-Tech Companion</title>
+<meta property="og:title" content="Petz — Scan to hatch yours"><meta property="og:description" content="Your own bio-tech companion. Made in Maia."><meta property="og:image" content="https://madeinmaia.pt/petz/icon-512.png"><meta property="og:url" content="https://madeinmaia.pt/petz">
+<title>Petz — The Bio-Tech Companion</title>
+<meta name="apple-mobile-web-app-title" content="Petz">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800&family=Barlow:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -402,8 +403,8 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
 </style>
 </head>
 <body>
-<div id="appBar" class="appBar"><span>📲 Get <b>FÆLIX</b> as an app — updates itself</span><button id="appBarBtn">Install</button><button id="appBarX" aria-label="Close">✕</button></div>
-<div id="updBar" class="appBar upd"><span>✨ New FÆLIX update ready</span><button id="updBtn">Update</button></div>
+<div id="appBar" class="appBar"><span>📲 Get <b>Petz</b> as an app — updates itself</span><button id="appBarBtn">Install</button><button id="appBarX" aria-label="Close">✕</button></div>
+<div id="updBar" class="appBar upd"><span>✨ New Petz update ready</span><button id="updBtn">Update</button></div>
 <header class="hud"><div class="wrap">
   <div class="av"><img id="avImg" alt=""></div>
   <div class="hinfo"><div class="hn"><span id="hName">FÆLIX</span> <span class="hrt">♡</span></div><div class="hl"><b id="hLv">Lv.1</b> · <span id="hStage">Egg</span></div><div class="xp"><i id="xpFill"></i><span id="xpTxt">XP 0 / 100</span></div></div>
@@ -442,7 +443,7 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
   <div class="panel reward" id="reward"></div>
   <div class="sec"><h2>Game loop</h2><small>Non-linear</small></div>
   <div class="loopst"><div>❤️ Care<small>Keep FÆLIX happy</small></div><div>⚙️ Calibrate<small>Tune or invert</small></div><div>✨ Play<small>Earn resources</small></div><div>🚀 Explore<small>Relics & signals</small></div><div>💠 Collect<small>Modules & plants</small></div><div>🔁 Reconfigure<small>New variants</small></div></div>
-  <img class="logo" src="a/logo.png" alt="FÆLIX">
+  <div class="logo h" aria-label="Petz" style="height:auto;text-align:center;font-size:30px;letter-spacing:3px;color:var(--cy)">Petz</div>
 </section>
 
 <!-- CARE -->
@@ -1221,7 +1222,7 @@ async function share(){if(S.stage==='egg'){toast('Hatch it first!');return}
   for(let i=0;i<120;i++){x.fillStyle=`rgba(255,255,255,${Math.random()*.8})`;x.fillRect(Math.random()*W,Math.random()*H*.7,2,2)}
   const v=VAR[curVariant()],k=heroKey();const col=v.eye;
   const au=x.createRadialGradient(W/2,720,0,W/2,720,460);au.addColorStop(0,v.aura);au.addColorStop(1,'transparent');x.fillStyle=au;x.fillRect(0,0,W,H);
-  const logo=await loadImg('a/logo.png');if(logo)x.drawImage(logo,W/2-300,50,600,600*logo.height/logo.width);
+  x.save();x.fillStyle='#3ff0ff';x.textAlign='center';x.font="800 96px 'Barlow Condensed',sans-serif";x.fillText('Petz',W/2,145);x.restore();
   const hero=await loadImg('a/'+k+'.webp');if(hero){const hw=780,hh=hw*hero.naturalHeight/hero.naturalWidth;x.save();x.filter=heroFilter(k)||'none';x.shadowColor=col;x.shadowBlur=40;x.drawImage(hero,W/2-hw/2,960-hh,hw,hh);x.restore()}
   x.textAlign='center';x.fillStyle='#fff';x.font="italic 800 130px 'Barlow Condensed'";x.fillText(S.name.toUpperCase(),W/2,1090);
   x.font="800 46px 'Barlow Condensed'";x.fillStyle=RCOL[v.r];x.fillText(`${v.r.toUpperCase()} · ${v.n.toUpperCase()} · ${stageName().toUpperCase()} · LV.${lvInfo().l}`,W/2,1155);
@@ -1953,11 +1954,11 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='202611021652';
+const FAELIX_BUILD='20261103-petz';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
-addEventListener('appinstalled',()=>{$('#appBar').classList.remove('on');toast('FÆLIX installed! Open it from your home screen 🎉');S.flags.installed=1;save()});
+addEventListener('appinstalled',()=>{$('#appBar').classList.remove('on');toast('Petz installed! Open it from your home screen 🎉');S.flags.installed=1;save()});
 function showAppBar(){if(APP.standalone||!APP.onSite)return;if(S&&S.flags&&S.flags.appBarHide>Date.now())return;$('#appBar').classList.add('on')}
 document.querySelector('.hud .av').onclick=openProfile;$('#haveOne').onclick=e=>{e.stopPropagation();openLink()};$('#appBarBtn').onclick=()=>openInstall();$('#appBarX').onclick=()=>{$('#appBar').classList.remove('on');S.flags.appBarHide=Date.now()+3*864e5;save()};
 const SHARE_ICO='<svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
@@ -1968,10 +1969,10 @@ function openInstall(){SFX.tap();
   if(APP.standalone){toast('You are already using the app ✨');return}
   if(APP.deferred){APP.deferred.prompt();APP.deferred.userChoice.then(r=>{if(r.outcome==='accepted'){$('#appBar').classList.remove('on')}APP.deferred=null});return}
   stampTransfer();
-  const ios=APP.ios,body=ios?(APP.safari?`<ol class="isteps"><li><span>Tap the <b>Share</b> button ${SHARE_ICO} in Safari's toolbar (bottom of the screen, or top on iPad)</span></li><li><span>Scroll down and tap <b>Add to Home Screen</b> ${ADD_ICO}</span></li><li><span>Tap <b>Add</b>. FÆLIX appears on your home screen like an app</span></li></ol>`
+  const ios=APP.ios,body=ios?(APP.safari?`<ol class="isteps"><li><span>Tap the <b>Share</b> button ${SHARE_ICO} in Safari's toolbar (bottom of the screen, or top on iPad)</span></li><li><span>Scroll down and tap <b>Add to Home Screen</b> ${ADD_ICO}</span></li><li><span>Tap <b>Add</b>. Petz appears on your home screen like an app</span></li></ol>`
       :`<p>On iPhone, apps can only be added from <b>Safari</b>. Open this page in Safari:</p><p style="font-family:'Barlow Condensed';font-weight:800;font-size:20px;text-align:center;color:var(--cy)">madeinmaia.pt/petz</p><p class="muted">Then tap Share ${SHARE_ICO} → Add to Home Screen ${ADD_ICO}.</p>`)
-    :`<ol class="isteps"><li><span>Open your browser menu <b>⋮</b></span></li><li><span>Tap <b>Install app</b> or <b>Add to Home screen</b></span></li><li><span>Open FÆLIX from your home screen</span></li></ol>`;
-  modal(`<h3>📲 FÆLIX app</h3><p>Add FÆLIX to your home screen: it opens full-screen like a real app, and <b>updates itself</b> whenever we improve it.</p>${body}
+    :`<ol class="isteps"><li><span>Open your browser menu <b>⋮</b></span></li><li><span>Tap <b>Install app</b> or <b>Add to Home screen</b></span></li><li><span>Open Petz from your home screen</span></li></ol>`;
+  modal(`<h3>📲 Petz app</h3><p>Add Petz to your home screen: it opens full-screen like a real app, and <b>updates itself</b> whenever we improve it.</p>${body}
    <div class="panel" style="margin-top:10px"><b class="h" style="font-size:16px">☁️ ${S.stage==='egg'?'Your pet':S.name} comes too</b><p class="muted" style="margin:4px 0">The app opens already linked to this pet, and progress stays in sync with the site. If it ever opens with an egg, tap <b>Already have a FÆLIX?</b> and type:</p>
    <div id="trCode" style="font-family:'Barlow Condensed';font-weight:800;font-size:36px;letter-spacing:7px;text-align:center;color:var(--cy)">${S.stage==='egg'?'—':'…'}</div></div>
    <div class="btns"><button class="btn gh" data-x>Got it</button></div>`);
@@ -2444,7 +2445,7 @@ function check(){try{checkGoals()}catch(e){}
   if(S.passedOut){S.passedOut=false;toast(S.name+' fell asleep from exhaustion');stopSleep();S.asleep=false;startSleep('curl',true)}
   const n=needLow(),k=n.join();if(k&&k!==lastNeedK){SFX.alert();say(NEEDTX[n[0]][1],2200);act('a-wobble')}lastNeedK=k;
   if(S.hatchedAt){const d=dayN();if(d>1&&S.flags.lastDayLog!==d){S.flags.lastDayLog=d;addLog('📅','Day '+d,`${S.name} ${pick(['seems happier and more curious','found a new favourite spot','hummed at the stars all night','is getting stronger'])}.`)}}
-  document.title=(n.length?'(!) ':'')+(S.stage==='egg'?'FÆLIX — Scan to hatch':`${S.name} · FÆLIX`);
+  document.title=(n.length?'(!) ':'')+(S.stage==='egg'?'Petz — Scan to hatch':`${S.name} · Petz`);
   save();renderAll();
 }
 function boot(){ensureRoom();if(RV.H&&$('#world').style.width)layoutRoom();stopSleep();curHeroKey='';busy=false;$('#cracks').innerHTML='';$('#hero').style.opacity='1';sizeStage();setHero(true);check();
