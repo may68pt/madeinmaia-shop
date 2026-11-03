@@ -1,3 +1,4 @@
+import { toDataURL } from 'qrcode';
 import { NextResponse } from 'next/server';
 import { roomAction, RoomError, validRoomOrigin } from '@/lib/outrunning/rooms';
 export const runtime = 'nodejs';
@@ -11,7 +12,15 @@ export async function POST(request: Request) {
     const body = JSON.parse(text);
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new RoomError('Invalid request.');
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'anonymous';
-    return NextResponse.json(roomAction(body, ip), { headers });
+    const result = roomAction(body, ip);
+    const origin = request.headers.get('origin');
+    if (body.action === 'create' && origin && 'code' in result) {
+      const invite = new URL('/outrunning-portugal', origin);
+      invite.searchParams.set('race', result.code);
+      const qr = await toDataURL(invite.href, { width: 360, margin: 4 }).catch(() => undefined);
+      return NextResponse.json({ ...result, qr }, { headers });
+    }
+    return NextResponse.json(result, { headers });
   } catch (error) {
     return NextResponse.json({ ok: false, error: error instanceof RoomError ? error.message : 'Race connection unavailable.' }, { status: error instanceof RoomError ? error.status : 400, headers });
   }

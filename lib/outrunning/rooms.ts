@@ -34,6 +34,7 @@ export function roomAction(body: Record<string, unknown>, ip: string, now = Date
     let code: string;
     do { code = randomBytes(4).toString('hex').slice(0, 6).toUpperCase(); } while (rooms.has(code));
     const me = player(body.name, now);
+    me.ready = body.autoReady === true;
     const room: Room = { code, chapter, created: now, touched: now, startAt: null, players: [me] };
     rooms.set(code, room);
     return { ...snapshot(room, me, now), token: me.token };
@@ -43,7 +44,10 @@ export function roomAction(body: Record<string, unknown>, ip: string, now = Date
   if (!room) throw new RoomError('Room expired or not found. Create a new race.', 404);
   if (body.action === 'join') {
     if (room.startAt || room.players.length >= 2) throw new RoomError('This race is full or has already started.', 409);
-    const me = player(body.name, now); room.players.push(me); room.touched = now;
+    const me = player(body.name, now);
+    me.ready = body.autoReady === true;
+    room.players.push(me); room.touched = now;
+    if (room.players.every(p => p.ready && now - p.seen < 5000) && room.players.length === 2) room.startAt = now + 4000;
     return { ...snapshot(room, me, now), token: me.token };
   }
   const me = room.players.find(p => p.token === body.token);
