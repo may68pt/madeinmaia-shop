@@ -33,3 +33,13 @@ test('public origins work behind Next.js and Render internal URLs; foreign origi
  assert.ok(validRoomOrigin(new Request('http://localhost:3000/api/outrunning/rooms',{headers:{host:'internal:3000','x-forwarded-host':'madeinmaia.pt',origin:'https://madeinmaia.pt'}})));
  assert.ok(!validRoomOrigin(new Request('http://localhost:3000/api/outrunning/rooms',{headers:{host:'madeinmaia.pt',origin:'https://other.example'}})));
 });
+
+test('scan-to-join starts both phones on the same countdown without a ready step', () => {
+ const host = roomAction({action:'create',chapter:1,autoReady:true},'qr-host',t);
+ assert.equal(host.startAt,null);
+ const guest = roomAction({action:'join',code:host.code,autoReady:true},'qr-guest',t+10);
+ assert.equal(guest.startAt,t+4010);
+ const next = roomAction({action:'sync',code:host.code,token:host.token},'qr-host',t+125);
+ assert.equal(next.startAt,guest.startAt);
+ assert.equal(next.chapter,guest.chapter);
+});
