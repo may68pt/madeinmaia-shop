@@ -1,6 +1,6 @@
 {
- "name": "Petz",
- "short_name": "Petz",
+ "name": "Cyberpet",
+ "short_name": "Cyberpet",
  "start_url": "/petz",
  "scope": "/petz",
  "display": "standalone",

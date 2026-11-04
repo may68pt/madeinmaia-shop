@@ -7,9 +7,9 @@
 <base href="/petz/">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta property="og:title" content="Petz — Scan to hatch yours"><meta property="og:description" content="Your own bio-tech companion. Made in Maia."><meta property="og:image" content="https://madeinmaia.pt/petz/icon-512.png"><meta property="og:url" content="https://madeinmaia.pt/petz">
-<title>Petz — The Bio-Tech Companion</title>
-<meta name="apple-mobile-web-app-title" content="Petz">
+<meta property="og:title" content="Cyberpet — Scan to hatch yours"><meta property="og:description" content="Your own bio-tech companion. Made in Maia."><meta property="og:image" content="https://madeinmaia.pt/petz/icon-512.png"><meta property="og:url" content="https://madeinmaia.pt/petz">
+<title>Cyberpet — The Bio-Tech Companion</title>
+<meta name="apple-mobile-web-app-title" content="Cyberpet">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800&family=Barlow:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -403,11 +403,11 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
 </style>
 </head>
 <body>
-<div id="appBar" class="appBar"><span>📲 Get <b>Petz</b> as an app — updates itself</span><button id="appBarBtn">Install</button><button id="appBarX" aria-label="Close">✕</button></div>
-<div id="updBar" class="appBar upd"><span>✨ New Petz update ready</span><button id="updBtn">Update</button></div>
+<div id="appBar" class="appBar"><span>📲 Get <b>Cyberpet</b> as an app — updates itself</span><button id="appBarBtn">Install</button><button id="appBarX" aria-label="Close">✕</button></div>
+<div id="updBar" class="appBar upd"><span>✨ New Cyberpet update ready</span><button id="updBtn">Update</button></div>
 <header class="hud"><div class="wrap">
   <div class="av"><img id="avImg" alt=""></div>
-  <div class="hinfo"><div class="hn"><span id="hName">FÆLIX</span> <span class="hrt">♡</span></div><div class="hl"><b id="hLv">Lv.1</b> · <span id="hStage">Egg</span></div><div class="xp"><i id="xpFill"></i><span id="xpTxt">XP 0 / 100</span></div></div>
+  <div class="hinfo"><div class="hn"><span id="hName">Cyberpet</span> <span class="hrt">♡</span></div><div class="hl"><b id="hLv">Lv.1</b> · <span id="hStage">Egg</span></div><div class="xp"><i id="xpFill"></i><span id="xpTxt">XP 0 / 100</span></div></div>
   <div class="curr"><div class="pill">💎<b id="gems">0</b></div><div class="pill">⚡<b id="coins">0</b></div></div>
 </div></header>
 
@@ -419,7 +419,7 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
       <div id="lampGlow" class="lampGlow"></div><div id="lampGlow2" class="lampGlow"></div>
       <div id="roomLock" class="roomLock"><span>🔒<br>Alcove<br><small>Expand room</small></span></div><div id="roomLock2" class="roomLock east"><span>🚧<br>East wing<br><small>Expand room</small></span></div>
       <svg id="depthGrid"></svg><div id="roomItems"></div><div id="mood"></div><div id="aura"></div>
-    <div id="heroWrap"><div id="heroFlip"><div id="heroBreath"><div id="heroPose"><div id="heroAct"><img id="hero" alt="Your FÆLIX" draggable="false"><canvas id="spr" width="520" height="380"></canvas><div id="visor"><svg id="eyes" viewBox="0 0 100 50"></svg></div><div id="eggCore"></div><svg id="cracks" viewBox="0 0 100 100" preserveAspectRatio="none"></svg></div></div></div></div><div id="shadow"></div></div>
+    <div id="heroWrap"><div id="heroFlip"><div id="heroBreath"><div id="heroPose"><div id="heroAct"><img id="hero" alt="Your Cyberpet" draggable="false"><canvas id="spr" width="520" height="380"></canvas><div id="visor"><svg id="eyes" viewBox="0 0 100 50"></svg></div><div id="eggCore"></div><svg id="cracks" viewBox="0 0 100 100" preserveAspectRatio="none"></svg></div></div></div></div><div id="shadow"></div></div>
     </div></div>
     <canvas id="scene"></canvas><div id="night"></div>
     <canvas id="fx"></canvas>
@@ -434,7 +434,7 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
       <button id="sCal" aria-label="Calibrate"><svg class="ico" viewBox="0 0 24 24"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
     <button id="editBtn" class="editBtn">✏️ Edit</button>
-    <div class="tapHint" id="tapHint">Tap the egg to hatch</div><button class="haveOne" id="haveOne">Already have a FÆLIX? Link it ☁️</button>
+    <div class="tapHint" id="tapHint">Tap the egg to hatch</div><button class="haveOne" id="haveOne">Already have a Cyberpet? Link it ☁️</button>
   </div>
   <div class="stats" id="stats"></div>
   <div class="quick" id="quick"></div>
@@ -442,8 +442,8 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
   <div class="panel" id="missions"></div>
   <div class="panel reward" id="reward"></div>
   <div class="sec"><h2>Game loop</h2><small>Non-linear</small></div>
-  <div class="loopst"><div>❤️ Care<small>Keep FÆLIX happy</small></div><div>⚙️ Calibrate<small>Tune or invert</small></div><div>✨ Play<small>Earn resources</small></div><div>🚀 Explore<small>Relics & signals</small></div><div>💠 Collect<small>Modules & plants</small></div><div>🔁 Reconfigure<small>New variants</small></div></div>
-  <div class="logo h" aria-label="Petz" style="height:auto;text-align:center;font-size:30px;letter-spacing:3px;color:var(--cy)">Petz</div>
+  <div class="loopst"><div>❤️ Care<small>Keep Cyberpet happy</small></div><div>⚙️ Calibrate<small>Tune or invert</small></div><div>✨ Play<small>Earn resources</small></div><div>🚀 Explore<small>Relics & signals</small></div><div>💠 Collect<small>Modules & plants</small></div><div>🔁 Reconfigure<small>New variants</small></div></div>
+  <img class="logo" src="cyberpet-logo.svg" alt="Cyberpet" width="320" height="80" style="display:block;width:min(100%,240px);height:auto;margin:0 auto">
 </section>
 
 <!-- CARE -->
@@ -572,20 +572,21 @@ const MODS={
 };
 const LOOKS={ruins:['Ruins at Dusk','Free',0],forest:['Forest Core','Visit Forest Core',100],crystal:['Crystal Caves','Visit Crystal Caves',120],cosmic:['Cosmic Orbit','Visit Cosmic Ruins',150]};
 const EFFECTS={none:['None','',0],fireflies:['Fireflies','✨',0],sparkles:['Star Sparkles','🌟',80],embers:['Embers','🔥',100],orbit:['Orbit Ring','🪐',150],aurora:['Aurora Waves','🌈',120],glitch:['Glitch','📺',2]};
+const currentLore=text=>text.replaceAll('F\u00c6LIX','Cyberpet');
 const ZONES={
  forest:{n:'Forest Core',lv:1,img:'z_forest',c:'#8dff4a',x:21.5,y:50.5,sig:['leaf','drop'],loot:['leaf','leaf','spore','sprout','glowcap','scrap'],relic:'tablet',trait:'nature',d:'Giant roots, glowing spores, and the oldest signal on Maia.',
-   lore:['The roots of the Forest Core pulse at the same frequency as a FÆLIX core. Some say the first eggs grew here.','A carved stone shows a FÆLIX curled around a seed. Underneath: "Grow slow. Grow kind."','Glowcaps only light up when something nearby feels safe.']},
+   lore:['The roots of the Forest Core pulse at the same frequency as a Cyberpet core. Some say the first eggs grew here.','A carved stone shows a Cyberpet curled around a seed. Underneath: "Grow slow. Grow kind."','Glowcaps only light up when something nearby feels safe.']},
  crystal:{n:'Crystal Caves',lv:3,img:'z_crystal',c:'#b06bff',x:45,y:76,sig:['crystal','snow'],loot:['shard','shard','scrap','crystalbloom','spore'],relic:'lens',trait:'cosmic',d:'Singing crystals that bend signals into strange colours.',
-   lore:['The crystals hum a chord. When your FÆLIX hums back, they glow brighter.','A frozen pool reflects the sky of a different world.']},
+   lore:['The crystals hum a chord. When your Cyberpet hums back, they glow brighter.','A frozen pool reflects the sky of a different world.']},
  sky:{n:'Sky Arches',lv:5,img:'z_sky',c:'#ffd23f',x:52.5,y:12,sig:['bolt','fire'],loot:['leaf','moonflower','scrap','shard'],relic:'coin',trait:'instinct',d:'Floating arches where storms charge the air.',
    lore:['Lightning strikes the same arch every night. Something up there is still drawing power.','Old Maia coins are wedged in the stones, left as gifts for the wind.']},
  tidal:{n:'Tidal Lab',lv:7,img:'z_tidal',c:'#3fd0ff',x:84.5,y:67,sig:['drop','snow'],loot:['scrap','scrap','shard','vine'],relic:'chip',trait:'tech',d:'A flooded research lab. Its machines still blink.',
-   lore:['Lab log 7: "Specimen responds to care, not commands. Recommend kindness protocols."','A calibration chip, still warm. It remembers someone else\'s FÆLIX.']},
+   lore:['Lab log 7: "Specimen responds to care, not commands. Recommend kindness protocols."','A calibration chip, still warm. It remembers someone else\'s Cyberpet.']},
  cosmic:{n:'Cosmic Ruins',lv:10,img:'z_cosmic',c:'#ff3fd8',x:84.5,y:33,sig:['planet','spiral'],loot:['shard','spore','vine','crystalbloom'],relic:'idol',trait:'cosmic',d:'Ruins of Maia-7, a lost calibration array.',
-   lore:['Ruins of Maia-7: a lost calibration array. It still hums with an inverse signal…','Every FÆLIX who visits leaves a tiny mark. Yours added one today.']}
+   lore:['Ruins of Maia-7: a lost calibration array. It still hums with an inverse signal…','Every Cyberpet who visits leaves a tiny mark. Yours added one today.']}
 };
 const FOODS={berry:['Bio-berry','🫐','+Health · Nature',s=>{s.energy+=25;s.health+=6;s.base.nature+=1.5}],chili:['Ember chili','🌶️','+Happy · Instinct',s=>{s.energy+=28;s.happy+=4;s.base.instinct+=1.5}],paste:['Nano-paste','🧪','Big energy · Tech',s=>{s.energy+=36;s.base.tech+=1.5}],star:['Starfruit','⭐','+Happy · Cosmic',s=>{s.energy+=24;s.happy+=8;s.base.cosmic+=1.5}]};
-const MPOOL={feed:['Feed FÆLIX',1,50],clean:['Clean up',1,40],bond:['Bond twice',2,60],game:['Play a mini-game',1,75],orbit:['Score 300 in Orbit Dash',300,100],explore:['Explore a zone',1,100],calibrate:['Calibrate once',1,80],train:['Do a Signal Sync',1,60],craft:['Craft or equip a module',1,60]};
+const MPOOL={feed:['Feed Cyberpet',1,50],clean:['Clean up',1,40],bond:['Bond twice',2,60],game:['Play a mini-game',1,75],orbit:['Score 300 in Orbit Dash',300,100],explore:['Explore a zone',1,100],calibrate:['Calibrate once',1,80],train:['Do a Signal Sync',1,60],craft:['Craft or equip a module',1,60]};
 const NAMES=['Bolota','Pipoca','Tareco','Farófia','Migalha','Faísca','Tremoço','Pastel','Bolacha','Nata','Pirolito','Croquete','Pudim','Caramelo','Biscoito','Lumi','Trovão','Gaspar','Musgo','Brasa','Orvalho','Nix','Zéfiro','Kiko'];
 
 /* ============ state ============ */
@@ -930,7 +931,7 @@ function feed(k){
     setTimeout(()=>{setExpr('happy',1600);say(pick(['Yum! 😋','Delicious!','More? 🥺','Nom nom!']));busy=false;save();renderAll()},900)})}
 
 /* ============ PLAY ============ */
-const GAMES=[['catch','Crystal Catch','💠','Catch materials, dodge glitch bugs','linear-gradient(135deg,#3fd0ff,#8b5cf6)','Materials'],['sync','Signal Sync','📶','Timing game · trains skills','linear-gradient(135deg,#1fae8c,#a6ff3c)','XP ++'],['battle','Friendly Battle','⚔️','Spar a wild FÆLIX','linear-gradient(135deg,#ff7a1a,#ff3fd8)','⚡ + XP']];
+const GAMES=[['catch','Crystal Catch','💠','Catch materials, dodge glitch bugs','linear-gradient(135deg,#3fd0ff,#8b5cf6)','Materials'],['sync','Signal Sync','📶','Timing game · trains skills','linear-gradient(135deg,#1fae8c,#a6ff3c)','XP ++'],['battle','Friendly Battle','⚔️','Spar a wild Cyberpet','linear-gradient(135deg,#ff7a1a,#ff3fd8)','⚡ + XP']];
 function renderPlayOld(){$('#orbitBest').textContent=S.best?`Best: ${S.best} · Fly through rings, dodge rocks`:'Fly through rings, dodge asteroids';
   $('#games').innerHTML=GAMES.map(([id,t,e,d,bg,r])=>`<div class="panel gcard" data-g="${id}"><div class="gi" style="background:${bg}">${e}</div><div><b>${t}</b><span>${d}</span></div><div class="rt">${r}<br>›</div></div>`).join('');
   $$('[data-g]').forEach(g=>g.onclick=()=>{if(!canPlay())return;({catch:openCatch,sync:openSync,battle:openBattle})[g.dataset.g]()})}
@@ -1035,7 +1036,7 @@ function openSync(){
 const MOVES={power:['🔥','Power'],agility:['🍃','Agility'],tech:['⚙️','Tech']},BEATS={power:'agility',agility:'tech',tech:'power'};
 function openBattle(){
   if(stageIdx()<2){SFX.no();toast('Battles unlock at Juvenile stage');return}if(S.energy<15){SFX.no();toast('Too hungry to battle');return}
-  const fv=pick(Object.keys(VAR)),myLv=lvInfo().l,fl=Math.max(1,myLv+((Math.random()*3)|0)-1);let me=0,foe=0,log=`A wild ${VAR[fv].n} FÆLIX wants a friendly spar!`;
+  const fv=pick(Object.keys(VAR)),myLv=lvInfo().l,fl=Math.max(1,myLv+((Math.random()*3)|0)-1);let me=0,foe=0,log=`A wild ${VAR[fv].n} Cyberpet wants a friendly spar!`;
   const draw=()=>{$('#modal').innerHTML=`<h3>Friendly battle</h3><div class="vs"><div><img src="a/${heroKey()}.webp" style="filter:${heroFilter(heroKey())}"><b>${S.name}</b><div>${'🟠'.repeat(me)}${'⚪'.repeat(2-me)}</div><small class="muted">Lv ${myLv}</small></div><div class="x">VS</div><div><img src="a/v_${fv}.webp" style="transform:scaleX(-1)"><b>Wild ${VAR[fv].n}</b><div>${'🟠'.repeat(foe)}${'⚪'.repeat(2-foe)}</div><small class="muted">Lv ${fl}</small></div></div>
     <div class="log">${log}</div><p class="muted" style="text-align:center">Power › Agility › Tech › Power</p><div class="btns">${Object.entries(MOVES).map(([k,v])=>`<button class="btn ${k==='power'?'':k==='tech'?'cy':'mg'}" data-mv="${k}">${v[0]} ${v[1]}</button>`).join('')}</div>`;
     $$('[data-mv]').forEach(b=>b.onclick=()=>round(b.dataset.mv))};
@@ -1070,7 +1071,7 @@ function expedition(k){
     if(lockedSig.length&&(r<.14||(room===2&&first&&lockedSig.length))){const s=lockedSig[0];S.signals.push(s);logs.push(`📡 <b>Signal found: ${ELEM[s].e} ${ELEM[s].n}!</b> New calibration unlocked.`);addLog('📡','Signal found',`${S.name} picked up the ${ELEM[s].n} signal in ${z.n}.`);SFX.yay()}
     else if(r<.55){const it=pick(z.loot),n=1+(Math.random()<.35?1:0)+bonus;add(it,n);logs.push(`Found ${n}× ${ITEMS[it][1]} ${ITEMS[it][0]}`);SFX.coin()}
     else if(r<.66){add(z.relic,1);logs.push(`🏺 Relic! ${ITEMS[z.relic][1]} ${ITEMS[z.relic][0]}`);SFX.yay()}
-    else if(r<.78){const lr=z.lore.find(l=>!S.lore.includes(l));if(lr){S.lore.push(lr);logs.push('📜 Lore discovered — check the Journal');addLog('📜','Lore: '+z.n,lr)}else{const c=10+((Math.random()*15)|0);S.coins+=c;logs.push(`+${c} ⚡ energy cells`)}SFX.ok()}
+    else if(r<.78){const lr=z.lore.find(l=>!S.lore.some(entry=>currentLore(entry)===l));if(lr){S.lore.push(lr);logs.push('📜 Lore discovered — check the Journal');addLog('📜','Lore: '+z.n,lr)}else{const c=10+((Math.random()*15)|0);S.coins+=c;logs.push(`+${c} ⚡ energy cells`)}SFX.ok()}
     else if(r<.9){const c=8+((Math.random()*12)|0);S.coins+=c;logs.push(`+${c} ⚡ energy cells`);SFX.coin()}
     else{S.happy=clamp(S.happy-4);logs.push('⚡ A glitch drone spooked it!');SFX.no()}
     room++;if(room<3)draw();else fin()};
@@ -1111,7 +1112,7 @@ function renderLab(){
     $('#saveCustom').onclick=()=>{if(S.coins<60){SFX.no();toast('Need 60 ⚡');return}S.coins-=60;doCalAnim('Custom calibration applied');mission('calibrate');save();renderAll()}}
   $('#invBtn').textContent=S.calib.mode==='inverse'?'⟲ Restore alignment':'⟲ Inverse Calibration · 60 ⚡';
   // modes
-  const MODES=[['aligned','Aligned Mode','Balanced & curious','🍃','#8dff4a'],['inverse','Inverse Mode','Opposite traits','⟲','#ff7a1a'],['hybrid','Hybrid Mode','Mix two systems','∞','#b06bff'],['temporal','Temporal Mode','Day / Night / Eclipse','🌙','#7a8bff'],['custom','Custom Calibration','Fine-tune your FÆLIX','🎚️','#ff3fd8']];
+  const MODES=[['aligned','Aligned Mode','Balanced & curious','🍃','#8dff4a'],['inverse','Inverse Mode','Opposite traits','⟲','#ff7a1a'],['hybrid','Hybrid Mode','Mix two systems','∞','#b06bff'],['temporal','Temporal Mode','Day / Night / Eclipse','🌙','#7a8bff'],['custom','Custom Calibration','Fine-tune your Cyberpet','🎚️','#ff3fd8']];
   $('#modes').innerHTML=MODES.map(([k,n,d,e,c])=>`<div class="mode" data-mode="${k}" style="--mc:${c}"><div class="mi">${e}</div><div><b>${n}</b><span>${d}</span></div>${S.calib.mode===k?'<span class="on">ACTIVE</span>':''}</div>`).join('');
   $$('[data-mode]').forEach(m=>m.onclick=()=>openMode(m.dataset.mode));
   const cst=calState();$('#states').innerHTML=Object.entries(STATES).map(([k,[n,d,c,ic]])=>`<div class="srow ${cst===k?'cur':''}" style="--sc:${c}"><div class="vz">${visorIcon(ic,c)}</div><div><b>${n}</b><span>${d}</span></div></div>`).join('');
@@ -1132,7 +1133,7 @@ function openMode(k){
   const unl=S.signals.filter(s=>s!=='core');
   if(k==='aligned'){S.calib.mode='aligned';if(S.calib.el)S.variant=ELEM[S.calib.el].v;SFX.ok();toast('Aligned mode');save();renderAll();return}
   if(k==='inverse'){$('#invBtn').click();return}
-  if(k==='temporal'){modal(`<h3>Temporal Mode</h3><p>Your FÆLIX shifts with the real clock:</p><p class="muted">🌅 Dawn → Aqua · ☀️ Day → Lumen · 🌆 Dusk → Ignis · 🌙 Night → Aurora · 🌑 Late night → Umbra · and on rare eclipse hours… Void.</p><p>Right now: <b>${VAR[temporalVariant()].n}</b></p><div class="btns"><button class="btn" id="tGo">Activate · 40 ⚡</button><button class="btn gh" data-x>Back</button></div>`);
+  if(k==='temporal'){modal(`<h3>Temporal Mode</h3><p>Your Cyberpet shifts with the real clock:</p><p class="muted">🌅 Dawn → Aqua · ☀️ Day → Lumen · 🌆 Dusk → Ignis · 🌙 Night → Aurora · 🌑 Late night → Umbra · and on rare eclipse hours… Void.</p><p>Right now: <b>${VAR[temporalVariant()].n}</b></p><div class="btns"><button class="btn" id="tGo">Activate · 40 ⚡</button><button class="btn gh" data-x>Back</button></div>`);
     $('#tGo').onclick=()=>{if(S.coins<40){SFX.no();toast('Need 40 ⚡');return}S.coins-=40;S.calib.mode='temporal';const v=temporalVariant();if(!S.seen.includes(v))S.seen.push(v);closeM();doCalAnim('Temporal mode active');mission('calibrate');save();renderAll()};return}
   if(k==='custom'){S.calib.mode='custom';SFX.ok();toast('Drag the sliders, then apply');save();renderAll();$('#sliders').scrollIntoView({behavior:'smooth',block:'center'});return}
   if(k==='hybrid'){if(unl.length<2){SFX.no();toast('Find at least 2 signals to mix');return}let A=null,B=null;
@@ -1204,11 +1205,11 @@ function renderJournal(){
      <div class="sec"><h2>Variants</h2><small>${S.seen.length}/8 · calibrate to discover</small></div><div class="vgrid">${Object.entries(VAR).map(([v,d])=>{const seen=S.seen.includes(v);return`<div class="vg ${seen?'':'lock'} ${curVariant()===v&&S.stage!=='egg'?'me':''}"><img src="a/v_${v}.webp" alt="">${seen?d.n:'???'}<small style="color:${RCOL[d.r]}">${d.r}</small></div>`}).join('')}</div>
      <div class="sec"><h2>Relics</h2><small>${relics.filter(r=>S.inv[r]).length}/${relics.length}</small></div><div class="invg">${relics.map(r=>`<div class="it ${S.inv[r]?'':'lock'}"><span class="e">${S.inv[r]?ITEMS[r][1]:'❔'}</span><small>${S.inv[r]?ITEMS[r][0]:'???'}</small></div>`).join('')}</div>
      <div class="sec"><h2>Sleep styles</h2><small>${unlockedSleep().length}/8 unlocked</small></div><div class="bedg">${Object.entries(SLEEP).map(([k,b])=>{const u=b.u();return`<div class="bed ${u?'':'lock'}"><span class="e">${u?b.e:'🔒'}</span><b>${b.n}</b><small>${u?b.d:b.ut}</small></div>`}).join('')}</div>
-     <div class="sec"><h2>Lore</h2><small>${S.lore.length} found</small></div>${S.lore.length?S.lore.map(l=>{const z=Object.values(ZONES).find(z=>z.lore.includes(l));return`<div class="lore"><b>${z?z.n:''}</b>${l}</div>`}).join(''):'<p class="muted">Explore zones to uncover the story of Maia.</p>'}`}
+     <div class="sec"><h2>Lore</h2><small>${S.lore.length} found</small></div>${S.lore.length?S.lore.map(entry=>{const l=currentLore(entry),z=Object.values(ZONES).find(z=>z.lore.includes(l));return`<div class="lore"><b>${z?z.n:''}</b>${l}</div>`}).join(''):'<p class="muted">Explore zones to uncover the story of Maia.</p>'}`}
   $$('[data-char]').forEach(d=>d.onclick=()=>{const r=ROSTER.find(x=>x.id===d.dataset.char);if(!charUnlocked(r)){SFX.no();toast('🔒 Locked');return}if(S.char===r.id||S.stage==='egg'){toast(S.stage==='egg'?'Hatch your egg first':'Already active');return}SFX.yay();useChar(r.id).then(()=>{go('home')})});
   if(jTab==='set'){$('#j-set').innerHTML=`<div class="panel" style="margin-top:10px"><div class="btns" style="margin-top:0"><button class="btn" id="bShare">📸 Share card</button><button class="btn cy" id="bRescue">🛟 Rescue code</button><button class="btn gh" id="bRename">✏️ Rename</button><button class="btn cy" id="bLink">☁️ Link device</button><button class="btn o" id="bInstall">📲 Install app</button><button class="btn gh" id="bTL">${S.flags.timelapse?'⏩ Time-lapse on':'🕐 Real time'}</button><button class="btn gh" id="bMute">${S.mute?'🔇 Sound off':'🔊 Sound on'}</button></div></div>
      <div class="panel" style="margin-top:10px"><b class="h" style="font-size:18px">Redeem a gift code</b><textarea id="rIn" placeholder="Paste a FXGIFT code"></textarea><div class="btns"><button class="btn" id="rGo">Redeem</button></div></div>
-     <p class="muted" style="margin:12px 4px">☁️ ${syncLabel()}. Link your other devices to share the same FÆLIX. Generation ${S.gen}.</p>`;
+     <p class="muted" style="margin:12px 4px">☁️ ${syncLabel()}. Link your other devices to share the same Cyberpet. Generation ${S.gen}.</p>`;
     $('#bShare').onclick=share;$('#bRescue').onclick=rescue;$('#bRename').onclick=()=>{if(S.stage==='egg')return toast('Hatch first');askName()};$('#bMute').onclick=()=>{S.mute=!S.mute;save();renderJournal()};$('#bLink').onclick=openLink;$('#bInstall').onclick=()=>openInstall();$('#bTL').onclick=()=>{S.flags.timelapse=!S.flags.timelapse;SKY.tintKey='';save();renderJournal();toast(S.flags.timelapse?'Time-lapse: a full day every 2 minutes':'Back to real time')};
     $('#rGo').onclick=()=>{try{const o=dec($('#rIn').value.trim().replace(/^FXGIFT-/,''));if(!ITEMS[o.i])throw 0;if(S.redeemed.includes(o.id)){toast('Already redeemed');return}S.redeemed.push(o.id);S.inv[o.i]=(S.inv[o.i]||0)+o.n;SFX.yay();toast(`${o.f} sent you ${ITEMS[o.i][1]} ${ITEMS[o.i][0]}!`);save();renderAll()}catch(e){SFX.no();toast('That code doesn\'t look right')}}}
 }
@@ -1222,18 +1223,18 @@ async function share(){if(S.stage==='egg'){toast('Hatch it first!');return}
   for(let i=0;i<120;i++){x.fillStyle=`rgba(255,255,255,${Math.random()*.8})`;x.fillRect(Math.random()*W,Math.random()*H*.7,2,2)}
   const v=VAR[curVariant()],k=heroKey();const col=v.eye;
   const au=x.createRadialGradient(W/2,720,0,W/2,720,460);au.addColorStop(0,v.aura);au.addColorStop(1,'transparent');x.fillStyle=au;x.fillRect(0,0,W,H);
-  x.save();x.fillStyle='#3ff0ff';x.textAlign='center';x.font="800 96px 'Barlow Condensed',sans-serif";x.fillText('Petz',W/2,145);x.restore();
+  x.save();x.fillStyle='#3ff0ff';x.textAlign='center';x.font="800 96px 'Barlow Condensed',sans-serif";x.fillText('Cyberpet',W/2,145);x.restore();
   const hero=await loadImg('a/'+k+'.webp');if(hero){const hw=780,hh=hw*hero.naturalHeight/hero.naturalWidth;x.save();x.filter=heroFilter(k)||'none';x.shadowColor=col;x.shadowBlur=40;x.drawImage(hero,W/2-hw/2,960-hh,hw,hh);x.restore()}
   x.textAlign='center';x.fillStyle='#fff';x.font="italic 800 130px 'Barlow Condensed'";x.fillText(S.name.toUpperCase(),W/2,1090);
   x.font="800 46px 'Barlow Condensed'";x.fillStyle=RCOL[v.r];x.fillText(`${v.r.toUpperCase()} · ${v.n.toUpperCase()} · ${stageName().toUpperCase()} · LV.${lvInfo().l}`,W/2,1155);
   x.fillStyle='#cfc8ff';x.font="600 40px 'Barlow Condensed'";x.fillText(`${buildName()} build · ${STATES[calState()][0]}`,W/2,1210);
   x.fillStyle='#ff7a1a';x.fillRect(0,1262,W,88);x.fillStyle='#14112e';x.font="italic 800 56px 'Barlow Condensed'";x.fillText('SCAN THE SHIRT. HATCH YOUR OWN.',W/2,1325);
-  modal(`<h3>Show off ${S.name}</h3><img class="share" src="${c.toDataURL('image/png')}" alt="FÆLIX card"><p class="muted">Long-press the card to save it, then post it to your story.</p><div class="btns"><button class="btn gh" data-x>Close</button></div>`)}
+  modal(`<h3>Show off ${S.name}</h3><img class="share" src="${c.toDataURL('image/png')}" alt="Cyberpet card"><p class="muted">Long-press the card to save it, then post it to your story.</p><div class="btns"><button class="btn gh" data-x>Close</button></div>`)}
 function rescue(){const o={...S};delete o.mute;
-  modal(`<h3>🛟 Rescue code</h3><p class="muted">Save this somewhere safe. It brings ${S.name} back on any phone.</p><textarea readonly id="rcOut">FAELIX-${enc(o)}</textarea><div class="btns"><button class="btn cy" id="rcCopy">Copy code</button></div><p class="muted">Bring one back here (replaces the one on this phone):</p><textarea id="rcIn" placeholder="Paste rescue code"></textarea><div class="btns"><button class="btn" id="rcLoad">Bring it back</button><button class="btn gh" data-x>Close</button></div>`);
+  modal(`<h3>🛟 Rescue code</h3><p class="muted">Save this somewhere safe. It brings ${S.name} back on any phone.</p><textarea readonly id="rcOut">CYBERPET-${enc(o)}</textarea><div class="btns"><button class="btn cy" id="rcCopy">Copy code</button></div><p class="muted">Bring one back here (replaces the one on this phone):</p><textarea id="rcIn" placeholder="Paste rescue code"></textarea><div class="btns"><button class="btn" id="rcLoad">Bring it back</button><button class="btn gh" data-x>Close</button></div>`);
   $('#rcCopy').onclick=()=>copy($('#rcOut').value);
-  $('#rcLoad').onclick=()=>{try{const o=dec($('#rcIn').value.trim().replace(/^FAELIX-/,''));if(!o.base||!o.variant)throw 0;const mute=S.mute,rm=S.room;S=Object.assign(newEgg(),o,{mute});if(!S.room)S.room=rm;save();closeM();boot();SFX.yay();toast(S.name+' is back!')}catch(e){SFX.no();toast('That code doesn\'t look right')}}}
-function askName(){modal(`<h3>Name your FÆLIX</h3><input class="tx" id="nm" maxlength="12" value="${S.name}"><div class="btns"><button class="btn" id="nmOk">That's the one</button><button class="btn gh" id="nmR">🎲 Another</button></div>`,true);
+  $('#rcLoad').onclick=()=>{try{const o=dec($('#rcIn').value.trim().replace(/^(?:CYBERPET|FAELIX)-/,''));if(!o.base||!o.variant)throw 0;const mute=S.mute,rm=S.room;S=Object.assign(newEgg(),o,{mute});if(!S.room)S.room=rm;save();closeM();boot();SFX.yay();toast(S.name+' is back!')}catch(e){SFX.no();toast('That code doesn\'t look right')}}}
+function askName(){modal(`<h3>Name your Cyberpet</h3><input class="tx" id="nm" maxlength="12" value="${S.name}"><div class="btns"><button class="btn" id="nmOk">That's the one</button><button class="btn gh" id="nmR">🎲 Another</button></div>`,true);
   $('#nmR').onclick=()=>{SFX.tap();$('#nm').value=pick(NAMES)};$('#nmOk').onclick=()=>{const v=$('#nm').value.trim();if(v)S.name=v.slice(0,12);save();closeM();SFX.ok();say(`Hi, I'm ${S.name}! 👋`,2400);setExpr('love',2000);burst('hearts',8);renderAll()}}
 
 /* ============ egg / hatch ============ */
@@ -1241,7 +1242,7 @@ function tapEgg(){if(busy)return;S.taps++;tone(500+S.taps*120,.08);act('a-shake'
   const cr=['M50 40 L44 48 L52 54','M52 54 L46 62 L55 66','M44 48 L36 50','M55 66 L62 58 L68 62','M46 62 L40 70'];
   $('#cracks').innerHTML=cr.slice(0,S.taps).map(d=>`<path d="${d}" stroke="#fff" stroke-width="1.6" fill="none" style="filter:drop-shadow(0 0 3px #3ff0ff)"/>`).join('');
   if(S.taps>=5){busy=true;SFX.hatch();burst('ring',1);act('a-evolve');setTimeout(()=>{burst('confetti',50);burst('ring',1);S.stage='alive';S.hatchedAt=now();S.last=now();S.lastStage='baby';if(!S.seen.includes(S.variant))S.seen.push(S.variant);
-      addLog('🐣','Hatched!',`A ${VAR[S.variant].r.toLowerCase()} ${VAR[S.variant].n} FÆLIX hatched. Welcome to Maia!`);$('#cracks').innerHTML='';save();busy=false;renderAll();setHero(true);act('a-hop');setTimeout(askName,700)},800)}
+      addLog('🐣','Hatched!',`A ${VAR[S.variant].r.toLowerCase()} ${VAR[S.variant].n} Cyberpet hatched. Welcome to Maia!`);$('#cracks').innerHTML='';save();busy=false;renderAll();setHero(true);act('a-hop');setTimeout(askName,700)},800)}
   else{say(['Crack!','The core is glowing…','Something stirs!','Almost…'][S.taps-1],1000);save()}}
 $('#heroWrap').addEventListener('click',e=>{if(S.stage==='egg')return tapEgg();if(S.gone||busy)return;if(S.asleep){say('Zzz…');act('a-wobble');return}
   setExpr('love',1300);if(!sprPlay('boop'))act('a-squash');burst('hearts',5);SFX.boop();S.happy=clamp(S.happy+.5);say(pick(['♥','Hehe!','Boop!','Prrr…','☺','*beep*']),800)});
@@ -1259,7 +1260,7 @@ const GAMES2={
  run:{n:'Ruins Run',d:'Tap to jump, tap again mid-air to backflip. Collect shards, dodge drones.',pose:'race',bg:'linear-gradient(135deg,#8dff4a,#1fae8c)',stars:[400,1200,2500],trait:'instinct',rw:'⚡ XP 🔷'},
  catch:{n:'Crystal Catch',d:'Drag to move. Catch crystals, dodge bugs. Glitches flip your controls!',pose:'chaseball',bg:'linear-gradient(135deg,#3fd0ff,#8b5cf6)',stars:[300,800,1500],trait:'nature',rw:'Materials'},
  sync:{n:'Signal Sync',d:'Rhythm game: tap the lanes on the beat. Trains skills.',pose:'dance',bg:'linear-gradient(135deg,#ffc93c,#ff7a1a)',stars:[60,80,95],trait:'tech',unit:'%',rw:'XP ++'},
- battle:{n:'Friendly Battle',d:'Turn-based spar against a wild FÆLIX. Charge a special move!',pose:'powerup',bg:'linear-gradient(135deg,#ff3f6a,#8b5cf6)',stars:[1,2,3],trait:'instinct',unit:'★',rw:'⚡ XP ⚙️'}
+ battle:{n:'Friendly Battle',d:'Turn-based spar against a wild Cyberpet. Charge a special move!',pose:'powerup',bg:'linear-gradient(135deg,#ff3f6a,#8b5cf6)',stars:[1,2,3],trait:'instinct',unit:'★',rw:'⚡ XP ⚙️'}
 };
 const GX={E:null};
 const vib=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
@@ -1512,7 +1513,7 @@ const SYNC={
 const MV={power:['🔥','Power','#ff7a1a'],agility:['🍃','Agility','#8dff4a'],tech:['⚙️','Tech','#3ff0ff'],special:['✨','Special','#ff3fd8']};
 const BEAT2={power:'agility',agility:'tech',tech:'power'};
 const BATTLE={
- init(E){const fv=pick(Object.keys(VAR)),lv=lvInfo().l;Object.assign(E,{fv,lv,flv:Math.max(1,lv+((Math.random()*3)|0)-1),hp:100,fhp:100,m:0,fm:0,phase:'choose',q:[],qt:0,log:`A wild ${VAR[fv].n} FÆLIX wants to spar!`,
+ init(E){const fv=pick(Object.keys(VAR)),lv=lvInfo().l;Object.assign(E,{fv,lv,flv:Math.max(1,lv+((Math.random()*3)|0)-1),hp:100,fhp:100,m:0,fm:0,phase:'choose',q:[],qt:0,log:`A wild ${VAR[fv].n} Cyberpet wants to spar!`,
    pp:{x:E.W*.27,dx:0,st:'idle',t:0},fp:{x:E.W*.73,dx:0,st:'idle',t:0},fpk:(()=>{const o=Object.values(PACKS).filter(p=>p!==PK);return o.length&&Math.random()<.6?pick(o):null})(),gy:E.H*.56,ph:Math.min(150,E.W*.36),last:null,won:null,ffilt:VFILTER[fv]||'',turn:0,proj:null});E.btn=[]},
  down(E,px,py){if(E.phase!=='choose')return;for(const b of E.btn){if(px>b.x&&px<b.x+b.w&&py>b.y&&py<b.y+b.h){if(b.k==='special'&&E.m<100){SFX.no();return}this.pick(E,b.k);return}}},
  foeMove(E){if(E.fm>=100&&Math.random()<.7)return'special';const r=Math.random();if(E.last&&r<.4){const counter={power:'tech',agility:'power',tech:'agility'};return counter[E.last]||pick(['power','agility','tech'])}return pick(['power','agility','tech'])},
@@ -1532,7 +1533,7 @@ const BATTLE={
     act.who==='p'?SFX.zap():SFX.no();if(act.who==='f'){E.flash=8;vib(50)}
     E.log=`${act.who==='p'?S.name:'Wild '+VAR[E.fv].n+(E.fpk?' '+E.fpk.meta.name:'')} used ${MV[act.mv][0]} ${MV[act.mv][1]}${r.tag?' — '+r.tag:''}`}
   if(E.qt>=44){E.q.shift();E.qt=0;
-    if(E.fhp<=0||E.hp<=0){E.won=E.fhp<=0;E.phase='end';(E.won?E.pp:E.fp).st='win';(E.won?E.fp:E.pp).st='ko';E.log=E.won?'Victory! 🏆':'Your FÆLIX fainted… good fight!';E.won?SFX.yay():SFX.sad();E.endT=110;E.q=[]}
+    if(E.fhp<=0||E.hp<=0){E.won=E.fhp<=0;E.phase='end';(E.won?E.pp:E.fp).st='win';(E.won?E.fp:E.pp).st='ko';E.log=E.won?'Victory! 🏆':'Your Cyberpet fainted… good fight!';E.won?SFX.yay():SFX.sad();E.endT=110;E.q=[]}
     else if(!E.q.length)E.phase='choose'}
   if(E.phase==='end'){}},
  draw(E,dt,ts){const x=E.x,W=E.W,H=E.H,gy=E.gy;
@@ -1585,7 +1586,7 @@ const RI={
  chest:{n:'Treasure Chest',h:.18,cat:'furniture',comfort:3,src:'shop',price:140,surf:[[.12,.88,.05]],fn:'chest'},
  plank_shelf:{n:'Plank Shelf',h:.06,cat:'furniture',comfort:1,src:'shop',price:50,kind:'wall',surf:[[.04,.96,.12]]},
  vase:{n:'Flower Vase',h:.12,cat:'decor',comfort:2,src:'shop',price:45,sway:1},
- plush:{n:'FÆLIX Plush',h:.1,cat:'decor',comfort:3,src:'shop',price:75,fn:'hug'},
+ plush:{n:'Cyberpet Plush',h:.1,cat:'decor',comfort:3,src:'shop',price:75,fn:'hug'},
  cactus:{n:'Happy Cactus',h:.11,cat:'decor',comfort:2,src:'shop',price:40},
  desk_lamp:{n:'Desk Lamp',h:.13,cat:'decor',comfort:2,src:'shop',price:65,anim:{glow:'#ffe2a0',gy:.45},fn:'light'},
  snow_globe:{n:'Snow Globe',h:.11,cat:'decor',comfort:3,src:'shop',price:95,anim:{glow:'#bfe9ff',gy:.4,sparkle:1}},
@@ -1594,7 +1595,7 @@ const RI={
  snack:{n:'Snack Machine',st:1,h:[.22,.3,.38,.4,.4],cat:'station',fn:'snack',anim:{glow:'#ffcf7a',gy:.4},d:'Free snack: more energy, shorter wait per tier'},
  groom:{n:'Grooming Spa',st:1,h:[.13,.3,.32,.38,.38],cat:'station',fn:'groom',anim:{glow:'#9ff4ff',gy:.4,bubbles:1},d:'Instant bath · mess builds 10% slower per tier'},
  read:{n:'Reading Nook',st:1,h:[.17,.28,.34,.36,.38],cat:'station',fn:'read',anim:{glow:'#ffd27a',gy:.25},d:'Story time: XP + bond, more per tier'},
- neon_sign:{n:'FÆLIX Neon',h:.12,cat:'decor',comfort:5,src:'goal',kind:'wall',anim:{glow:'#5ff4ff',gy:.5,flick:1},fn:'light'},
+ neon_sign:{n:'Cyberpet Neon',h:.12,cat:'decor',comfort:5,src:'goal',kind:'wall',anim:{glow:'#5ff4ff',gy:.5,flick:1},fn:'light'},
  string_lights:{n:'Fairy Lights',h:.09,cat:'decor',comfort:4,src:'shop',price:110,kind:'wall',anim:{glow:'#ffd36a',gy:.6},tw:1,fn:'light'},
  poster:{n:'Maia-7 Poster',h:.17,cat:'decor',comfort:3,src:'shop',price:60,kind:'wall'},
  wall_clock:{n:'Wall Clock',h:.12,cat:'decor',comfort:2,src:'shop',price:90,kind:'wall'},
@@ -1954,11 +1955,11 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='20261103-petz';
+const FAELIX_BUILD='20261104-cyberpet';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
-addEventListener('appinstalled',()=>{$('#appBar').classList.remove('on');toast('Petz installed! Open it from your home screen 🎉');S.flags.installed=1;save()});
+addEventListener('appinstalled',()=>{$('#appBar').classList.remove('on');toast('Cyberpet installed! Open it from your home screen 🎉');S.flags.installed=1;save()});
 function showAppBar(){if(APP.standalone||!APP.onSite)return;if(S&&S.flags&&S.flags.appBarHide>Date.now())return;$('#appBar').classList.add('on')}
 document.querySelector('.hud .av').onclick=openProfile;$('#haveOne').onclick=e=>{e.stopPropagation();openLink()};$('#appBarBtn').onclick=()=>openInstall();$('#appBarX').onclick=()=>{$('#appBar').classList.remove('on');S.flags.appBarHide=Date.now()+3*864e5;save()};
 const SHARE_ICO='<svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
@@ -1969,11 +1970,11 @@ function openInstall(){SFX.tap();
   if(APP.standalone){toast('You are already using the app ✨');return}
   if(APP.deferred){APP.deferred.prompt();APP.deferred.userChoice.then(r=>{if(r.outcome==='accepted'){$('#appBar').classList.remove('on')}APP.deferred=null});return}
   stampTransfer();
-  const ios=APP.ios,body=ios?(APP.safari?`<ol class="isteps"><li><span>Tap the <b>Share</b> button ${SHARE_ICO} in Safari's toolbar (bottom of the screen, or top on iPad)</span></li><li><span>Scroll down and tap <b>Add to Home Screen</b> ${ADD_ICO}</span></li><li><span>Tap <b>Add</b>. Petz appears on your home screen like an app</span></li></ol>`
+  const ios=APP.ios,body=ios?(APP.safari?`<ol class="isteps"><li><span>Tap the <b>Share</b> button ${SHARE_ICO} in Safari's toolbar (bottom of the screen, or top on iPad)</span></li><li><span>Scroll down and tap <b>Add to Home Screen</b> ${ADD_ICO}</span></li><li><span>Tap <b>Add</b>. Cyberpet appears on your home screen like an app</span></li></ol>`
       :`<p>On iPhone, apps can only be added from <b>Safari</b>. Open this page in Safari:</p><p style="font-family:'Barlow Condensed';font-weight:800;font-size:20px;text-align:center;color:var(--cy)">madeinmaia.pt/petz</p><p class="muted">Then tap Share ${SHARE_ICO} → Add to Home Screen ${ADD_ICO}.</p>`)
-    :`<ol class="isteps"><li><span>Open your browser menu <b>⋮</b></span></li><li><span>Tap <b>Install app</b> or <b>Add to Home screen</b></span></li><li><span>Open Petz from your home screen</span></li></ol>`;
-  modal(`<h3>📲 Petz app</h3><p>Add Petz to your home screen: it opens full-screen like a real app, and <b>updates itself</b> whenever we improve it.</p>${body}
-   <div class="panel" style="margin-top:10px"><b class="h" style="font-size:16px">☁️ ${S.stage==='egg'?'Your pet':S.name} comes too</b><p class="muted" style="margin:4px 0">The app opens already linked to this pet, and progress stays in sync with the site. If it ever opens with an egg, tap <b>Already have a FÆLIX?</b> and type:</p>
+    :`<ol class="isteps"><li><span>Open your browser menu <b>⋮</b></span></li><li><span>Tap <b>Install app</b> or <b>Add to Home screen</b></span></li><li><span>Open Cyberpet from your home screen</span></li></ol>`;
+  modal(`<h3>📲 Cyberpet app</h3><p>Add Cyberpet to your home screen: it opens full-screen like a real app, and <b>updates itself</b> whenever we improve it.</p>${body}
+   <div class="panel" style="margin-top:10px"><b class="h" style="font-size:16px">☁️ ${S.stage==='egg'?'Your pet':S.name} comes too</b><p class="muted" style="margin:4px 0">The app opens already linked to this pet, and progress stays in sync with the site. If it ever opens with an egg, tap <b>Already have a Cyberpet?</b> and type:</p>
    <div id="trCode" style="font-family:'Barlow Condensed';font-weight:800;font-size:36px;letter-spacing:7px;text-align:center;color:var(--cy)">${S.stage==='egg'?'—':'…'}</div></div>
    <div class="btns"><button class="btn gh" data-x>Got it</button></div>`);
   if(S.stage!=='egg'&&APP.onSite)linkCode().then(c=>{const el=$('#trCode');if(el)el.textContent=c||'offline';if(c){const m=document.querySelector('link[rel=manifest]');if(m)m.href='/api/petz/manifest?link='+c}})}
@@ -2010,7 +2011,7 @@ async function syncPush(){if(!syncOn()){if(APP.onSite&&S.stage!=='egg')syncCreat
   if(!CLOUD.dirty||CLOUD.busy)return;CLOUD.busy=true;
   try{const j=await api('PUT',{id:CLOUD.id,key:CLOUD.key,base:CLOUD.rev,t:S.t||Date.now(),data:syncData()});
     if(j.ok){CLOUD.rev=j.rev;CLOUD.dirty=false;CLOUD.ok=true;CLOUD.last=Date.now();syncStore()}
-    else if(j.conflict){if((j.t||0)>(S.t||0))adopt(j.data,j.rev,`Synced ${j.data.name||'your FÆLIX'} from your other device ☁️`);else{CLOUD.rev=j.rev;CLOUD.busy=false;return syncPush()}}
+    else if(j.conflict){if((j.t||0)>(S.t||0))adopt(j.data,j.rev,`Synced ${j.data.name||'your Cyberpet'} from your other device ☁️`);else{CLOUD.rev=j.rev;CLOUD.busy=false;return syncPush()}}
     else if(j.status===404){CLOUD.id=null;CLOUD.key=null;syncStore()}else CLOUD.ok=false}catch(e){CLOUD.ok=false}
   CLOUD.busy=false}
 async function syncPull(){if(!syncOn()||CLOUD.busy)return;CLOUD.busy=true;let push=false;
@@ -2027,12 +2028,12 @@ async function claimCode(code,silent){code=String(code||'').toUpperCase().replac
     if(!j.ok){if(!silent){SFX.no();toast(j.status===404?'That code expired, make a new one':'Could not link, try again')}return false}
     if(CLOUD.id===j.id&&!silent)toast('Already linked ✓');
     CLOUD.id=j.id;CLOUD.key=j.key;CLOUD.ok=true;CLOUD.last=Date.now();
-    if(S.stage==='egg'||(j.t||0)>=(S.t||0)||!silent)adopt(j.data,j.rev,`${j.data.name||'Your FÆLIX'} is here! ☁️ Linked`);else{CLOUD.rev=j.rev;syncStore()}
+    if(S.stage==='egg'||(j.t||0)>=(S.t||0)||!silent)adopt(j.data,j.rev,`${j.data.name||'Your Cyberpet'} is here! ☁️ Linked`);else{CLOUD.rev=j.rev;syncStore()}
     SFX.yay();return true}catch(e){if(!silent)toast('No connection');return false}}
 function syncLabel(){if(!APP.onSite)return'Cloud sync works on madeinmaia.pt/petz';if(!CLOUD.id)return S.stage==='egg'?'Hatch your egg to turn on cloud sync':'Not synced yet';
   const m=Math.round((Date.now()-CLOUD.last)/60000);return(CLOUD.ok===false?'⚠️ Offline, will sync later':'✅ Synced')+(CLOUD.last?` · ${m<1?'just now':m+' min ago'}`:'')}
 async function openLink(){SFX.tap();
-  modal(`<h3>☁️ Your FÆLIX everywhere</h3><p>Same pet, same progress on your phone, the app and any other device. No account needed.</p>
+  modal(`<h3>☁️ Your Cyberpet everywhere</h3><p>Same pet, same progress on your phone, the app and any other device. No account needed.</p>
    <div class="panel" style="margin-top:8px"><b class="h" style="font-size:16px">Add another device</b><p class="muted" style="margin:4px 0">On the other phone, open <b>madeinmaia.pt/petz</b> → Journal → Settings → <b>Link device</b> and type:</p>
    <div id="lkCode" style="font-family:'Barlow Condensed';font-weight:800;font-size:44px;letter-spacing:8px;text-align:center;color:var(--cy);margin:6px 0">${S.stage==='egg'?'—':'…'}</div><p class="muted" id="lkNote" style="text-align:center;margin:0">${S.stage==='egg'?'Hatch your egg first':'Valid for 30 minutes'}</p></div>
    <div class="panel" style="margin-top:10px"><b class="h" style="font-size:16px">Link this device</b><p class="muted" style="margin:4px 0">Got a code from another device? This replaces the pet on this one.</p>
@@ -2445,7 +2446,7 @@ function check(){try{checkGoals()}catch(e){}
   if(S.passedOut){S.passedOut=false;toast(S.name+' fell asleep from exhaustion');stopSleep();S.asleep=false;startSleep('curl',true)}
   const n=needLow(),k=n.join();if(k&&k!==lastNeedK){SFX.alert();say(NEEDTX[n[0]][1],2200);act('a-wobble')}lastNeedK=k;
   if(S.hatchedAt){const d=dayN();if(d>1&&S.flags.lastDayLog!==d){S.flags.lastDayLog=d;addLog('📅','Day '+d,`${S.name} ${pick(['seems happier and more curious','found a new favourite spot','hummed at the stars all night','is getting stronger'])}.`)}}
-  document.title=(n.length?'(!) ':'')+(S.stage==='egg'?'Petz — Scan to hatch':`${S.name} · Petz`);
+  document.title=(n.length?'(!) ':'')+(S.stage==='egg'?'Cyberpet — Scan to hatch':`${S.name} · Cyberpet`);
   save();renderAll();
 }
 function boot(){ensureRoom();if(RV.H&&$('#world').style.width)layoutRoom();stopSleep();curHeroKey='';busy=false;$('#cracks').innerHTML='';$('#hero').style.opacity='1';sizeStage();setHero(true);check();

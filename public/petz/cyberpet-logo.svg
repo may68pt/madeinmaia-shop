@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80" viewBox="0 0 320 80" role="img" aria-labelledby="title">
+  <title id="title">Cyberpet</title>
+  <rect width="320" height="80" rx="22" fill="#14112d"/>
+  <path d="M16 58V23h11l10 10h15l10-10h11v35l-9 9H25z" fill="#62f3dc"/>
+  <path d="M30 43h9v9h-9zm20 0h9v9h-9z" fill="#14112d"/>
+  <text x="90" y="51" font-family="DejaVu Sans, Arial, sans-serif" font-size="32" font-weight="bold" fill="#f7f6ff">Cyberpet</text>
+</svg>
