@@ -2173,6 +2173,7 @@ function drawBustFX(g){
 
 // ------------------------------------------------------------------ update
 function startRace(){
+  raceResult=null;
   if(typeof WX!=='undefined'){WX.kind='clear';WX.k=0;WX.target=0;WX.next=null;WX.stageKey='';}
   position=0;playerX=0;speed=0;steer=0;stageIdx=0;legIdx=0;timeLeft=LEGS[0].bonus;score=0;natas=0;crash=null;finishT=0;overT=0;raceTime=0;bgOff=[0,0,0];
   boosts=0;boostT=0;for(const k in PW)PW[k]=0;lastPIdx=0;inTunnel=false;police=null;busted=null;behindT=0;passes=0;shoutCD=0;lunaCD=9;flashT=0;
@@ -2188,7 +2189,7 @@ function onPass(c){passes++;score+=100;const close=Math.abs(c.offset-playerX)<0.
   if(close){score+=200;popText(LL('pRaspar'));if(Math.random()<.5)setAnim('w','scared',0.8);}
   if(shoutCD<=0&&Math.random()<0.5)say('d',pick(Math.random,PASS),2);}
 function update(dt){
-  if(state==='paused')return;
+  if(state==='paused'||(raceResult&&!$('over').classList.contains('hidden')))return;
   updateBoardDebris(dt);
   crewUpdate(dt);
   for(let i=bubbles.length-1;i>=0;i--){bubbles[i].t+=dt;if(bubbles[i].t>bubbles[i].life)bubbles.splice(i,1);}
@@ -2263,11 +2264,12 @@ function update(dt){
         showCheckpoint(L.bonus,`${T('stage')} ${legIdx+1}/${LEGS.length} · ${L.name}`,z.fact);if(police&&police.phase!=='busted')policeGiveUp(true);}
       else{showPostcard(z);sfx('pickup');}
       say('w',z.luna,3,true);showMini(4.5);}
-    if(pSeg.index>=goalIdx){state='finish';finishT=0;sfx('goal');crewEvent('finish');police=null;busted=null;say('w',LL('arrived'),4,true);say('d',LL('mim'),4,true);}
-    else if(timeLeft<=0){timeLeft=0;state='over';overT=0;sfx('over');say('d',LL('timeUp'),3,true);busted=null;if(police)police.phase='leave';}
+    if(pSeg.index>=goalIdx){state='finish';finishT=0;saveRaceResult(true);sfx('goal');crewEvent('finish');police=null;busted=null;say('w',LL('arrived'),4,true);say('d',LL('mim'),4,true);}
+    else if(timeLeft<=0){timeLeft=0;state='over';overT=0;saveRaceResult(false);sfx('over');say('d',LL('timeUp'),3,true);busted=null;if(police)police.phase='leave';}
     if(!crash&&!busted){lunaCD-=dt;if(lunaCD<=0){lunaCD=11+Math.random()*10;const L=pick(Math.random,LUNA_LINES);if(say('w',L[0],2.6)&&L[1]&&crew.w.a==='idle')setAnim('w',L[1],2.4);}}
   }else if(state==='finish'){finishT+=dt;if(finishT>2.6&&$('over').classList.contains('hidden'))showEnd(true);}
   else if(state==='over'){overT+=dt;if((speed<200||overT>3)&&$('over').classList.contains('hidden'))showEnd(false);}
+  if(raceResult&&!$('over').classList.contains('hidden'))return;
   engineSound(['play','finish','over'].includes(state)?Math.min(pct,1.4):(state==='count'?0.05:-1));
   sirenSound(((!!police&&(police.phase==='chase'||police.phase==='ahead'||police.phase==='busted'))||(PW.siren>0&&state==='play'))&&state!=='paused');
 }
@@ -2813,7 +2815,8 @@ const CH='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789★';
 let ini=(String(store.get('ini','MAI'))+'AAA').slice(0,3).split('');
 let pendingScore=null;
 const qualifies=s=>s>0&&(scores.length<10||s>scores[scores.length-1].s);
-function addScore(n,p){const e={n,s:p.s,st:p.st,w:p.w};scores.push(e);scores.sort((a,b)=>b.s-a.s);scores=scores.slice(0,10);store.set('scores',scores);best=scores[0].s;store.set('best',best);return scores.indexOf(e);}
+function saveScores(){store.set('scores',scores);best=Math.max(best,scores[0]?.s||0);store.set('best',best);}
+function addScore(n,p){const e={n,s:p.s,st:p.st,w:p.w,c:p.c};scores.push(e);scores.sort((a,b)=>b.s-a.s);scores=scores.slice(0,10);saveScores();return e;}
 function renderTable(el,hl,limit){el.innerHTML=rowsHTML(scores.slice(0,limit||10),hl);}
 function buildSlots(){const el=$('slots');el.innerHTML='';
   ini.forEach((c,i)=>{if(CH.indexOf(ini[i])<0)ini[i]='A';const d=document.createElement('div');d.className='slot';d.innerHTML=`<button type="button" class="su">▲</button><b>${ini[i]}</b><button type="button" class="sd">▼</button>`;const [up,b,dn]=d.children;
@@ -2827,7 +2830,7 @@ function buildSlots(){const el=$('slots');el.innerHTML='';
     el.appendChild(d);});
 }
 addEventListener('keydown',e=>{if(state!=='over'||$('nameEntry').classList.contains('hidden'))return;const k=e.key.toUpperCase();if(k.length===1&&CH.includes(k)){const i=ini.slotPos||0;ini[i]=k;ini.slotPos=(i+1)%3;buildSlots();}else if(e.key==='Enter')$('saveBtn').click();});
-function commitScore(){if(!pendingScore)return -1;const n=ini.join('');store.set('ini',n);postGlobal(n,pendingScore);const r=addScore(n,pendingScore);pendingScore=null;$('nameEntry').classList.add('hidden');$('over').classList.remove('naming');$('bestScore').textContent=best.toLocaleString('pt-PT');return r;}
+function commitScore(){if(!pendingScore)return -1;const n=ini.join('');store.set('ini',n);postGlobal(n,pendingScore);const entry=pendingScore.entry;if(entry){entry.n=n;saveScores();}const r=scores.indexOf(entry);pendingScore=null;$('nameEntry').classList.add('hidden');$('over').classList.remove('naming');$('bestScore').textContent=best.toLocaleString('pt-PT');return r;}
 
 // ------------------------------------------------------------------ flow / UI
 const isTouch=matchMedia('(pointer:coarse)').matches||'ontouchstart' in window;
@@ -2863,17 +2866,35 @@ $('calBtn').onclick=()=>{calibrate();sfx('click');showToast(...LL('tCal'));};
 let rotDismissed=false;
 $('rotOk').onclick=()=>{$('rot').classList.add('hidden');rotDismissed=true;};
 function checkRotate(){const r=$('rot');if(r)r.classList.add('hidden');}
+let raceResult=null;
+function saveRaceResult(win){
+  const bonus=win?Math.round(timeLeft)*1000:0;
+  const fs=Math.floor(score+bonus);
+  const result={s:fs,st:stageIdx,w:win,c:chapter,bonus};
+  lastFinal={s:fs,c:chapter};
+  if(win)unlockNext();
+  store.set('cbest'+chapter,Math.max(chapterBest(chapter),fs));
+  const local=qualifies(fs);
+  if(local)result.entry=addScore(ini.join(''),result);
+  const global=fs>0&&Array.isArray(gScores)&&(gScores.length<10||fs>gScores.at(-1)?.s);
+  pendingScore=local||global?result:null;
+  raceResult=result;
+}
 function showEnd(win){
-  let bonus=0;if(win){bonus=Math.round(timeLeft)*1000;score+=bonus;}
-  const fs=Math.floor(score);lastFinal={s:fs,c:chapter};
+  const {s:fs,bonus}=raceResult;
   $('overT').innerHTML=win?winTitle(CUR())+'<small>'+CUR().flag+' '+CUR().name+' · '+(chapter+1<CHAPTERS.length?T('nextC')+': '+CHAPTERS[chapter+1].flag+' '+CHAPTERS[chapter+1].name:T('tourDone'))+'</small>':T('timeUp')+'<small>GAME OVER</small>';
   const m=Math.floor(raceTime/60),s=Math.floor(raceTime%60);
   $('overS').innerHTML=(win?`${T('trip')}: <b>${m}:${String(s).padStart(2,'0')}</b> · ${T('bonus')}: <b>+${bonus.toLocaleString('pt-PT')}</b><br>`:`${T('reached')}: <b>${STAGES[stageIdx].name}</b> · ${T('stage')} ${legIdx+1}/${LEGS.length}<br>`)+`🥧 <b>${natas}</b> · ${T('passes')} <b>${passes}</b> · ${T('pts')} <b>${fs.toLocaleString('pt-PT')}</b>`;
   $('overTable').innerHTML='';
-  if(win){unlockNext();}store.set('cbest'+chapter,Math.max(chapterBest(chapter),fs));$('nextBtn').classList.toggle('hidden',!(win&&chapter+1<CHAPTERS.length));
-  if(qualifies(fs)||(gScores&&(gScores.length<10||fs>gScores[gScores.length-1].s))){pendingScore={s:fs,st:stageIdx,w:win,c:chapter};$('nameEntry').classList.remove('hidden');$('over').classList.add('naming');buildSlots();}
+  $('nextBtn').classList.toggle('hidden',!(win&&chapter+1<CHAPTERS.length));
+  if(pendingScore){$('nameEntry').classList.remove('hidden');$('over').classList.add('naming');buildSlots();}
   else{pendingScore=null;$('nameEntry').classList.add('hidden');$('over').classList.remove('naming');renderTable($('overTable'),-1,5);}
-  $('toast').classList.add('hidden');endExtras(win,fs);show('over');$('controls').classList.add('hidden');$('pauseBtn').classList.add('hidden');$('ctrlBtn').classList.add('hidden');ptrs.clear();evalPtrs();
+  $('toast').classList.add('hidden');
+  $('miniMap').classList.remove('show');miniT=0;
+  show('over');mpQuit.classList.add('hidden');inGameUI(false);ptrs.clear();evalPtrs();
+  musicStop();engineSound(-1);sirenSound(false);
+  drawEuroMap(mapCtx.endMap,520,350,perfNow/1000,{labels:true,done:win});
+  endExtras(win,fs);
 }
 
 
@@ -3040,7 +3061,6 @@ function drawMaps(dt){
   if(miniT>-0.5&&['play','count','finish'].includes(state))drawChapterMap(mapCtx.miniMap,240,320,T,zoneProgress());
   if(vis('pauseMap'))drawChapterMap(mapCtx.pauseMap,240,320,T,zoneProgress());
   if(vis('radioMap'))drawChapterMap(mapCtx.radioMap,240,320,T,0);
-  if(vis('endMap'))drawEuroMap(mapCtx.endMap,520,350,T,{labels:true,done:state==='finish'});
 }
 function buildTicker(){const L=scores.slice(0,10);$('ticker').textContent=L.length?'🏆 RECORDES  ·  '+L.map((e,i)=>`${i+1}. ${e.n} ${e.s.toLocaleString('pt-PT')}`).join('   ·   ')+'   ·   MADE IN MAIA 🌙':'🏆 SÊ O PRIMEIRO NOS RECORDES · PORTO ➜ ALGARVE · MADE IN MAIA 🌙 · NEXT: EURO TOUR';}
 function endIntro(){if(state!=='intro')return;state='title';$('intro').classList.add('out');setTimeout(()=>{$('intro').classList.remove('out');show('title');sceneT0=performance.now();const tt=$('title');tt.classList.remove('reveal');tt.classList.toggle('fromIntro',introLogoShown);void tt.offsetWidth;tt.classList.add('reveal');sfx('boost');setTimeout(()=>tt.classList.remove('reveal'),2600);},450);buildTicker();checkRotate();}
@@ -3178,8 +3198,7 @@ function startLights(){
 function endExtras(win,fs){
   $('omsg').textContent=pick(Math.random,win?T('winM'):T('overM'));
   const h=$('overT');h.classList.remove('shake','win');void h.offsetWidth;h.classList.add(win?'win':'shake');
-  const b=$('bigScore');b.classList.remove('done');const t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/1300),e=1-Math.pow(1-k,3);b.textContent=Math.round(fs*e).toLocaleString('pt-PT');if(k<1)requestAnimationFrame(step);else b.classList.add('done');};requestAnimationFrame(step);
-  if(win)for(let i=0;i<4;i++)setTimeout(spawnFirework,i*300);
+  const b=$('bigScore');b.classList.remove('done');const result=raceResult,t0=performance.now();const step=()=>{if(raceResult!==result)return;const k=Math.min(1,(performance.now()-t0)/1300),e=1-Math.pow(1-k,3);b.textContent=Math.round(fs*e).toLocaleString('pt-PT');if(k<1)requestAnimationFrame(step);else b.classList.add('done');};requestAnimationFrame(step);
 }
 
 
@@ -3198,7 +3217,7 @@ function frame(now){
   syncCopChallenge();mpFrame();
   perfNow=now;const dt=Math.min(0.25,(now-last)/1000);last=now;acc+=dt;
   let n=0;while(acc>=STEP&&n<8){update(STEP);acc-=STEP;n++;}if(n>=8)acc=0;
-  const useScene=state==='title'||state==='tour'||state==='hiscore'||(state==='settings'&&settingsFrom==='title');SC.style.display=useScene?'block':'none';if(useScene){drawScene(now);}else{render();renderFX();}updateHUD();drawMaps(dt);if(state==='intro')drawIntro(now);
+  const useScene=state==='title'||state==='tour'||state==='hiscore'||(state==='settings'&&settingsFrom==='title');SC.style.display=useScene?'block':'none';if(useScene){drawScene(now);}else if(!raceResult||$('over').classList.contains('hidden')){render();renderFX();}updateHUD();drawMaps(dt);if(state==='intro')drawIntro(now);
   requestAnimationFrame(frame);
 }
 
