@@ -1705,10 +1705,16 @@ function renderItems(){const box=$('#roomItems');box.innerHTML='';
     const dep=it.on?`<button data-rt="drop" title="Put on floor">⬇</button><span class="dz">On ${RI[(S.room.items.find(i=>i.u===it.on)||{}).id]?.n||''}</span>`:RI[it.id].kind==='wall'?'':`<button data-rt="back">▲</button><span class="dz">${depthName(it.y)}</span><button data-rt="front">▼</button>`;
     tb.innerHTML=`${dep}<button data-rt="flip">↔</button><button data-rt="store">📦</button><button data-rt="ok">✓</button>`;box.appendChild(tb)}}
   $('#stage').classList.toggle('editing',RV.edit)}
+let furnitureRest=null;
 function placePet(instant){const b=roomBounds();RV.PX=clamp(RV.PX,b.min,b.max);const hw=$('#heroWrap'),au=$('#aura');if(instant){hw.style.transition='none';au.style.transition='none'}
-  hw.style.left=RV.PX*RV.worldW+'px';au.style.left=RV.PX*RV.worldW+'px';const pw=$('#stage').clientWidth,ds=depthS(RV.PY)/depthS(.87);hw.style.width=(parseFloat(hw.dataset.pct||100)/100*pw*ds)+'px';au.style.width=pw*.78*ds+'px';if(!S.asleep){hw.style.bottom=(1-RV.PY)*100+'%';hw.style.zIndex=Math.round(10+RV.PY*80);au.style.bottom=(1-RV.PY-.01)*100+'%';au.style.zIndex=Math.round(9+RV.PY*80)}
+  hw.style.left=RV.PX*RV.worldW+'px';au.style.left=RV.PX*RV.worldW+'px';const pw=$('#stage').clientWidth,ds=depthS(RV.PY)/depthS(.87);hw.style.width=(parseFloat(hw.dataset.pct||100)/100*pw*ds)+'px';au.style.width=pw*.78*ds+'px';if(!S.asleep){
+    const rest=furnitureRest,g=rest&&geo(rest.item),lift=g?g.h*(1-rest.seat):0;
+    const z=Math.max(Math.round(10+RV.PY*80),g?g.z+2:0);
+    hw.style.bottom='calc('+((1-RV.PY)*100)+'% + '+lift+'px)';hw.style.zIndex=z;
+    au.style.bottom='calc('+((1-RV.PY-.01)*100)+'% + '+lift+'px)';au.style.zIndex=z-1;
+  }
   if(instant)requestAnimationFrame(()=>{hw.style.transition='';au.style.transition=''})}
-function walkTo(x,cb,y,fast){SA.dash=!!fast;const b=roomBounds();x=clamp(x,b.min,b.max);if(y!==undefined){RV.PY=clamp(y,.74,.97);placePet(false)}const dist=Math.abs(x-RV.PX)*RV.worldW+(y!==undefined?40:0),dur=fast?Math.max(.25,dist/340):Math.max(.35,dist/110);if(dist<6){cb&&cb();return}
+function walkTo(x,cb,y,fast){if(furnitureRest){furnitureRest=null;placePet(false)}SA.dash=!!fast;const b=roomBounds();x=clamp(x,b.min,b.max);if(y!==undefined){RV.PY=clamp(y,.74,.97);placePet(false)}const dist=Math.abs(x-RV.PX)*RV.worldW+(y!==undefined?40:0),dur=fast?Math.max(.25,dist/340):Math.max(.35,dist/110);if(dist<6){cb&&cb();return}
   turnTo(x<RV.PX);const hw=$('#heroWrap'),au=$('#aura');setTimeout(()=>{hw.style.transition=`left ${dur}s linear, width .8s`;au.style.transition=`left ${dur}s linear`;RV.PX=x;hw.style.left=x*RV.worldW+'px';au.style.left=x*RV.worldW+'px';SA.walkUntil=performance.now()+dur*1000;
     if(cb)setTimeout(cb,dur*1000+60)},S.asleep?0:230)}
 function followPet(force){if(RV.edit&&!force)return;const sc=$('#roomScroll');if(!force&&performance.now()-RV.userT<4000)return;const vw=sc.clientWidth,px=RV.PX*RV.worldW,tgt=clamp(px-vw/2,0,RV.worldW-vw);if(force||Math.abs(sc.scrollLeft-tgt)>vw*.28)sc.scrollTo({left:tgt,behavior:force?'auto':'smooth'})}
@@ -1731,7 +1737,7 @@ function chaseFirefly(t){
   const target=clamp(RV.PX+dir*Math.min(145,sc.clientWidth*.32)/w,left,right);
   const f={x:target,y:RV.PY-.24,dir,escape:Infinity,until:t+4200};
   const pet=S,inputTime=RV.userT;
-  const canContinue=()=>pet===S&&inputTime===RV.userT&&canChaseFirefly();
+  const canContinue=()=>f.until>0&&pet===S&&inputTime===RV.userT&&canChaseFirefly();
   fireflyChase=f;nextFireflyChase=t+rnd(18000,30000);
   turnTo(dir<0);
   sprPlay(hasRole('look')?'look':'scan_a',{then:()=>{
@@ -1744,7 +1750,7 @@ function chaseFirefly(t){
   }});
   return true;
 }
-function roomWander(){const t=performance.now();if(S.asleep||busy||SA.once||SA.pose||RV.edit||t<SA.walkUntil)return false;if(chaseFirefly(t)||Math.random()>.14)return true;
+function roomWander(){const t=performance.now();if(S.asleep||busy||SA.once||SA.pose||RV.edit||furnitureRest||t<SA.walkUntil)return false;if(chaseFirefly(t)||Math.random()>.14)return true;
   const b=roomBounds(),vis=S.room.items.filter(i=>RI[i.id]&&RI[i.id].kind!=='rug'&&RI[i.id].kind!=='wall');
   if(vis.length&&Math.random()<.45){const it=pick(vis);walkTo(it.x+(Math.random()<.5?-1:1)*.07,()=>idleAt(it),clamp((RI[it.id].kind==='rug'?it.y:it.y+.03),.74,.97))}
   else walkTo(clamp(RV.PX+rnd(-.25,.25),b.min,b.max),null,rnd(.76,.96));return true}
@@ -1899,7 +1905,54 @@ function lightFx(x,t){if(!SKY.cv||!S.room)return;const st=$('#stage').getBoundin
 let musT=null;function playTune(){clearInterval(musT);const notes=[523,659,784,659,587,698,880,698,523,659,784,1047];let i=0;musT=setInterval(()=>{if(!S.room.music){clearInterval(musT);return}tone(notes[i%notes.length],.18,0,'triangle',.035);if(i%2===0)tone(130,.12,0,'sine',.04);i++},300)}
 /* interactions */
 function cool(k,min){const t=S.room.cool[k]||0;if(now()-t<min*60e3)return Math.ceil((min*60e3-(now()-t))/60e3);S.room.cool[k]=now();return 0}
+const REST_SURFACES={bed:.62,sofa:.68,sofa_bed:.60,cushion_bed:.63,dome_bed:.69,pod_bed:.72,
+  beanbag:.67,armchair:.68,side_table:.13,coffee_table:.25};
+const ARCADE_ITEMS=new Set(['game','arcade','mini_arcade','retro_desk']);
+let roomInteraction=0,activeArcade=null;
+function useRestSurface(it,valid){
+  if(furnitureRest?.item===it){
+    if(it.id==='bed'){openBed();return}
+    sprPlay('jump',{then:()=>{if(valid())walkTo(it.x+(it.x>.7?-.1:.1),()=>{if(valid())sprPlay('land')},clamp(it.y+.03,.74,.97))}});
+    return;
+  }
+  const chair=it.id==='armchair'||it.id==='beanbag';
+  const table=it.id==='side_table'||it.id==='coffee_table';
+  walkTo(it.x+(it.x>RV.PX?-.065:.065),()=>{
+    if(!valid())return;
+    turnTo(it.x<RV.PX);
+    sprPlay('jump',{then:()=>{
+      if(!valid())return;
+      const g=geo(it);
+      RV.PX=g.cx/RV.worldW;RV.PY=clamp(g.base/RV.H,.64,.99);
+      furnitureRest={item:it,seat:REST_SURFACES[it.id],role:chair||table?'sitidle':'p_lie'};
+      if(!hasRole('p_lie')&&furnitureRest.role==='p_lie')furnitureRest.role='sl_curl';
+      placePet(true);
+      if(chair||table)sprPlay('sitdown');
+      else say('Comfy…',1000);
+    }});
+  },clamp(it.y+.03,.74,.97));
+}
 function useItem(it){const d=RI[it.id];if(S.stage==='egg'){toast('Hatch your egg first');return}if(S.asleep&&d.fn!=='bed'){say('Zzz…');return}
+  const token=++roomInteraction,pet=S;
+  const valid=()=>pet===S&&token===roomInteraction&&!S.asleep&&!RV.edit
+    &&$('#p-home').classList.contains('on')&&!$('#ov').classList.contains('on')&&S.room.items.includes(it);
+  if(fireflyChase)fireflyChase.until=0;
+  if(d.fn==='bed'&&S.asleep){openBed();return}
+  if(sprMode()&&Object.hasOwn(REST_SURFACES,it.id)){activeArcade=null;useRestSurface(it,valid);return}
+  if(ARCADE_ITEMS.has(it.id)&&sprMode()){
+    if(activeArcade===it){activeArcade=null;go2('play');return}
+    activeArcade=it;
+    walkTo(it.x+(it.x>RV.PX?-.09:.09),()=>{
+      if(!valid())return;
+      turnTo(it.x<RV.PX);
+      sprPlay(hasRole('play_a')?'play_a':'play',{ms:1900,then:()=>{
+        if(valid())sprPlay('cheer',{ms:800});
+      }});
+      say('One more game!',1300);
+    },clamp(it.y+.035,.74,.97));
+    return;
+  }
+  activeArcade=null;
   const go=cb=>walkTo(it.x+(it.on?0:(it.x>RV.PX?-.07:.07)),cb,clamp(RI[it.id].kind==='wall'?.86:it.y+(it.on?.06:.03),.74,.97));
   switch(d.fn){
    case'bed':go(()=>openBed());break;
@@ -1938,7 +1991,7 @@ function roomPointer(){const box=$('#roomItems'),sc=$('#roomScroll');
   box.addEventListener('pointerup',up);box.addEventListener('pointercancel',()=>{RV.drag=null;RV.tap=null;sc.style.overflowX=''});
   ['pointerdown','wheel','touchstart'].forEach(ev=>sc.addEventListener(ev,()=>{RV.userT=performance.now()},{passive:true}));
   $('#roomLock').onclick=()=>openRoom('up');$('#roomLock2').onclick=()=>openRoom('up');
-  $('#editBtn').onclick=()=>{if(S.stage==='egg'){toast('Hatch your egg first');return}RV.edit=!RV.edit;RV.sel=null;SFX.tap();$('#editBtn').classList.toggle('on',RV.edit);$('#editBtn').innerHTML=RV.edit?'✓ Done':'✏️ Edit';if(RV.edit)toast('Drag furniture · tap to flip or store');renderItems()};
+  $('#editBtn').onclick=()=>{if(S.stage==='egg'){toast('Hatch your egg first');return}RV.edit=!RV.edit;if(RV.edit&&furnitureRest){furnitureRest=null;placePet(false)}RV.sel=null;SFX.tap();$('#editBtn').classList.toggle('on',RV.edit);$('#editBtn').innerHTML=RV.edit?'✓ Done':'✏️ Edit';if(RV.edit)toast('Drag furniture · tap to flip or store');renderItems()};
   $('#sRoom').onclick=()=>{SFX.tap();openRoom('store')}}
 /* panel */
 function roomCount(id){return (S.room.owned[id]||0)-S.room.items.filter(i=>i.id===id).length}
@@ -1983,7 +2036,7 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='20261104-cyberpet-fireflies';
+const FAELIX_BUILD='20261104-cyberpet-furniture';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
@@ -2112,6 +2165,7 @@ const SLEEPPOSE={curl:'sl_curl',stars:'sl_stargaze',moon:'sl_curl',dream:'sl_ham
 function sprBase(ts){
   const B=role=>{const r=res(role);return r?(r.t==='a'?{anim:r.r}:{pose:r.r}):{anim:'idle'}};
   if(S.asleep)return B(sleepMap(S.sleepStyle).hold);
+  if(furnitureRest)return B(furnitureRest.role);
   if(S.health<25)return B('dizzy');
   if(ts<SA.walkUntil)return B(SA.dash?'run':'walk');
   if(S.energy<25)return B('beg');
@@ -2257,7 +2311,7 @@ function sprPt(nx,ny){const r=SA.rect,cr=SC.getBoundingClientRect(),st=$('#stage
   let x=r.x+r.w*nx;if(flip)x=SC.width-x;return{x:cr.left-st.left+x*s,y:cr.top-st.top+(r.y+r.h*ny)*s,w:r.w*s,h:r.h*s}}
 const LIFE_ANIM=['ear','tail','scratch','look','ear','tail','look','catchtail','jump','backflip','study','tocam'];
 const LIFE_POSE=[['happy','Hehe!'],['curious','?'],['think','Hmm…'],['dance','♪♪'],['sunbathe','Ahh…'],['sneeze','Achoo!'],['hiccup','*hic*'],['stretch',''],['surf','Cowabunga!'],['basket','Swish!'],['bike','Ring ring!'],['gym','Hup!'],['grow','🌱'],['water','💧'],['wind','Whoosh'],['hack','beep boop'],['play',''],['chaseball',''],['recharge','⚡'],['inlove','♥'],['football','Goal!'],['skate','Wheee!'],['plant','🌱'],['playdead','…'],['chaseball',''],['party','Party! 🎉'],['study','']];
-function sprLife(){if(!sprMode()||S.asleep||busy||SA.once||SA.pose||S.gone)return;const t=performance.now();if(t<SA.walkUntil||(fireflyChase&&t<fireflyChase.until)||t<SA.nextLife)return;SA.nextLife=t+rnd(7000,13000);
+function sprLife(){if(!sprMode()||S.asleep||busy||SA.once||SA.pose||S.gone)return;const t=performance.now();if(furnitureRest||t<SA.walkUntil||(fireflyChase&&t<fireflyChase.until)||t<SA.nextLife)return;SA.nextLife=t+rnd(7000,13000);
   if(S.health<25||S.energy<25||S.happy<25)return;
   const LA=[...LIFE_ANIM,'front','turn','scan_a','ping','dig','play_a','wash','interact','land_a'].filter(hasRole),LP=LIFE_POSE.filter(l=>hasRole(l[0]));if(LA.length&&(Math.random()<.7||!LP.length)){sprPlay(pick(LA))}else if(LP.length){const [p,txt]=pick(LP);{sprPose(p,1700);if(txt)say(txt,1200);if(p==='sneeze'||p==='hiccup')tone(p==='sneeze'?300:900,.1,0,'square',.03)}}}
 
@@ -2358,7 +2412,7 @@ function lullaby(){[523,659,784,659,587,523,392,523].forEach((f,i)=>tone(f,.5,i*
 function yawnSnd(){for(let i=0;i<10;i++)tone(620-i*32,.12,i*.08,'sine',.03)}
 
 let wakeT=[];
-function startSleep(id,intro=true){if(intro&&!S.asleep&&!busy&&S.room&&(litLamps().length||sconces().length)&&!startSleep.go){startSleep.go=1;lightsOut(()=>{startSleep.go=0;startSleep(id,true)});return}startSleep.go=0;
+function startSleep(id,intro=true){furnitureRest=null;if(intro&&!S.asleep&&!busy&&S.room&&(litLamps().length||sconces().length)&&!startSleep.go){startSleep.go=1;lightsOut(()=>{startSleep.go=0;startSleep(id,true)});return}startSleep.go=0;
   stopSleep();wakeT.forEach(clearTimeout);wakeT=[];exprOverride=null;
   if(!id||id==='random'||!SLEEP[id]||!SLEEP[id].u())id=pick(unlockedSleep());
   S.asleep=true;S.sleepStyle=id;if(intro)S.sleeps=(S.sleeps||0)+1;
@@ -2477,7 +2531,7 @@ function check(){try{checkGoals()}catch(e){}
   document.title=(n.length?'(!) ':'')+(S.stage==='egg'?'Cyberpet — Scan to hatch':`${S.name} · Cyberpet`);
   save();renderAll();
 }
-function boot(){ensureRoom();if(RV.H&&$('#world').style.width)layoutRoom();stopSleep();curHeroKey='';busy=false;$('#cracks').innerHTML='';$('#hero').style.opacity='1';sizeStage();setHero(true);check();
+function boot(){furnitureRest=null;activeArcade=null;ensureRoom();if(RV.H&&$('#world').style.width)layoutRoom();stopSleep();curHeroKey='';busy=false;$('#cracks').innerHTML='';$('#hero').style.opacity='1';sizeStage();setHero(true);check();
   const gap=now()-(S.lastSeen||now());S.lastSeen=now();if(S.stage!=='egg'&&!S.asleep&&!S.gone)setTimeout(()=>{sprPlay(gap>6*HOUR?'missed':'greet');if(gap>6*HOUR){say('I missed you! 💖',2200);burst('hearts',8)}else say(pick(['Hi! 👋','Hey you!','You\'re back!']),1600)},700)}
 
 /* ============ start ============ */
