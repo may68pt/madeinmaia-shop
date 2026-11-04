@@ -789,9 +789,13 @@ function drawScene(t){
     sx.strokeStyle='rgba(166,255,60,.6)';sx.lineWidth=1.5;sx.beginPath();const o=Math.sin(t/300+i)*3;sx.moveTo(X-4,Y-14);sx.quadraticCurveTo(X-8+o,Y-20,X-4,Y-26);sx.moveTo(X+4,Y-14);sx.quadraticCurveTo(X+o,Y-20,X+4,Y-26);sx.stroke()}
   // effects
   const ef=S.effect,col=S.calib.mode==='inverse'?'#ff3fd8':ELEM[S.calib.el]?.c||'#3ff0ff';
-  if(ef==='fireflies'||ef==='sparkles'||ef==='embers'){for(const f of flies){f.a+=.02*f.s;const X=(f.x+Math.sin(f.a)*.04)*W,Y=(ef==='embers'?((f.y-(t/12000*f.s))%1+1)%1:f.y+Math.cos(f.a*1.3)*.03)*H;
+  if(ef==='fireflies'||ef==='sparkles'||ef==='embers'){for(const [i,f] of flies.entries()){if(ef==='fireflies'&&(i>=3||(i===0&&fireflyChase&&t<fireflyChase.until)))continue;f.a+=.02*f.s;const X=(f.x+Math.sin(f.a)*.04)*W,Y=(ef==='embers'?((f.y-(t/12000*f.s))%1+1)%1:f.y+Math.cos(f.a*1.3)*.03)*H;
     const c=ef==='embers'?'#ff8a3c':ef==='sparkles'?'#fff6c8':'#d8ff7a';const a=.4+.6*Math.abs(Math.sin(f.a*2));sx.globalAlpha=a;const gl=sx.createRadialGradient(X,Y,0,X,Y,8);gl.addColorStop(0,c);gl.addColorStop(1,'transparent');sx.fillStyle=gl;sx.fillRect(X-8,Y-8,16,16);
     if(ef==='sparkles'){sx.strokeStyle=c;sx.lineWidth=1;sx.beginPath();sx.moveTo(X-5,Y);sx.lineTo(X+5,Y);sx.moveTo(X,Y-5);sx.lineTo(X,Y+5);sx.stroke()}sx.globalAlpha=1}}
+  if(ef==='fireflies'&&fireflyChase&&t<fireflyChase.until){
+    const f=fireflyChase,k=clamp((t-f.escape)/700,0,1);
+    glowDot(sx,f.x*W+Math.sin(t/210)*5+f.dir*k*38,f.y*H+Math.cos(t/250)*4-k*50,6,'#e8ff8a',1-k*.8);
+  }
   if(ef==='aurora'){for(let k=0;k<3;k++){sx.strokeStyle=['rgba(63,240,255,.25)','rgba(141,255,74,.2)','rgba(255,63,216,.2)'][k];sx.lineWidth=18;sx.beginPath();for(let i=0;i<=20;i++){const X=i/20*W,Y=H*(.12+k*.06)+Math.sin(i/3+t/1500+k)*14;i?sx.lineTo(X,Y):sx.moveTo(X,Y)}sx.stroke()}}
   if(ef==='orbit'&&S.stage!=='egg'){const hw=$('#heroWrap').getBoundingClientRect(),st=$('#stage').getBoundingClientRect();const cx=hw.left-st.left+hw.width/2,cy=hw.top-st.top+hw.height*.55,rx=hw.width*.62,ry=hw.width*.16;
     sx.strokeStyle=col+'aa';sx.lineWidth=2;sx.shadowColor=col;sx.shadowBlur=12;sx.beginPath();sx.ellipse(cx,cy,rx,ry,-.12,Math.PI,Math.PI*2);sx.stroke();sx.shadowBlur=0;
@@ -866,7 +870,7 @@ function lifeTick(){
   if(S.room)followPet(false);
   if(S.asleep&&SL)sleepTick();
   if(S.health<25&&Math.random()<.2)burst('sparks',2,heroPoint(.7,.15));
-  if(!S.asleep&&!busy&&Math.random()<.05)act(pick(['a-hop','a-wobble']));
+  if(!S.asleep&&!busy&&!(fireflyChase&&performance.now()<fireflyChase.until)&&Math.random()<.05)act(pick(['a-hop','a-wobble']));
   if(S.effect==='glitch'&&Math.random()<.08){act('a-glitch');burst('glitch',8)}
   sprLife();
   drawEyes();
@@ -1712,7 +1716,35 @@ const IDLE_AT={aqua:[['curious','Fishies!'],['look',''],['happy','']],screen:[['
  music:[['dance','♪'],['party','']],light:[['sunbathe','Warm…'],['yawn','']],sit:[['sitdown',''],['yawn','']],bed:[['yawn',''],['stretch','']],work:[['think','Hmm…'],['upgrade','']],snack:[['beg','Snack?'],['eat','']],
  groom:[['stretch',''],['scratch','']],read:[['study',''],['think','']],climb:[['jump',''],['catchtail','']],chest:[['curious','Treasure?'],['dig','']],hug:[['inlove','♥'],['happy','']],aqua2:[['curious','']]};
 function idleAt(it){const d=RI[it.id];const key=d.fn||'x';const L=IDLE_AT[key]||[['curious','Ooh!'],['look',''],['sniff','']];const [p,txt]=pick(L);if(!sprPlay(p))sprPose(p,1600);if(txt)say(txt,1100);turnTo(it.x<RV.PX)}
-function roomWander(){if(S.asleep||busy||SA.once||SA.pose||RV.edit)return false;if(Math.random()>.14)return true;
+let fireflyChase=null,nextFireflyChase=0;
+function canChaseFirefly(){
+  return S.effect==='fireflies'&&sprMode()&&!S.asleep&&!S.gone&&!busy&&!RV.edit&&!document.hidden
+    &&$('#p-home').classList.contains('on')&&!$('#ov').classList.contains('on');
+}
+function chaseFirefly(t){
+  if(fireflyChase&&t<fireflyChase.until)return true;
+  if(t<nextFireflyChase||!canChaseFirefly()||S.energy<25||t-RV.userT<4000)return false;
+  const sc=$('#roomScroll'),b=roomBounds(),w=RV.worldW;
+  const left=Math.max(b.min,(sc.scrollLeft+24)/w),right=Math.min(b.max,(sc.scrollLeft+sc.clientWidth-24)/w);
+  if(RV.PX<left||RV.PX>right||Math.max(RV.PX-left,right-RV.PX)*w<62)return false;
+  const dir=right-RV.PX>=RV.PX-left?1:-1;
+  const target=clamp(RV.PX+dir*Math.min(145,sc.clientWidth*.32)/w,left,right);
+  const f={x:target,y:RV.PY-.24,dir,escape:Infinity,until:t+4200};
+  const pet=S,inputTime=RV.userT;
+  const canContinue=()=>pet===S&&inputTime===RV.userT&&canChaseFirefly();
+  fireflyChase=f;nextFireflyChase=t+rnd(18000,30000);
+  turnTo(dir<0);
+  sprPlay(hasRole('look')?'look':'scan_a',{then:()=>{
+    if(!canContinue()){f.until=0;return}
+    walkTo(target-dir*18/w,()=>{
+      if(!canContinue()||SA.once||SA.pose){f.until=0;return}
+      f.escape=performance.now()+110;f.until=f.escape+700;
+      sprPlay('jump',{then:()=>{if(canContinue())sprPlay('happy',{ms:650})}});
+    },undefined,true);
+  }});
+  return true;
+}
+function roomWander(){const t=performance.now();if(S.asleep||busy||SA.once||SA.pose||RV.edit||t<SA.walkUntil)return false;if(chaseFirefly(t)||Math.random()>.14)return true;
   const b=roomBounds(),vis=S.room.items.filter(i=>RI[i.id]&&RI[i.id].kind!=='rug'&&RI[i.id].kind!=='wall');
   if(vis.length&&Math.random()<.45){const it=pick(vis);walkTo(it.x+(Math.random()<.5?-1:1)*.07,()=>idleAt(it),clamp((RI[it.id].kind==='rug'?it.y:it.y+.03),.74,.97))}
   else walkTo(clamp(RV.PX+rnd(-.25,.25),b.min,b.max),null,rnd(.76,.96));return true}
@@ -1951,7 +1983,7 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='20261104-cyberpet-room';
+const FAELIX_BUILD='20261104-cyberpet-fireflies';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
@@ -2225,7 +2257,7 @@ function sprPt(nx,ny){const r=SA.rect,cr=SC.getBoundingClientRect(),st=$('#stage
   let x=r.x+r.w*nx;if(flip)x=SC.width-x;return{x:cr.left-st.left+x*s,y:cr.top-st.top+(r.y+r.h*ny)*s,w:r.w*s,h:r.h*s}}
 const LIFE_ANIM=['ear','tail','scratch','look','ear','tail','look','catchtail','jump','backflip','study','tocam'];
 const LIFE_POSE=[['happy','Hehe!'],['curious','?'],['think','Hmm…'],['dance','♪♪'],['sunbathe','Ahh…'],['sneeze','Achoo!'],['hiccup','*hic*'],['stretch',''],['surf','Cowabunga!'],['basket','Swish!'],['bike','Ring ring!'],['gym','Hup!'],['grow','🌱'],['water','💧'],['wind','Whoosh'],['hack','beep boop'],['play',''],['chaseball',''],['recharge','⚡'],['inlove','♥'],['football','Goal!'],['skate','Wheee!'],['plant','🌱'],['playdead','…'],['chaseball',''],['party','Party! 🎉'],['study','']];
-function sprLife(){if(!sprMode()||S.asleep||busy||SA.once||SA.pose||S.gone)return;const t=performance.now();if(t<SA.nextLife)return;SA.nextLife=t+rnd(7000,13000);
+function sprLife(){if(!sprMode()||S.asleep||busy||SA.once||SA.pose||S.gone)return;const t=performance.now();if(t<SA.walkUntil||(fireflyChase&&t<fireflyChase.until)||t<SA.nextLife)return;SA.nextLife=t+rnd(7000,13000);
   if(S.health<25||S.energy<25||S.happy<25)return;
   const LA=[...LIFE_ANIM,'front','turn','scan_a','ping','dig','play_a','wash','interact','land_a'].filter(hasRole),LP=LIFE_POSE.filter(l=>hasRole(l[0]));if(LA.length&&(Math.random()<.7||!LP.length)){sprPlay(pick(LA))}else if(LP.length){const [p,txt]=pick(LP);{sprPose(p,1700);if(txt)say(txt,1200);if(p==='sneeze'||p==='hiccup')tone(p==='sneeze'?300:900,.1,0,'square',.03)}}}
 
@@ -2344,7 +2376,7 @@ const SINTRO={
  moon(intro){SL.data={};if(intro){lullaby();say('♪ hmm-hmm… ♪',1600)}poseAnim([{transform:'translateY(3%) scale(1.02,.94) rotate(-3deg)'},{transform:'translateY(3%) scale(1.02,.94) rotate(3deg)'}],{duration:2600,iterations:Infinity,direction:'alternate',fill:'none'})},
  dream(intro){const L=['🦋','⭐','🍓','🐟','🪐'];if(S.lastFood)L.unshift(S.lastFood);if(S.calib.el)L.push(ELEM[S.calib.el].e);S.plants.forEach(p=>L.push(ITEMS[p][1]));if(S.bond>70)L.push('💗');SL.data={list:[...new Set(L)].sort(()=>Math.random()-.5)};settle(intro,200);if(intro)say('mmm…',1200)},
  charge(intro){$('#aura').classList.add('charge');if(intro){SL.eye='dash';say('Powering down…',1500);for(let i=0;i<6;i++)tone(900-i*110,.12,i*.12,'square',.02);later(1600,()=>{SL.eye='sleep'})}settle(intro,300)},
- fireflies(intro){const n=22;SL.data={p:Array.from({length:n},()=>intro?{x:Math.random()*SW,y:Math.random()*SH*.8}:{snap:1,x:0,y:0})};settle(intro,400);if(intro)say('Ooh… lights…',1500)},
+ fireflies(intro){const n=5;SL.data={p:Array.from({length:n},()=>intro?{x:Math.random()*SW,y:Math.random()*SH*.8}:{snap:1,x:0,y:0})};settle(intro,400);if(intro)say('Ooh… lights…',1500)},
  float(intro){$('#stage').classList.add('floating');const up={transform:'translateY(-13%) rotate(-3deg)'};
    if(intro){poseAnim([{transform:'none'},up],{duration:2200});later(2250,()=>poseAnim([up,{transform:'translateY(-18%) rotate(2deg)'}],{duration:2800,iterations:Infinity,direction:'alternate',fill:'none'}));for(let i=0;i<5;i++)tone(700+i*140,.3,i*.15,'sine',.03)}
    else poseAnim([up,{transform:'translateY(-18%) rotate(2deg)'}],{duration:2800,iterations:Infinity,direction:'alternate',fill:'none'})},
