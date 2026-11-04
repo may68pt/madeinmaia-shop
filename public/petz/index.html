@@ -288,9 +288,6 @@ main{padding-bottom:92px}
 .it.eq{border-color:var(--cy);box-shadow:0 0 12px rgba(63,240,255,.45)}
 .it.lock{opacity:.45}
 .it .tag{position:absolute;left:5px;top:4px;font-family:'Barlow Condensed';font-weight:800;font-size:10px;color:var(--gd)}
-.custPrev{position:relative;height:200px;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
-.custPrev canvas{position:absolute;inset:0;width:100%;height:100%}
-.custPrev img{position:absolute;left:50%;bottom:10%;height:72%;transform:translateX(-50%)}
 /* journal */
 .logc{display:flex;gap:12px;margin-top:10px}
 .polar{flex:none;width:92px;background:#f5efe2;padding:5px 5px 14px;border-radius:4px;transform:rotate(-3deg);box-shadow:0 6px 14px rgba(0,0,0,.4)}
@@ -427,7 +424,6 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
     <div class="side">
       <button id="sRoom" aria-label="Room" style="font-size:20px">🛋️</button>
       <button id="sShare" aria-label="Share"><svg class="ico" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
-      <button id="sCustom" aria-label="Customise"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></button>
       <button id="sCal" aria-label="Calibrate"><svg class="ico" viewBox="0 0 24 24"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
     <button id="editBtn" class="editBtn">✏️ Edit</button>
@@ -464,7 +460,7 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
 
 <!-- LAB -->
 <section class="page" id="p-lab">
-  <div class="tabs" id="labTabs"><button data-s="cal" class="on">Calibration</button><button data-s="cust">Customise</button><button data-s="inv">Inventory</button></div>
+  <div class="tabs" id="labTabs"><button data-s="cal" class="on">Calibration</button><button data-s="inv">Inventory</button></div>
   <div class="sub on" id="s-cal">
     <div class="holo" id="holo"><div class="lbl" id="holoLbl">Calibration Lab</div><div class="pad"></div><img class="h" id="holoImg" alt=""><div class="ring" id="ring"></div></div>
     <div class="sec"><h2>The Calibration Wheel</h2><small id="wheelSub"></small></div>
@@ -477,14 +473,9 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
     <div class="sec"><h2>Calibration states</h2></div>
     <div class="panel states" id="states"></div>
   </div>
-  <div class="sub" id="s-cust">
-    <div class="custPrev" id="custPrev"><canvas id="custCv"></canvas><img id="custImg" alt=""></div>
-    <div class="tabs" id="custTabs"><button data-c="modules" class="on">Modules</button><button data-c="looks">Looks</button><button data-c="plants">Plants</button><button data-c="effects">Effects</button></div>
-    <div id="custList"></div>
-  </div>
   <div class="sub" id="s-inv">
     <div class="tabs" id="invTabs"><button data-i="all" class="on">All</button><button data-i="mat">Materials</button><button data-i="plant">Plants</button><button data-i="relic">Relics</button><button data-i="mod">Modules</button></div>
-    <div class="invg" id="invGrid"></div>
+    <div class="invg" id="invGrid"></div><p class="muted" id="modInfo" hidden></p>
   </div>
 </section>
 
@@ -1085,7 +1076,7 @@ function expedition(k){
   modal('',true);draw()}
 
 /* ============ LAB ============ */
-let wheelSel=null,custTab='modules',invTab='all';
+let wheelSel=null,invTab='all';
 function renderLab(){
   const k=heroKey();$('#holoImg').src='a/'+(S.stage==='egg'?'st_egg':k)+'.webp';$('#holoLbl').textContent='Calibration Lab · '+VAR[curVariant()].n;
   $('#wheelSub').textContent=S.signals.length-1+'/8 signals';
@@ -1118,7 +1109,7 @@ function renderLab(){
   $('#modes').innerHTML=MODES.map(([k,n,d,e,c])=>`<div class="mode" data-mode="${k}" style="--mc:${c}"><div class="mi">${e}</div><div><b>${n}</b><span>${d}</span></div>${S.calib.mode===k?'<span class="on">ACTIVE</span>':''}</div>`).join('');
   $$('[data-mode]').forEach(m=>m.onclick=()=>openMode(m.dataset.mode));
   const cst=calState();$('#states').innerHTML=Object.entries(STATES).map(([k,[n,d,c,ic]])=>`<div class="srow ${cst===k?'cur':''}" style="--sc:${c}"><div class="vz">${visorIcon(ic,c)}</div><div><b>${n}</b><span>${d}</span></div></div>`).join('');
-  renderCust();renderInv();
+  renderInv();
 }
 function doCalAnim(msg){lvKick('glow');lvKick('ping');lvKick('ping');sprPose('transform',1300,()=>sprPose('powerup',1200));const img=$('#holoImg');img.style.animation='none';void img.offsetWidth;img.style.animation='spin .9s ease, holo 3s ease-in-out .9s infinite';const rg=$('#ring');rg.classList.remove('go');void rg.offsetWidth;rg.classList.add('go');SFX.zap();setTimeout(SFX.yay,500);
   setTimeout(()=>{$('#holoImg').src='a/'+heroKey()+'.webp'},450);toast(msg);addLog('⚙️','Calibration',msg+'.');setHero(true);setTimeout(()=>{act('a-spin');burst('ring',1);burst('sparks',16)},50)}
@@ -1145,38 +1136,23 @@ function openMode(k){
         S.calib={mode:'hybrid',el:A,hy:[A,B],off};S.variant=ELEM[A].v;closeM();doCalAnim(`Hybrid: ${ELEM[A].n} + ${ELEM[B].n}`);mission('calibrate');addXP(20);save();renderAll()}};
     modal('');draw();return}
 }
-/* customise */
-function renderCust(){
-  const c=$('#custCv'),r=$('#custPrev').getBoundingClientRect();if(r.width){c.width=r.width*DPR;c.height=r.height*DPR;const st=buildStatic(S.look,tod());const x=c.getContext('2d');x.drawImage(st,0,0,st.width,st.height,0,0,c.width,c.height)}
-  const k=heroKey();$('#custImg').src='a/'+k+'.webp';$('#custImg').style.filter=heroFilter(k);
-  $$('#custTabs button').forEach(b=>b.classList.toggle('on',b.dataset.c===custTab));
-  let h='';
-  if(custTab==='modules')h=`<div class="sec"><h2 style="font-size:18px">Modules & bio-implants</h2><small>Craft from materials</small></div><div class="invg">`+Object.entries(MODS).map(([k,[n,e,d,rc]])=>{rc=rcq(rc);const own=S.mods[k],eq=S.eq[k],can=Object.entries(rc).every(([i,q])=>(S.inv[i]||0)>=q);
-     return`<div class="it ${eq?'eq':''} ${own||can?'':'lock'}" data-mod="${k}"><span class="e">${e}</span><small>${n}</small>${own?(eq?'<span class="tag">ON</span>':''):`<span class="tag">${Object.entries(rc).map(([i,q])=>ITEMS[i][1]+q).join('')}</span>`}</div>`}).join('')+`</div><p class="muted" id="modInfo" style="margin-top:8px">Tap a module to craft or equip it.</p>`;
-  if(custTab==='looks')h=`<div class="invg" style="margin-top:10px">`+Object.entries(LOOKS).map(([k,[n,how,cost]])=>{const own=S.looks.includes(k);return`<div class="it ${S.look===k?'eq':''} ${own?'':'lock'}" data-look="${k}"><span class="e">${{ruins:'🏛️',forest:'🌳',crystal:'💎',cosmic:'🪐'}[k]}</span><small>${n}</small>${own?'':`<span class="tag">${cost}⚡</span>`}</div>`}).join('')+`</div><p class="muted" style="margin-top:8px">Scenes unlock when you explore their zone, or buy them with ⚡.</p>`;
-  if(custTab==='plants'){const owned=Object.keys(ITEMS).filter(i=>ITEMS[i][2]==='plant'&&(S.inv[i]||0)>0);h=`<div class="invg" style="margin-top:10px">`+(owned.length?owned.map(p=>`<div class="it ${S.plants.includes(p)?'eq':''}" data-plant="${p}"><span class="e">${ITEMS[p][1]}</span><small>${ITEMS[p][0]}</small><b>${S.inv[p]}</b></div>`).join(''):'')+`</div><p class="muted" style="margin-top:8px">${owned.length?'Place up to 3 plants in your scene.':'Find plants while exploring and in Crystal Catch.'}${S.eq.biomods?' Biomods active: plants boost happiness.':''}</p>`}
-  if(custTab==='effects')h=`<div class="invg" style="margin-top:10px">`+Object.entries(EFFECTS).map(([k,[n,e,cost]])=>{const own=S.effects.includes(k);return`<div class="it ${S.effect===k?'eq':''} ${own?'':'lock'}" data-fx="${k}"><span class="e">${e||'⭕'}</span><small>${n}</small>${own?'':`<span class="tag">${k==='glitch'?cost+'💎':cost+'⚡'}</span>`}</div>`}).join('')+`</div>`;
-  $('#custList').innerHTML=h;
+function renderInv(){$$('#invTabs button').forEach(b=>b.classList.toggle('on',b.dataset.i===invTab));
+  let list=[];if(invTab==='mod')list=Object.entries(MODS).map(([k,[n,e,d,rc]])=>{rc=rcq(rc);const own=S.mods[k],eq=S.eq[k],can=Object.entries(rc).every(([i,q])=>(S.inv[i]||0)>=q);
+     return`<div class="it ${eq?'eq':''} ${own||can?'':'lock'}" data-mod="${k}"><span class="e">${e}</span><small>${n}</small>${own?(eq?'<span class="tag">ON</span>':''):`<span class="tag">${Object.entries(rc).map(([i,q])=>ITEMS[i][1]+q).join('')}</span>`}</div>`});
+  else list=Object.entries(ITEMS).filter(([k,v])=>(S.inv[k]||0)>0&&(invTab==='all'||v[2]===invTab)).map(([k,v])=>`<div class="it" data-item="${k}"><span class="e">${v[1]}</span><small>${v[0]}</small><b>${S.inv[k]}</b></div>`);
+  if(invTab==='all')list=list.concat(Object.keys(S.mods).map(k=>`<div class="it ${S.eq[k]?'eq':''}"><span class="e">${MODS[k][1]}</span><small>${MODS[k][0]}</small><span class="tag">MOD</span></div>`));
+  $('#invGrid').innerHTML=list.join('')||'<p class="muted" style="grid-column:span 4">Nothing here yet. Explore and play to collect.</p>';
+  const info=$('#modInfo');info.hidden=invTab!=='mod';info.textContent='Tap a module to craft or equip it.';
   $$('[data-mod]').forEach(d=>d.onclick=()=>{const k=d.dataset.mod;let [n,e,desc,rc]=MODS[k];rc=rcq(rc);
     if(S.mods[k]){S.eq[k]=!S.eq[k];SFX.tap();mission('craft');toast(`${n} ${S.eq[k]?'equipped':'removed'} · ${desc}`)}
     else{if(!Object.entries(rc).every(([i,q])=>(S.inv[i]||0)>=q)){SFX.no();$('#modInfo').textContent=`${n}: ${desc}. Needs ${Object.entries(rc).map(([i,q])=>q+'× '+ITEMS[i][0]).join(', ')}.`;return}
       for(const i in rc)S.inv[i]-=rc[i];S.mods[k]=true;S.eq[k]=true;S.base.tech+=2;SFX.yay();sprPose('upgrade',1800,()=>sprPose('powerup',1200));toast(`${e} ${n} crafted! ${desc}`);mission('craft');addLog('🔧','Module crafted',`${S.name} got new ${n}.`);addXP(20)}
     save();renderAll()});
-  $$('[data-look]').forEach(d=>d.onclick=()=>{const k=d.dataset.look;if(!S.looks.includes(k)){const c=LOOKS[k][2];if(S.coins<c){SFX.no();toast(`Need ${c} ⚡ (or explore the zone)`);return}S.coins-=c;S.looks.push(k)}S.look=k;sceneKey='';SFX.ok();save();renderAll()});
-  $$('[data-plant]').forEach(d=>d.onclick=()=>{const p=d.dataset.plant;if(S.plants.includes(p))S.plants=S.plants.filter(x=>x!==p);else{if(S.plants.length>=3)S.plants.shift();S.plants.push(p);sprPose('plant',1600)}SFX.tap();save();renderAll()});
-  $$('[data-fx]').forEach(d=>d.onclick=()=>{const k=d.dataset.fx;if(!S.effects.includes(k)){const c=EFFECTS[k][2];if(k==='glitch'){if(S.gems<c){SFX.no();toast('Need '+c+' 💎');return}S.gems-=c}else{if(S.coins<c){SFX.no();toast('Need '+c+' ⚡');return}S.coins-=c}S.effects.push(k);SFX.yay()}S.effect=k;SFX.tap();save();renderAll()});
-}
-$$('#custTabs button').forEach(b=>b.onclick=()=>{custTab=b.dataset.c;SFX.tap();renderCust()});
-function renderInv(){$$('#invTabs button').forEach(b=>b.classList.toggle('on',b.dataset.i===invTab));
-  let list=[];if(invTab==='mod')list=Object.keys(S.mods).map(k=>`<div class="it ${S.eq[k]?'eq':''}"><span class="e">${MODS[k][1]}</span><small>${MODS[k][0]}</small></div>`);
-  else list=Object.entries(ITEMS).filter(([k,v])=>(S.inv[k]||0)>0&&(invTab==='all'||v[2]===invTab)).map(([k,v])=>`<div class="it" data-item="${k}"><span class="e">${v[1]}</span><small>${v[0]}</small><b>${S.inv[k]}</b></div>`);
-  if(invTab==='all')list=list.concat(Object.keys(S.mods).map(k=>`<div class="it ${S.eq[k]?'eq':''}"><span class="e">${MODS[k][1]}</span><small>${MODS[k][0]}</small><span class="tag">MOD</span></div>`));
-  $('#invGrid').innerHTML=list.join('')||'<p class="muted" style="grid-column:span 4">Nothing here yet. Explore and play to collect.</p>';
-  $$('[data-item]').forEach(d=>d.onclick=()=>{const k=d.dataset.item,v=ITEMS[k];const tips={mat:'Used to craft modules in Customise.',plant:'Place it in your scene from Customise → Plants.',relic:'A relic from the ruins. Collect them all in your Journal.'};
+  $$('[data-item]').forEach(d=>d.onclick=()=>{const k=d.dataset.item,v=ITEMS[k];const tips={mat:'Used to craft modules in Inventory → Modules.',plant:'A plant collected during exploration or Crystal Catch.',relic:'A relic from the ruins. Collect them all in your Journal.'};
     modal(`<div style="text-align:center;font-size:64px">${v[1]}</div><h3 style="text-align:center">${v[0]}</h3><p class="muted" style="text-align:center">You have ${S.inv[k]}. ${tips[v[2]]}</p><div class="btns"><button class="btn cy" id="gift">🎁 Gift one</button><button class="btn gh" data-x>Close</button></div>`);
     $('#gift').onclick=()=>gift(k)})}
 $$('#invTabs button').forEach(b=>b.onclick=()=>{invTab=b.dataset.i;SFX.tap();renderInv()});
-$$('#labTabs button').forEach(b=>b.onclick=()=>{SFX.tap();$$('#labTabs button').forEach(x=>x.classList.toggle('on',x===b));$$('#p-lab .sub').forEach(s=>s.classList.toggle('on',s.id==='s-'+b.dataset.s));if(b.dataset.s==='cust')renderCust()});
+$$('#labTabs button').forEach(b=>b.onclick=()=>{SFX.tap();$$('#labTabs button').forEach(x=>x.classList.toggle('on',x===b));$$('#p-lab .sub').forEach(s=>s.classList.toggle('on',s.id==='s-'+b.dataset.s))});
 function gift(k){if((S.inv[k]||0)<1)return;S.inv[k]--;const code='FXGIFT-'+enc({i:k,n:1,id:Math.random().toString(36).slice(2,10),f:S.name});save();
   modal(`<h3>🎁 Gift code</h3><p class="muted">Send this to a friend. They paste it in Journal → Settings → Redeem.</p><textarea readonly id="gOut">${code}</textarea><div class="btns"><button class="btn cy" id="gCopy">Copy</button><button class="btn gh" data-x>Done</button></div>`);$('#gCopy').onclick=()=>copy(code);renderAll()}
 
@@ -1251,7 +1227,7 @@ $('#heroWrap').addEventListener('click',e=>{if(S.stage==='egg')return tapEgg();i
 $('#stage').addEventListener('pointermove',e=>{if(S.stage==='egg'||S.asleep)return;const r=$('#heroWrap').getBoundingClientRect();const dx=(e.clientX-(r.left+r.width/2))/r.width;const flip=$('#heroFlip').classList.contains('l');lookX=Math.round(Math.max(-1,Math.min(1,dx*(flip?-1:1)))*4);drawEyes()});
 $('#stage').addEventListener('pointermove',e=>{if(!sprMode()||S.asleep)return;const r=SC.getBoundingClientRect();LV.look=clamp((e.clientX-(r.left+r.width/2))/r.width,-1,1)*($('#heroFlip').classList.contains('l')?-1:1)});
 $('#stage').addEventListener('pointerleave',()=>{LV.look=0});
-$('#sShare').onclick=()=>{SFX.tap();share()};$('#sCustom').onclick=()=>{go('lab');$$('#labTabs button')[1].click()};$('#sCal').onclick=()=>{go('lab');$$('#labTabs button')[0].click()};
+$('#sShare').onclick=()=>{SFX.tap();share()};$('#sCal').onclick=()=>{go('lab');$$('#labTabs button')[0].click()};
 
 
 
@@ -2069,7 +2045,7 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='20261104-cyberpet-sleep';
+const FAELIX_BUILD='20261104-cyberpet-lab';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
