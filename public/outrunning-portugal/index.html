@@ -2073,7 +2073,7 @@ function updateBusted(dt){
   if(B.phase==='happy'&&B.at>1.25){B.phase='back';B.anim='walk';B.at=0;}
   if(B.phase==='stop'&&B.t>0.9){B.phase='out';B.anim='walk';B.at=0;sfx('click');}
   if(B.phase==='out'){B.walk=Math.min(1,B.walk+dt/1.25);if(B.walk>=1){B.phase='talk';B.anim='idle';B.at=0;B.next=Math.min(B.next,B.t+0.2);}else if(B.walk>0.45&&B.walk<0.62)B.anim='hitch';else B.anim='walk';}
-  if(B.phase==='talk'&&B.t>=B.next){B.step++;const L=B.seq[B.step];
+  if(B.phase==='talk'&&B.t>=B.next&&(B.step<B.seq.length-1||B.challenge.done)){B.step++;const L=B.seq[B.step];
     if(!L){B.phase='ticket';B.at=0;B.anim='give';B.ticket={t:0};sfx('pickup');
       if(B.fine){timeLeft=Math.max(0.5,timeLeft-B.fine);popText(T('fine')+' −'+B.fine+' s',2);sfx('over');}else popText(T('free'),1);
       if(Math.random()<0.5)setTimeout(()=>{say('d',bp('dafter'),1.6,true);},300);}
@@ -2565,22 +2565,36 @@ function pixBox(g,x,y,w,h,p,fill,bd,sh){ // 16-bit stepped-corner box
   path(0,0);g.fillStyle=bd;g.fill();
   g.save();g.translate(p,p);const w0=w,h0=h;w-=2*p;h-=2*p;path(0,0);g.fillStyle=fill;g.fill();w=w0;h=h0;g.restore();
 }
-function drawBubble(g,ax,ay,text,who,t,life,al_){
-  const sc=Math.min(1,t/0.1),al=Math.min(1,(life-t)/0.2);g.save();g.globalAlpha=al;
-  const fs=Math.round(Math.min(H,W*0.9)*0.088),p=Math.max(3,Math.round(fs*0.16));g.font=`700 ${fs}px ${BFONT}`;
-  const maxW=FX.width*0.84-fs*1.2,words=text.split(' '),lines=[];let cur='';
-  for(const wd of words){const tt=cur?cur+' '+wd:wd;if(g.measureText(tt).width>maxW&&cur){lines.push(cur);cur=wd;}else cur=tt;}lines.push(cur);
-  const tw=Math.max(...lines.map(l=>g.measureText(l).width)),lh=fs*1.12,w=Math.round((tw+fs*1.2)*sc),h=Math.round((lines.length*lh+fs*0.7)*sc);
-  const below=al_.length>1&&al_[1]==='B',A=al_[0];const bx=Math.round(clamp(A==='L'?ax-w+fs*1.2:A==='R'?ax-fs*1.2:ax-w/2,8,FX.width-w-8)),by=below?Math.round(Math.min(FX.height-h-8,ay+fs*0.9)):Math.round(Math.max(fs*1.3,ay-h-fs*0.9));
-  const col=who==='cop'?'#e4eeff':who==='w'?'#fff0f6':'#fffdf2',bd=who==='cop'?'#1f3fa8':who==='w'?'#c2185b':'#111',tc=who==='cop'?'#102a7a':who==='w'?'#9c0f4a':'#111';
-  // tail (stepped)
-  const tx=Math.round(clamp(ax,bx+fs*1.2,bx+w-fs*1.2)),ty=Math.min(ay,by+h+fs*1.1);
-  if(below){const ty2=Math.max(ay,by-fs*1.1),st2=4;for(let i=0;i<st2;i++){const k=i/st2,hh=Math.ceil((by-ty2)/st2)+p,yy=by+p-(by-ty2)*(k+1/st2),ww=fs*0.7*(1-k)+p*1.2,xx=lerp(tx,ax,k);g.fillStyle=bd;g.fillRect(Math.round(xx-ww/2-p),Math.round(yy),Math.round(ww+2*p),hh);g.fillStyle=col;g.fillRect(Math.round(xx-ww/2),Math.round(yy)+(i===st2-1?p:0),Math.round(ww),hh);}}
-  else{const steps=4;for(let i=0;i<steps;i++){const k=i/steps,yy=by+h-p+(ty-(by+h))*k,ww=fs*0.7*(1-k)+p*1.2,xx=lerp(tx,ax,k);g.fillStyle=bd;g.fillRect(Math.round(xx-ww/2-p),Math.round(yy),Math.round(ww+2*p),Math.ceil((ty-by-h)/steps)+p);g.fillStyle=col;g.fillRect(Math.round(xx-ww/2),Math.round(yy),Math.round(ww),Math.ceil((ty-by-h)/steps)+(i<steps-1?p:0));}}
-  pixBox(g,bx,by,w,h,p,col,bd,true);
-  if(sc>0.9){g.fillStyle=tc;g.textAlign='center';g.textBaseline='middle';lines.forEach((l,i)=>g.fillText(l,bx+w/2,by+fs*0.36+lh*(i+0.5)));
-    const nm=who==='d'?'PAULO':who==='w'?'LUNA 🌙':((busted&&busted.cop)||copCfg()).name+' 👮';g.font=`700 ${Math.round(fs*0.52)}px ${BFONT}`;const nw=g.measureText(nm).width+fs*0.6,nh=Math.round(fs*0.78);
-    pixBox(g,bx+fs*0.3,by-nh*0.62,nw,nh,Math.max(2,p*0.6),bd,bd,false);g.fillStyle='#fff';g.textAlign='left';g.fillText(nm,bx+fs*0.6,by-nh*0.62+nh/2+1);}
+function drawCornerBubble(g,b){
+  const left=b.who==='d',cop=b.who==='cop';
+  const fs=Math.round(clamp(FX.height*0.033,18,30)),pad=Math.round(fs*0.42);
+  const edge=pad*2,carClearance=110*carScale+edge;
+  const width=Math.floor(Math.min(FX.width*0.29,FX.width/2-carClearance-edge));
+  if(width<fs*3||crash||PW.slip>0||PW.aqua>0)return;
+  const x=left?edge:FX.width-edge-width,lh=fs*1.16,maxLines=3;
+  g.save();
+  g.setTransform(1,0,0,1,0,0);
+  g.globalAlpha=clamp(Math.min(b.t/.1,(b.life-b.t)/.2),0,1);
+  g.font=`700 ${fs}px ${BFONT}`;
+  const lines=[];
+  let line='';
+  for(const word of b.text.split(' ')){
+    const next=line?line+' '+word:word;
+    if(line&&g.measureText(next).width>width-2*pad){lines.push(line);line=word;}
+    else line=next;
+  }
+  lines.push(line);
+  if(lines.length>maxLines){lines.length=maxLines;lines[maxLines-1]+='…';}
+  const height=lines.length*lh+pad*2,y=FX.height-edge-height;
+  const border=cop?'#1f3fa8':left?'#111':'#c2185b';
+  pixBox(g,x,y,width,height,Math.max(2,pad*.4),cop?'#e4eeff':left?'#fffdf2':'#fff0f6',border,true);
+  g.fillStyle=border;g.textAlign='center';g.textBaseline='middle';
+  lines.forEach((text,i)=>g.fillText(text,x+width/2,y+pad+(i+.5)*lh,width-2*pad));
+  const name=cop?copCfg().name+' 👮':left?'PAULO':'LUNA 🌙';
+  g.font=`700 ${Math.round(fs*.64)}px ${BFONT}`;
+  const labelWidth=Math.min(width-2*pad,g.measureText(name).width+2*pad);
+  pixBox(g,x+pad,y-fs*.65,labelWidth,fs*.82,Math.max(2,pad*.3),border,border,false);
+  g.fillStyle='#fff';g.fillText(name,x+pad+labelWidth/2,y-fs*.24,labelWidth-pad);
   g.restore();
 }
 function renderFX(){
@@ -2597,15 +2611,13 @@ function renderFX(){
   if(policeScr&&!policeScr.front){const img=SP['police'+(Math.floor(perfNow/170)%2)].img,dw=0.29*roadW*policeScr.sc*HW*2,dh=dw*img.height/img.width;if(dw<W*3)fg.drawImage(img,policeScr.sx*2-dw/2,policeScr.sy*2-dh,dw,dh);}
   if(crash&&crash.ej)for(const e of crash.ej)drawFigure(fg,e.x,e.y,e.r,e.who,e.land,perfNow/1000,carScale*0.95);
   if(flashT>0){fg.fillStyle=`rgba(255,255,255,${Math.min(1,flashT*3)})`;fg.fillRect(-20,-20,FX.width+40,FX.height+40);}
-  // speech bubbles
-  const s=carScale,cx=W,cy=(HZY+VS)*2-4;
-  drawCloseups(fg);const CU=closeupsOn();document.body.classList.toggle('closeup',CU);
-  for(const b of bubbles){if(busted)continue;let ax,ay;if(CU){const L=portraitLayout();let A;if(b.who==='d')A=[L.paulo.x+L.paulo.r*0.3,L.paulo.y+L.paulo.r*1.25,'RB'];else if(b.who==='w')A=[L.luna.x,L.luna.y+L.luna.h*0.5+L.luna.h*0.35,'CB'];else A=[L.cop.x-L.cop.r*0.3,L.cop.y+L.cop.r*1.25,'LB'];drawBubble(fg,A[0],A[1],b.text,b.who,b.t,b.life,A[2]);continue;}
-    if(b.who==='d'){if(busted&&busted.phase!=='stop'){ax=cx+10*s;ay=cy-150*s;}else{ax=cx-22*s-30;ay=cy-100*s;}}
-    else if(b.who==='w'){if(busted&&busted.phase!=='stop'){ax=cx+30*s;ay=cy-150*s;}else{ax=cx+22*s+30;ay=cy-(crew.w.a==='stand'?124:100)*s;}}
-    else if(busted&&busted.phase!=='stop'){const c=copScreen();ax=c.x;ay=c.y-172*c.k;}
-    else{if(policeScr){const dw=0.29*roadW*policeScr.sc*HW*2;ax=policeScr.sx*2;ay=policeScr.sy*2-dw*0.8;if(ay<60||ax<0||ax>FX.width){ax=FX.width*0.8;ay=H*0.7;}}else{ax=FX.width*0.8;ay=H*0.7;}}
-    drawBubble(fg,ax,ay,b.text,b.who,b.t,b.life,b.who==='d'?(busted&&busted.phase!=='stop'?'R':'L'):b.who==='w'?'R':'C');}
+  drawCloseups(fg);document.body.classList.toggle('closeup',closeupsOn());
+  if(!busted){
+    const left=bubbles.find(b=>b.who==='d');
+    const right=bubbles.find(b=>b.who==='cop')||bubbles.find(b=>b.who==='w');
+    if(left)drawCornerBubble(fg,left);
+    if(right)drawCornerBubble(fg,right);
+  }
 }
 
 // ------------------------------------------------------------------ classic analog speedometer
@@ -4997,23 +5009,24 @@ function drawSirenBar(g,x,y,s,T){const on=Math.floor(T*8)%2;g.save();g.fillStyle
 function flyLift(){if(PW.fly<=0)return 0;const up=Math.min(1,(4.6-PW.fly)/0.6),down=Math.min(1,PW.fly/0.6);return Math.min(up,down);}
 
 // ------------------------------------------------------------------ quick alternating-tap police stop
+const COP_TAP_TIME=5;
 function newCopChallenge(){return {value:0,next:'left',streak:0,misses:0,age:0,last:-1,lastBeat:0,done:false,won:false};}
 function copMiss(c){c.streak=0;c.misses++;if(c.misses>=2){c.value*=.5;c.misses=0;}else c.value=Math.max(0,c.value-3);}
 function copBeat(c,side){
   if(c.done)return false;
   if(side!==c.next||(c.last>=0&&c.age-c.last<.075)){copMiss(c);return false;}
   c.last=c.age;c.lastBeat=c.age;c.streak++;c.misses=0;
-  c.value=Math.min(100,c.value+8+Math.min(c.streak,6)*1.3);c.next=side==='left'?'right':'left';
+  c.value=Math.min(100,c.value+13+Math.min(c.streak,6)*1.2);c.next=side==='left'?'right':'left';
   if(c.value>=100){c.done=true;c.won=true;}return true;
 }
 function advanceCopChallenge(c,dt){
   if(c.done)return;c.age+=dt;
-  if(c.age>=3.4){c.done=true;return;}
-  if(c.age-c.lastBeat>.6){copMiss(c);c.lastBeat=c.age;}
+  if(c.age>=COP_TAP_TIME){c.done=true;return;}
+  if(c.last>=0&&c.age-c.lastBeat>1.05){copMiss(c);c.lastBeat=c.age;}
 }
 const COP_GAME_COPY={
- en:['TALK YOUR WAY OUT','Alternate LEFT → RIGHT','LEFT','RIGHT','Two mistakes halve your progress','A smile? All right — off you go! No fine.','Thank you, officer! Enjoy your coffee!','FREE TO GO!','Next: '],
- pt:['CONVENCE O AGENTE','Alterna ESQUERDA → DIREITA','ESQUERDA','DIREITA','Dois erros cortam o progresso a meio','Com esse sorriso? Vá, siga! Sem multa.','Obrigado, Sr. Agente! Bom café!','PODE SEGUIR!','A seguir: ']
+ en:['TALK YOUR WAY OUT','Tap the glowing pad. Go LEFT, RIGHT, LEFT, RIGHT…','LEFT','RIGHT','Two mistakes halve your progress','A smile? All right — off you go! No fine.','Thank you, officer! Enjoy your coffee!','FREE TO GO!','Tap ','Fill the meter to skip the fine and drive off with a boost.'],
+ pt:['CONVENCE O AGENTE','Toca no botão iluminado. ESQUERDA, DIREITA, ESQUERDA, DIREITA…','ESQUERDA','DIREITA','Dois erros cortam o progresso a meio','Com esse sorriso? Vá, siga! Sem multa.','Obrigado, Sr. Agente! Bom café!','PODE SEGUIR!','Toca à ','Enche a barra para evitar a multa e arrancar com um turbo.']
 };
 const copCopy=()=>COP_GAME_COPY[LANG]||COP_GAME_COPY.en;
 function winCopChallenge(){
@@ -5026,18 +5039,18 @@ function tapCopChallenge(side){
  if(busted.challenge.won)winCopChallenge();syncCopChallenge();
 }
 const copStyle=document.createElement('style');copStyle.textContent=`
-#copChallenge{position:fixed;z-index:18;left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom));width:min(94vw,520px);padding:12px;border:2px solid #ffd23f;border-radius:16px;background:rgba(18,7,38,.96);color:#fff;font-family:system-ui,sans-serif;box-sizing:border-box;touch-action:none;user-select:none}
-#copChallenge .copTalk{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}#copChallenge article{padding:8px;background:#36234c;border-radius:10px;min-height:54px;font-size:clamp(11px,2.7vmin,14px);line-height:1.25}#copChallenge article:last-child{background:#19344a}#copChallenge article b{display:block;color:#ffd23f;font-size:11px;margin-bottom:3px}#copChallenge p{margin:3px 0;font-size:12px;text-align:center}#copChallenge .copMeter{height:18px;border:2px solid #fff;border-radius:10px;overflow:hidden;background:#2c1741}#copFill{height:100%;width:0;background:linear-gradient(90deg,#ff3d7f,#ffd23f,#05d9e8);transition:width .06s linear}#copChallenge .copButtons{display:flex;gap:12px;margin-top:8px}#copChallenge button{flex:1;min-height:58px;border:2px solid #ffffff66;border-radius:12px;background:#35234b;color:#fff;font:700 18px system-ui;touch-action:none}#copChallenge button.expected{background:#05d9e8;color:#17102c;border-color:#fff;box-shadow:0 0 14px #05d9e85c}#copChallenge button:disabled{opacity:.5}#copTitle{text-align:center;font-weight:800;font-size:14px}#copHint{color:#ffd23f}body.cop-playing #controls{visibility:hidden}@media(max-height:500px){#copChallenge{width:min(74vw,660px);padding:7px}#copChallenge .copTalk{margin-bottom:4px}#copChallenge article{min-height:34px;padding:5px}#copChallenge button{min-height:44px}#copRule{display:none}}`;
+#copChallenge{position:fixed;z-index:18;left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom));width:min(96vw,640px);padding:12px;border:2px solid #ffd23f;border-radius:16px;background:rgba(18,7,38,.96);color:#fff;font-family:system-ui,sans-serif;box-sizing:border-box;touch-action:none;user-select:none}
+#copChallenge .copTalk{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}#copChallenge article{padding:8px;background:#36234c;border-radius:10px;min-height:54px;font-size:clamp(11px,2.7vmin,14px);line-height:1.25}#copChallenge article:last-child{background:#19344a}#copChallenge article b{display:block;color:#ffd23f;font-size:11px;margin-bottom:3px}#copChallenge p{margin:3px 0;font-size:12px;text-align:center}#copChallenge .copMeter{height:18px;border:2px solid #fff;border-radius:10px;overflow:hidden;background:#2c1741}#copFill{height:100%;width:0;background:linear-gradient(90deg,#ff3d7f,#ffd23f,#05d9e8);transition:width .06s linear}#copChallenge .copButtons{display:flex;gap:12px;margin-top:8px}#copChallenge button{flex:1;min-height:clamp(72px,16vh,112px);border:2px solid #ffffff66;border-radius:12px;background:#35234b;color:#fff;font:800 clamp(16px,4vw,26px) system-ui;touch-action:none}#copChallenge button.expected{background:#05d9e8;color:#17102c;border-color:#fff;box-shadow:0 0 14px #05d9e85c}#copChallenge button:disabled{opacity:.5}#copTitle{text-align:center;font-weight:800;font-size:14px}#copHint{color:#ffd23f;font-weight:800;font-size:15px}#copReward{color:#bafaff;font-weight:700}body.cop-playing #controls{visibility:hidden}@media(max-height:500px){#copChallenge{width:min(94vw,700px);padding:7px}#copChallenge .copTalk{margin-bottom:4px}#copChallenge article{min-height:34px;padding:5px}#copChallenge button{min-height:62px}#copChallenge p{margin:2px 0}}`;
 document.head.appendChild(copStyle);
-const copPanel=document.createElement('section');copPanel.id='copChallenge';copPanel.className='hidden';copPanel.setAttribute('aria-label','Police stop challenge');copPanel.innerHTML='<div class="copTalk"><article><b id="copDriverName">PAULO</b><span id="copDriverLine"></span></article><article><b id="copName"></b><span id="copLine"></span></article></div><div id="copTitle"></div><p id="copHint"></p><div class="copMeter" role="progressbar" aria-label="Officer mood" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="copFill"></div></div><p id="copRule"></p><div class="copButtons"><button id="copTapLeft" type="button"></button><button id="copTapRight" type="button"></button></div>';
+const copPanel=document.createElement('section');copPanel.id='copChallenge';copPanel.className='hidden';copPanel.setAttribute('aria-label','Police stop challenge');copPanel.innerHTML='<div class="copTalk"><article><b id="copDriverName">PAULO</b><span id="copDriverLine"></span></article><article><b id="copName"></b><span id="copLine"></span></article></div><div id="copTitle"></div><p id="copReward"></p><p id="copHint"></p><div class="copMeter" role="progressbar" aria-label="Officer mood" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="copFill"></div></div><p id="copRule"></p><div class="copButtons"><button id="copTapLeft" type="button"></button><button id="copTapRight" type="button"></button></div>';
 document.body.appendChild(copPanel);
 for(const side of ['left','right']){const button=$('copTap'+(side==='left'?'Left':'Right'));button.onpointerdown=e=>{e.preventDefault();e.stopPropagation();tapCopChallenge(side);};button.onclick=e=>{e.stopPropagation();if(e.detail===0)tapCopChallenge(side);};}
 addEventListener('keydown',e=>{if(!busted||state!=='play'||e.repeat)return;const side=['ArrowLeft','a','A'].includes(e.key)?'left':['ArrowRight','d','D'].includes(e.key)?'right':null;if(side){e.preventDefault();tapCopChallenge(side);}});
 function syncCopChallenge(){
  const B=busted,on=!!B&&state==='play';copPanel.classList.toggle('hidden',!on);document.body.classList.toggle('cop-playing',on);if(!on)return;
  const c=B.challenge,L=copCopy(),active=!c.done;
- $('copTitle').textContent=c.won?L[7]:L[0];$('copHint').textContent=active?L[8]+L[c.next==='left'?2:3]+' · '+Math.max(0,3.4-c.age).toFixed(1)+'s':c.won?'☕ ☺':L[1];
- $('copRule').textContent=L[4];$('copFill').style.width=c.value+'%';copPanel.querySelector('[role=progressbar]').setAttribute('aria-valuenow',Math.round(c.value));
+ $('copTitle').textContent=c.won?L[7]:L[0];$('copHint').textContent=active?L[8]+L[c.next==='left'?2:3]+' · '+Math.ceil(Math.max(0,COP_TAP_TIME-c.age))+'s':c.won?'☕ ☺':'';
+ $('copReward').textContent=active?L[9]:'';$('copRule').textContent=active?L[1]:'';$('copFill').style.width=c.value+'%';copPanel.querySelector('[role=progressbar]').setAttribute('aria-valuenow',Math.round(c.value));
  $('copDriverName').textContent=B.driverWho==='w'?'LUNA 🌙':'PAULO';$('copDriverLine').textContent=B.driverLine||'';$('copName').textContent=B.cop.name+' 👮';$('copLine').textContent=B.copLine||'';
  for(const [side,index] of [['left',2],['right',3]]){const button=$('copTap'+(side==='left'?'Left':'Right'));button.textContent=(side==='left'?'◀ ':'')+L[index]+(side==='right'?' ▶':'');button.disabled=!active;button.classList.toggle('expected',active&&c.next===side);}
 }
