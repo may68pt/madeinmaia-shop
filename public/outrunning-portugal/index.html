@@ -484,6 +484,8 @@ body.closeup #gauge,body.closeup #mirror,body.closeup #miniMap,body.closeup #con
 @keyframes chIn{from{transform:translate(-50%,-120%)}to{transform:translateX(-50%)}}
 #over.naming .mapsrow{display:none}#over.naming .stats{font-size:.85em}
 #over{overflow-y:auto;touch-action:pan-y}
+#over:not(.hidden)>*{animation:none}
+#over button{touch-action:manipulation}
 
 #introLogo{z-index:3;opacity:0}
 #introLogo.go{opacity:1}
@@ -2835,7 +2837,11 @@ function commitScore(){if(!pendingScore)return -1;const n=ini.join('');store.set
 // ------------------------------------------------------------------ flow / UI
 const isTouch=matchMedia('(pointer:coarse)').matches||'ontouchstart' in window;
 if(isTouch)$('keysHint').textContent='Pedais à esquerda · volante à direita · ou inclina o telemóvel 📱';
-function show(id){['intro','title','radio','pause','over','hiscore','settings','tour'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
+function show(id){
+  ['intro','title','radio','pause','over','hiscore','settings','tour'].forEach(s=>$(s).classList.toggle('hidden',s!==id));
+  FX.classList.toggle('hidden',id==='over');
+  if(id!=='over'&&frameId===null){last=performance.now();acc=0;frameId=requestAnimationFrame(frame);}
+}
 function setStation(i){settings.station=i;store.set('station',i);const S=SONGS[i];$('np').textContent='♫ A TOCAR: '+S.name+' — '+S.desc+' · Outrunning Portugal Rádio ♫';$('lcdF').textContent=S.freq+' FM';$('lcdN').textContent=S.name;$('radioName').textContent=S.name;document.querySelectorAll('.preset').forEach((b,k)=>b.classList.toggle('sel',k===i));}
 SONGS.forEach((S,i)=>{const b=document.createElement('button');b.className='preset';b.innerHTML=`<b>${S.freq}</b>${S.name}<br><span style="opacity:.7;font-family:system-ui;font-weight:600">${S.desc}</span>`;b.onclick=()=>{aInit();setStation(i);musicStart(i);};$('presets').appendChild(b);});
 $('playBtn').onclick=()=>{aInit();sfx('click');
@@ -3198,7 +3204,7 @@ function startLights(){
 function endExtras(win,fs){
   $('omsg').textContent=pick(Math.random,win?T('winM'):T('overM'));
   const h=$('overT');h.classList.remove('shake','win');void h.offsetWidth;h.classList.add(win?'win':'shake');
-  const b=$('bigScore');b.classList.remove('done');const result=raceResult,t0=performance.now();const step=()=>{if(raceResult!==result)return;const k=Math.min(1,(performance.now()-t0)/1300),e=1-Math.pow(1-k,3);b.textContent=Math.round(fs*e).toLocaleString('pt-PT');if(k<1)requestAnimationFrame(step);else b.classList.add('done');};requestAnimationFrame(step);
+  const b=$('bigScore');b.textContent=fs.toLocaleString('pt-PT');b.classList.add('done');
 }
 
 
@@ -3212,13 +3218,16 @@ addEventListener('keydown',e=>{if(state!=='title')return;if(e.key==='ArrowDown')
 menuBtns().forEach((b,k)=>b.addEventListener('pointerenter',()=>setMenuSel(k)));
 
 // ------------------------------------------------------------------ main loop
-let last=performance.now(),acc=0;
+let last=performance.now(),acc=0,frameId=null;
 function frame(now){
+  frameId=null;
+  if(!$('over').classList.contains('hidden'))return;
   syncCopChallenge();mpFrame();
   perfNow=now;const dt=Math.min(0.25,(now-last)/1000);last=now;acc+=dt;
   let n=0;while(acc>=STEP&&n<8){update(STEP);acc-=STEP;n++;}if(n>=8)acc=0;
-  const useScene=state==='title'||state==='tour'||state==='hiscore'||(state==='settings'&&settingsFrom==='title');SC.style.display=useScene?'block':'none';if(useScene){drawScene(now);}else if(!raceResult||$('over').classList.contains('hidden')){render();renderFX();}updateHUD();drawMaps(dt);if(state==='intro')drawIntro(now);
-  requestAnimationFrame(frame);
+  if(!$('over').classList.contains('hidden'))return;
+  const useScene=state==='title'||state==='tour'||state==='hiscore'||(state==='settings'&&settingsFrom==='title');SC.style.display=useScene?'block':'none';if(useScene){drawScene(now);}else{render();renderFX();}updateHUD();drawMaps(dt);if(state==='intro')drawIntro(now);
+  frameId=requestAnimationFrame(frame);
 }
 
 // ------------------------------------------------------------------ boot
@@ -5085,7 +5094,6 @@ $('bestScore').textContent=best.toLocaleString('pt-PT');
 state='intro';show('intro');$('intro').onclick=endIntro;setTimeout(endIntro,16500);
 startRace();speed=maxSpeed*0.4;
 for(let i=0;i<STAGES.length;i++)setTimeout(()=>buildBG(i),50+i*30);
-requestAnimationFrame(frame);
 
 // ------------------------------------------------------------------ fullscreen on every mobile browser we can
 const FS={
