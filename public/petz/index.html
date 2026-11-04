@@ -189,9 +189,6 @@ main{padding-bottom:92px}
 .dots{display:flex;gap:6px;margin-top:6px}
 .dots i{width:18px;height:18px;border-radius:50%;border:2px solid var(--gd);display:block}
 .dots i.on{background:var(--gd);box-shadow:0 0 8px var(--gd)}
-.loopst{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-top:6px;scrollbar-width:none}
-.loopst div{flex:none;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:7px 10px;font-family:'Barlow Condensed';font-weight:800;font-size:14px;line-height:1.05}
-.loopst div small{display:block;font-weight:600;color:var(--mute);font-size:11px}
 /* buttons */
 .btn{font-family:'Barlow Condensed';font-weight:800;text-transform:uppercase;font-size:16px;letter-spacing:.3px;border:none;border-radius:14px;padding:10px 16px;color:#14112e;background:linear-gradient(90deg,var(--gd),var(--or));box-shadow:0 0 16px rgba(255,122,26,.45),inset 0 -3px 0 rgba(0,0,0,.18);cursor:pointer;position:relative;overflow:hidden}
 .btn::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);animation:sheen 3s infinite}
@@ -440,8 +437,6 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
   <div class="sec"><h2>Daily missions<span class="stripes"></span></h2><small id="mDate"></small></div>
   <div class="panel" id="missions"></div>
   <div class="panel reward" id="reward"></div>
-  <div class="sec"><h2>Game loop</h2><small>Non-linear</small></div>
-  <div class="loopst"><div>❤️ Care<small>Keep Cyberpet happy</small></div><div>⚙️ Calibrate<small>Tune or invert</small></div><div>✨ Play<small>Earn resources</small></div><div>🚀 Explore<small>Relics & signals</small></div><div>💠 Collect<small>Modules & plants</small></div><div>🔁 Reconfigure<small>New variants</small></div></div>
   <img class="logo" src="cyberpet-logo.svg" alt="Cyberpet" width="320" height="80" style="display:block;width:min(100%,240px);height:auto;margin:0 auto">
 </section>
 
@@ -2071,7 +2066,7 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='20261104-cyberpet-anchors';
+const FAELIX_BUILD='20261104-cyberpet-home';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
