@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { getDb } from "@/db";
+import { social } from "./social";
 
 /* FÆLIX cloud save — no accounts. Each pet has an id + secret key kept on the device.
    Other devices join with a short-lived 6-letter link code. */
@@ -74,6 +75,13 @@ export async function POST(request: Request) {
   if (!b) return json({ ok: false, error: "invalid" }, 400);
   try {
     const db = getDb();
+    if (typeof b.action === "string" && b.action.startsWith("social-")) {
+      const state = b.action === "social-state";
+      if (limited(ip, state ? "social-state" : "social-action", state ? 100 : 30)) return json({ ok: false, error: "Try again in a moment" }, 429);
+      const pet = await load(clean(b.id, 16), clean(b.key, 64));
+      if (!pet) return json({ ok: false, error: "Cloud pet not found" }, 404);
+      return await social(pet.id, b);
+    }
     if (b.action === "create") {
       if (limited(ip, "c", 5)) return json({ ok: false, error: "slow down" }, 429);
       if (typeof b.data !== "object" || b.data === null) return json({ ok: false, error: "invalid" }, 400);
