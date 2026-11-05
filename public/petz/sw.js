@@ -1,7 +1,7 @@
 /* Cyberpet service worker: the site is the source of truth.
    Pages & data: network first (fresh updates), cache only as offline fallback.
    Art (webp/png/fonts): served from cache, refreshed in the background. */
-const V='faelix-sw-2';
+const V='faelix-sw-3';
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(['/petz/','/petz/index.html','/petz/manifest.webmanifest']).catch(()=>{})))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(n=>n.startsWith('faelix-sw-')&&n!==V).map(n=>caches.delete(n)))).then(()=>self.clients.claim()))});
 self.addEventListener('message',e=>{if(e.data==='skip')self.skipWaiting()});
