@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#151723">
+<meta name="description" content="Play classic Snake in a pocket-sized tribute to the 5110.">
+<title>Pocket Snake 5110</title>
+<style>
+* { box-sizing: border-box }
+body {
+  margin: 0; min-height: 100svh; display: grid; place-items: center;
+  overflow-x: clip; padding: 16px 0;
+  background: radial-gradient(ellipse at 50% 42%, #292b46, #11121e 72%);
+  color: #efe4bc; font: 700 12px monospace; text-align: center;
+}
+main { width: 100%; overflow: hidden }
+header { color: #d8df9a; letter-spacing: .18em; margin-bottom: 5px }
+.phone {
+  position: relative; width: min(155vw, 520px, max(360px, 58svh));
+  margin-inline: auto; left: 50%; margin-left: 0; transform: translateX(-50%);
+  aspect-ratio: 2 / 3; container-type: inline-size;
+}
+.art { display: block; width: 100%; height: 100%; pointer-events: none }
+.lcd {
+  position: absolute; inset: 37.35% 34.65% 47.55% 32.1%;
+  display: flex; flex-direction: column; gap: 2px; overflow: hidden;
+  border-radius: 3%; padding: 1.2cqw 1.4cqw;
+  background: #aeb03d; color: #212508;
+  box-shadow: inset 0 0 0 2px #77791e, inset 0 0 13px #717320;
+  font-size: clamp(8px, 2.45cqw, 13px);
+}
+.stats { display: flex; justify-content: space-between }
+.field { position: relative; flex: 1; min-height: 0; touch-action: none }
+canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated }
+.overlay { position: absolute; inset: 0; display: grid; place-content: center; background: #aeb03d }
+.overlay[hidden] { display: none }
+.overlay strong { font-size: 5.3cqw; letter-spacing: .025em }
+.overlay small { margin-top: 3px; font: inherit }
+.key {
+  position: absolute; width: 9%; height: 5.5%; transform: translate(-50%, -50%);
+  border: 0; border-radius: 45%; background: transparent; cursor: pointer;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.key:active { background: #27244755 }
+.key:focus-visible { outline: 3px solid #f0fa8d; outline-offset: 1px }
+#action { left: 48.8%; top: 59%; width: 13%; height: 6.3% }
+footer { line-height: 1.65; padding-inline: 12px; color: #d1cee5 }
+</style>
+</head>
+<body>
+<main>
+<header>POCKET ARCADE · 5110</header>
+<section class="phone" aria-label="Nokia 5110 Snake game">
+<img class="art" src="/snake-nokia-5510/nokia-5110.png" width="1024" height="1536" alt="">
+<div class="lcd">
+  <div class="stats"><span>SCORE <span id="score">00</span></span><span>BEST <span id="best">00</span></span></div>
+  <div class="field">
+    <canvas id="board" width="200" height="120" aria-label="Snake playfield"></canvas>
+    <div class="overlay" id="overlay" role="status"><strong id="headline">SNAKE</strong><small id="hint">PRESS THE BLUE KEY</small></div>
+  </div>
+</div>
+<button id="action" class="key" type="button" aria-label="Start game"></button>
+<button class="key" style="left:48.5%;top:69.4%" data-dir="up" aria-label="2, move up"></button>
+<button class="key" style="left:35%;top:75%" data-dir="left" aria-label="4, move left"></button>
+<button class="key" style="left:62.3%;top:75%" data-dir="right" aria-label="6, move right"></button>
+<button class="key" style="left:48.5%;top:80.6%" data-dir="down" aria-label="8, move down"></button>
+<button class="key" style="left:62.8%;top:58%" data-dir="up" aria-label="Move up"></button>
+<button class="key" style="left:61.5%;top:64.3%" data-dir="down" aria-label="Move down"></button>
+</section>
+<footer>Blue key to start · 2 / 4 / 6 / 8 to steer<br>Swipe the screen or use your arrow keys</footer>
+</main>
+<script>
+const board = document.querySelector('#board');
+const ctx = board.getContext('2d');
+const action = document.querySelector('#action');
+const overlay = document.querySelector('#overlay');
+const columns = 20, rows = 12;
+const directions = {up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+let snake, direction, queued, food, score, timer, startPoint;
+let state = 'ready', best = 0;
+try { best = Number(localStorage.getItem('snake5110-best')) || 0; } catch {}
+const format = n => String(n).padStart(2,'0');
+const same = (a,b) => a[0] === b[0] && a[1] === b[1];
+function placeFood() {
+  const free = [];
+  for (let y=0; y<rows; y++) {
+    for (let x=0; x<columns; x++) {
+      if (!snake.some(cell => same(cell,[x,y]))) free.push([x,y]);
+    }
+  }
+  return free[Math.floor(Math.random()*free.length)];
+}
+function draw() {
+  ctx.clearRect(0,0,board.width,board.height);
+  ctx.fillStyle = '#263619';
+  snake.forEach(([x,y]) => ctx.fillRect(x*10+1,y*10+1,9,9));
+  if (food) {
+    const [x,y] = food;
+    ctx.fillRect(x*10+4,y*10+2,3,7);
+    ctx.fillRect(x*10+2,y*10+4,7,3);
+  }
+  document.querySelector('#score').textContent = format(score);
+  document.querySelector('#best').textContent = format(best);
+}
+function reset() {
+  snake = [[7,7],[6,7],[5,7]];
+  direction = directions.right;
+  queued = null;
+  score = 0;
+  food = [13,7];
+  draw();
+}
+function show(next, title, hint, label) {
+  state = next;
+  overlay.hidden = next === 'playing';
+  document.querySelector('#headline').textContent = title;
+  document.querySelector('#hint').textContent = hint;
+  action.setAttribute('aria-label', label);
+}
+function schedule() {
+  timer = setTimeout(step,Math.max(65,180-score*6));
+}
+function step() {
+  direction = queued || direction;
+  queued = null;
+  const head = [snake[0][0]+direction[0],snake[0][1]+direction[1]];
+  const eating = same(head,food);
+  const body = eating ? snake : snake.slice(0,-1);
+  if (head[0]<0 || head[0]>=columns || head[1]<0 || head[1]>=rows || body.some(cell => same(cell,head))) {
+    show('over','GAME OVER','SCORE '+format(score),'Retry game');
+    return;
+  }
+  snake.unshift(head);
+  if (eating) {
+    score++;
+    if (score>best) {
+      best = score;
+      try { localStorage.setItem('snake5110-best',String(best)); } catch {}
+    }
+    food = placeFood();
+  } else {
+    snake.pop();
+  }
+  draw();
+  if (food) schedule();
+  else show('over','YOU WIN!','SCORE '+format(score),'Retry game');
+}
+function toggle() {
+  if (state === 'playing') {
+    clearTimeout(timer);
+    show('paused','PAUSED','PRESS THE BLUE KEY','Resume game');
+    return;
+  }
+  if (state !== 'paused') reset();
+  show('playing','','','Pause game');
+  schedule();
+}
+function turn(name) {
+  const next = directions[name];
+  if (state === 'playing' && !queued && next !== direction &&
+      (next[0] !== -direction[0] || next[1] !== -direction[1])) queued = next;
+}
+action.addEventListener('click',toggle);
+document.querySelectorAll('[data-dir]').forEach(button => {
+  button.addEventListener('click',() => turn(button.dataset.dir));
+});
+window.addEventListener('keydown',event => {
+  const key = event.key.toLowerCase();
+  const name = {arrowup:'up',arrowdown:'down',arrowleft:'left',arrowright:'right',2:'up',4:'left',6:'right',8:'down',w:'up',s:'down',a:'left',d:'right'}[key];
+  if (name && Object.hasOwn(directions,name)) {
+    event.preventDefault();
+    turn(name);
+  } else if (key === ' ' && !event.target.closest('#action')) {
+    event.preventDefault();
+    if (!event.repeat) toggle();
+  }
+});
+const field = document.querySelector('.field');
+field.addEventListener('pointerdown',event => {
+  if (!event.isPrimary) return;
+  startPoint = [event.clientX,event.clientY];
+  field.setPointerCapture(event.pointerId);
+});
+field.addEventListener('pointerup',event => {
+  if (!event.isPrimary || !startPoint) return;
+  const dx = event.clientX-startPoint[0], dy = event.clientY-startPoint[1];
+  startPoint = null;
+  if (Math.max(Math.abs(dx),Math.abs(dy))<12) return;
+  turn(Math.abs(dx)>Math.abs(dy) ? (dx>0?'right':'left') : (dy>0?'down':'up'));
+});
+field.addEventListener('pointercancel',() => { startPoint = null; });
+document.addEventListener('visibilitychange',() => {
+  if (document.hidden && state === 'playing') toggle();
+});
+reset();
+</script>
+</body>
+</html>
