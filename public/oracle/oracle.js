@@ -12,6 +12,7 @@
   const state = document.querySelector('#state');
   const answer = document.querySelector('#answer');
   const device = document.querySelector('.instrument');
+  const callState = device.querySelector('.call-state');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let previous = -1;
   let pending = false;
@@ -23,6 +24,7 @@
     state.textContent = 'IN PROGRESS';
     answer.textContent = button.dataset.loading;
     device.dataset.phase = 'asking';
+    if (callState) callState.textContent = 'CONNECTING…';
     setTimeout(() => {
       let next = Math.floor(Math.random() * (answers.length - Number(previous >= 0)));
       if (previous >= 0 && next >= previous) next += 1;
@@ -31,6 +33,7 @@
       answer.textContent = answers[next];
       label.textContent = button.dataset.again;
       device.dataset.phase = 'revealed';
+      if (callState) callState.textContent = 'LINE OPEN / ORACLE 08';
       pending = false;
       button.removeAttribute('aria-disabled');
     }, reduced.matches ? 0 : 720);
