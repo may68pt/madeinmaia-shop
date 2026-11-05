@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Magic 8 Ball - Classic</title>
 <meta name="description" content="Ask a yes-or-no question and shake the 8 ball for your answer.">
-<meta name="theme-color" content="#090d1c">
+<meta name="theme-color" content="#140b1b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Archivo+Black&family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:0;
     padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
-    background:radial-gradient(ellipse at 50% 52%, #252d53 0%, #11172d 37%, #090d1c 76%);
+    background:radial-gradient(ellipse at 50% 53%, #352039, #1c1026 42%, #100a15 78%);
     color:var(--ink);
     font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     overflow-x:hidden;
@@ -133,15 +133,8 @@
     filter:blur(12px);opacity:.5;
     animation:swirl 14s linear infinite;
   }
-  .ball.shaking .swirl{animation-duration:1.4s;opacity:.9}
   @keyframes swirl{to{transform:rotate(360deg)}}
 
-  .bubble{position:absolute;border-radius:50%;background:rgba(170,200,255,.5);opacity:0}
-  .ball.shaking .bubble{animation:bub 1s ease-in infinite}
-  .bubble.b1{width:5%;height:5%;left:30%;bottom:10%}
-  .bubble.b2{width:3.5%;height:3.5%;left:62%;bottom:8%;animation-delay:.3s !important}
-  .bubble.b3{width:4%;height:4%;left:48%;bottom:4%;animation-delay:.6s !important}
-  @keyframes bub{0%{transform:translateY(0);opacity:0}20%{opacity:.8}100%{transform:translateY(-1100%);opacity:0}}
 
   .ball.flipped .eight{opacity:0;transform:scale(.5) translateX(-70%)}
   .ball.flipped .window{opacity:1;transform:none}
@@ -174,14 +167,6 @@
     text-wrap:balance;
   }
 
-  .ball.shaking{animation:jitter .13s linear infinite}
-  @keyframes jitter{
-    0%{transform:translate(0,0) rotate(0)}
-    25%{transform:translate(-3%,2%) rotate(-7deg)}
-    50%{transform:translate(3%,-2%) rotate(6deg)}
-    75%{transform:translate(-2%,-3%) rotate(-3deg)}
-    100%{transform:translate(0,0) rotate(0)}
-  }
   .stage.idle .mover{animation:float 5s ease-in-out infinite}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5%)}}
 
@@ -226,13 +211,86 @@
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
   @media (prefers-reduced-motion: reduce){
-    .stage.idle .mover, .die.show.settled, .ball.shaking, .swirl, .ball.shaking .bubble{animation:none}
+    .stage.idle .mover, .die.show.settled, .swirl{animation:none}
     .die.show, .window, .eight, .mover.spring{transition:none}
   }
   @media (max-height:640px){
     .tagline{display:none}
     .stage{margin:18px 0 10px}
     .ask{margin-top:14px}
+  }
+body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.24;
+    background:radial-gradient(circle,#b75680 1px,transparent 1.5px) 0 0/7px 7px;
+    mask-image:radial-gradient(ellipse at center,transparent 65%,black);
+  }
+.terminal{margin:0 0 9px;color:#e6b98a;font:600 11px/1.2 ui-monospace,monospace;
+    text-transform:uppercase;letter-spacing:.24em}
+  .ask input{border-color:#8e526f;background:#180f21}
+  .ask input::placeholder{color:#c2a8be}
+.fortune{position:absolute;inset:-22%;width:144%;height:144%;overflow:visible;
+    pointer-events:none;color:#c99073;fill:none;stroke:currentColor;stroke-width:1.4}
+  .dial-ring{opacity:.42}
+  .dial-dots{opacity:.37;stroke-dasharray:1 5}
+  .tick{opacity:.55;stroke-width:2}
+  .dial-eye,.eclipse{fill:#1b1023}
+  .eclipse{stroke:#bc8068}
+.ball{background:radial-gradient(circle at 35% 25%,#52414e,#221c28 24%,#100d16 46%,#050409 76%);
+    box-shadow:inset 3px 0 10px #d85c9940,inset -4px -1px 12px #5c9fff55,0 0 40px #7e355b29}
+  .rim-light{background:radial-gradient(ellipse at 5% 41%,#e766b44a,transparent 25%),
+    radial-gradient(ellipse at 99% 35%,#548def4a,transparent 24%);box-shadow:none}
+  .eight{background:radial-gradient(circle at 38% 34%,#fff2d9,#e3bf97 76%,#b9926d)}
+  .floor{bottom:-6%;background:radial-gradient(ellipse,#07040a 12%,#12091799 49%,transparent 72%)}
+.stage[data-phase="charge"] .dial-eye{animation:ignite 620ms ease both}
+  .stage[data-phase="charge"] .tick{animation:ignite 620ms ease both;animation-delay:var(--tick-delay)}
+  @keyframes ignite{
+    0%{opacity:.5}
+    32%,100%{opacity:1;stroke:#ffe3a2;filter:drop-shadow(0 0 5px #ff9c31)}
+  }
+.aura,.bolts,.collapse{opacity:0;transform-origin:center}
+  .stage[data-phase="charge"] .aura{animation:aura-rise 650ms ease both;
+    filter:drop-shadow(0 0 8px #ff833b)}
+  @keyframes aura-rise{
+    0%,26%{opacity:0;transform:scale(.86) rotate(-10deg)}
+    60%{opacity:1;transform:scale(1.19)}
+    100%{opacity:.92;transform:scale(1.16) rotate(5deg)}
+  }
+.stage[data-phase="charge"] .bolts{animation:arc-sweep 650ms ease both;
+    filter:drop-shadow(0 0 5px #ff1989) drop-shadow(0 0 8px #ff1989)}
+  @keyframes arc-sweep{
+    0%,33%{opacity:0;transform:rotate(-13deg)}
+    68%{opacity:1}
+    100%{opacity:.87;transform:rotate(8deg)}
+  }
+.fortune .collapse{display:none}
+  .collapse-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+  .stage[data-phase="collapse"] .collapse-layer .collapse{
+    animation:fold 205ms ease-in both;filter:drop-shadow(0 0 6px #ffac50)}
+  @keyframes fold{
+    from{opacity:1;transform:scale(1.6) rotate(-28deg)}
+    76%{opacity:1}
+    to{opacity:0;transform:scale(.07) rotate(35deg)}
+  }
+  .die.show{transition:opacity .22s ease,filter .26s ease,transform .32s ease-out}
+  .answer{top:18%;bottom:39%}
+.stage{margin:46px 0 42px;--s:min(65vw,340px,43vh)}
+  .hint{color:#f5dec3}
+  .stage[data-phase="charge"] .ball{animation:charge-shake 650ms ease both}
+  @keyframes charge-shake{
+    0%,100%{transform:none}
+    42%{transform:translate(-2%,0) rotate(-4deg)}
+    53%{transform:translate(2%,-1%) rotate(3deg)}
+    63%{transform:translate(-2%,0) rotate(-3deg)}
+    73%{transform:translate(1%,-1%) rotate(2deg)}
+  }
+  @media (max-width:420px){
+    body{justify-content:safe center}
+    .stage{--s:min(65vw,340px,43vh);margin:38px 0 36px}
+  }
+  @media (max-height:580px){.stage{margin:30px 0 29px}}
+  @media (prefers-reduced-motion:reduce){
+    .stage[data-phase] .ball,.stage[data-phase] .aura,.stage[data-phase] .bolts,
+    .stage[data-phase] .collapse,.stage[data-phase] .tick,.stage[data-phase] .dial-eye{animation:none}
   }
 </style>
 </head>
@@ -244,6 +302,7 @@
 </button>
 
 <header>
+  <p class="terminal">Fortune Terminal / 08</p>
   <h1>Ask the 8</h1>
   <p class="tagline">Can't decide? Let the ball choose.</p>
 </header>
@@ -254,6 +313,38 @@
 </form>
 
 <div class="stage idle" id="stage" tabindex="0" role="button" aria-label="Shake the 8 ball">
+  <svg class="fortune" viewBox="0 0 400 400" aria-hidden="true">
+    <circle class="dial-ring" cx="200" cy="200" r="170"/>
+    <circle class="dial-dots" cx="200" cy="200" r="158"/>
+    <g class="dial-eye"><path d="M185 30Q200 13 215 30Q200 47 185 30Z"/><circle cx="200" cy="30" r="4"/></g>
+    <circle class="eclipse" cx="200" cy="370" r="10"/>
+    <path class="tick" style="--tick-delay:0ms" d="M200 46v8" transform="rotate(0 200 200)"/>
+    <path class="tick" style="--tick-delay:27ms" d="M200 46v8" transform="rotate(45 200 200)"/>
+    <path class="tick" style="--tick-delay:54ms" d="M200 46v8" transform="rotate(90 200 200)"/>
+    <path class="tick" style="--tick-delay:81ms" d="M200 46v8" transform="rotate(135 200 200)"/>
+    <path class="tick" style="--tick-delay:108ms" d="M200 46v8" transform="rotate(180 200 200)"/>
+    <path class="tick" style="--tick-delay:135ms" d="M200 46v8" transform="rotate(225 200 200)"/>
+    <path class="tick" style="--tick-delay:162ms" d="M200 46v8" transform="rotate(270 200 200)"/>
+    <path class="tick" style="--tick-delay:189ms" d="M200 46v8" transform="rotate(315 200 200)"/>
+    <defs>
+      <linearGradient id="arcade-fire" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop stop-color="#fff4af"/><stop offset=".5" stop-color="#ffba4c"/><stop offset="1" stop-color="#ff6541"/>
+      </linearGradient>
+    </defs>
+    <g class="aura">
+      <path fill="url(#arcade-fire)" stroke="none" d="M115 319Q64 291 57 236Q48 208 62 182Q59 229 84 251Q55 197 77 158Q94 131 85 106Q119 129 101 172Q130 131 118 108Q105 80 141 63Q124 97 150 117Q143 82 177 56Q156 95 184 107Q168 137 130 158Q82 206 115 319Z"/>
+      <path fill="url(#arcade-fire)" stroke="none" d="M258 322Q316 284 316 223Q312 184 332 157Q321 200 344 219Q364 167 342 135Q378 160 366 215Q360 282 312 311Q285 337 232 343Q271 332 287 310Z"/>
+      <path d="m71 111 7-21m272 31-6-16m-267 201-9 16m262-12 10 13M158 61l-4-14" stroke="#ffe398" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M64 281Q137 366 280 330Q338 310 355 267" stroke="#ffc268" stroke-width="2.5"/>
+    </g>
+    <g class="bolts" stroke="#ffb5de" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m48 200 7-20-6-9 15-15-5-12 23-12-4-12 16-22 17-5-1-12 22-6 7-14 26-1 9-10 25 2"/>
+      <path d="m222 49 16 6 10-4 19 14 13-2 14 20 16-1 8 23 12 3 5 21 12 6 1 24 10 10-4 18 8 12-8 25"/>
+      <path d="m346 252-15 14 2 11-19 10-1 12-22 6-12 18-15-2-15 12-17-2-17 12-18-3"/>
+      <path d="m38 124-24-11m44-16L30 74m320 29 32-20m-30 196 30 15m-325 6-31 17" opacity=".62"/>
+    </g>
+
+  </svg><!-- fortune -->
   <div class="floor" id="floor"></div>
   <div class="mover" id="mover">
     <div class="ball" id="ball">
@@ -262,7 +353,6 @@
         <div class="eight"><span>8</span></div>
         <div class="window">
           <div class="swirl"></div>
-          <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
           <div class="die" id="die">
             <svg viewBox="0 0 100 90" preserveAspectRatio="none" aria-hidden="true">
               <defs>
@@ -271,13 +361,19 @@
                   <stop offset="1" stop-color="#2447bf"/>
                 </linearGradient>
               </defs>
-              <polygon points="50,3 97,86 3,86" fill="url(#g)" stroke="#6f8cff" stroke-width="1.6" stroke-linejoin="round" opacity=".95"/>
+              <polygon points="3,4 97,4 50,87" fill="url(#g)" stroke="#6f8cff" stroke-width="1.6" stroke-linejoin="round" opacity=".95"/>
             </svg>
             <div class="answer" id="answer"></div>
           </div>
         </div>
       </div>
       <div class="shine"></div>
+      <svg class="collapse-layer" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+    <g class="collapse" stroke="#ffd87a" stroke-width="2">
+      <path d="M200 200Q220 153 290 163M200 200Q165 164 132 135M200 200Q159 215 145 273M200 200Q239 211 265 268"/>
+      <circle cx="200" cy="200" r="5" fill="#fff7d1"/>
+    </g>
+      </svg>
     </div>
   </div>
 </div>
@@ -316,7 +412,8 @@
         answerEl = $('answer'), hint = $('hint'), asked = $('asked'), live = $('live'),
         q = $('q'), floor = $('floor');
 
-  let shaking = false, flipped = false, endTimer = null, revealTimer = null, settleTimer = null, lastIdx = -1;
+  let shaking = false, flipped = false, settleTimer = null, lastIdx = -1;
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
   // ---------- Sound (Web Audio "slosh") ----------
   let ctx = null, muted = false;
@@ -374,44 +471,49 @@
   renderSound();
 
   // ---------- Shake / reveal ----------
-  function startShake(holdMs){
+  function startShake(){
+    if (shaking) return;
+    shaking = true;
+    live.textContent = '';
+    flipped = false;
+    clearTimeout(settleTimer);
     stage.classList.remove('idle');
-    if (!shaking){
-      shaking = true;
-      clearTimeout(revealTimer);
-      clearTimeout(settleTimer);
-      die.classList.remove('show','settled');
-      asked.classList.remove('on');
-      ball.classList.add('shaking');
-      slosh();
-      try { navigator.vibrate && navigator.vibrate([25, 40, 25, 40, 25]); } catch (e) {}
-    }
-    clearTimeout(endTimer);
-    endTimer = setTimeout(endShake, holdMs || 450);
+    stage.dataset.phase = 'charge';
+    ball.classList.remove('flipped');
+    die.classList.remove('show', 'settled');
+    asked.classList.remove('on');
+    hint.textContent = 'Reading fate…';
+    slosh();
+    try { navigator.vibrate?.(35); } catch (e) {}
+
+    const question = q.value.trim();
+    setTimeout(() => {
+      stage.dataset.phase = 'collapse';
+      setTimeout(() => revealAnswer(question), reducedMotion.matches ? 0 : 205);
+    }, reducedMotion.matches ? 180 : 650);
   }
 
-  function endShake(){
-    shaking = false;
-    ball.classList.remove('shaking');
-    const firstReveal = !flipped;
-    if (firstReveal){ ball.classList.add('flipped'); flipped = true; }
+  function revealAnswer(question){
+    flipped = true;
+    ball.classList.add('flipped');
+    stage.dataset.phase = 'answer';
 
     let i; do { i = Math.floor(Math.random() * ANSWERS.length); } while (i === lastIdx);
     lastIdx = i;
     answerEl.textContent = ANSWERS[i];
 
-    const question = q.value.trim();
     asked.textContent = question ? '“' + question.replace(/\?*$/, '') + '?”' : '';
     asked.classList.toggle('on', !!question);
 
-    revealTimer = setTimeout(() => {
+    setTimeout(() => {
+      shaking = false;
+      hint.textContent = 'Shake again to ask another';
       die.classList.add('show');
       chime();
       live.textContent = 'The 8 ball says: ' + ANSWERS[i];
       settleTimer = setTimeout(() => die.classList.add('settled'), 650);
-    }, firstReveal ? 360 : 160);
+    }, reducedMotion.matches ? 0 : 145);
 
-    hint.textContent = 'Shake again to ask another';
   }
 
   // ---------- Drag / flick / tap ----------
@@ -441,7 +543,7 @@
     mover.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * .12}deg)`;
     floor.style.transform = `translateX(${dx * .5}px) scale(${1 - Math.abs(dy) / S()})`;
 
-    if (speed > .9 && travel > 40) startShake(450);
+    if (speed > .9 && travel > 40) startShake();
   });
 
   function release(){
@@ -451,23 +553,23 @@
     mover.classList.add('spring');
     mover.style.transform = '';
     floor.style.transform = '';
-    if (travel < 12) startShake(850);       // a tap
-    else if (!shaking) startShake(600);     // a slow drag still counts
+    if (travel < 12) startShake();       // a tap
+    else if (!shaking) startShake();     // a slow drag still counts
   }
   stage.addEventListener('pointerup', release);
   stage.addEventListener('pointercancel', release);
 
   stage.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); unlockAudio(); startShake(850); }
+    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); unlockAudio(); startShake(); }
   });
   document.addEventListener('keydown', e => {
     if (e.key === ' ' && document.activeElement !== q && document.activeElement !== stage
         && !(document.activeElement && document.activeElement.tagName === 'BUTTON')){
-      e.preventDefault(); unlockAudio(); startShake(850);
+      e.preventDefault(); unlockAudio(); startShake();
     }
   });
   $('askForm').addEventListener('submit', e => {
-    e.preventDefault(); unlockAudio(); q.blur(); startShake(850);
+    e.preventDefault(); unlockAudio(); q.blur(); startShake();
   });
 
   // ---------- Real phone shake (DeviceMotion) ----------
@@ -482,7 +584,7 @@
       if (d > 18){
         const now = performance.now();
         spikes = spikes.filter(t => now - t < 700); spikes.push(now);
-        if (shaking || spikes.length >= 2) startShake(500);
+        if (shaking || spikes.length >= 2) startShake();
       }
     }
     lastA = { x: a.x, y: a.y, z: a.z };
