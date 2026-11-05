@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   async rewrites(){return {
     beforeFiles:[
       {source:"/oracle",destination:"/oracle/index.html"},
+      {source:"/oracle/magic-8-ball-machine",destination:"/oracle/results-may-vary/index.html"},
       {source:"/oracle/:edition(no-signal-from-fate|results-may-vary|ask-again-later|fate-is-calling|the-future-is-classified|the-bones-have-spoken|the-goose-knows)",destination:"/oracle/:edition/index.html"},
       // Standalone "Ask the 8" magic 8-ball page (static file in public/magic-8-ball/)
       {source:"/magic-8-ball",destination:"/magic-8-ball/index.html"},
