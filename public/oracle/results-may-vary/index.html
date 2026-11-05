@@ -1,17 +1,31 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Results May Vary · Made in Maia</title><meta name="description" content="The Made in Maia Oracle Series. Five ways to ask the Magic 8 Ball.">
+<title>Results May Vary · Made in Maia</title><meta name="description" content="The Made in Maia Oracle Series. Seven ways to ask fate.">
 <link rel="stylesheet" href="/oracle/oracle.css"></head>
 <body data-edition="05"><div class="site">
 <header><a class="brand" href="/oracle">MADE IN MAIA</a><a class="series" href="/oracle">ORACLE SERIES <span>↗</span></a></header>
 <main><article class="experience">
-<div class="copy"><div class="kicker"><i></i> ORACLE 05 / FORTUNE HAZARD</div><h1>Results May Vary<span>.</span></h1><p>Hold a yes-or-no question in your mind. Proceed at your own curiosity.</p>
+<div class="copy"><div class="kicker"><i></i> ORACLE 05 / FORTUNE HAZARD</div><h1>Results May Vary<span>.</span></h1><p>Enter a question to test. Proceed at your own curiosity.</p>
 </div>
-<div class="instrument" data-phase="idle"><div class="stage" aria-hidden="true"><div class="device lab"><div class="device-bar"><span>MIM TEST FACILITY</span><span class="pilot"></span></div><div class="test-window"><div class="warning-sign"><div class="ball"><span>8</span></div></div></div><div class="progress"><i></i></div><div class="device-bar"><span>FORTUNE SAMPLE</span><span>#008</span></div></div></div><div class="controls">
-<div class="readout"><small id="state" data-result="Test result">AWAITING QUESTION</small><p id="answer" role="status" aria-atomic="true">The 8 is ready.</p></div>
-<button id="ask" type="button" data-loading="Testing the unknown…" data-again="Run another test" disabled><span>Run the test</span><b aria-hidden="true">↗</b></button>
-<noscript><p>Enable JavaScript to ask the Magic 8 Ball.</p></noscript></div></div>
-</article><nav class="editions" aria-label="Oracle editions"><a class="edition" data-tile="03" href="/oracle/no-signal-from-fate"><small>03 / CRT RECEIVER</small><strong>No Signal from Fate</strong><span aria-hidden="true">↗</span></a><a class="edition" data-tile="05" href="/oracle/results-may-vary" aria-current="page"><small>05 / FORTUNE HAZARD</small><strong>Results May Vary</strong><span aria-hidden="true">↗</span></a><a class="edition" data-tile="07" href="/oracle/ask-again-later"><small>07 / ORACLE RECORDS</small><strong>Ask Again Later</strong><span aria-hidden="true">↗</span></a><a class="edition" data-tile="08" href="/oracle/fate-is-calling"><small>08 / INCOMING CALL</small><strong>Fate Is Calling</strong><span aria-hidden="true">↗</span></a><a class="edition" data-tile="09" href="/oracle/the-future-is-classified"><small>09 / RESTRICTED ARCHIVE</small><strong>The Future Is Classified</strong><span aria-hidden="true">↗</span></a></nav>
+<form class="instrument" data-phase="idle">
+<div class="question-box"><button class="hazard-sound" type="button" aria-pressed="true">Sound</button><label for="question">Your yes-or-no question</label><input id="question" type="text" maxlength="90" placeholder="Will tonight go to plan?" enterkeyhint="go" required></div>
+<div class="stage art-stage"><div class="arcade-scene themed-scene" style="--spot-x:63%;--spot-y:77%">
+  <img src="/oracle/art/fortune-lab.webp" width="512" height="512" alt="An amber fortune-testing machine surrounded by questionable specimens">
+  <div class="hazard-motion" aria-hidden="true">
+    <div class="hazard-machine"></div><div class="hazard-chamber"><div class="hazard-ball"></div></div>
+    <div class="hazard-gauge"><i></i></div><div class="hazard-beacon"></div>
+    <div class="hazard-octopus"></div><div class="hazard-fish"></div>
+    <div class="hazard-steam"><i></i><i></i><i></i></div>
+    <div class="hazard-puff"></div><div class="hazard-vent"></div>
+    <div class="hazard-sparks"><i></i><i></i><i></i><i></i></div>
+    <div class="hazard-tape"></div>
+  </div>
+  <button class="scene-control" type="submit" aria-label="Press the test switch">TEST</button>
+  </div></div><div class="controls">
+<div class="readout"><small id="state" data-result="Test result">AWAITING QUESTION</small><div role="status" aria-atomic="true"><p id="asked" hidden></p><p id="answer">The 8 is ready.</p></div></div>
+<button id="ask" type="submit" data-loading="Testing the unknown…" data-again="Run another test" disabled><span>Run the test</span><b aria-hidden="true">↗</b></button>
+<noscript><p>Enable JavaScript to ask the Magic 8 Ball.</p></noscript></div></form>
+</article><nav class="editions" aria-label="Oracle editions"><a class="edition" data-tile="03" href="/oracle/no-signal-from-fate"><small>03 / CRT RECEIVER</small><strong>No Signal from Fate</strong><span aria-hidden="true">↗</span></a><a class="edition" data-tile="05" href="/oracle/results-may-vary" aria-current="page"><small>05 / FORTUNE HAZARD</small><strong>Results May Vary</strong><span aria-hidden="true">↗</span></a><a class="edition" data-tile="07" href="/oracle/ask-again-later"><small>07 / ORACLE RECORDS</small><strong>Ask Again Later</strong><span aria-hidden="true">↗</span></a><a class="edition" data-tile="08" href="/oracle/fate-is-calling"><small>08 / INCOMING CALL</small><strong>Fate Is Calling</strong><span aria-hidden="true">↗</span></a><a class="edition" data-tile="09" href="/oracle/the-future-is-classified"><small>09 / RESTRICTED ARCHIVE</small><strong>The Future Is Classified</strong><span aria-hidden="true">↗</span></a><a class="edition" data-tile="10" href="/oracle/the-bones-have-spoken"><small>10 / CURIOSITY SHOP</small><strong>The Bones Have Spoken</strong><span aria-hidden="true">↗</span></a><a class="edition" data-tile="11" href="/oracle/the-goose-knows"><small>11 / HUNTING LODGE</small><strong>The Goose Knows</strong><span aria-hidden="true">↗</span></a></nav>
 <script src="/oracle/oracle.js" defer></script></main>
 <footer><span>MADE IN MAIA / LINK LABEL</span><a href="/magic-8-ball">Classic Magic 8 Ball ↗</a><a href="https://madeinmaia.pt/loja">Explore the shop ↗</a></footer>
 </div></body></html>
