@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
   ]},
   async rewrites(){return {
     beforeFiles:[
+      {source:"/oracle",destination:"/oracle/index.html"},
+      {source:"/oracle/:edition(no-signal-from-fate|results-may-vary|ask-again-later|fate-is-calling|the-future-is-classified)",destination:"/oracle/:edition/index.html"},
       // Standalone "Ask the 8" magic 8-ball page (static file in public/magic-8-ball/)
       {source:"/magic-8-ball",destination:"/magic-8-ball/index.html"},
       // Standalone "Flip It" coin toss page (static file in public/coin-flip/)
