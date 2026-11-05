@@ -395,6 +395,30 @@ input.tx{font-size:20px;font-family:'Barlow Condensed';font-weight:800}
 @keyframes lv{0%{transform:scale(.3);opacity:0}15%{transform:scale(1.15);opacity:1}25%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-40px)}}
 img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:default;user-select:auto;-webkit-user-select:auto}
 </style>
+<style>
+.ovl.socialWorld{padding:0;background:#101827}
+.socialWorld .modal{width:100%;height:100%;max-height:none;border:0;border-radius:0;padding:0;display:flex;flex-direction:column;background:#101827;animation:none}
+.socialHead,.socialControls{padding:10px max(14px,env(safe-area-inset-right)) 10px max(14px,env(safe-area-inset-left));background:#111d2c}
+.socialHead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:max(10px,env(safe-area-inset-top))}
+.socialHead h3{margin:0}
+.socialHead .btn{flex-shrink:0}
+.socialControls{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+.socialControls .btns{margin:4px 0 0}
+.socialControls p:empty{display:none}
+.socialScroll{flex:1;min-height:200px;overflow:auto;overscroll-behavior:contain;background:#193241;display:flex;align-items:center;container-type:size}
+.socialMap{width:max(100%,680px,200cqh);flex:none;aspect-ratio:2;position:relative;background:#193241 center/100% 100%;cursor:crosshair}
+.socialPet,.socialTask,.socialSecret,.socialLock{position:absolute;transform:translateX(-50%);z-index:2}
+.socialPet{bottom:10%;display:grid;justify-items:center;border:0;background:none;color:white;cursor:pointer}
+.socialPet img{width:52px;height:53px;object-fit:contain;filter:drop-shadow(0 4px 3px #0008)}
+.socialPet span,.socialTask{border:1px solid #73cace;border-radius:12px;background:#112638;color:white;padding:4px 8px;font:inherit;font-size:12px;white-space:nowrap}
+.socialPet:disabled{opacity:1}
+.socialDecor{position:absolute;transform:translate(-50%,-100%);pointer-events:none}
+.socialTask{top:49%;min-height:38px;cursor:pointer}
+.socialSecret{top:60%;width:56px;height:46px;border:0;background:transparent;cursor:pointer}
+.socialSecret:focus-visible{outline:3px solid #8affff}
+.socialLock{inset:0 0 0 auto;transform:none;width:auto;border:0;border-left:2px dashed #84d3d7;background:#101827e8;color:#fff;font-size:24px;z-index:4}
+#socialGame button{margin:2px}
+</style>
 </head>
 <body>
 <div id="appBar" class="appBar"><span>📲 Get <b>Cyberpet</b> as an app — updates itself</span><button id="appBarBtn">Install</button><button id="appBarX" aria-label="Close">✕</button></div>
@@ -422,6 +446,7 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
     <div class="chipS" id="stateChip"></div>
     <div class="chipT" id="timeChip"></div><div class="chipT moodChip" id="moodChip"></div>
     <div class="side">
+      <button id="sSocial" aria-label="Cyber Park and home visits" style="font-size:20px">🌿</button>
       <button id="sRoom" aria-label="Room" style="font-size:20px">🛋️</button>
       <button id="sShare" aria-label="Share"><svg class="ico" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
       <button id="sCal" aria-label="Calibrate"><svg class="ico" viewBox="0 0 24 24"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/><circle cx="12" cy="12" r="3"/></svg></button>
@@ -590,7 +615,7 @@ function newEgg(parent){
    look:parent?parent.look:'ruins',looks:parent?parent.looks:['ruins'],effect:parent?parent.effect:'fireflies',effects:parent?parent.effects:['none','fireflies'],plants:parent?parent.plants:['sprout'],
    zones:parent?parent.zones:{},lore:parent?parent.lore:[],log:[],seen:parent?[...new Set([...parent.seen])]:[],
    missions:null,reward:parent?parent.reward:{day:'',n:0},best:parent?parent.best:0,overUntil:0,lastCare:0,lastStage:'egg',
-   gen:parent?parent.gen+1:1,mute:parent?parent.mute:false,redeemed:parent?parent.redeemed:[],flags:{}};
+   socialRewards:parent?.socialRewards,gen:parent?parent.gen+1:1,mute:parent?parent.mute:false,redeemed:parent?parent.redeemed:[],flags:{}};
 }
 function save(){if(typeof CLOUD!=='undefined'&&Date.now()-CLOUD.touch<6000){S.t=Date.now();CLOUD.dirty=true;syncSoon()}store.set(S)}
 const xpNeed=l=>100+(l-1)*60;
@@ -651,9 +676,9 @@ const SFX={tap:()=>tone(1100,.05),ok:()=>{tone(784,.1);tone(1175,.14,.08)},no:()
 /* ============ helpers UI ============ */
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2300)}
 let bubT;function say(t,ms=1800){const b=$('#bubble');b.textContent=t;b.classList.add('on');clearTimeout(bubT);bubT=setTimeout(()=>b.classList.remove('on'),ms)}
-function modal(html,sticky){$('#modal').innerHTML=html;$('#ov').classList.add('on');$('#ov')._sticky=!!sticky;bindX()}
+function modal(html,sticky){if($('#ov').classList.contains('socialWorld'))closeM();$('#modal').innerHTML=html;$('#ov').classList.add('on');$('#ov')._sticky=!!sticky;bindX()}
 function bindX(){$$('#modal [data-x]').forEach(b=>b.onclick=()=>{SFX.tap();closeM()})}
-function closeM(){const o=$('#ov');o.classList.remove('on');if(o._onclose){const f=o._onclose;o._onclose=null;f()}}
+function closeM(){const o=$('#ov');o.classList.remove('on','socialWorld');if(o._onclose){const f=o._onclose;o._onclose=null;f()}}
 $('#ov').addEventListener('click',e=>{if(e.target.id==='ov'&&!$('#ov')._sticky)closeM()});
 function levelUp(l){SFX.level();lvKick('glow');lvKick('lines');sprPose('celebrate',2200);const e=$('#lvup');$('#lvupT').innerHTML=`Level up!<small>Lv.${l}</small>`;e.classList.remove('on');void e.offsetWidth;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2300);burst('confetti',40);addLog('🏅',`Level ${l}`,`${S.name} reached level ${l}.`)}
 function needLow(){const n=[];if(S.stage==='egg'||S.gone)return n;if(S.energy<25)n.push('feed');if(S.health<35||S.mess>=2)n.push('clean');if(S.happy<25)n.push('play');if(S.rest<20&&!S.asleep)n.push('rest');if(S.bond<20)n.push('bond');return n}
@@ -1213,7 +1238,7 @@ function rescue(){const o={...S};delete o.mute;
   $('#rcCopy').onclick=()=>copy($('#rcOut').value);
   $('#rcLoad').onclick=()=>{try{const o=dec($('#rcIn').value.trim().replace(/^(?:CYBERPET|FAELIX)-/,''));if(!o.base||!o.variant)throw 0;const mute=S.mute,rm=S.room;S=Object.assign(newEgg(),o,{mute});if(!S.room)S.room=rm;save();closeM();boot();SFX.yay();toast(S.name+' is back!')}catch(e){SFX.no();toast('That code doesn\'t look right')}}}
 function askName(){modal(`<h3>Name your Cyberpet</h3><input class="tx" id="nm" maxlength="12" value="${S.name}"><div class="btns"><button class="btn" id="nmOk">That's the one</button><button class="btn gh" id="nmR">🎲 Another</button></div>`,true);
-  $('#nmR').onclick=()=>{SFX.tap();$('#nm').value=pick(NAMES)};$('#nmOk').onclick=()=>{const v=$('#nm').value.trim();if(v)S.name=v.slice(0,12);save();closeM();SFX.ok();say(`Hi, I'm ${S.name}! 👋`,2400);setExpr('love',2000);burst('hearts',8);renderAll()}}
+  $('#nmR').onclick=()=>{SFX.tap();$('#nm').value=pick(NAMES)};$('#nmOk').onclick=()=>{const v=$('#nm').value.trim();if(v)S.name=v.slice(0,12);save();closeM();SFX.ok();say(`Hi, I'm ${S.name}! 👋`,2400);setExpr('love',2000);burst('hearts',8);renderAll();resumeVisit()}}
 
 /* ============ egg / hatch ============ */
 function tapEgg(){if(busy)return;S.taps++;tone(500+S.taps*120,.08);act('a-shake');burst('sparks',4+S.taps*2);
@@ -1654,7 +1679,7 @@ function layoutRoom(){const st=$('#stage');RV.H=st.clientHeight||420;const a=RDI
   const lk=$('#roomLock');lk.style.display=S.room.lv<2?'flex':'none';lk.style.width=RV.imgW*.37+'px';
   const lk2=$('#roomLock2');lk2.style.display=S.room.lv<3?'flex':'none';lk2.style.left=RV.worldW+'px';
   $('#lampGlow2').style.display=S.room.lv>=3?'block':'none';$('#lampGlow2').style.left=(RV.imgW*2-RV.imgW*.403)+'px';$('#lampGlow').style.left=RV.imgW*.403+'px';
-  drawDepthGrid();renderItems();placePet(true);if(typeof placeSky==='function')placeSky()}
+  applyRoomSkin();drawDepthGrid();renderItems();placePet(true);if(typeof placeSky==='function')placeSky()}
 function drawDepthGrid(){const W=RV.worldW,H=RV.H,vx=W/2,vy=H*.38;let s='';const ys=[.64,.72,.84,.98];
   s+=`<polygon points="0,${H*.62} ${W},${H*.62} ${W},${H} 0,${H}" fill="rgba(255,210,63,.06)"/>`;
   [[.64,.72,'rgba(120,160,255,.10)'],[.72,.84,'rgba(255,210,63,.07)'],[.84,.98,'rgba(255,120,80,.08)']].forEach(([a,b,c])=>s+=`<rect x="0" y="${a*H}" width="${W}" height="${(b-a)*H}" fill="${c}"/>`);
@@ -1841,7 +1866,7 @@ async function initSky(){try{SKY.win=await (await fetch('r/win.json')).json()}ca
 }
 function placeSky(){if(!SKY.win||!RV.H)return;const k=RV.H/SKY.win.size[1];const set=(c,b,mirror)=>{const L=mirror?RV.worldW-b[2]*k:b[0]*k;c.style.left=L+'px';c.style.top=b[1]*k+'px';c.style.width=(b[2]-b[0])*k+'px';c.style.height=(b[3]-b[1])*k+'px'};
   set(SKY.cv,SKY.win.win);set(SKY.cv2,SKY.win.win2);set(SKY.cvm,SKY.win.win,1);set(SKY.cvm2,SKY.win.win2,1);const m=S.room&&S.room.lv>=3;SKY.cvm.style.display=SKY.cvm2.style.display=m?'block':'none';
-  $('#roomBg').src='r/room_cut.webp';$('#roomBg2').src='r/room_cut.webp'}
+  applyRoomSkin()}
 function cloudShape(x,cx,cy,s){x.beginPath();[[0,0,26],[-28,6,18],[28,6,20],[-12,-12,18],[14,-14,20],[46,10,13],[-46,10,12]].forEach(([a,b,r])=>{x.moveTo(cx+a*s+r*s,cy+b*s);x.arc(cx+a*s,cy+b*s,r*s,0,7)});x.fill()}
 function drawSky(t){if(!SKY.buf||!SKY.city)return;const h=SKY.hour=skyHour(),x=SKY.buf.getContext('2d'),W=SKY.buf.width,H=SKY.buf.height,dk=darkness(h);
   const [a,b,k]=keyAt(SKYK,h),top=mixc(hx(a[1]),hx(b[1]),k),hor=mixc(hx(a[2]),hx(b[2]),k);
@@ -2133,10 +2158,12 @@ async function openLink(){SFX.tap();
   if(S.stage!=='egg'&&APP.onSite){const c=await linkCode();const el=$('#lkCode');if(el){el.textContent=c||'offline';if(!c)$('#lkNote').textContent='Connect to the internet to get a code'}}
   else if(!APP.onSite){$('#lkCode').textContent='—';$('#lkNote').textContent='Open madeinmaia.pt/petz to link devices'}}
 function initSync(){if(!APP.onSite)return;
-  const q=new URLSearchParams(location.search),lk=q.get('link');if(lk){history.replaceState(null,'',location.pathname);claimCode(lk,true)}
-  if(CLOUD.id)syncPull();else setTimeout(syncCreate,3000);
+  const url=new URL(location.href),lk=url.searchParams.get('link');let initial;
+  if(lk){url.searchParams.delete('link');history.replaceState(null,'',url);initial=claimCode(lk,true)}
+  else if(CLOUD.id)initial=syncPull();
+  else setTimeout(syncCreate,3000);
   document.addEventListener('visibilitychange',()=>{if(document.hidden){if(CLOUD.dirty){clearTimeout(CLOUD.T);syncPush()}}else syncPull()});
-  setInterval(()=>{if(!document.hidden){if(CLOUD.dirty)syncPush();else syncPull()}},45000)}
+  setInterval(()=>{if(!document.hidden){if(CLOUD.dirty)syncPush();else syncPull()}},45000);return initial}
 
 /* ============ SPRITE ENGINE ============ */
 let SPR=null,sprImg={},PK=null,ROSTER=[];const PACKS={};
@@ -2539,6 +2566,289 @@ function openBed(){const un=unlockedSleep();
   $$('[data-bed]').forEach(d=>d.onclick=()=>{const k=d.dataset.bed;if(!SLEEP[k].u()){SFX.no();toast('🔒 '+SLEEP[k].ut.replace('Unlock: ',''));return}delete S.flags['sln_'+k];closeM();startSleep(k)})}
 function checkSleepUnlocks(){if(S.stage==='egg')return;for(const k in SLEEP){if(SLEEP[k].u()&&!S.flags['sl_'+k]){S.flags['sl_'+k]=1;if(SLEEP[k].ut!=='Starter'){S.flags['sln_'+k]=1;toast(`🌙 New sleep style: ${SLEEP[k].e} ${SLEEP[k].n}`);addLog(SLEEP[k].e,'New sleep style',`${S.name} learned a new way to sleep: ${SLEEP[k].n}.`)}}}}
 
+/* ============ shared spaces ============ */
+const ROOM_SKINS={original:'Cyber Loft',rose:'Rose Circuit Loft',mint:'Mint Terminal Loft'};
+const roomArt=(skin,cut=false)=>skin==='rose'?'r/rose-loft.webp':skin==='mint'?'r/mint-loft.webp':cut?'r/room_cut.webp':'r/room.webp';
+const SOCIAL={room:null,position:15,maxPosition:32,points:0,view:0,pending:false,timer:null,challenge:null};
+const SOCIAL_SPRITE=/^(st_(baby|juv|teen)|hero_core|v_(aqua|aurora|core|ignis|lumen|terra|umbra|void))$/;
+async function socialCall(action,fields={}){
+  if(!syncOn())await syncCreate();
+  if(!syncOn())return {ok:false,error:'Hatch your pet and connect to the internet to use Social.'};
+  try{return await api('POST',{action:'social-'+action,id:CLOUD.id,key:CLOUD.key,...fields})}
+  catch{return {ok:false,error:'Connection lost. Try again.'}}
+}
+function socialRewards(stats){
+  if(!stats)return;
+  const seen=S.socialRewards||{};
+  let changed=false;
+  for(const stat of ['happy','energy','bond','xp']){
+    const previous=seen[stat]||0,next=stats[stat];
+    if(next<=previous)continue;
+    S[stat]=stat==='xp'?S[stat]+next-previous:Math.min(100,S[stat]+next-previous);
+    seen[stat]=next;changed=true;
+  }
+  if(changed){
+    S.socialRewards=seen;S.t=Date.now();CLOUD.dirty=true;save();syncSoon();renderAll();
+  }
+}
+function drawSocial(j){
+  const map=$('#socialMap'), park=SOCIAL.room==='park';
+  map.style.backgroundImage='url('+(park?'r/cyber-park.webp':roomArt(j.skin))+')';
+  $('#socialProgress').textContent=park?(j.points+' community points · '+(j.points<12?'Arcade Garden opens at 12':j.points<30?'Secret Grove opens at 30':'All areas open')):'Invite-only home visit';
+  $('#socialAwards').textContent=[j.stats.friend?'🏅 First Friend':'',j.stats.secret?'🏅 Grove Explorer':''].filter(Boolean).join(' · ');
+  const decor=$('#socialDecor');
+  const fingerprint=JSON.stringify([j.furniture,j.tiers]);
+  if(decor.dataset.current!==fingerprint){
+    decor.dataset.current=fingerprint;decor.replaceChildren();
+    for(const item of j.furniture||[]){
+      if(!item||!Object.hasOwn(RI,item.id)||!Number.isFinite(item.x)||!Number.isFinite(item.y))continue;
+      const d=RI[item.id],tier=Math.max(1,Math.min(5,Math.round(Number(j.tiers?.[item.id])||1)));
+      const img=document.createElement('img');img.className='socialDecor';img.alt='';
+      img.src='r/'+item.id+(d.st?tier:'')+'.webp';
+      img.style.left=clamp(item.x,0,1)*100+'%';img.style.top=clamp(item.y,0,1)*100+'%';
+      img.style.height=((d.st?d.h[tier-1]:d.h)*1.18*(d.kind==='wall'?1:depthS(item.y))*100)+'%';
+      if(item.flip)img.style.scale='-1 1';
+      decor.append(img);
+    }
+  }
+  const paw=$('#socialPets');
+  const pets=document.createDocumentFragment();
+  for(const pet of [{id:CLOUD.id,name:S.name,sprite:heroKey(),position:SOCIAL.position},...j.peers]){
+    const el=document.createElement('button'),img=document.createElement('img'),label=document.createElement('span');
+    const mine=pet.id===CLOUD.id;
+    el.type='button';el.className='socialPet';el.style.left=pet.position+'%';
+    img.src='a/'+(SOCIAL_SPRITE.test(pet.sprite)?pet.sprite:'st_baby')+'.webp';
+    img.alt='';label.textContent=mine?pet.name+' (you)':pet.name;
+    el.append(img,label);el.disabled=mine;
+    if(!mine)el.onclick=()=>{SOCIAL.target=pet.id;SOCIAL.targetName=pet.name;socialTarget()};
+    pets.append(el);
+  }
+  paw.replaceChildren(pets);
+  const lock=$('#socialLock');lock.hidden=!park||j.maxPosition>=97;lock.style.left=(j.maxPosition+1)+'%';
+  $('#socialGarden').hidden=!park||j.points<12;
+  $('#socialFountain').hidden=!park;
+  $('#socialSecret').hidden=!park||j.points<30||j.stats.secret;
+  if(SOCIAL.target&&!j.peers.some(p=>p.id===SOCIAL.target))SOCIAL.target=null;
+  socialTarget();
+}
+function socialTarget(){
+  $('#socialFriend').textContent=SOCIAL.target?'With '+SOCIAL.targetName:'Tap another pet to play together.';
+  $('#socialPetIt').disabled=$('#socialPlay').disabled=!SOCIAL.target;
+}
+async function socialState(kind){
+  if(SOCIAL.pending||!SOCIAL.room)return;
+  const room=SOCIAL.room,view=SOCIAL.view;
+  SOCIAL.pending=true;
+  const request=socialCall('state',{room,position:SOCIAL.position,name:S.name,sprite:heroKey(),kind,target:SOCIAL.target});
+  SOCIAL.request=request;const j=await request;
+  SOCIAL.pending=false;
+  if(view!==SOCIAL.view||!$('#socialMap')||!$('#ov').classList.contains('on'))return;
+  const msg=$('#socialMessage');
+  if(!j.ok){
+    msg.textContent=j.error||'Social is temporarily unavailable. Retrying…';
+    if(j.status===403){clearInterval(SOCIAL.timer);SOCIAL.room=null;}
+    return;
+  }
+  SOCIAL.maxPosition=j.maxPosition;SOCIAL.position=Math.min(SOCIAL.position,j.maxPosition);SOCIAL.points=j.points;
+  socialRewards(j.stats);drawSocial(j);
+  if(kind){
+    msg.textContent=j.earned?'Nice! Your progress is saved.':'You already earned this reward.';
+    if(j.earned){SFX.yay();$('#socialPets .socialPet:disabled img')?.animate([{transform:'translateY(0)'},{transform:'translateY(-18px)'},{transform:'translateY(0)'}],420)}
+  }
+  else if(msg.textContent.startsWith('Social is')||msg.textContent.startsWith('Connection lost'))msg.textContent='';
+}
+function socialBounce(){
+  if(Math.abs(SOCIAL.position-50)>12){$('#socialMessage').textContent='Walk to the bounce pads first.';return}
+  if(SOCIAL.challenge||SOCIAL.pending)return;
+  const sequence=Array.from({length:4},()=>Math.floor(Math.random()*3));
+  const colors=['Blue','Pink','Violet'],box=$('#socialGame');
+  const view=SOCIAL.view,game={step:0,ready:false};SOCIAL.challenge=game;
+  box.replaceChildren();
+  const hint=document.createElement('p');hint.textContent='Remember: '+sequence.map(i=>colors[i]).join(' · ');box.append(hint);
+  colors.forEach((name,i)=>{
+    const button=document.createElement('button');button.className='btn gh';button.textContent=name;button.disabled=true;box.append(button);
+    button.onclick=()=>{
+      if(!game.ready||SOCIAL.challenge!==game)return;
+      if(sequence[game.step++]!==i){SOCIAL.challenge=null;box.textContent='Wrong pad. Try the bounce game again.';return}
+      if(game.step===sequence.length){SOCIAL.challenge=null;box.textContent='Perfect sequence!';socialState('bounce')}
+      else hint.textContent=game.step+' / '+sequence.length;
+    };
+  });
+  setTimeout(()=>{if(SOCIAL.view!==view||SOCIAL.challenge!==game)return;game.ready=true;hint.textContent='Tap the pads in order';box.querySelectorAll('button').forEach(b=>b.disabled=false)},2300);
+}
+function openSocialSpace(room,hostName=''){
+  closeM();
+  SOCIAL.room=room;SOCIAL.position=room===CLOUD.id?42:15;SOCIAL.maxPosition=room==='park'?32:97;SOCIAL.target=null;SOCIAL.challenge=null;
+  const park=room==='park';
+  modal(`<header class="socialHead"><div><h3 id="socialTitle">${park?'🌿 Cyber Park':'🏠 Private loft'}</h3>
+    <p id="socialProgress" class="muted" aria-live="polite">Connecting…</p></div>
+    <button class="btn gh" id="socialHome">Go home</button></header>
+    <div class="socialScroll"><div id="socialMap" class="socialMap">
+      <button id="socialLock" class="socialLock" disabled hidden>🔒</button>
+      <button id="socialFountain" class="socialTask" style="left:21%" hidden>⚡ Fountain</button>
+      <button id="socialGarden" class="socialTask" style="left:50%" hidden>🟣 Bounce pads</button>
+      <button id="socialSecret" class="socialSecret" style="left:90%" aria-label="Inspect the hatch" hidden></button>
+      <div id="socialDecor" aria-hidden="true"></div><div id="socialPets"></div>
+    </div></div>
+    <div class="socialControls"><p class="muted">Tap the floor to move. Swipe to explore.</p>
+    <div id="socialGame"></div><p id="socialFriend"></p>
+    <div class="btns"><button class="btn" id="socialPetIt">Pet</button><button class="btn cy" id="socialPlay">Play together</button></div>
+    <p id="socialMessage" aria-live="polite"></p><p id="socialAwards"></p>
+    </div>`,true);
+  $('#ov').classList.add('socialWorld');
+  if(hostName)$('#socialTitle').textContent=hostName+"'s loft";
+  $('#socialHome').focus({preventScroll:true});
+  $('#ov')._onclose=()=>{
+    clearInterval(SOCIAL.timer);SOCIAL.view++;SOCIAL.room=null;
+    const closedView=SOCIAL.view;
+    Promise.resolve(SOCIAL.request).then(()=>{
+      if(CLOUD.id&&SOCIAL.view===closedView)socialCall('leave',{room});
+    });
+  };
+  const map=$('#socialMap');
+  const scroller=map.parentElement;
+  scroller.scrollLeft=map.offsetWidth*SOCIAL.position/100-scroller.clientWidth/2;
+  map.style.backgroundImage='url('+(park?'r/cyber-park.webp':roomArt(S.room.skin))+')';
+  map.onclick=e=>{
+    if(e.target.closest('button')||SOCIAL.pending)return;
+    const r=map.getBoundingClientRect(),x=Math.round(100*(e.clientX-r.left)/r.width);
+    if(x>SOCIAL.maxPosition){$('#socialMessage').textContent='Complete park activities to unlock this area.';return}
+    SOCIAL.position=Math.max(3,Math.min(97,x));
+    const own=$('#socialPets .socialPet:disabled');if(own)own.style.left=SOCIAL.position+'%';
+    socialState();
+  };
+  $('#socialFountain').onclick=()=>socialState('fountain');
+  $('#socialGarden').onclick=socialBounce;
+  $('#socialSecret').onclick=()=>socialState('secret');
+  $('#socialPetIt').onclick=()=>socialState('pet');
+  $('#socialPlay').onclick=()=>socialState('play');
+  $('#socialHome').onclick=()=>{closeM();go('home');$('#sSocial').focus({preventScroll:true})};
+  socialTarget();socialState();
+  SOCIAL.timer=setInterval(()=>{
+    if(!$('#socialMap')||!$('#ov').classList.contains('on')){clearInterval(SOCIAL.timer);return}
+    if(!document.hidden&&!SOCIAL.challenge)socialState();
+  },3500);
+}
+function openSocial(prefill=''){
+  if(S.stage==='egg'||S.gone){toast('Hatch an active pet before visiting');return}
+  modal(`<h3>🌿 Cyberpet Social</h3>
+    <div class="panel"><b>Cyber Park</b><p>Meet other pets and grow the park together.</p><button class="btn cy" id="parkEnter">Go to the park</button></div>
+    <div class="panel"><b>Your private loft</b><p>Share a one-guest pass valid for 24 hours.</p>
+    <div class="btns"><button class="btn" id="visitMake">Invite to my loft</button><button class="btn gh" id="visitRevoke">End invite</button><button class="btn gh" id="visitHost">Enter my loft</button></div>
+    <input class="tx" id="visitUrl" aria-label="Shareable invite link" readonly hidden>
+    <button class="btn cy" id="visitShare" hidden>Share invite</button></div>
+    <div class="panel"><b>Visit a friend</b><p>Paste the invite link or code.</p>
+    <input class="tx" id="visitCode" aria-label="Visit link or code" autocomplete="off">
+    <div class="btns"><button class="btn" id="visitJoin">Join visit</button></div></div>
+    <div class="panel"><label for="roomSkin"><b>Room design</b></label><select class="tx" id="roomSkin">${Object.entries(ROOM_SKINS).map(([id,name])=>`<option value="${id}">${name}</option>`).join('')}</select></div>
+    <p id="visitMessage" aria-live="polite"></p><div class="btns"><button class="btn gh" data-x>Close</button></div>`);
+  const msg=$('#visitMessage'),url=$('#visitUrl'),skin=$('#roomSkin'),shareButton=$('#visitShare');
+  const validCode=value=>value.trim().match(/(?:^|[?&]visit=)([a-f0-9]{32})(?:$|[&#])/i)?.[1]||'';
+  $('#visitCode').value=prefill;
+  skin.value=Object.hasOwn(ROOM_SKINS,S.room.skin)?S.room.skin:'original';
+  skin.onchange=()=>{S.room.skin=skin.value;applyRoomSkin();save()};
+  $('#parkEnter').onclick=()=>openSocialSpace('park');
+  $('#visitHost').onclick=async()=>{
+    const j=await socialCall('ready');
+    if(!msg.isConnected)return;
+    if(j.ok){await syncPush();if(msg.isConnected)openSocialSpace(CLOUD.id)}else msg.textContent=j.error||'Could not open your loft';
+  };
+  $('#visitMake').onclick=async e=>{
+    const button=e.currentTarget;button.disabled=true;
+    const j=await socialCall('invite');button.disabled=false;
+    if(!msg.isConnected)return;
+    if(!j.ok){msg.textContent=j.error||'Could not create the invite';return}
+    const link=new URL('/petz/',location.origin);link.searchParams.set('visit',j.code);
+    url.hidden=false;url.value=link.href;url.onclick=()=>url.select();
+    shareButton.hidden=false;shareButton.focus();
+    msg.textContent='Invite ready · expires in 24 hours.';
+  };
+  shareButton.onclick=async()=>{
+    const link=url.value;
+    try{
+      if(navigator.share)await navigator.share({title:'Visit my Cyberpet loft',url:link});
+      else{await navigator.clipboard.writeText(link);msg.textContent='Invite link copied.'}
+    }catch(error){
+      if(error.name!=='AbortError'){url.select();msg.textContent='Copy the selected link to share it.'}
+    }
+  };
+  $('#visitRevoke').onclick=async()=>{
+    const j=await socialCall('revoke');if(!msg.isConnected)return;
+    if(j.ok){url.hidden=true;shareButton.hidden=true;url.value=''}
+    msg.textContent=j.ok?'Invite ended.':j.error||'Could not end the invite.';
+  };
+  $('#visitJoin').onclick=()=>{
+    const code=validCode($('#visitCode').value);
+    if(!code){msg.textContent='Paste a valid home visit link or code.';return}
+    openVisit(code);
+  };
+}
+const VISIT_KEY='cyberpet.visit';
+function resumeVisit(){
+  const code=sessionStorage.getItem(VISIT_KEY);
+  if(code&&S.stage!=='egg'&&!S.gone)openVisit(code);
+}
+function openVisit(code){
+  modal(`<img id="visitArt" alt="" style="width:100%;border-radius:14px;margin-bottom:12px" hidden>
+    <h3 id="visitTitle">Home visit</h3>
+    <p id="directVisitMessage" aria-live="polite">Checking the invite…</p>
+    <div class="btns"><button class="btn cy" id="directVisitGo" disabled>Visit loft</button>
+    <button class="btn gh" data-x>Later</button></div>`);
+  const button=$('#directVisitGo'),msg=$('#directVisitMessage'),title=$('#visitTitle');
+  let hostName='';
+  const visitOpen=()=>msg.isConnected&&$('#ov').classList.contains('on');
+  async function preview(){
+    button.disabled=true;
+    msg.textContent='Checking the invite…';
+    const j=await socialCall('preview',{code});
+    if(!visitOpen())return;
+    if(!j.ok){
+      msg.textContent=j.error||'Could not check the invite. Try again.';
+      if(j.status===404&&sessionStorage.getItem(VISIT_KEY)===code)sessionStorage.removeItem(VISIT_KEY);
+      button.textContent='Try again';button.disabled=j.status===404;
+      button.onclick=preview;
+      return;
+    }
+    hostName=j.name;
+    title.textContent="Visit "+hostName+"'s loft";
+    const art=$('#visitArt');art.src=roomArt(j.skin);art.hidden=false;
+    msg.textContent='Bring your Cyberpet for a visit.';
+    button.textContent='Visit loft';button.disabled=false;button.onclick=join;
+  }
+  async function join(){
+    button.disabled=true;
+    msg.textContent='Opening the loft…';
+    const j=await socialCall('join',{code});
+    if(!visitOpen())return;
+    if(j.ok){
+      if(sessionStorage.getItem(VISIT_KEY)===code)sessionStorage.removeItem(VISIT_KEY);
+      openSocialSpace(j.room,hostName);return;
+    }
+    msg.textContent=j.error||'Could not join this visit. Try again.';
+    if(j.status===404&&sessionStorage.getItem(VISIT_KEY)===code)sessionStorage.removeItem(VISIT_KEY);
+    button.disabled=j.status===404;
+  }
+  preview();
+}
+function initSocial(initialSync){
+  const url=new URL(location.href),code=url.searchParams.get('visit');
+  if(code&&/^[a-f0-9]{32}$/i.test(code)){
+    sessionStorage.setItem(VISIT_KEY,code);url.searchParams.delete('visit');history.replaceState(null,'',url);
+    if(S.stage==='egg')toast('Your invite will be ready when your pet hatches.');
+  }
+  $('#sSocial').onclick=()=>openSocial(sessionStorage.getItem(VISIT_KEY)||'');
+  if(S.stage!=='egg'||initialSync){
+    if(initialSync)initialSync.finally(()=>{if(!$('#ov').classList.contains('on'))resumeVisit()});
+    else resumeVisit();
+  }
+}
+function applyRoomSkin(){
+  const src=roomArt(S.room?.skin,!!SKY.win);
+  for(const id of ['#roomBg','#roomBg2']){
+    const image=$(id);if(image.getAttribute('src')!==src)image.src=src;
+  }
+}
+
 /* ============ nav ============ */
 const NAVI={home:'<path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/>',care:'<path d="M12 20s-7.5-4.6-7.5-10.2A4.1 4.1 0 0 1 12 7.4a4.1 4.1 0 0 1 7.5 2.4C19.5 15.4 12 20 12 20z"/>',play:'<rect x="2" y="7" width="20" height="11" rx="5.5"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11" r=".8"/><circle cx="18.5" cy="14" r=".8"/>',explore:'<circle cx="12" cy="12" r="5"/><path d="M2 13c3 3 17 3 20 0M4.5 10.5c1.5-1 13.5-1 15 0"/>',lab:'<path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9V3"/><path d="M7 15h10"/>',journal:'<path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-5a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h5z"/>'};
 $('#nav').innerHTML=Object.keys(NAVI).map(k=>`<div data-tab="${k}" class="${k==='home'?'on':''}"><svg viewBox="0 0 24 24">${NAVI[k]}</svg>${k[0].toUpperCase()+k.slice(1)}</div>`).join('');
@@ -2574,7 +2884,7 @@ function boot(){furnitureRest=null;activeArcade=null;ensureRoom();if(RV.H&&$('#w
 S=store.get();if(!S||S.v!==3||!S.base)S=newEgg();importFromUrl();
 initScene();
 window.addEventListener('resize',()=>{sizeStage()});
-boot();loadSprites();initRoom();initApp();initSync();
+boot();loadSprites();initRoom();initApp();initSocial(initSync());
 requestAnimationFrame(frame);
 setInterval(lifeTick,900);setInterval(setMoodChip,1500);
 setInterval(check,8000);
