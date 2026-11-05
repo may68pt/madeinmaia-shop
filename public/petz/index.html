@@ -412,6 +412,9 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
 .socialPet img{width:52px;height:53px;object-fit:contain;filter:drop-shadow(0 4px 3px #0008)}
 .socialPet span,.socialTask{border:1px solid #73cace;border-radius:12px;background:#112638;color:white;padding:4px 8px;font:inherit;font-size:12px;white-space:nowrap}
 .socialPet:disabled{opacity:1}
+.socialPet canvas{width:72px;height:72px;filter:drop-shadow(0 4px 3px #0008)}
+.socialBubble{position:absolute;bottom:100%;max-width:150px;padding:6px 9px;border-radius:12px;background:#eefeff;color:#142c40;font-size:12px;pointer-events:none;white-space:nowrap}
+.socialPet [hidden]{display:none}
 .socialDecor{position:absolute;transform:translate(-50%,-100%);pointer-events:none}
 .socialTask{top:49%;min-height:38px;cursor:pointer}
 .socialSecret{top:60%;width:56px;height:46px;border:0;background:transparent;cursor:pointer}
@@ -2569,7 +2572,7 @@ function checkSleepUnlocks(){if(S.stage==='egg')return;for(const k in SLEEP){if(
 /* ============ shared spaces ============ */
 const ROOM_SKINS={original:'Cyber Loft',rose:'Rose Circuit Loft',mint:'Mint Terminal Loft'};
 const roomArt=(skin,cut=false)=>skin==='rose'?'r/rose-loft.webp':skin==='mint'?'r/mint-loft.webp':cut?'r/room_cut.webp':'r/room.webp';
-const SOCIAL={room:null,position:15,maxPosition:32,points:0,view:0,pending:false,timer:null,challenge:null};
+const SOCIAL={actors:new Map(),frame:null,lastFrame:0,manualUntil:0,room:null,position:15,maxPosition:32,points:0,view:0,pending:false,timer:null,challenge:null};
 const SOCIAL_SPRITE=/^(st_(baby|juv|teen)|hero_core|v_(aqua|aurora|core|ignis|lumen|terra|umbra|void))$/;
 async function socialCall(action,fields={}){
   if(!syncOn())await syncCreate();
@@ -2612,24 +2615,81 @@ function drawSocial(j){
     }
   }
   const paw=$('#socialPets');
-  const pets=document.createDocumentFragment();
+  const present=new Set();
   for(const pet of [{id:CLOUD.id,name:S.name,sprite:heroKey(),position:SOCIAL.position},...j.peers]){
-    const el=document.createElement('button'),img=document.createElement('img'),label=document.createElement('span');
-    const mine=pet.id===CLOUD.id;
-    el.type='button';el.className='socialPet';el.style.left=pet.position+'%';
-    img.src='a/'+(SOCIAL_SPRITE.test(pet.sprite)?pet.sprite:'st_baby')+'.webp';
-    img.alt='';label.textContent=mine?pet.name+' (you)':pet.name;
-    el.append(img,label);el.disabled=mine;
-    if(!mine)el.onclick=()=>{SOCIAL.target=pet.id;SOCIAL.targetName=pet.name;socialTarget()};
-    pets.append(el);
+    present.add(pet.id);
+    let actor=SOCIAL.actors.get(pet.id);
+    if(!actor){
+      const el=document.createElement('button'),img=document.createElement('img');
+      const canvas=document.createElement('canvas'),label=document.createElement('span'),bubble=document.createElement('small');
+      el.type='button';el.className='socialPet';el.disabled=pet.id===CLOUD.id;
+      img.alt='';canvas.width=128;canvas.height=128;canvas.hidden=true;
+      bubble.className='socialBubble';bubble.hidden=true;
+      el.append(img,canvas,label,bubble);paw.append(el);
+      actor={el,img,canvas,label,bubble,x:pet.position,goal:pet.position,anchor:pet.position,next:0,until:0,role:'idle',phase:Math.random()*4000};
+      SOCIAL.actors.set(pet.id,actor);
+      if(!el.disabled)el.onclick=()=>{SOCIAL.target=pet.id;SOCIAL.targetName=actor.name;socialTarget()};
+    }
+    actor.packId=pet.id===CLOUD.id?S.char:pet.sprite==='pack_mosskeeper'?'mosskeeper':pet.sprite==='pack_faelix'?'faelix':null;
+    actor.name=pet.name;actor.mine=pet.id===CLOUD.id;actor.anchor=pet.position;
+    actor.label.textContent=pet.name+(actor.mine?' (you)':'');
+    actor.img.src='a/'+(SOCIAL_SPRITE.test(pet.sprite)?pet.sprite:'st_baby')+'.webp';
+    actor.el.style.left=actor.x+'%';
   }
-  paw.replaceChildren(pets);
+  for(const [id,actor] of SOCIAL.actors){if(!present.has(id)){actor.el.remove();SOCIAL.actors.delete(id)}}
   const lock=$('#socialLock');lock.hidden=!park||j.maxPosition>=97;lock.style.left=(j.maxPosition+1)+'%';
   $('#socialGarden').hidden=!park||j.points<12;
   $('#socialFountain').hidden=!park;
   $('#socialSecret').hidden=!park||j.points<30||j.stats.secret;
   if(SOCIAL.target&&!j.peers.some(p=>p.id===SOCIAL.target))SOCIAL.target=null;
   socialTarget();
+}
+// Ambient activity is cosmetic. Only the owner's position is sent to the server.
+function socialEmote(actor,role,text,time){
+  actor.role=role;actor.until=time+3600;actor.next=time+rnd(6500,11000);
+  actor.bubble.textContent=text;actor.bubble.hidden=false;
+}
+function animateSocial(time){
+  if(!SOCIAL.room||!$('#socialMap'))return;
+  const dt=Math.min((time-SOCIAL.lastFrame)/1000,.05)||0;
+  SOCIAL.lastFrame=time;
+  if(!document.hidden){
+    const actors=[...SOCIAL.actors.values()],park=SOCIAL.room==='park';
+    for(const actor of actors){
+      const manual=actor.mine&&time<SOCIAL.manualUntil;
+      if(manual){actor.goal=SOCIAL.position;actor.until=0}
+      if(time>actor.until)actor.bubble.hidden=true;
+      if(park&&!SOCIAL.challenge&&!manual&&time>actor.next&&time>actor.until){
+        actor.next=time+rnd(6000,12000);
+        const friend=actors.find(other=>other!==actor&&Math.abs(other.x-actor.x)<5&&time>other.until&&!(other.mine&&time<SOCIAL.manualUntil));
+        if(friend&&Math.random()<.55){
+          const play=Math.random()<.5;
+          socialEmote(actor,play?'jump':'greet',play?'Catch me! ⚡':'Hello, friend! 👋',time);
+          socialEmote(friend,play?'backflip':'greet',play?'Let’s play!':'Hi! ✨',time);
+          actor.goal=actor.x;friend.goal=friend.x;
+        }else if(Math.random()<.7){
+          actor.goal=clamp(actor.mine?actor.x+rnd(-9,9):actor.anchor+rnd(-3,3),3,SOCIAL.maxPosition);
+        }else socialEmote(actor,pick(['jump','catchtail','sitidle']),pick(['♪ ♫','Park day! 🌿','Wheee!']),time);
+      }
+      if(!park)actor.goal=actor.anchor;
+      const distance=actor.goal-actor.x,moving=Math.abs(distance)>.08;
+      actor.x+=Math.sign(distance)*Math.min(Math.abs(distance),dt*1.8);
+      actor.el.style.left=actor.x+'%';
+      if(actor.mine&&!manual)SOCIAL.position=actor.x;
+      const pack=PACKS[actor.packId];
+      const role=moving?'walk':time<actor.until?actor.role:'idle';
+      const resolved=pack&&res(role,pack),anim=resolved?.t==='a'&&pack.SPR.anims[resolved.r];
+      if(anim&&pack.img[resolved.r]?.naturalWidth){
+        const ctx=actor.canvas.getContext('2d'),frame=Math.floor((time+actor.phase)*anim.fps/1000)%anim.n;
+        ctx.clearRect(0,0,128,128);ctx.save();
+        if(moving&&distance<0){ctx.translate(128,0);ctx.scale(-1,1)}
+        const scale=110/Math.max(anim.w,anim.h);
+        ctx.drawImage(pack.img[resolved.r],frame*anim.w,0,anim.w,anim.h,(128-anim.w*scale)/2,124-anim.h*scale,anim.w*scale,anim.h*scale);ctx.restore();
+        actor.canvas.hidden=false;actor.img.hidden=true;
+      }
+    }
+  }
+  SOCIAL.frame=requestAnimationFrame(animateSocial);
 }
 function socialTarget(){
   $('#socialFriend').textContent=SOCIAL.target?'With '+SOCIAL.targetName:'Tap another pet to play together.';
@@ -2639,7 +2699,7 @@ async function socialState(kind){
   if(SOCIAL.pending||!SOCIAL.room)return;
   const room=SOCIAL.room,view=SOCIAL.view;
   SOCIAL.pending=true;
-  const request=socialCall('state',{room,position:SOCIAL.position,name:S.name,sprite:heroKey(),kind,target:SOCIAL.target});
+  const request=socialCall('state',{room,position:SOCIAL.position,name:S.name,sprite:'pack_'+S.char,kind,target:SOCIAL.target});
   SOCIAL.request=request;const j=await request;
   SOCIAL.pending=false;
   if(view!==SOCIAL.view||!$('#socialMap')||!$('#ov').classList.contains('on'))return;
@@ -2699,7 +2759,7 @@ function openSocialSpace(room,hostName=''){
   if(hostName)$('#socialTitle').textContent=hostName+"'s loft";
   $('#socialHome').focus({preventScroll:true});
   $('#ov')._onclose=()=>{
-    clearInterval(SOCIAL.timer);SOCIAL.view++;SOCIAL.room=null;
+    clearInterval(SOCIAL.timer);cancelAnimationFrame(SOCIAL.frame);SOCIAL.actors.clear();SOCIAL.view++;SOCIAL.room=null;
     const closedView=SOCIAL.view;
     Promise.resolve(SOCIAL.request).then(()=>{
       if(CLOUD.id&&SOCIAL.view===closedView)socialCall('leave',{room});
@@ -2713,8 +2773,8 @@ function openSocialSpace(room,hostName=''){
     if(e.target.closest('button')||SOCIAL.pending)return;
     const r=map.getBoundingClientRect(),x=Math.round(100*(e.clientX-r.left)/r.width);
     if(x>SOCIAL.maxPosition){$('#socialMessage').textContent='Complete park activities to unlock this area.';return}
-    SOCIAL.position=Math.max(3,Math.min(97,x));
-    const own=$('#socialPets .socialPet:disabled');if(own)own.style.left=SOCIAL.position+'%';
+    SOCIAL.position=Math.max(3,Math.min(97,x));SOCIAL.manualUntil=performance.now()+12000;
+    const own=SOCIAL.actors.get(CLOUD.id);if(own)own.goal=SOCIAL.position;
     socialState();
   };
   $('#socialFountain').onclick=()=>socialState('fountain');
@@ -2724,6 +2784,7 @@ function openSocialSpace(room,hostName=''){
   $('#socialPlay').onclick=()=>socialState('play');
   $('#socialHome').onclick=()=>{closeM();go('home');$('#sSocial').focus({preventScroll:true})};
   socialTarget();socialState();
+  SOCIAL.lastFrame=performance.now();SOCIAL.frame=requestAnimationFrame(animateSocial);
   SOCIAL.timer=setInterval(()=>{
     if(!$('#socialMap')||!$('#ov').classList.contains('on')){clearInterval(SOCIAL.timer);return}
     if(!document.hidden&&!SOCIAL.challenge)socialState();
