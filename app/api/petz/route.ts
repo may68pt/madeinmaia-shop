@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { getDb } from "@/db";
+import { clientIp, rateLimited } from "@/lib/rate-limit";
 import { social } from "./social";
 
 /* FÆLIX cloud save — no accounts. Each pet has an id + secret key kept on the device.
@@ -11,15 +12,8 @@ const headers = { "Cache-Control": "no-store" };
 const MAX = 400_000;
 const ABC = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
-const hits = new Map<string, number[]>();
-function limited(ip: string, bucket: string, perMin: number) {
-  const k = bucket + ip, now = Date.now();
-  const list = (hits.get(k) ?? []).filter((t) => now - t < 60_000);
-  list.push(now); hits.set(k, list);
-  if (hits.size > 20000) hits.clear();
-  return list.length > perMin;
-}
-const ipOf = (r: Request) => (r.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "anon";
+const ipOf = clientIp;
+const limited = (ip: string, bucket: string, perMin: number) => rateLimited(ip, "petz-" + bucket, perMin);
 const hash = (k: string) => createHash("sha256").update(k).digest("hex");
 const rnd = (n: number) => Array.from(randomBytes(n), (b) => ABC[b % ABC.length]).join("");
 const safeParse = (raw: string): unknown => { try { return JSON.parse(raw || "null"); } catch { return null; } };
@@ -40,7 +34,7 @@ const out = (r: Row) => ({ ok: true, id: r.id, rev: Number(r.rev), t: Number(r.t
 
 export async function GET(request: Request) {
   const u = new URL(request.url);
-  if (limited(ipOf(request), "g", 120)) return json({ ok: false, error: "slow down" }, 429);
+  if (await limited(ipOf(request), "g", 120)) return json({ ok: false, error: "slow down" }, 429);
   try {
     const r = await load(clean(u.searchParams.get("id"), 16), clean(u.searchParams.get("key"), 64));
     return r ? json(out(r)) : json({ ok: false, error: "not found" }, 404);
@@ -48,7 +42,7 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  if (limited(ipOf(request), "p", 60)) return json({ ok: false, error: "slow down" }, 429);
+  if (await limited(ipOf(request), "p", 60)) return json({ ok: false, error: "slow down" }, 429);
   const raw = await request.text();
   if (raw.length > MAX) return json({ ok: false, error: "too big" }, 413);
   const b = safeParse(raw) as { id?: string; key?: string; base?: number; t?: number; data?: unknown } | null;
@@ -77,20 +71,20 @@ export async function POST(request: Request) {
     const db = getDb();
     if (typeof b.action === "string" && b.action.startsWith("social-")) {
       const state = b.action === "social-state";
-      if (limited(ip, state ? "social-state" : "social-action", state ? 100 : 30)) return json({ ok: false, error: "Try again in a moment" }, 429);
+      if (await limited(ip, state ? "social-state" : "social-action", state ? 100 : 30)) return json({ ok: false, error: "Try again in a moment" }, 429);
       const pet = await load(clean(b.id, 16), clean(b.key, 64));
       if (!pet) return json({ ok: false, error: "Cloud pet not found" }, 404);
       return await social(pet.id, b);
     }
     if (b.action === "create") {
-      if (limited(ip, "c", 5)) return json({ ok: false, error: "slow down" }, 429);
+      if (await limited(ip, "c", 5)) return json({ ok: false, error: "slow down" }, 429);
       if (typeof b.data !== "object" || b.data === null) return json({ ok: false, error: "invalid" }, 400);
       const id = rnd(10), key = randomBytes(24).toString("hex");
       await db.execute(sql`insert into petz_saves (id, key_hash, rev, t, data) values (${id}, ${hash(key)}, 1, ${Math.floor(Number(b.t) || Date.now())}, ${JSON.stringify(b.data)}::jsonb)`);
       return json({ ok: true, id, key, rev: 1 });
     }
     if (b.action === "pair") {
-      if (limited(ip, "pa", 10)) return json({ ok: false, error: "slow down" }, 429);
+      if (await limited(ip, "pa", 10)) return json({ ok: false, error: "slow down" }, 429);
       const r = await load(clean(b.id, 16), clean(b.key, 64));
       if (!r) return json({ ok: false, error: "not found" }, 404);
       const code = rnd(6);
@@ -99,7 +93,7 @@ export async function POST(request: Request) {
       return json({ ok: true, code, minutes: 30 });
     }
     if (b.action === "claim") {
-      if (limited(ip, "cl", 8)) return json({ ok: false, error: "slow down" }, 429);
+      if (await limited(ip, "cl", 8)) return json({ ok: false, error: "slow down" }, 429);
       const code = clean(b.code, 8).toUpperCase();
       const rows = (await db.execute(sql`select pet_id from petz_links where code=${code} and expires_at > now()`)) as unknown as { pet_id: string }[];
       if (!rows[0]) return json({ ok: false, error: "expired" }, 404);

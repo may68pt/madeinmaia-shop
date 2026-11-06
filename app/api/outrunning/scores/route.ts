@@ -1,18 +1,9 @@
 import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/db";
+import { rateLimited } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
-
-const recent = new Map<string, number[]>();
-function limited(ip: string) {
-  const now = Date.now();
-  const list = (recent.get(ip) ?? []).filter((t) => now - t < 60_000);
-  list.push(now);
-  recent.set(ip, list);
-  if (recent.size > 5000) recent.clear();
-  return list.length > 6;
-}
 
 type Row = { n: string; s: number; c: number; w: boolean };
 
@@ -38,8 +29,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const ip = (request.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "anon";
-  if (limited(ip)) return NextResponse.json({ ok: false, error: "slow down" }, { status: 429, headers });
+  if (await rateLimited(request, "outrunning-scores", 6)) return NextResponse.json({ ok: false, error: "slow down" }, { status: 429, headers });
   const body = (await request.json().catch(() => null)) as { n?: unknown; s?: unknown; c?: unknown; w?: unknown } | null;
   const name = String(body?.n ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 3);
   const score = Math.floor(Number(body?.s));
