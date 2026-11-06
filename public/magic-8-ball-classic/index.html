@@ -241,47 +241,32 @@ body::before{
     radial-gradient(ellipse at 99% 35%,#548def4a,transparent 24%);box-shadow:none}
   .eight{background:radial-gradient(circle at 38% 34%,#fff2d9,#e3bf97 76%,#b9926d)}
   .floor{bottom:-6%;background:radial-gradient(ellipse,#07040a 12%,#12091799 49%,transparent 72%)}
-.stage[data-phase="charge"] .dial-eye{animation:ignite 620ms ease both}
-  .stage[data-phase="charge"] .tick{animation:ignite 620ms ease both;animation-delay:var(--tick-delay)}
-  @keyframes ignite{
-    0%{opacity:.5}
-    32%,100%{opacity:1;stroke:#ffe3a2;filter:drop-shadow(0 0 5px #ff9c31)}
-  }
-.aura,.bolts,.collapse{opacity:0;transform-origin:center}
-  .stage[data-phase="charge"] .aura{animation:aura-rise 650ms ease both;
-    filter:drop-shadow(0 0 8px #ff833b)}
-  @keyframes aura-rise{
-    0%,26%{opacity:0;transform:scale(.86) rotate(-10deg)}
-    60%{opacity:1;transform:scale(1.19)}
-    100%{opacity:.92;transform:scale(1.16) rotate(5deg)}
-  }
-.stage[data-phase="charge"] .bolts{animation:arc-sweep 650ms ease both;
-    filter:drop-shadow(0 0 5px #ff1989) drop-shadow(0 0 8px #ff1989)}
-  @keyframes arc-sweep{
-    0%,33%{opacity:0;transform:rotate(-13deg)}
-    68%{opacity:1}
-    100%{opacity:.87;transform:rotate(8deg)}
-  }
-.fortune .collapse{display:none}
-  .collapse-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
-  .stage[data-phase="collapse"] .collapse-layer .collapse{
-    animation:fold 205ms ease-in both;filter:drop-shadow(0 0 6px #ffac50)}
-  @keyframes fold{
-    from{opacity:1;transform:scale(1.6) rotate(-28deg)}
-    76%{opacity:1}
-    to{opacity:0;transform:scale(.07) rotate(35deg)}
-  }
   .die.show{transition:opacity .22s ease,filter .26s ease,transform .32s ease-out}
   .answer{top:18%;bottom:39%}
 .stage{margin:46px 0 42px;--s:min(65vw,340px,43vh)}
   .hint{color:#f5dec3}
-  .stage[data-phase="charge"] .ball{animation:charge-shake 650ms ease both}
-  @keyframes charge-shake{
+  .shake-trails{position:absolute;inset:0;pointer-events:none;opacity:0}
+  .shake-trails .ball{filter:blur(var(--smear));opacity:var(--echo);box-shadow:none}
+  .stage[data-phase="shake"] #ball,
+  .stage[data-phase="shake"] .shake-trails .ball{
+    animation:shake-sweep 470ms linear both;
+    animation-delay:var(--lag,0ms);
+  }
+  .stage[data-phase="shake"] .shake-trails{animation:trail-fade 520ms ease both}
+  @keyframes shake-sweep{
     0%,100%{transform:none}
-    42%{transform:translate(-2%,0) rotate(-4deg)}
-    53%{transform:translate(2%,-1%) rotate(3deg)}
-    63%{transform:translate(-2%,0) rotate(-3deg)}
-    73%{transform:translate(1%,-1%) rotate(2deg)}
+    10%{transform:translate(-5%,1%) rotate(-5deg)}
+    22%{transform:translate(7%,-3%) rotate(6deg)}
+    35%{transform:translate(-8%,-2%) rotate(-7deg)}
+    48%{transform:translate(7%,3%) rotate(6deg)}
+    61%{transform:translate(-5%,2%) rotate(-4deg)}
+    74%{transform:translate(4%,-1%) rotate(3deg)}
+    87%{transform:translate(-2%,0) rotate(-2deg)}
+  }
+  @keyframes trail-fade{
+    0%,100%{opacity:0}
+    19%,66%{opacity:1}
+    90%{opacity:.25}
   }
   @media (max-width:420px){
     body{justify-content:safe center}
@@ -289,8 +274,8 @@ body::before{
   }
   @media (max-height:580px){.stage{margin:30px 0 29px}}
   @media (prefers-reduced-motion:reduce){
-    .stage[data-phase] .ball,.stage[data-phase] .aura,.stage[data-phase] .bolts,
-    .stage[data-phase] .collapse,.stage[data-phase] .tick,.stage[data-phase] .dial-eye{animation:none}
+    .stage[data-phase="shake"] #ball,.stage[data-phase="shake"] .shake-trails,
+    .stage[data-phase="shake"] .shake-trails .ball{animation:none}
   }
 </style>
 </head>
@@ -318,32 +303,14 @@ body::before{
     <circle class="dial-dots" cx="200" cy="200" r="158"/>
     <g class="dial-eye"><path d="M185 30Q200 13 215 30Q200 47 185 30Z"/><circle cx="200" cy="30" r="4"/></g>
     <circle class="eclipse" cx="200" cy="370" r="10"/>
-    <path class="tick" style="--tick-delay:0ms" d="M200 46v8" transform="rotate(0 200 200)"/>
-    <path class="tick" style="--tick-delay:27ms" d="M200 46v8" transform="rotate(45 200 200)"/>
-    <path class="tick" style="--tick-delay:54ms" d="M200 46v8" transform="rotate(90 200 200)"/>
-    <path class="tick" style="--tick-delay:81ms" d="M200 46v8" transform="rotate(135 200 200)"/>
-    <path class="tick" style="--tick-delay:108ms" d="M200 46v8" transform="rotate(180 200 200)"/>
-    <path class="tick" style="--tick-delay:135ms" d="M200 46v8" transform="rotate(225 200 200)"/>
-    <path class="tick" style="--tick-delay:162ms" d="M200 46v8" transform="rotate(270 200 200)"/>
-    <path class="tick" style="--tick-delay:189ms" d="M200 46v8" transform="rotate(315 200 200)"/>
-    <defs>
-      <linearGradient id="arcade-fire" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop stop-color="#fff4af"/><stop offset=".5" stop-color="#ffba4c"/><stop offset="1" stop-color="#ff6541"/>
-      </linearGradient>
-    </defs>
-    <g class="aura">
-      <path fill="url(#arcade-fire)" stroke="none" d="M115 319Q64 291 57 236Q48 208 62 182Q59 229 84 251Q55 197 77 158Q94 131 85 106Q119 129 101 172Q130 131 118 108Q105 80 141 63Q124 97 150 117Q143 82 177 56Q156 95 184 107Q168 137 130 158Q82 206 115 319Z"/>
-      <path fill="url(#arcade-fire)" stroke="none" d="M258 322Q316 284 316 223Q312 184 332 157Q321 200 344 219Q364 167 342 135Q378 160 366 215Q360 282 312 311Q285 337 232 343Q271 332 287 310Z"/>
-      <path d="m71 111 7-21m272 31-6-16m-267 201-9 16m262-12 10 13M158 61l-4-14" stroke="#ffe398" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M64 281Q137 366 280 330Q338 310 355 267" stroke="#ffc268" stroke-width="2.5"/>
-    </g>
-    <g class="bolts" stroke="#ffb5de" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="m48 200 7-20-6-9 15-15-5-12 23-12-4-12 16-22 17-5-1-12 22-6 7-14 26-1 9-10 25 2"/>
-      <path d="m222 49 16 6 10-4 19 14 13-2 14 20 16-1 8 23 12 3 5 21 12 6 1 24 10 10-4 18 8 12-8 25"/>
-      <path d="m346 252-15 14 2 11-19 10-1 12-22 6-12 18-15-2-15 12-17-2-17 12-18-3"/>
-      <path d="m38 124-24-11m44-16L30 74m320 29 32-20m-30 196 30 15m-325 6-31 17" opacity=".62"/>
-    </g>
-
+    <path class="tick" d="M200 46v8" transform="rotate(0 200 200)"/>
+    <path class="tick" d="M200 46v8" transform="rotate(45 200 200)"/>
+    <path class="tick" d="M200 46v8" transform="rotate(90 200 200)"/>
+    <path class="tick" d="M200 46v8" transform="rotate(135 200 200)"/>
+    <path class="tick" d="M200 46v8" transform="rotate(180 200 200)"/>
+    <path class="tick" d="M200 46v8" transform="rotate(225 200 200)"/>
+    <path class="tick" d="M200 46v8" transform="rotate(270 200 200)"/>
+    <path class="tick" d="M200 46v8" transform="rotate(315 200 200)"/>
   </svg><!-- fortune -->
   <div class="floor" id="floor"></div>
   <div class="mover" id="mover">
@@ -368,12 +335,6 @@ body::before{
         </div>
       </div>
       <div class="shine"></div>
-      <svg class="collapse-layer" viewBox="0 0 400 400" fill="none" aria-hidden="true">
-    <g class="collapse" stroke="#ffd87a" stroke-width="2">
-      <path d="M200 200Q220 153 290 163M200 200Q165 164 132 135M200 200Q159 215 145 273M200 200Q239 211 265 268"/>
-      <circle cx="200" cy="200" r="5" fill="#fff7d1"/>
-    </g>
-      </svg>
     </div>
   </div>
 </div>
@@ -414,6 +375,19 @@ body::before{
 
   let shaking = false, flipped = false, settleTimer = null, lastIdx = -1;
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const trails = document.createElement('div');
+  trails.className = 'shake-trails';
+  trails.setAttribute('aria-hidden', 'true');
+  for (const [lag, blur, opacity] of [[54, 9, .16], [36, 6, .23], [18, 3, .32]]){
+    const echo = ball.cloneNode(true);
+    echo.removeAttribute('id');
+    echo.querySelector('.window').remove();
+    echo.style.setProperty('--lag', lag + 'ms');
+    echo.style.setProperty('--smear', blur + 'px');
+    echo.style.setProperty('--echo', opacity);
+    trails.append(echo);
+  }
+  mover.prepend(trails);
 
   // ---------- Sound (Web Audio "slosh") ----------
   let ctx = null, muted = false;
@@ -478,19 +452,16 @@ body::before{
     flipped = false;
     clearTimeout(settleTimer);
     stage.classList.remove('idle');
-    stage.dataset.phase = 'charge';
+    stage.dataset.phase = 'shake';
     ball.classList.remove('flipped');
     die.classList.remove('show', 'settled');
     asked.classList.remove('on');
-    hint.textContent = 'Reading fate…';
+    hint.textContent = 'Shaking…';
     slosh();
     try { navigator.vibrate?.(35); } catch (e) {}
 
     const question = q.value.trim();
-    setTimeout(() => {
-      stage.dataset.phase = 'collapse';
-      setTimeout(() => revealAnswer(question), reducedMotion.matches ? 0 : 205);
-    }, reducedMotion.matches ? 180 : 650);
+    setTimeout(() => revealAnswer(question), reducedMotion.matches ? 100 : 525);
   }
 
   function revealAnswer(question){
