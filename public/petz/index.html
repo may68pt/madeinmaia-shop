@@ -140,6 +140,20 @@ main{padding-bottom:92px}
 .floating #shadow{transform:scale(.55);opacity:.35}
 .a-stretch{animation:stretch .9s ease}
 @keyframes stretch{30%{transform:scale(.93,1.14)}60%{transform:scale(1.04,.95)}100%{transform:none}}
+.nestL{position:absolute;display:none;background-size:400% 300%;background-repeat:no-repeat;pointer-events:none;transform-origin:50% 75%}
+.nestL.on{display:block}#nestBack{z-index:0}#nestFront{z-index:2}.sprmode #spr{position:relative;z-index:1}
+.nestL.lv2{filter:saturate(1.15) drop-shadow(0 0 6px var(--mc))}.nestL.lv3{filter:saturate(1.25) brightness(1.08) drop-shadow(0 0 12px var(--mc))}
+.mote{position:absolute;z-index:130;font-size:26px;line-height:1;background:none;border:0;padding:10px;cursor:pointer;color:#fff;filter:drop-shadow(0 0 8px var(--mc)) drop-shadow(0 0 3px #fff);animation:moteUp 6s ease-in forwards;font-family:'Barlow Condensed';font-weight:800}
+.mote.got{animation:moteGot .7s ease-out forwards;font-size:20px;pointer-events:none}
+@keyframes moteUp{0%{opacity:0;transform:translateY(24px) scale(.4)}10%{opacity:1;transform:translateY(0) scale(1)}30%{transform:translate(-8px,-24px)}55%{transform:translate(9px,-52px)}80%{opacity:1;transform:translate(-6px,-82px)}100%{opacity:0;transform:translate(4px,-110px) scale(.8)}}
+@keyframes moteGot{to{opacity:0;transform:translateY(-40px) scale(1.4)}}
+.nesth{display:flex;justify-content:space-between;align-items:baseline;margin:16px 2px 0}.nesth b{font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:20px;text-transform:uppercase}.nesth small{color:#ffe066;font-weight:700}
+.nestg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nestc{position:relative;border-radius:16px;padding:8px;text-align:center;cursor:pointer;background:linear-gradient(160deg,rgba(255,95,216,.16),rgba(20,16,50,.65));border:1.5px solid rgba(255,140,230,.35)}
+.nestc.own{border-color:#ffe066;box-shadow:0 0 14px rgba(255,224,102,.25)}.nestc.lock{opacity:.55;filter:grayscale(.5)}
+.nestc .nth{height:84px;display:flex;align-items:center;justify-content:center}.nestc .nth img{max-width:100%;max-height:84px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.nestc b{display:block;font-family:'Barlow Condensed';font-weight:800;font-size:16px;line-height:1.05;margin-top:4px}.nestc small{display:block;font-size:11.5px;color:var(--mute);line-height:1.25;margin-top:3px}.nestc .nlv{color:#ffe066;font-weight:700}
+.nestc .btn{width:100%;margin-top:6px;padding:6px 4px;font-size:14px}
 .bedg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .bed{position:relative;border-radius:16px;padding:10px 8px;text-align:center;cursor:pointer;background:linear-gradient(160deg,rgba(80,90,220,.25),rgba(20,16,50,.6));border:1.5px solid rgba(140,160,255,.45);transition:transform .1s}
 .bed:active{transform:scale(.96)}
@@ -650,7 +664,7 @@ function simulate(){
   dt=Math.min(dt,24*45);
   const inv=S.calib.mode==='inverse',eq=S.eq;
   while(dt>0){const h=Math.min(dt,.25);dt-=h;
-    if(S.asleep){S.energy-=2*h;S.happy-=.7*h;S.rest+=22*h*(1+.15*(tierOf('bed')-1>0?tierOf('bed')-1:0));S.bond-=.3*h;S.health-=S.mess*1.4*h;if(S.rest>=100){S.asleep=false;S.wokeUp=true}}
+    if(S.asleep){S.energy-=2*h;S.happy-=.7*h*(typeof nestHappyMult==='function'?nestHappyMult():1);S.rest+=22*h*(1+.15*(tierOf('bed')-1>0?tierOf('bed')-1:0))*(typeof nestRestMult==='function'?nestRestMult():1);S.bond-=.3*h;S.health-=S.mess*1.4*h;if(S.rest>=100){S.asleep=false;S.wokeUp=true}}
     else{S.energy-=6*h*(eq.core?.75:1);S.happy-=4.4*h*(inv?1.3:1)*(1-.08*tierOf('aqua'));S.rest-=4*h;S.bond-=1.1*h*(1-comfort()/250);
       S.messT+=h*(1-.1*tierOf('groom'));if(S.messT>=3.5){S.messT=0;if(S.mess<3)S.messNew=1;S.mess=Math.min(3,S.mess+1)}
       S.health-=(.8+S.mess*3.4)*h*(eq.armour?.75:1);
@@ -1214,7 +1228,7 @@ function renderJournal(){
     $('#j-col').innerHTML=`<div class="sec"><h2>Characters</h2><small>${ROSTER.length} packs · tap to switch</small></div><div class="vgrid" style="grid-template-columns:repeat(2,1fr)">${ROSTER.map(r=>{const P=PACKS[r.id],un=charUnlocked(r),th=P?poseThumb(P.meta.portrait||'idle',P):'';return`<div class="vg ${S.char===r.id?'me':''} ${un?'':'lock'}" data-char="${r.id}" style="cursor:pointer;padding:6px">${th?`<img src="${th}" style="aspect-ratio:1">`:'<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center">⏳</div>'}${un?r.name:'🔒 '+r.name}<small style="color:var(--mute);font-weight:600">${S.char===r.id?'ACTIVE':P?P.meta.desc:''}</small></div>`}).join('')}</div>
      <div class="sec"><h2>Variants</h2><small>${S.seen.length}/8 · calibrate to discover</small></div><div class="vgrid">${Object.entries(VAR).map(([v,d])=>{const seen=S.seen.includes(v);return`<div class="vg ${seen?'':'lock'} ${curVariant()===v&&S.stage!=='egg'?'me':''}"><img src="a/v_${v}.webp" alt="">${seen?d.n:'???'}<small style="color:${RCOL[d.r]}">${d.r}</small></div>`}).join('')}</div>
      <div class="sec"><h2>Relics</h2><small>${relics.filter(r=>S.inv[r]).length}/${relics.length}</small></div><div class="invg">${relics.map(r=>`<div class="it ${S.inv[r]?'':'lock'}"><span class="e">${S.inv[r]?ITEMS[r][1]:'❔'}</span><small>${S.inv[r]?ITEMS[r][0]:'???'}</small></div>`).join('')}</div>
-     <div class="sec"><h2>Sleep styles</h2><small>${unlockedSleep().length}/8 unlocked</small></div><div class="bedg">${Object.entries(SLEEP).map(([k,b])=>{const u=b.u();return`<div class="bed ${u?'':'lock'}"><span class="e">${u?b.e:'🔒'}</span><b>${b.n}</b><small>${u?b.d:b.ut}</small></div>`}).join('')}</div>
+     <div class="sec"><h2>Sleep styles</h2><small>${unlockedSleep().filter(k=>!SLEEP[k].nest).length}/8 unlocked · ${Object.keys(NESTS).filter(nestLv).length}/5 nests</small></div><div class="bedg">${Object.entries(SLEEP).filter(([k])=>!SLEEP[k].nest).map(([k,b])=>{const u=b.u();return`<div class="bed ${u?'':'lock'}"><span class="e">${u?b.e:'🔒'}</span><b>${b.n}</b><small>${u?b.d:b.ut}</small></div>`}).join('')}</div>
      <div class="sec"><h2>Lore</h2><small>${S.lore.length} found</small></div>${S.lore.length?S.lore.map(entry=>{const l=currentLore(entry),z=Object.values(ZONES).find(z=>z.lore.includes(l));return`<div class="lore"><b>${z?z.n:''}</b>${l}</div>`}).join(''):'<p class="muted">Explore zones to uncover the story of Maia.</p>'}`}
   $$('[data-char]').forEach(d=>d.onclick=()=>{const r=ROSTER.find(x=>x.id===d.dataset.char);if(!charUnlocked(r)){SFX.no();toast('🔒 Locked');return}if(S.char===r.id||S.stage==='egg'){toast(S.stage==='egg'?'Hatch your egg first':'Already active');return}SFX.yay();useChar(r.id).then(()=>{go('home')})});
   if(jTab==='set'){$('#j-set').innerHTML=`<div class="panel" style="margin-top:10px"><div class="btns" style="margin-top:0"><button class="btn" id="bShare">📸 Share card</button><button class="btn cy" id="bRescue">🛟 Rescue code</button><button class="btn gh" id="bRename">✏️ Rename</button><button class="btn cy" id="bLink">☁️ Link device</button><button class="btn o" id="bInstall">📲 Install app</button><button class="btn gh" id="bTL">${S.flags.timelapse?'⏩ Time-lapse on':'🕐 Real time'}</button><button class="btn gh" id="bMute">${S.mute?'🔇 Sound off':'🔊 Sound on'}</button></div></div>
@@ -2212,7 +2226,7 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='20261106-sky-stack-pounce';
+const FAELIX_BUILD='20261106-dream-nests';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
@@ -2616,7 +2630,9 @@ function startSleep(id,intro=true){furnitureRest=null;if(intro&&!S.asleep&&!busy
   if(!id||id==='random'||!SLEEP[id]||!SLEEP[id].u())id=pick(unlockedSleep());
   S.asleep=true;S.sleepStyle=id;if(intro)S.sleeps=(S.sleeps||0)+1;
   SL={id,level:sleepLevel(id),t0:performance.now(),timers:[],anims:[],data:{},eye:'sleep',intro,mic:now()+6000};
-  if(S.room){const bd=S.room.items.find(i=>i.id==='bed');if(bd){RV.PX=bd.x;placePet(true);const h=riH(bd)*1.18*RV.H;$('#heroWrap').style.bottom=((1-bd.y)*RV.H+h*.22)+'px';$('#heroWrap').style.zIndex=99;setTimeout(()=>followPet(true),50)}}
+  if(SLEEP[id].nest&&intro)S.nestAt=now();
+  if(SLEEP[id].nest&&S.room){const bd=S.room.items.find(i=>i.id==='bed');if(bd&&Math.abs(RV.PX-bd.x)<.2){RV.PX=clamp(bd.x+(bd.x<.5?.24:-.24),.08,.92);placePet(!intro)}$('#heroWrap').style.zIndex=99}
+  if(S.room&&!SLEEP[id].nest){const bd=S.room.items.find(i=>i.id==='bed');if(bd){RV.PX=bd.x;placePet(true);const h=riH(bd)*1.18*RV.H;$('#heroWrap').style.bottom=((1-bd.y)*RV.H+h*.22)+'px';$('#heroWrap').style.zIndex=99;setTimeout(()=>followPet(true),50)}}
   SINTRO[id](intro);if(intro)sprPlay(sleepMap(id).in);
   if(id==='curl'&&SL.level>1){
     later(intro?2400:0,()=>poseAnim([{transform:'scale(1,1)'},{transform:'scale(1.025,1.045)'}],{duration:1800,iterations:Infinity,direction:'alternate',fill:'none'}));
@@ -2625,7 +2641,7 @@ function startSleep(id,intro=true){furnitureRest=null;if(intro&&!S.asleep&&!busy
   if(intro)addLog('🌙','Bedtime',`${S.name} went to sleep: ${SLEEP[id].n}.`);
   save();renderAll();
 }
-function stopSleep(){if(!SL)return;SL.timers.forEach(clearTimeout);SL.anims.forEach(a=>{try{a.cancel()}catch(e){}});SL=null;$('#aura').classList.remove('charge');$('#stage').classList.remove('floating')}
+function stopSleep(){nestHide();if(!SL)return;SL.timers.forEach(clearTimeout);SL.anims.forEach(a=>{try{a.cancel()}catch(e){}});SL=null;$('#aura').classList.remove('charge');$('#stage').classList.remove('floating')}
 function settle(intro,ms=0){if(sprMode())return;if(intro)later(ms,()=>poseAnim([{transform:'none'},CURL],{duration:1100}));else poseAnim([CURL,CURL],{duration:1})}
 const SINTRO={
  curl(intro){if(intro){SL.eye='yawn';say('*yaaawn*',1400);yawnSnd();poseAnim([{transform:'none'},{transform:'scale(.93,1.14)'},{transform:'none'}],{duration:1300,fill:'none'});later(1400,()=>{SL.eye='blink'});later(1700,()=>{SL.eye='sleep'});settle(true,1500)}else settle(false)},
@@ -2680,7 +2696,7 @@ const SDRAW={
    x.fillStyle='rgba(190,240,255,.22)';x.strokeStyle='rgba(200,245,255,.9)';x.lineWidth=1.6;x.shadowColor='#bff';x.shadowBlur=8;x.beginPath();x.arc(bxp,byp,r,0,7);x.fill();x.stroke();x.shadowBlur=0;x.fillStyle='rgba(255,255,255,.85)';x.beginPath();x.arc(bxp-r*.35,byp-r*.35,Math.max(1.2,r*.18),0,7);x.fill()}
 };
 const TALK=()=>['mmm… berries…','five more minutes…','zzz… Maia…','…'+(S.lastFood||'🍓')+'…','*purr*','hehe… zzz','…not the glitch bugs…','…'+pick(Object.values(ZONES)).n+'…'];
-function sleepTick(){const id=SL.id,r=Math.random(),el=performance.now()-SL.t0;
+function sleepTick(){const id=SL.id,r=Math.random(),el=performance.now()-SL.t0;if(SLEEP[id]&&SLEEP[id].nest){nestTick();return}
   if(id==='curl'&&el>1600&&r<.55)burst('zzz',1,headTop());
   if(id==='stars'&&SL.data.n>=8&&r<.25)burst('zzz',1,headTop());
   if(id==='moon'&&SL.data.mx&&r<.6)spawn('note',SL.data.mx+rnd(-8,8),SL.data.my,{vy:rnd(-1.2,-.5),vx:rnd(-.6,.6),e:pick(['♪','♫']),col:pick(['#ffe9a8','#bfe9ff','#ffb6e6']),dec:.008,s:rnd(.8,1.2)});
@@ -2695,18 +2711,90 @@ function sleepTick(){const id=SL.id,r=Math.random(),el=performance.now()-SL.t0;
     if(ev==='talk')say(pick(TALK()),1800);
     if(ev==='smile'){setExpr('happy',1600);burst('hearts',2,headTop())}
     if(ev==='twitch')act('a-wobble')}}
-function wakeUp(auto){if(!S.asleep&&!SL)return;S.asleep=false;lightsBackOn();stopSleep();$('#heroWrap').style.bottom='';$('#heroWrap').style.zIndex='';placePet(false);if(S.room){const bd=S.room.items.find(i=>i.id==='bed');if(bd)setTimeout(()=>walkTo(bd.x+.1),1600)}renderAll();sprPlay('standup',{then:()=>sprPlay('greet')});
+function wakeUp(auto){if(!S.asleep&&!SL)return;nestWake();S.asleep=false;lightsBackOn();stopSleep();$('#heroWrap').style.bottom='';$('#heroWrap').style.zIndex='';placePet(false);if(S.room){const bd=S.room.items.find(i=>i.id==='bed');if(bd)setTimeout(()=>walkTo(bd.x+.1),1600)}renderAll();sprPlay('standup',{then:()=>sprPlay('greet')});
   setExpr('sleep',500);wakeT=[setTimeout(()=>setExpr('blink',250),500),setTimeout(()=>setExpr('wow',600),800),setTimeout(()=>setExpr('happy',1800),1400),setTimeout(()=>act('a-hop'),950),setTimeout(()=>burst('sparks',14,headTop()),300)];
   act('a-stretch');
   say(auto?'Good morning! ☀️':(S.rest<60?'Five more minutes… 😪':'Good morning! ☀️'),2000);[523,659,784,1047].forEach((f,i)=>tone(f,.18,.3+i*.1,'sine',.04));save()}
 function openBed(){const un=unlockedSleep();
   modal(`<h3>Bedtime 🌙</h3><p class="muted">Pick how ${S.name} drifts off. Spend ⚡ to upgrade each sleep animation.</p><button class="btn" id="bedR" style="width:100%;font-size:18px">🎲 Surprise me</button>
-   <div class="bedg">${Object.entries(SLEEP).map(([k,b])=>{const u=un.includes(k);return`<div class="bed ${u?'':'lock'}" data-bed="${k}">${u&&S.flags['sln_'+k]?'<span class="nw">NEW</span>':''}<span class="e">${u?b.e:'🔒'}</span><b>${b.n}</b><small>${u?b.d:b.ut}</small>${u?`<small>Lv. ${sleepLevel(k)} / 3</small>${sleepLevel(k)<3?`<button class="btn gh" data-sleep-up="${k}" type="button">Upgrade · ${SLEEP_COST[sleepLevel(k)+1]} ⚡</button><small>${SLEEP_UPGRADES[k][sleepLevel(k)-1]}</small>`:''}`:''}</div>`}).join('')}</div>
+   <div class="bedg">${Object.entries(SLEEP).filter(([k])=>!SLEEP[k].nest).map(([k,b])=>{const u=un.includes(k);return`<div class="bed ${u?'':'lock'}" data-bed="${k}">${u&&S.flags['sln_'+k]?'<span class="nw">NEW</span>':''}<span class="e">${u?b.e:'🔒'}</span><b>${b.n}</b><small>${u?b.d:b.ut}</small>${u?`<small>Lv. ${sleepLevel(k)} / 3</small>${sleepLevel(k)<3?`<button class="btn gh" data-sleep-up="${k}" type="button">Upgrade · ${SLEEP_COST[sleepLevel(k)+1]} ⚡</button><small>${SLEEP_UPGRADES[k][sleepLevel(k)-1]}</small>`:''}`:''}</div>`}).join('')}</div>
+   <div class="nesth"><b>✨ Dream Nests</b><small>${S.dust||0} ✨ dream dust</small></div><p class="muted" style="margin:2px 0 6px">Cosy nests with sleep bonuses. Tap the dream motes that float up while it sleeps to collect dust, then upgrade.</p>
+   <div class="nestg">${nestCards()}</div>
    <div class="btns"><button class="btn gh" data-x>Not yet</button></div>`);
+  bindNestCards();
   $$('[data-sleep-up]').forEach(b=>b.onclick=e=>{e.stopPropagation();upgradeSleep(b.dataset.sleepUp)});
   $('#bedR').onclick=()=>{closeM();startSleep('random')};
   $$('[data-bed]').forEach(d=>d.onclick=()=>{const k=d.dataset.bed;if(!SLEEP[k].u()){SFX.no();toast('🔒 '+SLEEP[k].ut.replace('Unlock: ',''));return}delete S.flags['sln_'+k];closeM();startSleep(k)})}
 function checkSleepUnlocks(){if(S.stage==='egg')return;for(const k in SLEEP){if(SLEEP[k].u()&&!S.flags['sl_'+k]){S.flags['sl_'+k]=1;if(SLEEP[k].ut!=='Starter'){S.flags['sln_'+k]=1;toast(`🌙 New sleep style: ${SLEEP[k].e} ${SLEEP[k].n}`);addLog(SLEEP[k].e,'New sleep style',`${S.name} learned a new way to sleep: ${SLEEP[k].n}.`)}}}}
+
+/* ============ DREAM NESTS: layered sleep nests (back layer · pet · front layer) ============ */
+const NESTS={
+ tropical:{n:'Firefly Nest',e:'🌴',ms:180,cx:320,by:256,pw:164,box:[132,8,513,380],lv:3,price:250,gems:0,mote:'✨',mc:'#e8ff8a',
+   perk:['Happiness barely drops while it sleeps','Happiness holds steady all night','Wakes up happier than it went to bed'],d:'A jungle hideaway, lit by fireflies.'},
+ rainbow:{n:'Rainbow Dream Cloud',e:'🌈',ms:180,cx:320,by:278,pw:176,box:[83,71,561,304],lv:5,price:400,gems:0,mote:'⭐',mc:'#ffe066',
+   perk:['+12 💗 happiness on waking','+18 💗 happiness on waking','+25 💗 happiness on waking'],d:'Soft as candy floss, ringed by a rainbow.'},
+ neon:{n:'Neon Cyber Cloud',e:'💠',ms:120,cx:321,by:275,pw:176,box:[80,64,560,308],lv:8,price:650,gems:0,mote:'💠',mc:'#3ff0ff',
+   perk:['Learns in its sleep: +2 XP per 10 min (max 60)','+3 XP per 10 min (max 90)','+4 XP per 10 min (max 120)'],d:'A data cloud that hums study tapes.'},
+ steam:{n:'Steampunk Lucid Cloud',e:'⚙️',ms:120,cx:322,by:277,pw:170,box:[111,69,529,321],lv:11,price:900,gems:0,mote:'⚙️',mc:'#ffb13b',
+   perk:['Lucid dreams: wakes with 1 material','Wakes with 2 materials','Wakes with 3 materials'],d:'Gears turn while it dreams up inventions.'},
+ clock:{n:'Clockwork Dream Cloud',e:'⏰',ms:140,cx:326,by:279,pw:172,box:[123,6,519,365],lv:14,price:1200,gems:1,mote:'🕰️',mc:'#ff7ad9',
+   perk:['Power nap: rest refills 40% faster','Rest refills 60% faster','Rest refills 80% faster'],d:'Time runs slow in here. Naps count double.'}
+};
+const NEST_UP=[0,0,15,40];
+const nestOf=id=>id&&String(id).startsWith('n_')?id.slice(2):null;
+const nestLv=k=>(S.nests&&S.nests[k])||0;
+for(const k in NESTS){const N=NESTS[k];SLEEP['n_'+k]={n:N.n,e:N.e,d:N.d,u:()=>nestLv(k)>0,ut:'Dream Nest',nest:k};SLEEPPOSE['n_'+k]='sl_curl'}
+const NV={k:null,f:0,T:null,next:0};
+function nestEls(){if($('#nestBack'))return;const a=$('#heroAct'),sp=$('#spr'),b=document.createElement('div'),f=document.createElement('div');b.id='nestBack';f.id='nestFront';b.className=f.className='nestL';a.insertBefore(b,sp);sp.after(f)}
+function nestFit(k){const N=NESTS[k],cw=SC.width,ch=SC.height,base=ch-16;let pw=cw*.42,pcx=cw/2;
+  if(sprMode()&&SPR){const r=res('sl_curl');if(r&&r.t==='p'){const p=SPR.poses[r.r];pw=p[2];pcx=cw/2-p[4]+p[2]/2}}
+  const s=pw/N.pw,w=640*s,h=400*s,left=pcx-N.cx*s,top=base-N.by*s;
+  const css=($('#heroAct').offsetWidth||260)/cw,vis=(N.box[2]-N.box[0])*s*css,stw=$('#stage').clientWidth||390,z=clamp(Math.min(stw*.66,320)/vis,.42,1);
+  const lift=(N.box[3]-N.by)*s/ch*100;
+  return{box:`left:${left/cw*100}%;top:${top/ch*100}%;width:${w/cw*100}%;height:${h/ch*100}%`,z,lift}}
+function nestFrame(){const f=NV.f,pos=`${(f%4)*100/3}% ${Math.floor(f/4)*50}%`;$('#nestBack').style.backgroundPosition=pos;$('#nestFront').style.backgroundPosition=pos}
+function nestShow(k,intro){NV.tok=(NV.tok||0)+1;nestHide(true);nestEls();const N=NESTS[k],lv=nestLv(k)||1,F=nestFit(k);NV.k=k;NV.f=0;NV.next=now()+(intro?6000:2500);
+  ['nestBack','nestFront'].forEach((id,i)=>{const el=$('#'+id);el.style.cssText=F.box+`;background-image:url(n/${k}/${i?'front':'back'}.webp)`;el.className='nestL on lv'+lv;el.style.setProperty('--mc',N.mc);
+    if(intro)el.animate([{opacity:0,transform:'scale(.55) translateY(12%)'},{opacity:1,transform:'scale(1.06)',offset:.7},{opacity:1,transform:'none'}],{duration:900,easing:'cubic-bezier(.2,1.3,.4,1)'})});
+  $('#heroBreath').style.transform=`translateY(-${F.lift*F.z}%) scale(${F.z})`;$('#heroBreath').style.transition=intro?'transform .9s cubic-bezier(.3,1.2,.4,1)':'none';
+  nestFrame();clearInterval(NV.T);NV.T=setInterval(()=>{NV.f=(NV.f+1)%12;nestFrame()},N.ms);
+  if(intro){setTimeout(()=>{burst('sparks',18,heroPoint(.5,.6));tone(880,.12,0,'sine',.04);tone(1320,.18,.1,'sine',.035)},250);say(pick(['Ooh, my '+N.n+'!','So comfy… ✨','Nest time!']),1500)}}
+function nestHide(instant){clearInterval(NV.T);NV.T=null;NV.k=null;const bw=$('#heroBreath');if(bw){bw.style.transition=instant?'none':'transform .6s';bw.style.transform=''}const tok=NV.tok=(NV.tok||0)+1;
+  ['nestBack','nestFront'].forEach(id=>{const el=$('#'+id);if(!el||!el.classList.contains('on'))return;if(instant){el.className='nestL';return}
+    el.animate([{opacity:1},{opacity:0,transform:'scale(.7) translateY(10%)'}],{duration:500,easing:'ease-in'}).onfinish=()=>{if(NV.tok===tok&&!NV.k)el.className='nestL'}})}
+function nestMote(){const k=NV.k;if(!k||!$('#p-home').classList.contains('on'))return;const N=NESTS[k],lv=nestLv(k)||1,w=$('#world'),hr=$('#heroAct').getBoundingClientRect(),wr=w.getBoundingClientRect();
+  const m=document.createElement('button');m.className='mote';m.type='button';m.textContent=N.mote;m.setAttribute('aria-label','Collect dream dust');
+  m.style.left=(hr.left-wr.left+hr.width*rnd(.28,.72))+'px';m.style.top=(hr.top-wr.top+hr.height*rnd(.15,.45))+'px';m.style.setProperty('--mc',N.mc);
+  const stop=e=>e.stopPropagation();m.onpointerdown=stop;
+  m.onclick=e=>{e.stopPropagation();if(m.dataset.got)return;m.dataset.got=1;const n=lv>=3?2:1;S.dust=(S.dust||0)+n;save();
+    const st=$('#stage').getBoundingClientRect(),r=m.getBoundingClientRect();burst('sparks',10,{x:r.left-st.left+r.width/2,y:r.top-st.top+r.height/2,w:20,h:20});
+    tone(1320,.08,0,'sine',.04);tone(1760,.12,.07,'sine',.03);faceFx('happy',1100);m.classList.add('got');m.textContent='+'+n+' ✨';setTimeout(()=>m.remove(),700)};
+  w.appendChild(m);setTimeout(()=>m.remove(),6200)}
+function nestTick(){if(!NV.k)return;if(now()>NV.next){NV.next=now()+rnd(7000,12000)/(nestLv(NV.k)>=2?1.3:1);nestMote()}if(Math.random()<.12)burst('zzz',1,headTop())}
+function nestWake(){const k=nestOf(S.sleepStyle);if(!k||!S.nestAt)return;const lv=nestLv(k)||1,min=(now()-S.nestAt)/6e4,N=NESTS[k],out=[];S.nestAt=0;
+  if(k==='rainbow'){const v=[12,18,25][lv-1];S.happy=clamp(S.happy+v);out.push(`+${v} 💗`)}
+  if(k==='neon'){const xp=Math.min([60,90,120][lv-1],Math.floor(min/10)*[2,3,4][lv-1]);if(xp>0){addXP(xp);out.push(`+${xp} XP`)}}
+  if(k==='steam'&&min>=5){for(let i=0;i<lv;i++){const m=pick(['shard','leaf','scrap','spore']);S.inv[m]=(S.inv[m]||0)+1;out.push(ITEMS[m][1])}}
+  if(out.length){addLog(N.e,N.n,`${S.name} woke up: ${out.join(' ')}`);setTimeout(()=>toast(`${N.e} ${N.n}: ${out.join(' ')}`),1800)}}
+function nestRestMult(){const k=nestOf(S.sleepStyle);return k==='clock'?[1.4,1.6,1.8][(nestLv(k)||1)-1]:1}
+function nestHappyMult(){const k=nestOf(S.sleepStyle);return k==='tropical'?[.4,0,-.6][(nestLv(k)||1)-1]:1}
+function buyNest(k){const N=NESTS[k];if(lvInfo().l<N.lv){SFX.no();toast(`🔒 Reach level ${N.lv}`);return}
+  if(S.coins<N.price||S.gems<N.gems){SFX.no();toast(`Need ${N.price} ⚡${N.gems?' + '+N.gems+' 💎':''}`);return}
+  S.coins-=N.price;S.gems-=N.gems;(S.nests??={})[k]=1;S.flags['sl_n_'+k]=1;save();renderAll();SFX.yay();burst('confetti',24);
+  addLog(N.e,'New Dream Nest',`${S.name} got the ${N.n}.`);toast(`${N.e} ${N.n} unlocked!`);openBed()}
+function upNest(k){const lv=nestLv(k),c=NEST_UP[lv+1];if(!c)return;if((S.dust||0)<c){SFX.no();toast(`Need ${c} ✨ dream dust · tap the dream motes while it sleeps in a nest`);return}
+  S.dust-=c;S.nests[k]=lv+1;save();SFX.yay();toast(`${NESTS[k].e} ${NESTS[k].n} · Lv. ${lv+1}`);openBed()}
+function nestCards(){const L=lvInfo().l;return Object.entries(NESTS).map(([k,N])=>{const lv=nestLv(k),lock=L<N.lv;
+  return`<div class="nestc ${lv?'own':''} ${lock?'lock':''}" data-nest="${k}"><div class="nth"><img src="n/${k}/thumb.webp" alt="" loading="lazy"></div><b>${N.n}</b>
+   <small>${lv?N.perk[lv-1]:N.perk[0]}</small>
+   ${lv?`<small class="nlv">Lv. ${lv} / 3 · tap to sleep</small>${lv<3?`<button class="btn gh" data-nest-up="${k}" type="button">Upgrade · ${NEST_UP[lv+1]} ✨</button>`:''}`
+     :lock?`<small class="nlv">🔒 Reach level ${N.lv}</small>`:`<button class="btn o" data-nest-buy="${k}" type="button">Get · ${N.price} ⚡${N.gems?' + '+N.gems+' 💎':''}</button>`}</div>`}).join('')}
+function bindNestCards(){
+  $$('[data-nest-buy]').forEach(b=>b.onclick=e=>{e.stopPropagation();buyNest(b.dataset.nestBuy)});
+  $$('[data-nest-up]').forEach(b=>b.onclick=e=>{e.stopPropagation();upNest(b.dataset.nestUp)});
+  $$('[data-nest]').forEach(c=>c.onclick=()=>{const k=c.dataset.nest;if(!nestLv(k)){if(lvInfo().l<NESTS[k].lv){SFX.no();toast(`🔒 Reach level ${NESTS[k].lv}`)}return}closeM();startSleep('n_'+k)});
+  Object.keys(NESTS).filter(nestLv).forEach(k=>['back','front'].forEach(n=>{const i=new Image();i.src=`n/${k}/${n}.webp`}))}
+for(const k in NESTS)SINTRO['n_'+k]=intro=>nestShow(k,intro);
 
 /* ============ shared spaces ============ */
 const ROOM_SKINS={original:'Cyber Loft',rose:'Rose Circuit Loft',mint:'Mint Terminal Loft'};
@@ -3089,7 +3177,7 @@ requestAnimationFrame(frame);
 setInterval(lifeTick,900);setInterval(setMoodChip,1500);
 setInterval(check,8000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
-window.__fx={startGame,gEnd,get GX(){return GX},rotation,gameOpen,openTraining,openProfile,closeM,faceFrame,get SPR(){return SPR},get sprImg(){return sprImg},save,lightsOut,startSleep,wakeUp,faceFx,moodNow,FACE,get RV(){return RV},openInstall,CLOUD,APP,syncPull,syncPush,openLink,claimCode,transferCode,sky:()=>({h:SKY.hour,k:SKY.moodKey,dk:SKY.dk,sh:SKY.shaft}),dbg:()=>({SA:{once:SA.once,pose:SA.pose,rect:SA.rect},LV:{sx:LV.sx,sy:LV.sy,y:LV.y,rot:LV.rot,sway:LV.sway},pk:PK&&PK.id,spr:document.querySelector("#stage").className,wrap:document.querySelector("#heroWrap").style.cssText,pose:document.querySelector("#heroPose").getAttribute("style"),anims:document.querySelector("#heroPose").getAnimations().length}),get S(){return S},set S(v){S=v},skip(h){S.last-=h*HOUR;if(S.hatchedAt)S.hatchedAt-=h*HOUR;check()},check,go,renderAll,setHero,act,burst,boot};
+window.__fx={NV,buyNest,nestMote,get SL(){return SL},startGame,gEnd,get GX(){return GX},rotation,gameOpen,openTraining,openProfile,closeM,faceFrame,get SPR(){return SPR},get sprImg(){return sprImg},save,lightsOut,startSleep,wakeUp,faceFx,moodNow,FACE,get RV(){return RV},openInstall,CLOUD,APP,syncPull,syncPush,openLink,claimCode,transferCode,sky:()=>({h:SKY.hour,k:SKY.moodKey,dk:SKY.dk,sh:SKY.shaft}),dbg:()=>({SA:{once:SA.once,pose:SA.pose,rect:SA.rect},LV:{sx:LV.sx,sy:LV.sy,y:LV.y,rot:LV.rot,sway:LV.sway},pk:PK&&PK.id,spr:document.querySelector("#stage").className,wrap:document.querySelector("#heroWrap").style.cssText,pose:document.querySelector("#heroPose").getAttribute("style"),anims:document.querySelector("#heroPose").getAnimations().length}),get S(){return S},set S(v){S=v},skip(h){S.last-=h*HOUR;if(S.hatchedAt)S.hatchedAt-=h*HOUR;check()},check,go,renderAll,setHero,act,burst,boot};
 })();
 </script>
 </body>
