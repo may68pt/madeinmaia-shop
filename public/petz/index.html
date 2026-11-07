@@ -980,7 +980,7 @@ function doCare(k,btn){
   if(k==='bond'){const fresh=now()-S.lastCare>40*60e3;S.bond=clamp(S.bond+(fresh?16:5));S.happy=clamp(S.happy+5);S.base.instinct+=fresh?.6:.2;S.base.nature+=fresh?.4:.1;S.lastCare=now();setExpr('love',2400);act('a-squash');burst('hearts',10);sprPose('inlove',2200);SFX.yay();say(pick(['Love you! 💖','Prrrr…','More pats!','Hehe!']));mission('bond');addXP(fresh?10:3);save();renderAll();return}
   if(k==='rest'){SFX.tap();if(S.asleep)wakeUp(false);else openBed();return}
 }
-function openFeed(){
+function openFeed(){if(window.CP&&CP.food)return CP.food.open();
   modal(`<h3>Feed ${S.name}</h3><p class="muted">Each food nudges a different trait.</p><div class="foods">${Object.entries(FOODS).map(([k,f])=>`<button data-food="${k}"><span class="e">${f[1]}</span><b>${f[0]}</b><small>${f[2]}</small></button>`).join('')}</div><div class="btns"><button class="btn gh" data-x>Back</button></div>`);
   $$('[data-food]').forEach(b=>b.onclick=()=>{closeM();feed(b.dataset.food)})}
 function feed(k){
@@ -3296,7 +3296,7 @@ window.__cp={get S(){return S},set S(v){S=v},toast,say,modal,closeM,SFX,tone,add
  sprPlay,sprPose,sprMode,walkTo,turnTo,heroPoint,burst,useItem,save,store,check,go,stageKey,stageIdx,stageName,lvInfo,dayNo,dayKey,now,pick,rnd,
  RI,ITEMS,GAMES2,GAMEOBJ,ROT_POOL,TRAIN_POOL,gameDone,canPlay,startGame,gPose,gSpr,gBurst,gText,gBanner,gDrawFx,gCombo,gHint,gEnd,sprFilter,o2col,
  get SPR(){return SPR},get sprImg(){return sprImg},get RV(){return RV},get SL(){return SL},CLOUD,api,syncPush,syncPull,mission,addLog,
- get busy(){return busy},set busy(v){busy=v},get GX(){return GX},curVariant,VAR,BUILD:FAELIX_BUILD};
+ get busy(){return busy},set busy(v){busy=v},get GX(){return GX},act,setExpr,lvKick,flyEmoji,mouthPoint,curVariant,VAR,BUILD:FAELIX_BUILD};
 document.dispatchEvent(new Event('cp:ready'));
 })();
 </script>
@@ -3309,9 +3309,10 @@ document.dispatchEvent(new Event('cp:ready'));
 <script defer src="x/glass.js?v=20261107"></script>
 <script defer src="x/petting.js?v=20261107d"></script>
 <script defer src="x/language.js?v=20261107"></script>
-<script defer src="x/games.js?v=20261107d"></script>
+<script defer src="x/games.js?v=20261107e"></script>
 <script defer src="x/rotation.js?v=20261107"></script>
 <script defer src="x/shop.js?v=20261107"></script>
 <script defer src="x/rig.js?v=20261107"></script>
+<script defer src="x/food.js?v=20261107"></script>
 </body>
 </html>

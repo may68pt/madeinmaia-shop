@@ -305,7 +305,10 @@
     },
     finish(E) {
       const S = CP.S(), gain = Math.min(15, E.caught + E.stars * 2); S.energy = A().clamp(S.energy + gain);
-      return { score: Math.floor(E.score), coins: Math.floor(E.score / 12), xp: Math.floor(E.score / 7) + 4, lines: [`${E.caught} snacks · ${E.stars} stars · +${gain} energy`, E.burned ? `🔥 ${E.burned} bugs toasted` : ''].filter(Boolean) };
+      // a good run brings a snack home for the pantry
+      let bonus = '';
+      if (E.caught >= 20 && CP.food) { const ids = Object.keys(CP.food.FOODS).filter(k => k !== 'cake'), k = ids[Math.floor(Math.random() * ids.length)], f = CP.food.state(); f.pantry[k] = (f.pantry[k] || 0) + 1; bonus = `🎁 ${CP.food.FOODS[k][1]} ${CP.food.FOODS[k][0]} for the pantry`; }
+      return { score: Math.floor(E.score), coins: Math.floor(E.score / 12), xp: Math.floor(E.score / 7) + 4, lines: [`${E.caught} snacks · ${E.stars} stars · +${gain} energy`, E.burned ? `🔥 ${E.burned} bugs toasted` : '', bonus].filter(Boolean) };
     },
     hud(E) { return `${Math.ceil(E.time / SEC)}s · ${Math.floor(E.score)}`; },
   };
