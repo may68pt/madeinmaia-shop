@@ -2286,13 +2286,14 @@ async function syncPush(){if(!syncOn()){if(APP.onSite&&S.stage!=='egg')syncCreat
     else if(j.conflict){if((j.t||0)>(S.t||0))adopt(j.data,j.rev,`Synced ${j.data.name||'your Cyberpet'} from your other device ☁️`);else{CLOUD.rev=j.rev;CLOUD.busy=false;return syncPush()}}
     else if(j.status===404){CLOUD.id=null;CLOUD.key=null;syncStore()}else CLOUD.ok=false}catch(e){CLOUD.ok=false}
   CLOUD.busy=false}
-async function syncPull(){if(!syncOn()||CLOUD.busy)return;CLOUD.busy=true;let push=false,ops=null;
+async function syncPull(){if(!syncOn()||CLOUD.busy)return;CLOUD.busy=true;let push=false,ops=null,gifts=null;
   try{const j=await api('GET',null,`?id=${CLOUD.id}&key=${CLOUD.key}`);
-    if(j.ok){CLOUD.ok=true;CLOUD.last=Date.now();ops=j.ops;
+    if(j.ok){CLOUD.ok=true;CLOUD.last=Date.now();ops=j.ops;gifts=j.gifts;
       if(j.rev!==CLOUD.rev){if((j.t||0)>(S.t||0))adopt(j.data,j.rev,CLOUD.rev?`Synced from your other device ☁️`:'');else{CLOUD.rev=j.rev;CLOUD.dirty=true;push=true}}
       syncStore()}
     else if(j.status===404){CLOUD.id=null;CLOUD.key=null;syncStore()}}catch(e){CLOUD.ok=false}
-  CLOUD.busy=false;if(Array.isArray(ops)&&ops.length)applyOps(ops);else if(push)syncPush()}
+  CLOUD.busy=false;if(Array.isArray(gifts)&&gifts.length&&window.CP&&CP.shop){gifts.forEach(g=>{try{CP.shop.applyPatch(g.patch);toast(`🎁 ${g.release}: ${g.patch.def.n}!`)}catch(e){}});SFX.yay();CLOUD.dirty=true}
+  if(Array.isArray(ops)&&ops.length)applyOps(ops);else if(push||CLOUD.dirty)syncPush()}
 
 /* ============ LIVE OPS: gifts, messages and fixes sent from the CyberPet back office ============ */
 const opEsc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

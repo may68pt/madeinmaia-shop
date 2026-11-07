@@ -5,6 +5,7 @@ import { getDb } from "@/db";
 import { clientIp, rateLimited } from "@/lib/rate-limit";
 import { social } from "./social";
 import { ackOps, pendingOps } from "@/lib/cyberpet/ops";
+import { deliverGifts } from "@/lib/cyberpet/releases";
 
 /* CyberPet cloud save — no accounts. Each pet has an id + secret key kept on the device.
    Other devices join with a short-lived 6-letter link code. */
@@ -40,8 +41,11 @@ export async function GET(request: Request) {
     const r = await load(clean(u.searchParams.get("id"), 16), clean(u.searchParams.get("key"), 64));
     if (!r) return json({ ok: false, error: "not found" }, 404);
     // live ops from the back office ride along with every pull; a failure here never blocks the save
-    const ops = await pendingOps({ id: r.id, createdAt: r.created_at, data: r.data as Record<string, unknown> }).catch(() => []);
-    return json({ ...out(r), ops });
+    const facts = { id: r.id, createdAt: r.created_at, data: r.data as Record<string, unknown> };
+    const ops = await pendingOps(facts).catch(() => []);
+    // gift releases are granted server-side; the app applies the same patch so the item shows up at once
+    const gifts = await deliverGifts(facts).catch(() => []);
+    return json({ ...out(r), ops, gifts });
   } catch { return json({ ok: false }, 503); }
 }
 

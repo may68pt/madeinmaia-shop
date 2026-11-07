@@ -5,6 +5,8 @@ import { logAdmin, studioActor } from "@/lib/cyberpet/ops";
 import { CONFIG_DEFS, cleanConfigValue, configDefaults } from "@/lib/cyberpet/config-core";
 import { cleanItem, remaining, type ItemRow } from "@/lib/cyberpet/items-core";
 import { grantItem } from "@/lib/cyberpet/items";
+import { randomBytes } from "node:crypto";
+import QRCode from "qrcode";
 import {
   cleanOp, cleanRule, describeOp, levelOf, matchesRule, opReaches, pgArray, stageOf, STATS,
   type ClassRule, type OpRow, type PetFacts, type Scope,
@@ -30,6 +32,7 @@ const summary = (p: PetRow) => {
     devices: Number(p.devices), rev: Number(p.rev), createdAt: p.created_at, updatedAt: p.updated_at,
   };
 };
+const pgArrayItems = (ids: string[]) => "{" + ids.filter((i) => /^rx_[a-z0-9_]+$/.test(i)).join(",") + "}";
 const facts = (p: PetRow): PetFacts => ({ id: p.id, createdAt: p.created_at, data: p.data });
 
 async function allPets(): Promise<PetRow[]> {
@@ -148,6 +151,15 @@ export async function GET(request: Request) {
       for (const it of items) { const t = (tiers[it.tier] ||= { items: 0, circulating: 0 }); t.items++; t.circulating += it.owners; }
       return json({ ok: true, items: items.map((i) => ({ ...i, left: remaining(i) })), tiers, byVia });
     }
+    if (resource === "releases") {
+      const rows = (await db.execute(sql`select r.*, c.name as class_name from petz_releases r left join petz_classes c on c.id=r.class_id order by r.starts_at desc limit 200`)) as unknown as Record<string, unknown>[];
+      const site = process.env.NEXT_PUBLIC_SITE_URL || "https://madeinmaia.pt";
+      const out = await Promise.all(rows.map(async (r) => {
+        const url = r.qr_code ? `${site}/petz?unlock=${r.qr_code}` : null;
+        return { ...r, url, qr: url ? await QRCode.toDataURL(url, { margin: 1, width: 360, color: { dark: "#0c0a1f", light: "#ffffff" } }) : null };
+      }));
+      return json({ ok: true, releases: out });
+    }
     if (resource === "log") {
       const rows = await db.execute(sql`select * from petz_admin_log order by id desc limit 200`);
       return json({ ok: true, log: rows });
@@ -208,6 +220,38 @@ export async function POST(request: Request) {
         for (const pid of s.petIds.slice(0, 200)) { const r = await grantItem(pid, itemId, "admin", actor); results[pid] = r.ok ? "ok" : r.error; }
         await logAdmin(actor, "item-grant", `item:${itemId}`, results);
         return json({ ok: true, results });
+      }
+      case "release-save": {
+        const name = String(b.name ?? "").trim().slice(0, 80);
+        const channel = ["gift", "shop", "qr"].includes(String(b.channel)) ? String(b.channel) : "";
+        const items = Array.isArray(b.items) ? [...new Set(b.items.map(String).filter((i) => /^rx_[a-z0-9_]+$/.test(i)))].slice(0, 20) : [];
+        if (!name || !channel || !items.length) return json({ ok: false, error: "Name, channel and at least one item" }, 400);
+        const s = await readScope(b as ScopeIn);
+        if (!s.ok) return json(s, 400);
+        const starts = typeof b.startsAt === "string" && !Number.isNaN(Date.parse(b.startsAt)) ? new Date(b.startsAt).toISOString() : new Date().toISOString();
+        const ends = typeof b.endsAt === "string" && !Number.isNaN(Date.parse(b.endsAt)) ? new Date(b.endsAt).toISOString() : null;
+        const maxClaims = b.maxClaims === "" || b.maxClaims === undefined || b.maxClaims === null ? null : Math.max(1, Math.round(Number(b.maxClaims)) || 1);
+        const status = b.status === "draft" ? "draft" : "live";
+        const id = Number(b.id);
+        const ABC = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+        const code = channel === "qr" ? Array.from(randomBytes(8), (x) => ABC[x % ABC.length]).join("") : null;
+        const [row] = Number.isInteger(id) && id > 0
+          ? ((await db.execute(sql`update petz_releases set name=${name}, item_ids=${pgArrayItems(items)}::text[], channel=${channel}, scope=${s.scope}, class_id=${s.classId},
+              pet_ids=${pgArray(s.petIds)}::text[], include_new=${s.includeNew}, starts_at=${starts}, ends_at=${ends}, max_claims=${maxClaims}, status=${status},
+              qr_code=case when ${channel}='qr' then coalesce(qr_code, ${code}) else null end where id=${id} returning id`)) as unknown as { id: number }[])
+          : ((await db.execute(sql`insert into petz_releases (name, item_ids, channel, scope, class_id, pet_ids, include_new, starts_at, ends_at, max_claims, status, qr_code)
+              values (${name}, ${pgArrayItems(items)}::text[], ${channel}, ${s.scope}, ${s.classId}, ${pgArray(s.petIds)}::text[], ${s.includeNew}, ${starts}, ${ends}, ${maxClaims}, ${status}, ${code})
+              returning id`)) as unknown as { id: number }[]);
+        if (!row) return json({ ok: false, error: "Release not found" }, 404);
+        await logAdmin(actor, "release-save", `release:${row.id}`, { name, channel, items, scope: s.scope, starts, ends });
+        return json({ ok: true, id: row.id });
+      }
+      case "release-status": {
+        const id = Number(b.id), status = ["draft", "live", "paused", "ended"].includes(String(b.status)) ? String(b.status) : "";
+        if (!status) return json({ ok: false, error: "Unknown status" }, 400);
+        await db.execute(sql`update petz_releases set status=${status}, ends_at = case when ${status}='ended' then coalesce(ends_at, now()) else ends_at end where id=${id}`);
+        await logAdmin(actor, "release-status", `release:${id}`, { status });
+        return json({ ok: true });
       }
       case "class-save": {
         const name = String(b.name ?? "").trim().slice(0, 60);

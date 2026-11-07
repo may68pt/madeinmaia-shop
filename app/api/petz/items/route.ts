@@ -6,7 +6,7 @@ import { getDb } from "@/db";
 import { clientIp, rateLimited } from "@/lib/rate-limit";
 import { grantItem } from "@/lib/cyberpet/items";
 import { remaining, type ItemRow } from "@/lib/cyberpet/items-core";
-import { shopReleaseItems } from "@/lib/cyberpet/releases";
+import { claimQr, shopReleaseItems } from "@/lib/cyberpet/releases";
 
 /* CyberPet rare shop: list what is on sale for this pet, buy with ⚡/💎, or start a Stripe checkout. */
 export const dynamic = "force-dynamic";
@@ -55,6 +55,11 @@ export async function POST(request: Request) {
   try {
     const pet = await owner(clean(b.id, 16), clean(b.key, 64));
     if (!pet) return json({ ok: false, error: "Cloud pet not found. Turn on cloud sync first." }, 404);
+    if (b.action === "qr") {
+      const code = clean(b.code, 16).toUpperCase();
+      const r = await claimQr({ id: pet.id, createdAt: pet.created_at, data: pet.data }, code);
+      return r.ok ? json(r) : json(r, r.status);
+    }
     const itemId = clean(b.item, 40).toLowerCase();
     const flags = await shopFlags();
     if (!flags.open) return json({ ok: false, error: "The shop is closed" }, 403);

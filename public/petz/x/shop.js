@@ -29,7 +29,7 @@
 
   async function call(method, body, q = '') {
     const r = await fetch('/api/petz/items' + q, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' });
-    let j = {}; try { j = await r.json(); } catch (e) { /* empty */ } return j;
+    let j = {}; try { j = await r.json(); } catch (e) { /* empty */ } j.status = r.status; return j;
   }
 
   /** Apply a server grant locally so the item appears now; the server already saved the same change. */
@@ -80,5 +80,20 @@
       setTimeout(() => A().syncPull(), 2500); setTimeout(() => A().syncPull(), 8000);
     }
   });
-  CP.shop = { open, register, applyPatch };
+  /* QR / t-shirt unlocks: madeinmaia.pt/petz?unlock=CODE. The code waits until cloud sync is on. */
+  async function tryUnlock() {
+    const a = A(); let code = ''; try { code = localStorage.getItem('cyberpet.unlock') || ''; } catch (e) { return; }
+    if (!code) return;
+    if (!a.CLOUD.id) { if (CP.S().stage === 'egg') return; a.toast('🔓 Hatch and sync your Cyberpet to unlock your code'); return; }
+    const r = await call('POST', { action: 'qr', id: a.CLOUD.id, key: a.CLOUD.key, code });
+    if (r.ok || [404, 409, 410, 403].includes(r.status)) try { localStorage.removeItem('cyberpet.unlock'); } catch (e) { /* ignore */ }
+    if (r.ok) { r.patches.forEach(applyPatch); a.SFX.yay(); a.modal(`<h3>🔓 Unlocked!</h3><p><b>${CP.esc(r.release)}</b></p><p>${r.patches.map(p => CP.esc(p.def.n)).join(', ')} ${r.patches.length > 1 ? 'are' : 'is'} now in your Room → Store.</p><div class="btns"><button class="btn" data-x>Yay!</button></div>`); }
+    else if (r.error) a.toast('🔓 ' + r.error);
+  }
+  CP.on('start', () => {
+    const u = new URLSearchParams(location.search).get('unlock');
+    if (u) { try { localStorage.setItem('cyberpet.unlock', u.replace(/[^A-Za-z0-9]/g, '').slice(0, 16).toUpperCase()); } catch (e) { /* private mode */ } history.replaceState(null, '', location.pathname); }
+    setTimeout(tryUnlock, 3000); setInterval(tryUnlock, 60000);
+  });
+  CP.shop = { open, register, applyPatch, tryUnlock };
 })();
