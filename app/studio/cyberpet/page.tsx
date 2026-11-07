@@ -14,7 +14,8 @@ export default function CyberPetAdmin() {
   const [tab, setTab] = useState("overview");
   const [opPet, setOpPet] = useState<string | null>(null);
   useEffect(() => {
-    try { const c = JSON.parse(sessionStorage.getItem(STORE) || "null") as Creds | null; if (c?.user) setCreds(c); } catch { /* fresh login */ }
+    const id = setTimeout(() => { try { const c = JSON.parse(sessionStorage.getItem(STORE) || "null") as Creds | null; if (c?.user) setCreds(c); } catch { /* fresh login */ } }, 0);
+    return () => clearTimeout(id);
   }, []);
   if (!creds) return <Login onIn={(c) => { sessionStorage.setItem(STORE, JSON.stringify(c)); setCreds(c); }} />;
 

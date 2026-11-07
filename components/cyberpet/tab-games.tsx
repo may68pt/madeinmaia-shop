@@ -25,7 +25,7 @@ export function GamesTab() {
     setOff((r.values.games_disabled as string[]) || []); setForced((r.values.games_forced as string[]) || []);
     setHot(String(r.values.games_hot || "")); setOpen(String(r.values.games_open ?? 4));
   }, [api]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { const id = setTimeout(() => void load(), 0); return () => clearTimeout(id); }, [load]);
   const flip = (arr: string[], set: (v: string[]) => void, id: string) => set(arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id]);
   const save = async () => {
     const r = await api(API, { action: "config-save", values: { games_disabled: off, games_forced: forced, games_hot: hot, games_open: open } });

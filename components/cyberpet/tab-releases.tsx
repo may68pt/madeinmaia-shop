@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Btn, Field, Note, Panel, ScopePicker, emptyScope, fmtDate, inputCls, scopeBody, useApi, type ScopeValue } from "./admin-kit";
 import { useClasses } from "./tabs-core";
 import { TIER_COLOR } from "@/lib/cyberpet/items-core";
@@ -14,8 +14,7 @@ type Release = {
 type ItemLite = { id: string; name: string; tier: string; art_url: string };
 const CH: Record<string, string> = { gift: "🎁 Gift", shop: "🛍️ Shop", qr: "🔓 QR unlock" };
 
-function phase(r: Release) {
-  const now = Date.now();
+function phase(r: Release, now: number) {
   if (r.status !== "live") return r.status;
   if (Date.parse(r.starts_at) > now) return "upcoming";
   if (r.ends_at && Date.parse(r.ends_at) <= now) return "ended";
@@ -35,7 +34,7 @@ export function ReleasesTab() {
     const [r, i] = await Promise.all([api<{ releases: Release[] }>(`${API}?resource=releases`), api<{ items: ItemLite[] }>(`${API}?resource=items`)]);
     if (r.ok) setRel(r.releases); if (i.ok) setItems(i.items);
   }, [api]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { const id = setTimeout(() => void load(), 0); return () => clearTimeout(id); }, [load]);
   const itemName = (id: string) => items.find((i) => i.id === id)?.name || id;
   const save = async () => {
     const r = await api<{ id: number }>(API, { action: "release-save", ...f, ...scopeBody(scope), id: f.id || undefined,
@@ -48,15 +47,17 @@ export function ReleasesTab() {
   const edit = (r: Release) => setF({ id: r.id, name: r.name, channel: r.channel, items: r.item_ids, startsAt: local(r.starts_at), endsAt: local(r.ends_at), maxClaims: r.max_claims ? String(r.max_claims) : "", status: r.status === "draft" ? "draft" : "live" });
 
   // calendar strip: 8 weeks around today, one row per release
-  const span = useMemo(() => { const s = Date.now() - 14 * 864e5; return { s, e: s + 56 * 864e5 }; }, []);
+  const [now, setNow] = useState(0);
+  useEffect(() => { const tick = () => setNow(Date.now()); const id = setTimeout(tick, 0), iv = setInterval(tick, 60000); return () => { clearTimeout(id); clearInterval(iv); }; }, []);
+  const span = { s: now - 14 * 864e5, e: now + 42 * 864e5 };
   const pos = (t: number) => Math.max(0, Math.min(100, ((t - span.s) / (span.e - span.s)) * 100));
   return (
     <div className="grid gap-4">
       <Panel title="Release calendar" right={<span className="text-xs text-white/40">2 weeks back · 6 weeks ahead</span>}>
         <div className="relative grid gap-1.5">
-          <div className="absolute bottom-0 top-0 w-px bg-fuchsia-400" style={{ left: `${pos(Date.now())}%` }} />
+          <div className="absolute bottom-0 top-0 w-px bg-fuchsia-400" style={{ left: `${pos(now)}%` }} />
           {rel.slice(0, 20).map((r) => {
-            const a = pos(Date.parse(r.starts_at)), b = pos(r.ends_at ? Date.parse(r.ends_at) : span.e), ph = phase(r);
+            const a = pos(Date.parse(r.starts_at)), b = pos(r.ends_at ? Date.parse(r.ends_at) : span.e), ph = phase(r, now);
             return (
               <div key={r.id} className="relative h-6 rounded bg-white/[0.03]">
                 <div className={"absolute top-0 h-6 rounded px-2 text-[11px] leading-6 " + (ph === "live" ? "bg-cyan-400/70 text-black" : ph === "upcoming" ? "bg-fuchsia-500/60" : "bg-white/15 text-white/60")}
@@ -71,7 +72,7 @@ export function ReleasesTab() {
         <Panel title="Releases">
           <div className="grid gap-2">
             {rel.map((r) => {
-              const ph = phase(r);
+              const ph = phase(r, now);
               return (
                 <div key={r.id} className="grid gap-2 rounded-xl border border-white/10 p-3 md:grid-cols-[1fr_auto]">
                   <div>

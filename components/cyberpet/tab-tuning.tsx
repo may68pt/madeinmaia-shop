@@ -19,7 +19,7 @@ export function TuningTab() {
     const r = await api<{ defs: ConfigDef[]; values: Record<string, unknown>; changed: Record<string, string> }>(`${API}?resource=config`);
     if (r.ok) { setDefs(r.defs); setValues(r.values); setChanged(r.changed); setDraft({}); }
   }, [api]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { const id = setTimeout(() => void load(), 0); return () => clearTimeout(id); }, [load]);
   const save = async () => {
     const r = await api(API, { action: "config-save", values: draft });
     setMsg(r.ok ? { t: "Saved. Phones pick it up within about 5 minutes.", tone: "ok" } : { t: r.error || "Failed", tone: "error" });

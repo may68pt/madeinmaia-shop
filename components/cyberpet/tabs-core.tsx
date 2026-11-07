@@ -16,7 +16,7 @@ export function useClasses() {
     const r = await api<{ classes: ClassRow[] }>(`${API}?resource=classes`);
     if (r.ok) setClasses(r.classes);
   }, [api]);
-  useEffect(() => { void reload(); }, [reload]);
+  useEffect(() => { const id = setTimeout(() => void reload(), 0); return () => clearTimeout(id); }, [reload]);
   return { classes, reload };
 }
 
@@ -59,7 +59,7 @@ export function PetsTab({ onSendOp }: { onSendOp: (petId: string) => void }) {
     const r = await api<{ pets: PetSummary[] }>(`${API}?${p}`);
     if (r.ok) setPets(r.pets);
   }, [api, q, classId]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { const id = setTimeout(() => void load(), 0); return () => clearTimeout(id); }, [load]);
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_420px]">
       <Panel title="Pets" right={<span className="text-xs text-white/40">{pets.length} shown</span>}>
@@ -103,7 +103,7 @@ function PetInspector({ id, onChanged, onSendOp }: { id: string; onChanged: () =
     const r = await api<NonNullable<typeof d>>(`${API}?resource=pet&id=${id}`);
     if (r.ok) { setD(r); setEdit({}); }
   }, [api, id]);
-  useEffect(() => { void load(); setMsg(null); }, [load]);
+  useEffect(() => { const id = setTimeout(() => { setMsg(null); void load(); }, 0); return () => clearTimeout(id); }, [load]);
   if (!d) return <Note>Loading pet…</Note>;
   const p = d.pet;
   const save = async () => {
@@ -231,8 +231,8 @@ export function OpsTab({ presetPet }: { presetPet: string | null }) {
   const [reach, setReach] = useState<number | null>(null);
   const [msg, setMsg] = useState<{ t: string; tone: "ok" | "error" } | null>(null);
   const load = useCallback(async () => { const r = await api<{ ops: OpListRow[] }>(`${API}?resource=ops`); if (r.ok) setOps(r.ops); }, [api]);
-  useEffect(() => { void load(); }, [load]);
-  useEffect(() => { if (presetPet) setScope({ ...emptyScope, scope: "pets", petIds: presetPet }); }, [presetPet]);
+  useEffect(() => { const id = setTimeout(() => void load(), 0); return () => clearTimeout(id); }, [load]);
+  useEffect(() => { if (!presetPet) return; const id = setTimeout(() => setScope({ ...emptyScope, scope: "pets", petIds: presetPet }), 0); return () => clearTimeout(id); }, [presetPet]);
   useEffect(() => {
     const t = setTimeout(async () => { const r = await api<{ count: number }>(API, { action: "preview", ...scopeBody(scope) }); setReach(r.ok ? r.count : null); }, 300);
     return () => clearTimeout(t);

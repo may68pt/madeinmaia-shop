@@ -27,7 +27,7 @@ export function ItemsTab() {
     const r = await api<{ items: Item[]; tiers: typeof tiers; byVia: typeof byVia }>(`${API}?resource=items`);
     if (r.ok) { setItems(r.items); setTiers(r.tiers); setByVia(r.byVia); }
   }, [api]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { const id = setTimeout(() => void load(), 0); return () => clearTimeout(id); }, [load]);
   const save = async () => {
     const r = await api<{ id: string }>(API, { action: "item-save", item: f });
     setMsg(r.ok ? { t: `Saved ${r.id}`, tone: "ok" } : { t: r.error || "Failed", tone: "error" });
