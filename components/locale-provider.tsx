@@ -9,9 +9,13 @@ const LocaleContext=createContext<LocaleContextValue|null>(null);
 export function LocaleProvider({children}:{children:React.ReactNode}){
   const [locale,setLocaleState]=useState<Locale>("en");
   useEffect(()=>{
-    const stored=window.localStorage.getItem("mim-locale") as Locale|null;
-    const browser=navigator.language.toLowerCase().split("-")[0] as Locale;
-    setLocaleState(stored&&LOCALES.includes(stored)?stored:LOCALES.includes(browser)?browser:"en");
+    // read the saved/browser language after mount (deferred so the effect body never sets state synchronously)
+    const id=setTimeout(()=>{
+      const stored=window.localStorage.getItem("mim-locale") as Locale|null;
+      const browser=navigator.language.toLowerCase().split("-")[0] as Locale;
+      setLocaleState(stored&&LOCALES.includes(stored)?stored:LOCALES.includes(browser)?browser:"en");
+    },0);
+    return ()=>clearTimeout(id);
   },[]);
   function setLocale(next:Locale){
     setLocaleState(next);
