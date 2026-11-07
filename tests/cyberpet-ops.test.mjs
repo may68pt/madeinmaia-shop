@@ -54,3 +54,13 @@ test('helpers', () => {
   assert.equal(pgArray(['A1', 'b2', 'x y', 3]), '{A1,b2,3}');
   assert.equal(describeOp({ kind: 'grant', coins: 10, gems: 1 }), 'Grant 10 coins, 1 gems');
 });
+
+import { cleanConfigValue, configDefaults, CONFIG_DEFS } from '../lib/cyberpet/config-core.ts';
+test('config values are validated against their definitions', () => {
+  assert.equal(Object.keys(configDefaults()).length, CONFIG_DEFS.length);
+  assert.deepEqual(cleanConfigValue('clouds_max', '99'), { ok: true, value: 12 });
+  assert.deepEqual(cleanConfigValue('rig_enabled', 'true'), { ok: true, value: true });
+  assert.equal(cleanConfigValue('games_disabled', '{"a":1}').ok, false);
+  assert.deepEqual(cleanConfigValue('games_disabled', '["laser"]'), { ok: true, value: ['laser'] });
+  assert.equal(cleanConfigValue('nope', 1).ok, false);
+});

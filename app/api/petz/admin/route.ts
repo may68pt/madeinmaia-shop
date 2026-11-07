@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { logAdmin, studioActor } from "@/lib/cyberpet/ops";
+import { CONFIG_DEFS, cleanConfigValue, configDefaults } from "@/lib/cyberpet/config-core";
 import {
   cleanOp, cleanRule, describeOp, levelOf, matchesRule, opReaches, pgArray, stageOf, STATS,
   type ClassRule, type OpRow, type PetFacts, type Scope,
@@ -130,6 +131,13 @@ export async function GET(request: Request) {
         from petz_ops o left join petz_classes c on c.id=o.class_id order by o.id desc limit 100`)) as unknown as (OpRow & Record<string, unknown>)[];
       return json({ ok: true, ops: rows.map((o) => ({ ...o, summary: describeOp(o.payload) })) });
     }
+    if (resource === "config") {
+      const values = configDefaults();
+      const rows = (await db.execute(sql`select key, value, updated_at from petz_config`)) as unknown as { key: string; value: unknown; updated_at: string }[];
+      const changed: Record<string, string> = {};
+      for (const r of rows) if (r.key in values) { values[r.key] = r.value; changed[r.key] = r.updated_at; }
+      return json({ ok: true, defs: CONFIG_DEFS, values, changed });
+    }
     if (resource === "log") {
       const rows = await db.execute(sql`select * from petz_admin_log order by id desc limit 200`);
       return json({ ok: true, log: rows });
@@ -152,6 +160,21 @@ export async function POST(request: Request) {
         const s = await readScope(b as ScopeIn);
         if (!s.ok) return json(s, 400);
         return json({ ok: true, count: await countScope(s) });
+      }
+      case "config-save": {
+        const input = (b.values && typeof b.values === "object" ? b.values : {}) as Record<string, unknown>;
+        const saved: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(input)) {
+          const c = cleanConfigValue(k, v);
+          if (!c.ok) return json(c, 400);
+          saved[k] = c.value;
+        }
+        for (const [k, v] of Object.entries(saved))
+          await db.execute(sql`insert into petz_config (key, value, updated_at) values (${k}, ${JSON.stringify(v)}::jsonb, now())
+            on conflict (key) do update set value = excluded.value, updated_at = now()`);
+        if (Array.isArray(b.reset)) for (const k of b.reset.map(String)) await db.execute(sql`delete from petz_config where key=${k}`);
+        await logAdmin(actor, "config-save", "config", { saved, reset: b.reset ?? [] });
+        return json({ ok: true, saved });
       }
       case "class-save": {
         const name = String(b.name ?? "").trim().slice(0, 60);
