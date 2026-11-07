@@ -64,3 +64,17 @@ test('config values are validated against their definitions', () => {
   assert.deepEqual(cleanConfigValue('games_disabled', '["laser"]'), { ok: true, value: ['laser'] });
   assert.equal(cleanConfigValue('nope', 1).ok, false);
 });
+
+import { cleanItem, clientDef, remaining } from '../lib/cyberpet/items-core.ts';
+test('rare items are validated', () => {
+  const r = cleanItem({ id: 'Neon Cat!', name: 'Neon Cat', tier: 'legendary', price_coins: '500', supply_limit: '50', art_url: '/uploads/a.png', stats: { happy: 5, x: 3 } });
+  assert.equal(r.ok, true);
+  assert.equal(r.item.id, 'rx_neon_cat_');
+  assert.equal(r.item.supply_limit, 50);
+  assert.deepEqual(r.item.stats, { happy: 5 });
+  assert.equal(cleanItem({ id: 'x', name: 'n' }).ok, false);
+  assert.equal(cleanItem({ id: 'abc', name: 'n', art_url: 'javascript:alert(1)' }).ok, false);
+  assert.equal(remaining({ supply_limit: 5, sold: 7 }), 0);
+  assert.equal(remaining({ supply_limit: null, sold: 7 }), null);
+  assert.equal(clientDef({ ...r.item }).n, 'Neon Cat');
+});

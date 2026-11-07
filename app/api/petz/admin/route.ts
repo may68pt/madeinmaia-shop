@@ -3,6 +3,8 @@ import { sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { logAdmin, studioActor } from "@/lib/cyberpet/ops";
 import { CONFIG_DEFS, cleanConfigValue, configDefaults } from "@/lib/cyberpet/config-core";
+import { cleanItem, remaining, type ItemRow } from "@/lib/cyberpet/items-core";
+import { grantItem } from "@/lib/cyberpet/items";
 import {
   cleanOp, cleanRule, describeOp, levelOf, matchesRule, opReaches, pgArray, stageOf, STATS,
   type ClassRule, type OpRow, type PetFacts, type Scope,
@@ -138,6 +140,14 @@ export async function GET(request: Request) {
       for (const r of rows) if (r.key in values) { values[r.key] = r.value; changed[r.key] = r.updated_at; }
       return json({ ok: true, defs: CONFIG_DEFS, values, changed });
     }
+    if (resource === "items") {
+      const items = (await db.execute(sql`select i.*, (select count(*)::int from petz_item_grants g where g.item_id=i.id) as owners
+        from petz_items i order by i.created_at desc`)) as unknown as (ItemRow & { owners: number })[];
+      const byVia = (await db.execute(sql`select via, count(*)::int as n from petz_item_grants group by via`)) as unknown as { via: string; n: number }[];
+      const tiers: Record<string, { items: number; circulating: number }> = {};
+      for (const it of items) { const t = (tiers[it.tier] ||= { items: 0, circulating: 0 }); t.items++; t.circulating += it.owners; }
+      return json({ ok: true, items: items.map((i) => ({ ...i, left: remaining(i) })), tiers, byVia });
+    }
     if (resource === "log") {
       const rows = await db.execute(sql`select * from petz_admin_log order by id desc limit 200`);
       return json({ ok: true, log: rows });
@@ -175,6 +185,29 @@ export async function POST(request: Request) {
         if (Array.isArray(b.reset)) for (const k of b.reset.map(String)) await db.execute(sql`delete from petz_config where key=${k}`);
         await logAdmin(actor, "config-save", "config", { saved, reset: b.reset ?? [] });
         return json({ ok: true, saved });
+      }
+      case "item-save": {
+        const c = cleanItem(b.item);
+        if (!c.ok) return json(c, 400);
+        const i = c.item;
+        await db.execute(sql`insert into petz_items (id, name, description, tier, category, art_url, room, stats, price_coins, price_gems, price_cents, supply_limit, in_shop, active)
+          values (${i.id}, ${i.name}, ${i.description}, ${i.tier}, ${i.category}, ${i.art_url}, ${JSON.stringify(i.room)}::jsonb, ${JSON.stringify(i.stats)}::jsonb,
+            ${i.price_coins}, ${i.price_gems}, ${i.price_cents}, ${i.supply_limit}, ${i.in_shop}, ${i.active})
+          on conflict (id) do update set name=excluded.name, description=excluded.description, tier=excluded.tier, category=excluded.category,
+            art_url=excluded.art_url, room=excluded.room, stats=excluded.stats, price_coins=excluded.price_coins, price_gems=excluded.price_gems,
+            price_cents=excluded.price_cents, supply_limit=excluded.supply_limit, in_shop=excluded.in_shop, active=excluded.active, updated_at=now()`);
+        await logAdmin(actor, "item-save", `item:${i.id}`, i);
+        return json({ ok: true, id: i.id });
+      }
+      case "item-grant": {
+        // give an item to specific pets right now (support, prizes); supply limits still apply
+        const itemId = String(b.item ?? "");
+        const s = await readScope({ ...(b as ScopeIn), scope: "pets" });
+        if (!s.ok) return json(s, 400);
+        const results: Record<string, string> = {};
+        for (const pid of s.petIds.slice(0, 200)) { const r = await grantItem(pid, itemId, "admin", actor); results[pid] = r.ok ? "ok" : r.error; }
+        await logAdmin(actor, "item-grant", `item:${itemId}`, results);
+        return json({ ok: true, results });
       }
       case "class-save": {
         const name = String(b.name ?? "").trim().slice(0, 60);
