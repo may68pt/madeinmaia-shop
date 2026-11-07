@@ -1,150 +1,431 @@
-/* CyberPet mini-games pack: Laser Chase, Echo Song, Snack Catch, Bubble Pop and Word Match.
-   All run on the app's game engine (countdown, scoring, stars, rewards) and join the daily rotation. */
+/* CyberPet mini-games pack (v2): Laser Chase, Echo Song, Snack Catch, Bubble Pop, Word Match.
+   Built on the app's game engine (countdown, pause on tab switch, scoring, stars, rewards).
+   Every timing is in seconds of game time (E.t counts frames at 60 fps; dt is in frames), so slow phones
+   play the same game as fast ones. */
 (function () {
   'use strict';
   const CP = window.CP;
   const A = () => CP.app();
   const R = (a, b) => a + Math.random() * (b - a);
-  const bg = (E, c1, c2) => { const g = E.x.createLinearGradient(0, 0, 0, E.H); g.addColorStop(0, c1); g.addColorStop(1, c2); E.x.fillStyle = g; E.x.fillRect(0, 0, E.W, E.H); };
-  const pet = (E, role, x, y, h, flip) => A().gPose(E.x, role, x, y, h, flip, E.filt) || A().gPose(E.x, 'idle', x, y, h, flip, E.filt);
+  const SEC = 60; // frames per second of game time
+  const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
+  const font = (w, s) => `${w} ${s}px 'Barlow Condensed',sans-serif`;
 
-  /* ---------- Laser Chase: drag the dot, the pet pounces, don't get caught ---------- */
+  function bg(E, c1, c2, stars) {
+    const x = E.x, g = x.createLinearGradient(0, 0, 0, E.H); g.addColorStop(0, c1); g.addColorStop(1, c2);
+    x.fillStyle = g; x.fillRect(0, 0, E.W, E.H);
+    if (stars) { x.fillStyle = 'rgba(255,255,255,.35)'; for (let i = 0; i < 40; i++) { const sx = (i * 97.3) % E.W, sy = (i * 53.7 + E.t * 0.05 * (1 + (i % 3))) % E.H; x.fillRect(sx, sy, 1.5, 1.5); } }
+  }
+  /** Draws the pet with its feet at (cx, by), h tall. Falls back to idle, then to an emoji. */
+  function pet(E, role, cx, by, h, flip) {
+    const a = A();
+    if (a.gPose(E.x, role, cx, by, h, flip, E.filt) || a.gPose(E.x, 'idle', cx, by, h, flip, E.filt)) return;
+    E.x.font = `${h * 0.8}px serif`; E.x.textAlign = 'center'; E.x.textBaseline = 'alphabetic'; E.x.fillText('🐱', cx, by);
+  }
+  const label = (E, t, x, y, size = 20, col = '#fff', align = 'center') => {
+    const c = E.x; c.font = font(800, size); c.textAlign = align; c.textBaseline = 'middle';
+    c.lineWidth = 4; c.strokeStyle = 'rgba(0,0,0,.55)'; c.strokeText(t, x, y); c.fillStyle = col; c.fillText(t, x, y);
+  };
+  const timerBar = (E, left, total, col = '#5ff4ff') => {
+    const c = E.x, w = E.W - 28; c.fillStyle = 'rgba(255,255,255,.12)'; c.fillRect(14, 54, w, 5);
+    c.fillStyle = left / total < 0.2 ? '#ff4f7a' : col; c.fillRect(14, 54, w * clampN(left / total, 0, 1), 5);
+  };
+  const tone = (f, d, delay = 0, type = 'triangle', v = 0.05) => { try { A().tone(f, d, delay, type, v); } catch (e) { /* muted */ } };
+
+  /* =========================================================================================
+     LASER CHASE: move the laser dot with your finger. Your pet stalks it, wiggles, then pounces
+     at where the dot was when the target ring locks. Move away after the lock to dodge.
+     Sweep the dot over light orbs for points. 3 lives.
+     ========================================================================================= */
   const LASER = {
-    init(E) { Object.assign(E, { lx: E.W / 2, ly: E.H * 0.4, px: E.W / 2, py: E.H * 0.8, vx: 0, vy: 0, jump: 0, jt: 90, lives: 3, inv: 0, near: 0, trail: [] }); },
-    down(E, x, y) { E.lx = x; E.ly = y; }, move(E, x, y, p) { if (p) { E.lx = x; E.ly = y; } },
+    init(E) {
+      Object.assign(E, {
+        lives: 3, time: 90 * SEC, lx: E.W / 2, ly: E.H * 0.35, px: E.W / 2, py: E.H * 0.85,
+        state: 'stalk', st: 2.2 * SEC, lock: null, jump: null, inv: 0, orbs: [], orbT: SEC, near: 0, dodges: 0, trail: [],
+      });
+    },
+    down(E, x, y) { E.lx = x; E.ly = clampN(y, 70, E.H - 30); },
+    move(E, x, y, p) { if (p) { E.lx = clampN(x, 10, E.W - 10); E.ly = clampN(y, 70, E.H - 30); } },
+    level: E => Math.min(1, E.t / (70 * SEC)), // 0 → 1 over 70 s
     update(E, dt) {
-      const sp = 1 + E.t / 1800; E.score += dt * 0.12 * sp; E.inv = Math.max(0, E.inv - dt);
-      E.jt -= dt;
-      if (!E.jump && E.jt <= 0) { E.jump = 1; E.jvx = (E.lx - E.px) / 28; E.jvy = (E.ly - E.py) / 28; E.jt = Math.max(28, 80 - E.t / 60) + R(0, 30); }
-      if (E.jump) { E.px += E.jvx * dt; E.py += E.jvy * dt; E.jump += dt; if (E.jump > 28) { E.jump = 0; const d = Math.hypot(E.px - E.lx, E.py - E.ly); if (d < 40 && !E.inv) { E.lives--; E.inv = 70; E.shake = 8; A().SFX.no(); A().gText(E, E.lx, E.ly - 30, 'Caught!', '#ff4f7a'); if (E.lives <= 0) A().gEnd(E, false); } else if (d < 90) { E.score += 25; E.near++; A().gText(E, E.lx, E.ly - 30, 'Close one! +25', '#ffd23f', 22); } } }
-      else { E.px += (E.lx - E.px) * 0.02 * sp * dt; E.py += (Math.max(E.H * 0.35, E.ly) - E.py) * 0.02 * sp * dt; }
-      E.trail.push({ x: E.lx, y: E.ly, l: 1 }); E.trail = E.trail.filter(t => (t.l -= 0.06 * dt) > 0);
+      const lv = this.level(E), a = A();
+      E.time -= dt;
+      if (E.time <= 0) { E.score += E.lives * 100; a.gText(E, E.W / 2, E.H * 0.4, `Survived! +${E.lives * 100}`, '#8dff4a', 30); a.gEnd(E, false); return; }
+      E.inv = Math.max(0, E.inv - dt); E.score += dt / SEC * (4 + lv * 6);
+      // orbs to collect with the dot
+      E.orbT -= dt;
+      if (E.orbT <= 0 && E.orbs.length < 4) { E.orbT = R(1.2, 2.2) * SEC; E.orbs.push({ x: R(30, E.W - 30), y: R(90, E.H * 0.75), life: 6 * SEC, gold: Math.random() < 0.12 }); }
+      for (const o of E.orbs) {
+        o.life -= dt;
+        if (Math.hypot(o.x - E.lx, o.y - E.ly) < 26) {
+          o.life = 0; const pts = o.gold ? 50 : 15; E.combo++; E.score += pts * Math.min(4, 1 + Math.floor(E.combo / 5));
+          a.gBurst(E, o.x, o.y, o.gold ? 18 : 8, o.gold ? '#ffd23f' : '#5ff4ff'); a.gText(E, o.x, o.y - 18, '+' + pts, o.gold ? '#ffd23f' : '#fff', 20);
+          tone(o.gold ? 1568 : 988 + E.combo * 20, 0.06);
+        }
+      }
+      E.orbs = E.orbs.filter(o => o.life > 0);
+      // the pet: stalk → wiggle (ring follows dot) → lock (ring stops) → leap → land
+      const head = () => ({ x: E.px, y: E.py - 70 });
+      if (E.state === 'stalk') {
+        const sp = (0.9 + lv * 1.6) * dt, h = head(), d = Math.hypot(E.lx - h.x, E.ly - h.y) || 1;
+        E.px += ((E.lx - h.x) / d) * Math.min(sp, d); E.py = clampN(E.py + ((E.ly + 70 - E.py) / d) * Math.min(sp, d), 150, E.H - 10);
+        E.st -= dt; if (E.st <= 0) { E.state = 'wiggle'; E.st = (0.75 - lv * 0.35) * SEC; tone(300, 0.08, 0, 'square', 0.03); }
+      } else if (E.state === 'wiggle') {
+        E.st -= dt; if (E.st <= 0) { E.state = 'locked'; E.lock = { x: E.lx, y: E.ly }; E.st = (0.38 - lv * 0.16) * SEC; tone(520, 0.06, 0, 'square', 0.04); }
+      } else if (E.state === 'locked') {
+        E.st -= dt; if (E.st <= 0) { const h = head(); E.state = 'leap'; E.jump = { x0: E.px, y0: E.py, x1: E.lock.x, y1: E.lock.y + 70, t: 0, dur: (0.42 - lv * 0.1) * SEC }; void h; tone(700, 0.1, 0, 'sawtooth', 0.03); }
+      } else if (E.state === 'leap') {
+        const j = E.jump; j.t += dt; const k = Math.min(1, j.t / j.dur);
+        E.px = j.x0 + (j.x1 - j.x0) * k; E.py = j.y0 + (j.y1 - j.y0) * k - Math.sin(k * Math.PI) * 60;
+        if (k >= 1) {
+          const d = Math.hypot(E.lx - E.lock.x, E.ly - E.lock.y);
+          if (d < 34 && !E.inv) {
+            E.lives--; E.inv = 1.5 * SEC; E.combo = 0; E.shake = 9; E.flash = 14; a.SFX.no(); a.gText(E, E.lock.x, E.lock.y - 34, 'Caught!', '#ff4f7a', 30);
+            if (E.lives <= 0) { a.gEnd(E, false); return; }
+          } else if (d < 95) { E.near++; E.score += 30; a.gText(E, E.lx, E.ly - 30, 'Close one! +30', '#ffd23f', 22); tone(1320, 0.08); }
+          else E.dodges++;
+          E.state = 'stalk'; E.st = R(1.2, 2.4) * (1 - lv * 0.45) * SEC; E.lock = null;
+        }
+      }
+      E.trail.push({ x: E.lx, y: E.ly, l: 1 }); E.trail = E.trail.filter(t => (t.l -= 0.08 * dt) > 0).slice(-30);
     },
     draw(E, dt, ts) {
-      bg(E, '#1a1033', '#090614'); const x = E.x;
-      for (const t of E.trail) { x.globalAlpha = t.l * 0.5; x.fillStyle = '#ff2050'; x.beginPath(); x.arc(t.x, t.y, 5 * t.l, 0, 7); x.fill(); }
-      x.globalAlpha = 1; x.shadowColor = '#ff2050'; x.shadowBlur = 20; x.fillStyle = '#ff4060'; x.beginPath(); x.arc(E.lx, E.ly, 8, 0, 7); x.fill(); x.shadowBlur = 0;
-      if (!(E.inv && Math.floor(ts / 80) % 2)) pet(E, E.jump ? 'jump' : 'chaseball', E.px, E.py + 40, 120, E.lx < E.px);
-      A().gHint(E, 'Drag the laser. Dodge the pounce!', 1 - E.t / 240);
-    },
-    finish(E) { const sc = Math.floor(E.score); return { score: sc, coins: Math.floor(sc / 12), xp: Math.floor(sc / 6) + 5, lines: [`${E.near} close dodges`] }; },
-  };
-
-  /* ---------- Echo Song: repeat the pet's song ---------- */
-  const PADS = [['#ff5fb8', 523], ['#5ff4ff', 659], ['#ffd23f', 784], ['#8dff4a', 1047]];
-  const ECHO = {
-    init(E) { Object.assign(E, { seq: [], step: 0, mode: 'listen', at: 0, lit: -1, litT: 0, round: 0, lives: 2 }); this.next(E); },
-    next(E) { E.seq.push((Math.random() * 4) | 0); E.mode = 'listen'; E.at = 0; E.step = 0; E.round++; },
-    pad(E, x, y) { const s = Math.min(E.W, E.H * 0.7) / 2.4, cx = E.W / 2, cy = E.H * 0.55; for (let i = 0; i < 4; i++) { const px = cx + (i % 2 ? 1 : -1) * s * 0.55, py = cy + (i < 2 ? -1 : 1) * s * 0.55; if (Math.abs(x - px) < s * 0.5 && Math.abs(y - py) < s * 0.5) return i; } return -1; },
-    down(E, x, y) {
-      if (E.mode !== 'play') return; const i = this.pad(E, x, y); if (i < 0) return;
-      E.lit = i; E.litT = 14; A().tone(PADS[i][1], 0.2, 0, 'sine', 0.06);
-      if (i === E.seq[E.step]) { E.step++; if (E.step >= E.seq.length) { E.score += E.seq.length * 20; E.combo++; A().gText(E, E.W / 2, E.H * 0.2, ['Yes!', 'Duet!', 'In tune!'][E.round % 3], '#8dff4a'); E.mode = 'wait'; E.at = 0; } }
-      else { E.lives--; E.combo = 0; E.shake = 6; A().SFX.no(); if (E.lives <= 0) A().gEnd(E, false); else { E.mode = 'listen'; E.at = -30; E.step = 0; } }
-    },
-    update(E, dt) {
-      E.litT = Math.max(0, E.litT - dt); if (!E.litT) E.lit = -1; E.at += dt;
-      if (E.mode === 'listen' && E.at > 30) { const k = Math.floor((E.at - 30) / 32); if (k >= E.seq.length) { E.mode = 'play'; E.step = 0; } else if ((E.at - 30) % 32 < dt) { E.lit = E.seq[k]; E.litT = 18; A().tone(PADS[E.lit][1] * 1.0, 0.22, 0, 'triangle', 0.06); } }
-      if (E.mode === 'wait' && E.at > 40) this.next(E);
-    },
-    draw(E) {
-      bg(E, '#14102e', '#07060f'); const x = E.x, s = Math.min(E.W, E.H * 0.7) / 2.4, cx = E.W / 2, cy = E.H * 0.55;
-      for (let i = 0; i < 4; i++) { const px = cx + (i % 2 ? 1 : -1) * s * 0.55, py = cy + (i < 2 ? -1 : 1) * s * 0.55; x.globalAlpha = E.lit === i ? 1 : 0.35; x.fillStyle = PADS[i][0]; x.shadowColor = PADS[i][0]; x.shadowBlur = E.lit === i ? 30 : 0; x.beginPath(); x.roundRect(px - s * 0.45, py - s * 0.45, s * 0.9, s * 0.9, 18); x.fill(); }
+      bg(E, '#1a1033', '#090614', true); const x = E.x;
+      // floor
+      x.fillStyle = 'rgba(255,255,255,.04)'; x.fillRect(0, E.H * 0.82, E.W, E.H * 0.18);
+      for (const o of E.orbs) { const p = 0.7 + Math.sin(ts / 200 + o.x) * 0.3, fade = Math.min(1, o.life / 40); x.globalAlpha = fade; x.fillStyle = o.gold ? '#ffd23f' : '#5ff4ff'; x.shadowColor = x.fillStyle; x.shadowBlur = 14; x.beginPath(); x.arc(o.x, o.y, 9 * p, 0, 7); x.fill(); }
       x.globalAlpha = 1; x.shadowBlur = 0;
-      pet(E, E.mode === 'listen' ? 'dance' : 'happy', E.W / 2, E.H * 0.26, 110, false);
-      x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = "800 20px 'Barlow Condensed',sans-serif"; x.fillText(E.mode === 'listen' ? 'Listen…' : E.mode === 'play' ? 'Your turn!' : '♪', E.W / 2, E.H * 0.92);
+      // target ring: follows the dot while wiggling, freezes when locked
+      if (E.state === 'wiggle' || E.state === 'locked' || E.state === 'leap') {
+        const t = E.state === 'wiggle' ? { x: E.lx, y: E.ly } : E.lock, locked = E.state !== 'wiggle';
+        x.strokeStyle = locked ? '#ff2050' : 'rgba(255,32,80,.5)'; x.lineWidth = locked ? 3 : 2; x.setLineDash(locked ? [] : [6, 6]);
+        x.beginPath(); x.arc(t.x, t.y, 34 + (locked ? 0 : Math.sin(ts / 60) * 4), 0, 7); x.stroke(); x.setLineDash([]);
+      }
+      // the pet (wiggles before a pounce, blinks while invulnerable)
+      const wig = E.state === 'wiggle' ? Math.sin(ts / 30) * 4 : 0;
+      if (!(E.inv && Math.floor(ts / 90) % 2)) {
+        x.save(); x.translate(wig, 0);
+        pet(E, E.state === 'leap' ? 'jump' : E.state === 'stalk' ? 'chaseball' : 'pounce', E.px, E.py, 120, E.lx < E.px);
+        x.restore();
+      }
+      // the laser and its trail
+      for (const t of E.trail) { x.globalAlpha = t.l * 0.5; x.fillStyle = '#ff2050'; x.beginPath(); x.arc(t.x, t.y, 6 * t.l, 0, 7); x.fill(); }
+      x.globalAlpha = 1; x.shadowColor = '#ff2050'; x.shadowBlur = 22; x.fillStyle = '#ff5070'; x.beginPath(); x.arc(E.lx, E.ly, 8, 0, 7); x.fill(); x.fillStyle = '#fff'; x.beginPath(); x.arc(E.lx, E.ly, 3, 0, 7); x.fill(); x.shadowBlur = 0;
+      timerBar(E, E.time, 90 * SEC, '#ff5070');
+      A().gCombo(E, 86);
+      A().gHint(E, 'Drag the dot · collect light · move when the ring turns solid!', 1 - E.t / (5 * SEC));
     },
-    finish(E) { CP.lang && CP.lang.gain(Math.min(10, E.round), 'echo'); return { score: Math.floor(E.score), coins: Math.floor(E.score / 10), xp: E.round * 6, lines: [`${E.round - 1} songs echoed`] }; },
-    hud(E) { return `Song ${E.round} · ${Math.floor(E.score)} pts`; },
+    finish(E) { const sc = Math.floor(E.score); return { score: sc, coins: Math.floor(sc / 15), xp: Math.floor(sc / 8) + 5, title: E.time <= 0 ? 'Survived the chase!' : undefined, lines: [`${E.dodges + E.near} pounces dodged · ${E.near} close calls`] }; },
+    hud(E) { return `${Math.ceil(Math.max(0, E.time) / SEC)}s · ${Math.floor(E.score)}`; },
   };
 
-  /* ---------- Snack Catch: tilt (or drag) to catch food ---------- */
-  const FOOD = ['🫐', '🌶️', '⭐', '🍙', '🧁'];
-  let tilt = 0; addEventListener('deviceorientation', e => { if (typeof e.gamma === 'number') tilt = Math.max(-1, Math.min(1, e.gamma / 30)); });
-  const SNACK = {
-    init(E) { Object.assign(E, { px: E.W / 2, items: [], st: 30, lives: 3, drag: null, caught: 0, useTilt: false }); E.t0 = performance.now(); },
-    down(E, x) { E.drag = x; }, move(E, x, y, p) { if (p) E.px = x; }, up(E) { E.drag = null; },
-    update(E, dt) {
-      if (Math.abs(tilt) > 0.08) { E.useTilt = true; E.px += tilt * 9 * dt; }
-      E.px = Math.max(40, Math.min(E.W - 40, E.px));
-      E.st -= dt; if (E.st <= 0) { E.st = Math.max(14, 40 - E.t / 50); const bad = Math.random() < 0.18 + E.t / 9000; E.items.push({ x: R(30, E.W - 30), y: -20, v: R(2, 3.2) + E.t / 900, bad, e: bad ? '👾' : A().pick(FOOD) }); }
-      for (const it of E.items) { it.y += it.v * dt; if (!it.done && it.y > E.H * 0.8 - 30 && it.y < E.H * 0.8 + 10 && Math.abs(it.x - E.px) < 50) { it.done = true; if (it.bad) { E.lives--; E.shake = 8; A().SFX.no(); if (E.lives <= 0) A().gEnd(E, false); } else { E.caught++; E.combo++; E.score += 10 * Math.min(5, 1 + Math.floor(E.combo / 4)); A().SFX.munch(); A().gBurst(E, it.x, it.y, 8, '#ffd23f'); } } if (!it.done && it.y > E.H + 20 && !it.bad) { it.done = true; E.combo = 0; } }
-      E.items = E.items.filter(i => !i.done && i.y < E.H + 40);
+  /* =========================================================================================
+     ECHO SONG: your pet sings a tune on four glowing pads; sing it back. Each round adds a note
+     and plays a little faster. A wrong pad costs a life and replays the tune. 3 lives.
+     ========================================================================================= */
+  const PADS = [{ c: '#ff5fb8', f: 523, g: '♡' }, { c: '#5ff4ff', f: 659, g: '✦' }, { c: '#ffd23f', f: 784, g: '☾' }, { c: '#8dff4a', f: 1047, g: '◐' }];
+  const ECHO = {
+    init(E) { Object.assign(E, { lives: 3, seq: [], step: 0, mode: 'wait', wt: 0.8 * SEC, play: null, lit: -1, litT: 0, press: -1, round: 0, best: 0, perfect: 0, mistakes: 0 }); this.add(E); },
+    add(E) { E.seq.push(Math.floor(Math.random() * 4)); E.round = E.seq.length; },
+    /** Schedules the whole tune: one entry per note with its start time. */
+    listen(E) {
+      const gap = Math.max(0.28, 0.6 - E.round * 0.025) * SEC;
+      E.play = { notes: E.seq.map((p, i) => ({ p, at: i * gap, done: false })), t: 0, len: E.seq.length * gap, gap };
+      E.mode = 'listen'; E.step = 0;
     },
-    draw(E) {
-      bg(E, '#16224a', '#0a0d1e'); const x = E.x; x.font = '34px serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
-      for (const it of E.items) x.fillText(it.e, it.x, it.y);
-      pet(E, 'eat', E.px, E.H * 0.8 + 30, 110, false);
-      A().gHint(E, 'Tilt your phone or drag to catch snacks', 1 - E.t / 240); A().gCombo(E);
+    geo(E) {
+      const s = Math.min(E.W * 0.42, E.H * 0.25), cx = E.W / 2, cy = E.H * 0.6;
+      return PADS.map((_, i) => ({ x: cx + (i % 2 ? 0.55 : -0.55) * s, y: cy + (i < 2 ? -0.55 : 0.55) * s, r: s * 0.47 }));
     },
-    finish(E) { const S = CP.S(); S.energy = A().clamp(S.energy + Math.min(15, E.caught)); return { score: Math.floor(E.score), coins: Math.floor(E.score / 12), xp: Math.floor(E.score / 7) + 4, lines: [`${E.caught} snacks caught · +${Math.min(15, E.caught)} energy`] }; },
-  };
-
-  /* ---------- Bubble Pop: beat the pet to the holo-bubbles ---------- */
-  const BUBBLE = {
-    init(E) { Object.assign(E, { bubbles: [], bt: 0, px: E.W / 2, py: E.H * 0.8, goal: null, mine: 0, its: 0, time: 45 * 60 }); },
+    flash(E, i, len) { E.lit = i; E.litT = len; tone(PADS[i].f, len / SEC * 0.9, 0, 'triangle', 0.07); },
     down(E, x, y) {
-      for (const b of E.bubbles) if (!b.pop && Math.hypot(x - b.x, y - b.y) < b.r + 10) { b.pop = 1; const pts = b.gold ? 50 : 10; E.score += pts; E.mine++; A().tone(b.gold ? 1600 : 900 + Math.random() * 300, 0.06); A().gBurst(E, b.x, b.y, b.gold ? 18 : 8, b.gold ? '#ffd23f' : '#5ff4ff'); A().gText(E, b.x, b.y, '+' + pts, '#fff', 20); return; }
+      if (E.mode !== 'input') return;
+      const i = this.geo(E).findIndex(p => Math.abs(x - p.x) < p.r && Math.abs(y - p.y) < p.r); if (i < 0) return;
+      this.flash(E, i, 0.22 * SEC); E.press = i;
+      const a = A();
+      if (i === E.seq[E.step]) {
+        E.step++;
+        if (E.step >= E.seq.length) {
+          E.score += E.seq.length * 20 + (E.roundMiss ? 0 : 10); if (!E.roundMiss) E.perfect++;
+          E.combo++; E.best = Math.max(E.best, E.seq.length);
+          a.gText(E, E.W / 2, E.H * 0.3, ['In tune!', 'Duet!', 'Perfect pitch!', 'Encore!'][E.round % 4], '#8dff4a', 30);
+          a.gBurst(E, E.W / 2, E.H * 0.3, 16, PADS.map(p => p.c));
+          if (E.seq.length >= 20) { E.score += 300; E.maestro = true; a.gEnd(E, false); return; }
+          E.mode = 'wait'; E.wt = 0.9 * SEC; E.roundMiss = false; this.add(E);
+        }
+      } else {
+        E.lives--; E.combo = 0; E.mistakes++; E.roundMiss = true; E.shake = 6; E.flash = 10; a.SFX.no();
+        a.gText(E, E.W / 2, E.H * 0.3, 'Oops! Listen again', '#ff4f7a', 26);
+        if (E.lives <= 0) { a.gEnd(E, false); return; }
+        E.mode = 'wait'; E.wt = 1 * SEC;
+      }
     },
     update(E, dt) {
-      E.time -= dt; if (E.time <= 0) { A().gEnd(E, false); return; }
-      E.bt -= dt; if (E.bt <= 0) { E.bt = R(16, 34); E.bubbles.push({ x: R(30, E.W - 30), y: E.H + 20, r: R(16, 28), v: R(0.8, 1.6), gold: Math.random() < 0.08, w: Math.random() * 6 }); }
-      for (const b of E.bubbles) { b.y -= b.v * dt; b.x += Math.sin(E.t / 30 + b.w) * 0.4; }
-      if (!E.goal || E.goal.pop) E.goal = E.bubbles.filter(b => !b.pop && b.y < E.H * 0.85).sort((a, b) => Math.hypot(a.x - E.px, a.y - E.py) - Math.hypot(b.x - E.px, b.y - E.py))[0] || null;
-      if (E.goal) { E.px += (E.goal.x - E.px) * 0.025 * dt; E.py += (E.goal.y + 40 - E.py) * 0.025 * dt; if (Math.hypot(E.goal.x - E.px, E.goal.y - E.py + 40) < 30) { E.goal.pop = 1; E.its++; A().tone(400, 0.05); } }
-      E.bubbles = E.bubbles.filter(b => !b.pop && b.y > -40);
+      E.litT = Math.max(0, E.litT - dt); if (!E.litT) E.lit = -1;
+      if (E.mode === 'wait') { E.wt -= dt; if (E.wt <= 0) this.listen(E); return; }
+      if (E.mode === 'listen') {
+        const P = E.play; P.t += dt;
+        for (const n of P.notes) if (!n.done && P.t >= n.at) { n.done = true; this.flash(E, n.p, P.gap * 0.7); }
+        if (P.t >= P.len + 0.15 * SEC) { E.mode = 'input'; E.step = 0; }
+      }
     },
-    draw(E) {
-      bg(E, '#0f2a3a', '#06121b'); const x = E.x;
-      for (const b of E.bubbles) { x.strokeStyle = b.gold ? '#ffd23f' : '#9ff4ff'; x.lineWidth = 2; x.fillStyle = b.gold ? 'rgba(255,210,63,.18)' : 'rgba(95,244,255,.12)'; x.beginPath(); x.arc(b.x, b.y, b.r, 0, 7); x.fill(); x.stroke(); x.fillStyle = 'rgba(255,255,255,.5)'; x.beginPath(); x.arc(b.x - b.r * 0.35, b.y - b.r * 0.35, b.r * 0.2, 0, 7); x.fill(); }
-      pet(E, 'chaseball', E.px, E.py, 100, E.goal && E.goal.x < E.px);
-      x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = "800 18px 'Barlow Condensed',sans-serif"; x.fillText(`You ${E.mine} · ${CP.S().name} ${E.its} · ${Math.ceil(E.time / 60)}s`, E.W / 2, E.H * 0.95);
+    draw(E, dt, ts) {
+      bg(E, '#14102e', '#07060f', true); const x = E.x;
+      const listening = E.mode === 'listen';
+      pet(E, listening ? 'dance' : E.mode === 'input' ? 'curious' : 'happy', E.W / 2, E.H * 0.33, Math.min(130, E.H * 0.18), false);
+      if (listening && E.lit >= 0) label(E, '♪', E.W / 2 + 46 + Math.sin(ts / 90) * 4, E.H * 0.16, 30, PADS[E.lit].c);
+      this.geo(E).forEach((p, i) => {
+        const on = E.lit === i, k = on ? 1 : 0.32;
+        x.globalAlpha = k; x.fillStyle = PADS[i].c; x.shadowColor = PADS[i].c; x.shadowBlur = on ? 36 : 0;
+        x.beginPath(); x.roundRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2, 22); x.fill();
+        x.shadowBlur = 0; x.globalAlpha = on ? 1 : 0.7; label(E, PADS[i].g, p.x, p.y, p.r * 0.7, on ? '#0c0a1f' : '#fff');
+      });
+      x.globalAlpha = 1;
+      // progress dots for the current tune
+      const n = E.seq.length, gap = Math.min(18, (E.W - 40) / Math.max(1, n));
+      for (let i = 0; i < n; i++) { x.fillStyle = E.mode === 'input' && i < E.step ? '#8dff4a' : 'rgba(255,255,255,.25)'; x.beginPath(); x.arc(E.W / 2 - ((n - 1) * gap) / 2 + i * gap, E.H * 0.4, 4, 0, 7); x.fill(); }
+      label(E, listening ? 'Listen…' : E.mode === 'input' ? 'Your turn!' : `Tune ${E.round}`, E.W / 2, E.H * 0.92, 24);
     },
-    finish(E) { const win = E.mine > E.its; return { score: Math.floor(E.score), coins: Math.floor(E.score / 10) + (win ? 10 : 0), xp: Math.floor(E.score / 6) + 5, title: win ? 'You out-popped it!' : 'It was faster!', lines: [`You ${E.mine} – ${E.its} ${CP.S().name}`] }; },
-    hud(E) { return Math.floor(E.score) + ' pts'; },
+    finish(E) {
+      const tunes = Math.max(0, E.best);
+      CP.lang && CP.lang.gain(Math.min(12, tunes * 2), 'echo');
+      return { score: Math.floor(E.score), coins: Math.floor(E.score / 10), xp: tunes * 8 + 4, title: E.maestro ? 'Maestro! 20-note duet' : undefined, lines: [`Longest tune: ${tunes} notes · ${E.perfect} perfect`] };
+    },
+    hud(E) { return `Tune ${E.round} · ${Math.floor(E.score)} pts`; },
   };
 
-  /* ---------- Word Match: which word is the pet trying to say? ---------- */
-  const DEFAULT_WORDS = ['olá', 'comer', 'brincar', 'dormir', 'amigo', 'estrela', 'peixe', 'bola', 'lua', 'sol', 'gato', 'casa'];
+  /* =========================================================================================
+     SNACK CATCH: slide your finger to move your pet (or tilt, on phones that allow it) and
+     catch falling snacks in its mouth. Golden stars are worth 5×, hearts give a life back,
+     glitch bugs cost a life. 60 seconds.
+     ========================================================================================= */
+  const FOOD = ['🫐', '🍙', '🧁', '🍓', '🐟', '🌶️'];
+  let tilt = null, tilt0 = null;
+  addEventListener('deviceorientation', e => {
+    if (typeof e.gamma !== 'number') return;
+    if (tilt0 === null) tilt0 = e.gamma;
+    tilt = clampN((e.gamma - tilt0) / 25, -1, 1);
+  });
+  const SNACK = {
+    init(E) {
+      tilt0 = null; // re-centre tilt on the way the phone is held now
+      Object.assign(E, { lives: 3, px: E.W / 2, tx: E.W / 2, items: [], st: 0.6 * SEC, time: 60 * SEC, caught: 0, stars: 0, chew: 0, finger: false, misses: 0 });
+    },
+    down(E, x) { E.finger = true; E.tx = clampN(x, 40, E.W - 40); },
+    move(E, x, y, p) { if (p) E.tx = clampN(x, 40, E.W - 40); },
+    up(E) { E.finger = false; },
+    mouthY: E => E.H * 0.88 - 62,
+    update(E, dt) {
+      const a = A();
+      E.time -= dt; if (E.time <= 0) { a.gEnd(E, false); return; }
+      if (!E.finger && tilt !== null && Math.abs(tilt) > 0.12) E.tx = clampN(E.tx + tilt * 10 * dt, 40, E.W - 40);
+      E.px += (E.tx - E.px) * Math.min(1, 0.25 * dt);
+      E.chew = Math.max(0, E.chew - dt);
+      const lv = Math.min(1, E.t / (50 * SEC));
+      E.st -= dt;
+      if (E.st <= 0) {
+        E.st = (0.75 - lv * 0.4) * SEC * R(0.7, 1.3);
+        const r = Math.random(), kind = r < 0.16 + lv * 0.14 ? 'bug' : r < 0.22 + lv * 0.14 ? 'star' : r < 0.24 + lv * 0.14 && E.lives < 3 ? 'heart' : 'food';
+        E.items.push({ x: R(30, E.W - 30), y: -24, v: R(2.2, 3) + lv * 2.4, kind, e: kind === 'bug' ? '👾' : kind === 'star' ? '⭐' : kind === 'heart' ? '💗' : a.pick(FOOD), spin: R(-0.05, 0.05), r: 0 });
+      }
+      const my = this.mouthY(E);
+      for (const it of E.items) {
+        const prev = it.y; it.y += it.v * dt; it.r += it.spin * dt;
+        if (!it.done && prev < my && it.y >= my - 4 && Math.abs(it.x - E.px) < 46) {
+          it.done = true;
+          if (it.kind === 'bug') { E.lives--; E.combo = 0; E.shake = 8; E.flash = 12; a.SFX.no(); a.gText(E, it.x, my - 30, 'Glitch!', '#ff4f7a'); if (E.lives <= 0) { a.gEnd(E, false); return; } }
+          else if (it.kind === 'heart') { E.lives = Math.min(3, E.lives + 1); a.gText(E, it.x, my - 30, '+1 ❤️', '#ff9fd2'); tone(880, 0.12); }
+          else {
+            const pts = it.kind === 'star' ? 50 : 10; E.combo++; if (it.kind === 'star') E.stars++; else E.caught++;
+            const mult = Math.min(4, 1 + Math.floor(E.combo / 6)); E.score += pts * mult; E.chew = 0.35 * SEC;
+            a.gBurst(E, it.x, my, it.kind === 'star' ? 16 : 7, it.kind === 'star' ? '#ffd23f' : '#ffffff'); a.gText(E, it.x, my - 30, `+${pts * mult}`, it.kind === 'star' ? '#ffd23f' : '#fff', 22);
+            try { a.SFX.munch(); } catch (e) { tone(300, 0.05); }
+          }
+        }
+        if (!it.done && it.y > E.H + 30) { it.done = true; if (it.kind === 'food' || it.kind === 'star') { E.combo = 0; E.misses++; } }
+      }
+      E.items = E.items.filter(i => !i.done);
+    },
+    draw(E) {
+      bg(E, '#16224a', '#0a0d1e', true); const x = E.x;
+      x.fillStyle = 'rgba(255,255,255,.05)'; x.fillRect(0, E.H * 0.88, E.W, E.H * 0.12);
+      x.textAlign = 'center'; x.textBaseline = 'middle';
+      for (const it of E.items) { x.save(); x.translate(it.x, it.y); x.rotate(it.r); x.font = '34px serif'; x.fillText(it.e, 0, 0); x.restore(); }
+      pet(E, E.chew ? 'eat' : 'happy', E.px, E.H * 0.88, 100, E.tx < E.px - 4);
+      timerBar(E, E.time, 60 * SEC);
+      A().gCombo(E, 86);
+      A().gHint(E, tilt !== null ? 'Slide your finger or tilt the phone' : 'Slide your finger to move', 1 - E.t / (5 * SEC));
+    },
+    finish(E) {
+      const S = CP.S(), gain = Math.min(15, E.caught + E.stars * 2); S.energy = A().clamp(S.energy + gain);
+      return { score: Math.floor(E.score), coins: Math.floor(E.score / 12), xp: Math.floor(E.score / 7) + 4, lines: [`${E.caught} snacks · ${E.stars} stars · +${gain} energy`] };
+    },
+    hud(E) { return `${Math.ceil(E.time / SEC)}s · ${Math.floor(E.score)}`; },
+  };
+
+  /* =========================================================================================
+     BUBBLE POP: race your pet to the holo-bubbles. Gold bubbles are worth 5×. Don't tap the
+     glitch bubbles (−20), but if your pet pops one it gets dizzy for a moment. 45 seconds.
+     ========================================================================================= */
+  const BUBBLE = {
+    init(E) { Object.assign(E, { bubbles: [], bt: 0.3 * SEC, px: E.W / 2, py: E.H * 0.75, goal: null, think: 0.8 * SEC, dizzy: 0, mine: 0, its: 0, time: 45 * SEC, lastPop: -99 }); },
+    down(E, x, y) {
+      const a = A();
+      let hit = null, best = 1e9;
+      for (const b of E.bubbles) { const d = Math.hypot(x - b.x, y - b.y); if (!b.pop && d < b.r + 14 && d < best) { best = d; hit = b; } }
+      if (!hit) return;
+      hit.pop = true;
+      if (hit.kind === 'glitch') { E.score = Math.max(0, E.score - 20); E.combo = 0; E.shake = 6; a.SFX.no(); a.gText(E, hit.x, hit.y, '−20', '#ff4f7a', 24); a.gBurst(E, hit.x, hit.y, 10, '#b06bff'); return; }
+      const quick = E.t - E.lastPop < 0.7 * SEC; E.lastPop = E.t; E.combo = quick ? E.combo + 1 : 1;
+      const pts = (hit.kind === 'gold' ? 50 : 10) * Math.min(4, 1 + Math.floor(E.combo / 4)); E.score += pts; E.mine++;
+      tone(hit.kind === 'gold' ? 1568 : 880 + Math.min(10, E.combo) * 40, 0.06);
+      a.gBurst(E, hit.x, hit.y, hit.kind === 'gold' ? 18 : 9, hit.kind === 'gold' ? '#ffd23f' : '#9ff4ff'); a.gText(E, hit.x, hit.y, '+' + pts, '#fff', 20);
+    },
+    update(E, dt) {
+      const a = A();
+      E.time -= dt; if (E.time <= 0) { a.gEnd(E, false); return; }
+      const lv = Math.min(1, E.t / (40 * SEC));
+      E.bt -= dt;
+      if (E.bt <= 0) {
+        E.bt = R(0.35, 0.8) * SEC * (1 - lv * 0.3);
+        const r = Math.random();
+        E.bubbles.push({ x: R(34, E.W - 34), y: E.H + 30, r: R(18, 30), v: R(0.9, 1.5) + lv * 0.8, kind: r < 0.08 ? 'gold' : r < 0.2 ? 'glitch' : 'plain', w: Math.random() * 6 });
+      }
+      for (const b of E.bubbles) { b.y -= b.v * dt; b.x += Math.sin(E.t / 30 + b.w) * 0.35 * dt; }
+      // the pet: picks a bubble in the top two thirds, thinks a moment, floats over and pops it
+      E.dizzy = Math.max(0, E.dizzy - dt);
+      if (!E.dizzy) {
+        if (!E.goal || E.goal.pop || E.goal.y < 40) {
+          E.goal = null; E.think -= dt;
+          if (E.think <= 0) {
+            const opts = E.bubbles.filter(b => !b.pop && b.y < E.H * 0.7 && b.y > 80);
+            opts.sort((p, q) => (q.kind === 'gold') - (p.kind === 'gold') || Math.hypot(p.x - E.px, p.y - E.py) - Math.hypot(q.x - E.px, q.y - E.py));
+            E.goal = opts[0] || null; E.think = (0.55 - lv * 0.25) * SEC;
+          }
+        } else {
+          const sp = (2.2 + lv * 1.6) * dt, gx = E.goal.x, gy = E.goal.y + 50, d = Math.hypot(gx - E.px, gy - E.py) || 1;
+          E.px += ((gx - E.px) / d) * Math.min(sp, d); E.py += ((gy - E.py) / d) * Math.min(sp, d);
+          if (d < 20) {
+            E.goal.pop = true; const g = E.goal; E.goal = null;
+            if (g.kind === 'glitch') { E.dizzy = 2 * SEC; a.gText(E, g.x, g.y, 'Dizzy!', '#b06bff', 22); a.gBurst(E, g.x, g.y, 10, '#b06bff'); tone(220, 0.2, 0, 'sawtooth', 0.03); }
+            else { E.its++; tone(440, 0.05); a.gBurst(E, g.x, g.y, 6, '#ff9fd2'); }
+          }
+        }
+      }
+      E.bubbles = E.bubbles.filter(b => !b.pop && b.y > -50);
+    },
+    draw(E, dt, ts) {
+      bg(E, '#0f2a3a', '#06121b', false); const x = E.x;
+      for (const b of E.bubbles) {
+        const col = b.kind === 'gold' ? '#ffd23f' : b.kind === 'glitch' ? '#b06bff' : '#9ff4ff';
+        x.strokeStyle = col; x.lineWidth = 2; x.fillStyle = col + '22'; x.beginPath(); x.arc(b.x, b.y, b.r, 0, 7); x.fill(); x.stroke();
+        x.fillStyle = 'rgba(255,255,255,.5)'; x.beginPath(); x.arc(b.x - b.r * 0.35, b.y - b.r * 0.35, b.r * 0.2, 0, 7); x.fill();
+        if (b.kind === 'glitch') { x.font = `${b.r}px serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('👾', b.x, b.y + 1); }
+      }
+      x.save(); if (E.dizzy) { x.translate(E.px, E.py - 50); x.rotate(Math.sin(ts / 80) * 0.3); x.translate(-E.px, -(E.py - 50)); }
+      pet(E, E.dizzy ? 'refuse' : 'chaseball', E.px, E.py, 96, E.goal && E.goal.x < E.px);
+      x.restore();
+      if (E.dizzy) label(E, '💫', E.px, E.py - 110, 24);
+      // score race bar
+      const tot = Math.max(1, E.mine + E.its), w = E.W - 28;
+      x.fillStyle = '#5ff4ff'; x.fillRect(14, 62, w * (E.mine / tot), 8); x.fillStyle = '#ff9fd2'; x.fillRect(14 + w * (E.mine / tot), 62, w * (E.its / tot), 8);
+      label(E, `You ${E.mine}`, 16, 82, 16, '#5ff4ff', 'left'); label(E, `${CP.S().name} ${E.its}`, E.W - 16, 82, 16, '#ff9fd2', 'right');
+      timerBar(E, E.time, 45 * SEC);
+      A().gHint(E, 'Pop bubbles before your pet does · avoid 👾', 1 - E.t / (5 * SEC));
+    },
+    finish(E) {
+      const win = E.mine > E.its, sc = Math.floor(E.score);
+      return { score: sc, coins: Math.floor(sc / 10) + (win ? 10 : 0), xp: Math.floor(sc / 6) + 5, title: win ? 'You out-popped it!' : E.mine === E.its ? 'A tie!' : 'It was faster!', lines: [`You ${E.mine} – ${E.its} ${CP.S().name}`] };
+    },
+    hud(E) { return `${Math.ceil(E.time / SEC)}s · ${Math.floor(E.score)}`; },
+  };
+
+  /* =========================================================================================
+     WORD MATCH: your pet thinks of something (the picture in its bubble) and tries to say the
+     word. Pick the right word to teach it. Fast answers score more; every right answer
+     strengthens that word in its vocabulary. 10 rounds.
+     ========================================================================================= */
+  const DICT = {
+    pt: [['comer', '🍙'], ['brincar', '⚽'], ['dormir', '😴'], ['água', '💧'], ['bola', '🏀'], ['lua', '🌙'], ['sol', '☀️'], ['peixe', '🐟'], ['estrela', '⭐'], ['flor', '🌸'], ['casa', '🏠'], ['amor', '💗'], ['música', '🎵'], ['chuva', '🌧️'], ['bolo', '🎂'], ['gato', '🐱']],
+    en: [['food', '🍙'], ['play', '⚽'], ['sleep', '😴'], ['water', '💧'], ['ball', '🏀'], ['moon', '🌙'], ['sun', '☀️'], ['fish', '🐟'], ['star', '⭐'], ['flower', '🌸'], ['home', '🏠'], ['love', '💗'], ['music', '🎵'], ['rain', '🌧️'], ['cake', '🎂'], ['cat', '🐱']],
+  };
+  const ROUND_T = 7 * SEC;
+  /** A pet-like attempt at a word: the first syllable clear, the rest softened. Always readable as a hint. */
+  function attempt(word) {
+    const w = word.toLowerCase(), cut = Math.max(2, Math.ceil(w.length * 0.5));
+    const tail = w.slice(cut).replace(/[aeiouáéíóúãõ]/g, 'u').replace(/[^a-zu]/g, '');
+    return w.slice(0, cut) + (tail ? '-' + tail.slice(0, 3) : '') + '?';
+  }
   const WORDS = {
     init(E) {
-      const l = CP.lang && CP.lang.state(), mine = l ? Object.keys(l.vocab) : [];
-      E.pool = [...new Set([...mine, ...DEFAULT_WORDS])]; Object.assign(E, { q: 0, total: 10, wait: 0, opts: [], pick: -1 }); this.ask(E);
+      const lang = (navigator.language || 'pt').toLowerCase().startsWith('pt') ? 'pt' : 'en';
+      E.dict = DICT[lang].slice().sort(() => Math.random() - 0.5);
+      Object.assign(E, { q: 0, total: 10, wait: 0, opts: [], pick: -1, rt: ROUND_T, right: 0, fast: 0 });
+      this.ask(E);
     },
     ask(E) {
-      const a = A(), w = a.pick(E.pool), others = E.pool.filter(x => x !== w).sort(() => Math.random() - 0.5).slice(0, 2);
-      E.word = w; E.opts = [w, ...others].sort(() => Math.random() - 0.5); E.pick = -1; E.wait = 0;
-      E.said = CP.lang ? CP.lang.garble(w, 0.45) : w; E.q++;
+      const pair = E.dict[E.q % E.dict.length], others = E.dict.filter(p => p[0] !== pair[0]).sort(() => Math.random() - 0.5).slice(0, 2);
+      E.word = pair[0]; E.emoji = pair[1]; E.opts = [pair, ...others].map(p => p[0]).sort(() => Math.random() - 0.5);
+      E.pick = -1; E.wait = 0; E.rt = ROUND_T; E.said = attempt(pair[0]); E.q++;
+      tone(700, 0.06); tone(900, 0.06, 0.08);
     },
+    rows(E) { const top = E.H * 0.56, h = Math.min(62, (E.H * 0.36) / 3); return E.opts.map((o, i) => ({ y: top + i * (h + 10), h })); },
     down(E, x, y) {
-      if (E.pick >= 0) return; const i = Math.floor((y - E.H * 0.55) / 64); if (i < 0 || i > 2) return;
-      E.pick = i; const ok = E.opts[i] === E.word;
-      if (ok) { E.score += 100; E.combo++; A().SFX.ok(); const l = CP.lang && CP.lang.state(); if (l && l.vocab[E.word]) l.vocab[E.word].s = Math.min(1, l.vocab[E.word].s + 0.05); }
-      else { E.combo = 0; A().SFX.no(); E.shake = 4; }
+      if (E.pick >= 0) return;
+      const i = this.rows(E).findIndex(r => y >= r.y && y <= r.y + r.h && x > 20 && x < E.W - 20); if (i < 0) return;
+      this.answer(E, i);
     },
-    update(E, dt) { if (E.pick >= 0) { E.wait += dt; if (E.wait > 50) { if (E.q >= E.total) A().gEnd(E, false); else this.ask(E); } } },
-    draw(E) {
-      bg(E, '#221338', '#0b0716'); const x = E.x;
-      pet(E, 'think', E.W / 2, E.H * 0.36, 130, false);
-      x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = "italic 800 34px 'Barlow Condensed',sans-serif"; x.fillText('“' + E.said + '”', E.W / 2, E.H * 0.46);
-      E.opts.forEach((o, i) => { const y = E.H * 0.55 + i * 64; const ok = E.pick >= 0 && o === E.word, bad = E.pick === i && !ok; x.fillStyle = ok ? 'rgba(141,255,74,.35)' : bad ? 'rgba(255,79,122,.35)' : 'rgba(255,255,255,.1)'; x.beginPath(); x.roundRect(24, y, E.W - 48, 54, 14); x.fill(); x.fillStyle = '#fff'; x.font = "800 24px 'Barlow Condensed',sans-serif"; x.fillText(o, E.W / 2, y + 35); });
+    answer(E, i) {
+      const a = A(); E.pick = i; const ok = i >= 0 && E.opts[i] === E.word;
+      if (ok) {
+        const speed = E.rt / ROUND_T, pts = 50 + Math.round(speed * 50); E.score += pts; E.right++; E.combo++; if (speed > 0.6) E.fast++;
+        a.SFX.ok(); a.gText(E, E.W / 2, E.H * 0.47, '+' + pts, '#8dff4a', 28); a.gBurst(E, E.W / 2, E.H * 0.3, 14, ['#8dff4a', '#5ff4ff']);
+        const l = CP.lang && CP.lang.state();
+        if (l) { const v = l.vocab[E.word] = l.vocab[E.word] || { s: 0, n: 0, t: Date.now() }; v.s = Math.min(1, v.s + 0.1); v.n++; v.t = Date.now(); }
+      } else { E.combo = 0; a.SFX.no(); E.shake = 4; }
     },
-    finish(E) { CP.lang && CP.lang.gain(Math.floor(E.score / 100), 'words'); return { score: Math.floor(E.score), coins: Math.floor(E.score / 20), xp: Math.floor(E.score / 10), lines: [`${Math.floor(E.score / 100)} of ${E.total} understood`] }; },
-    hud(E) { return `${E.q}/${E.total} · ${E.score}`; },
+    update(E, dt) {
+      if (E.pick < 0) { E.rt -= dt; if (E.rt <= 0) this.answer(E, -1); return; }
+      E.wait += dt; if (E.wait > 1.1 * SEC) { if (E.q >= E.total) A().gEnd(E, false); else this.ask(E); }
+    },
+    draw(E, dt, ts) {
+      bg(E, '#221338', '#0b0716', true); const x = E.x;
+      // thought bubble with what it wants
+      const bx = E.W / 2 + 70, by = E.H * 0.17;
+      x.fillStyle = 'rgba(255,255,255,.92)'; x.beginPath(); x.ellipse(bx, by, 46, 38, 0, 0, 7); x.fill();
+      x.beginPath(); x.arc(bx - 40, by + 40, 8, 0, 7); x.fill(); x.beginPath(); x.arc(bx - 54, by + 56, 5, 0, 7); x.fill();
+      x.font = '40px serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(E.emoji, bx, by + 2 + Math.sin(ts / 300) * 2);
+      pet(E, E.pick < 0 ? 'think' : E.opts[E.pick] === E.word ? 'happy' : 'curious', E.W / 2 - 30, E.H * 0.42, Math.min(140, E.H * 0.2), false);
+      label(E, '“' + E.said + '”', E.W / 2, E.H * 0.48, 30, '#ffd6f2');
+      this.rows(E).forEach((r, i) => {
+        const o = E.opts[i], show = E.pick >= 0, ok = show && o === E.word, bad = show && E.pick === i && !ok;
+        x.fillStyle = ok ? 'rgba(141,255,74,.35)' : bad ? 'rgba(255,79,122,.35)' : 'rgba(255,255,255,.1)';
+        x.beginPath(); x.roundRect(24, r.y, E.W - 48, r.h, 14); x.fill();
+        label(E, o, E.W / 2, r.y + r.h / 2, 26);
+      });
+      if (E.pick < 0) timerBar(E, E.rt, ROUND_T, '#ffd23f');
+      label(E, `${E.q}/${E.total}`, 16, 76, 18, '#fff', 'left');
+    },
+    finish(E) {
+      CP.lang && CP.lang.gain(E.right, 'words');
+      return { score: Math.floor(E.score), coins: Math.floor(E.score / 20), xp: E.right * 6 + 4, lines: [`${E.right} of ${E.total} words taught · ${E.fast} quick answers`] };
+    },
+    hud(E) { return `${E.q}/${E.total} · ${Math.floor(E.score)}`; },
   };
 
   CP.on('start', () => {
     const a = A();
     Object.assign(a.GAMES2, {
-      laser: { n: 'Laser Chase', d: 'Drag the laser dot. Your Cyberpet pounces: dodge at the last second!', pose: 'chaseball', bg: 'linear-gradient(135deg,#ff2050,#7a1fd0)', stars: [150, 400, 800], trait: 'instinct', rw: '⚡ XP · Instinct' },
-      echo: { n: 'Echo Song', d: 'Your Cyberpet sings a tune. Sing it back on the pads. Helps it learn to talk.', pose: 'dance', bg: 'linear-gradient(135deg,#ff5fb8,#ffd23f)', stars: [100, 300, 600], trait: 'cosmic', rw: '🗣️ Language XP', train: 1 },
-      snack: { n: 'Snack Catch', d: 'Tilt your phone (or drag) to catch falling snacks. Dodge the glitch bugs.', pose: 'eat', bg: 'linear-gradient(135deg,#3f8cff,#8dff4a)', stars: [150, 400, 800], trait: 'nature', rw: '⚡ XP · 🍴 Energy' },
-      bubble: { n: 'Bubble Pop', d: 'Pop the holo-bubbles before your Cyberpet does. Gold ones are worth 5×.', pose: 'chaseball', bg: 'linear-gradient(135deg,#1fd0ff,#1fae8c)', stars: [200, 500, 900], trait: 'tech', rw: '⚡ XP · Tech' },
-      words: { n: 'Word Match', d: 'Which word is your Cyberpet trying to say? Uses the words you taught it.', pose: 'think', bg: 'linear-gradient(135deg,#b06bff,#ff5fb8)', stars: [400, 700, 900], trait: 'cosmic', rw: '🗣️ Language XP', train: 1 },
+      laser: { n: 'Laser Chase', d: 'Drag the laser dot and sweep up light. When the ring turns solid, move: your Cyberpet pounces!', pose: 'chaseball', bg: 'linear-gradient(135deg,#ff2050,#7a1fd0)', stars: [400, 900, 1500], trait: 'instinct', rw: '⚡ XP · Instinct' },
+      echo: { n: 'Echo Song', d: 'Your Cyberpet sings a tune on four pads. Sing it back, one more note each round. Helps it learn to talk.', pose: 'dance', bg: 'linear-gradient(135deg,#ff5fb8,#ffd23f)', stars: [150, 450, 900], trait: 'cosmic', rw: '🗣️ Language XP', train: 1 },
+      snack: { n: 'Snack Catch', d: 'Slide to catch falling snacks in its mouth. Stars are 5×, hearts heal, glitch bugs hurt. 60 seconds.', pose: 'eat', bg: 'linear-gradient(135deg,#3f8cff,#8dff4a)', stars: [300, 700, 1300], trait: 'nature', rw: '⚡ XP · 🍴 Energy' },
+      bubble: { n: 'Bubble Pop', d: 'Race your Cyberpet to the holo-bubbles. Gold is 5×. Leave the 👾 bubbles for your pet: they make it dizzy.', pose: 'chaseball', bg: 'linear-gradient(135deg,#1fd0ff,#1fae8c)', stars: [250, 550, 950], trait: 'tech', rw: '⚡ XP · Tech' },
+      words: { n: 'Word Match', d: 'Your Cyberpet thinks of something and tries to say it. Pick the right word to teach it.', pose: 'think', bg: 'linear-gradient(135deg,#b06bff,#ff5fb8)', stars: [500, 750, 920], trait: 'cosmic', rw: '🗣️ Language XP', train: 1 },
     });
     Object.assign(a.GAMEOBJ, { laser: LASER, echo: ECHO, snack: SNACK, bubble: BUBBLE, words: WORDS });
     for (const id of ['laser', 'snack', 'bubble', 'echo', 'words']) if (!a.ROT_POOL.includes(id)) a.ROT_POOL.push(id);
     for (const id of ['echo', 'words']) if (!a.TRAIN_POOL.includes(id)) a.TRAIN_POOL.push(id);
     try { a.renderPlay(); } catch (e) { /* not on play */ }
   });
+  CP.games = { LASER, ECHO, SNACK, BUBBLE, WORDS, attempt };
 })();
