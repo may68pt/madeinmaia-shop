@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>CyberPet rig preview</title>
+<style>
+  body{margin:0;background:radial-gradient(120% 90% at 50% 30%,#1b1640,#07060f);color:#fff;font:15px system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+  h1{font-size:18px;margin:16px 0 4px}p{color:#fff9;margin:0 0 10px;text-align:center;max-width:520px;padding:0 12px}
+  canvas{width:min(92vw,420px);height:min(115vw,525px);border-radius:18px;background:#ffffff08}
+  .row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px;max-width:560px}
+  button{background:#ffffff14;border:1px solid #fff3;color:#fff;border-radius:99px;padding:6px 12px;font-weight:700}
+  button.on{background:#5ff4ff;color:#000}
+  label{display:inline-flex;gap:6px;align-items:center;color:#fff9}
+</style>
+</head>
+<body>
+<h1>CyberPet mesh-deform rig</h1>
+<p>One set of animations, many skins. Every variant below plays the same bone motion; switching skin only swaps the texture.</p>
+<canvas id="cv" width="840" height="1050"></canvas>
+<div class="row" id="anims"></div>
+<div class="row" id="skins"></div>
+<div class="row"><label><input type="checkbox" id="cpu"> force Canvas 2D</label><span id="info" style="color:#fff7"></span></div>
+<script src="x/rig.js"></script>
+<script>
+(() => {
+  const cv = document.getElementById('cv'), VARS = ['core', 'aqua', 'ignis', 'terra', 'lumen', 'umbra', 'void', 'aurora'];
+  let rig = null, live = null, skin = 'core', anim = 'idle';
+  const load = v => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = `a/v_${v}.webp`; });
+  async function start() {
+    const img = await load(skin);
+    if (!rig) rig = CP.rig.auto(img);
+    const fresh = cv.cloneNode(); cv.replaceWith(fresh); fresh.id = 'cv';
+    live = CP.rig.create(document.getElementById('cv'), rig, img, { anim, webgl: !document.getElementById('cpu').checked });
+    document.getElementById('info').textContent = 'renderer: ' + live.renderer;
+  }
+  Object.keys(CP.rig.ANIMS).forEach(a => { const b = document.createElement('button'); b.textContent = a; b.onclick = () => { anim = a; live.play(a); document.querySelectorAll('#anims button').forEach(x => x.classList.toggle('on', x === b)); }; if (a === anim) b.classList.add('on'); document.getElementById('anims').appendChild(b); });
+  VARS.forEach(v => { const b = document.createElement('button'); b.textContent = v; b.onclick = async () => { skin = v; live.setSkin(await load(v)); document.querySelectorAll('#skins button').forEach(x => x.classList.toggle('on', x === b)); }; if (v === skin) b.classList.add('on'); document.getElementById('skins').appendChild(b); });
+  document.getElementById('cpu').onchange = start;
+  const loop = () => {
+    if (live) {
+      live.render();
+    }
+    requestAnimationFrame(loop);
+  };
+  start().then(loop);
+})();
+</script>
+</body>
+</html>

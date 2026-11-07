@@ -139,7 +139,8 @@
     const h = H * (0.55 + 1.05 * st.near) * (1 + Math.sin(st.bob) * 0.012);
     const cx = W / 2 + st.look.x * 40, by = H * (0.78 + 0.5 * st.near) + st.look.y * 20;
     px.save(); px.translate(cx, by); px.scale(1 + st.squash * 0.08, 1 - st.squash * 0.1); px.translate(-cx, -by);
-    if (art) { const s = h / art.height; px.drawImage(art, cx - art.width * s / 2, by - h, art.width * s, h); }
+    if (CP.glass.customDraw && CP.glass.customDraw(px, cx, by, h, st)) { /* mesh-deform rig (block 16) */ }
+    else if (art) { const s = h / art.height; px.drawImage(art, cx - art.width * s / 2, by - h, art.width * s, h); }
     else {
       const role = S.asleep ? 'sleep' : st.mood === 'happy' ? 'happy' : 'idle';
       const ok = a.gPose(px, role, cx, by, h, st.look.x < -0.05, a.sprFilter()) || a.gPose(px, 'idle', cx, by, h, false, a.sprFilter());
