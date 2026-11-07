@@ -538,7 +538,7 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
 
 <nav><div class="wrap" id="nav"></div></nav>
 <div class="ovl" id="ov"><div class="modal" id="modal"></div></div>
-<div id="game"><canvas id="gcv"></canvas><div class="gh"><span id="gScore">0</span><span id="gLives"></span><span style="display:flex;gap:8px"><button class="gx" id="gPause" aria-label="Pause" style="display:none">❚❚</button><button class="gx" id="gQuit">✕</button></span></div><div id="gPauseOv" style="display:none;position:absolute;inset:0;z-index:5;background:rgba(8,6,20,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#fff;text-align:center"><div style="font:italic 800 56px 'Barlow Condensed',sans-serif">PAUSED</div><div id="gPauseInfo" style="font:700 18px 'Barlow Condensed',sans-serif;opacity:.8"></div><button class="btn" id="gResume" style="min-width:180px">▶ Resume</button><button class="btn" id="gPauseQuit" style="min-width:180px;background:rgba(255,255,255,.1);color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.2)">Quit game</button></div></div>
+<div id="game"><canvas id="gcv"></canvas><div class="gh"><span id="gScore">0</span><span id="gLives"></span><span style="display:flex;gap:8px"><button class="gx" id="gPause" aria-label="Pause" style="display:none">❚❚</button><button class="gx" id="gQuit">✕</button></span></div><div id="gPauseOv" style="display:none;position:absolute;inset:0;z-index:5;background:rgba(8,6,20,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#fff;text-align:center"><div style="font:italic 800 56px 'Barlow Condensed',sans-serif">PAUSED</div><div id="gPauseInfo" style="font:700 18px 'Barlow Condensed',sans-serif;opacity:.8"></div><button class="btn" id="gResume" style="min-width:180px">▶ Resume</button><button class="btn" id="gMusic" style="min-width:180px;background:rgba(255,255,255,.1);color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.2)">🎵 Music on</button><button class="btn" id="gPauseQuit" style="min-width:180px;background:rgba(255,255,255,.1);color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.2)">Quit game</button></div></div>
 <div class="toast" id="toast"></div>
 <div class="lvup" id="lvup"><div id="lvupT"></div></div>
 
@@ -688,6 +688,25 @@ function mission(id,amt=1,set){if(!S.missions)return;const m=S.missions.list.fin
 /* ============ sound ============ */
 let AC=null;
 function tone(f=880,d=.08,w=0,type='triangle',vol=.06){if(S&&S.mute)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;const t=AC.currentTime+w;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+/* game music: a small generated loop per game (bass, arpeggio, soft hat), scheduled ahead on the audio clock */
+const MUS={def:{bpm:116,root:220,prog:[0,-4,-2,-5],arp:[0,3,7,12,7,3,0,7]},
+ orbit:{bpm:122,root:220,prog:[0,-4,-2,-5],arp:[0,7,12,15,12,7,3,7]},run:{bpm:134,root:196,prog:[0,5,7,5],arp:[0,4,7,12,7,4,0,4]},
+ catch:{bpm:112,root:262,prog:[0,-3,5,7],arp:[0,4,7,11,7,4,2,4]},stack:{bpm:100,root:233,prog:[0,5,-2,3],arp:[0,7,12,7,14,7,12,7]},
+ pounce:{bpm:140,root:247,prog:[0,0,3,-2],arp:[0,3,7,3,10,7,3,7]},battle:{bpm:96,root:196,prog:[0,-4,-2,-5],arp:[0,3,7,3,0,3,7,10]},
+ laser:{bpm:128,root:208,prog:[0,3,-2,5],arp:[0,7,3,10,0,7,12,7]},snack:{bpm:116,root:294,prog:[0,5,7,-5],arp:[0,4,7,12,4,7,12,16]},
+ bubble:{bpm:104,root:330,prog:[0,-5,-3,2],arp:[0,4,7,4,9,7,4,2]},words:{bpm:88,root:262,prog:[0,-3,5,-5],arp:[0,4,7,12],soft:1},
+ massage:{bpm:66,root:196,prog:[0,5,-3,2],arp:[0,4,7,9,12,9,7,4],soft:1}};
+let NOISE=null;
+const GMUS={iv:null,
+ start(id){this.stop();if(S.mute||S.flags.music===false||id==='sync'||id==='echo')return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)()}catch(e){return}
+   if(!NOISE){NOISE=AC.createBuffer(1,AC.sampleRate*.05,AC.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length)}
+   this.c=MUS[id]||MUS.def;this.step=0;this.next=AC.currentTime+.08;this.iv=setInterval(()=>this.tick(),50)},
+ stop(){clearInterval(this.iv);this.iv=null},
+ tick(){if(!AC||S.mute){this.stop();return}const c=this.c,spb=60/c.bpm/2;while(this.next<AC.currentTime+.2){this.note(this.step,this.next,spb);this.next+=spb;this.step++}},
+ note(st,t,spb){const c=this.c,i=st%16,bar=Math.floor(st/16)%c.prog.length,root=c.root*Math.pow(2,c.prog[bar]/12),w=Math.max(0,t-AC.currentTime),v=c.soft?.6:1;
+   if(i%4===0)tone(root/2,spb*1.8,w,'triangle',.05*v);
+   if(!c.soft||i%2===0)tone(root*Math.pow(2,c.arp[i%c.arp.length]/12),spb*.7,w,c.soft?'sine':'square',.011*v);
+   if(!c.soft&&i%2===1){try{const n=AC.createBufferSource(),g=AC.createGain(),f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=6000;n.buffer=NOISE;g.gain.value=.025;n.connect(f);f.connect(g);g.connect(AC.destination);n.start(t)}catch(e){}}}};
 const SFX={tap:()=>tone(1100,.05),ok:()=>{tone(784,.1);tone(1175,.14,.08)},no:()=>tone(180,.2,0,'square',.04),coin:()=>{tone(988,.06);tone(1480,.16,.06)},
  yay:()=>[659,784,988,1319].forEach((f,i)=>tone(f,.14,i*.08)),boop:()=>{tone(1400,.05);tone(1800,.06,.05)},alert:()=>{tone(1500,.08,0,'square',.03);tone(1500,.08,.16,'square',.03)},
  hatch:()=>[523,659,784,1047,1319,1568,2093].forEach((f,i)=>tone(f,.16,i*.08)),sad:()=>[523,440,349,262].forEach((f,i)=>tone(f,.25,i*.22)),
@@ -1331,13 +1350,15 @@ function gStart(id){
   cv.onpointerup=cv.onpointercancel=cv.onpointerleave=()=>{E.ptr=false;G.up&&G.up(E)};
   $('#gQuit').onclick=()=>gEnd(E,true);
   const pb=$('#gPause'),ov=$('#gPauseOv');pb.style.display='';ov.style.display='none';
-  pb.onclick=()=>{if(E.over||E.paused)return;E.paused=true;$('#gPauseInfo').textContent=(G.hud?G.hud(E):Math.floor(E.score)+' pts');ov.style.display='flex';tone(330,.08,0,'sine',.04)};
+  const mb=$('#gMusic'),ml=()=>{mb.textContent=S.flags.music===false?'🔇 Music off':'🎵 Music on'};ml();
+  mb.onclick=()=>{S.flags.music=S.flags.music===false;ml();save()};
+  pb.onclick=()=>{if(E.over||E.paused)return;E.paused=true;GMUS.stop();$('#gPauseInfo').textContent=(G.hud?G.hud(E):Math.floor(E.score)+' pts');ov.style.display='flex';tone(330,.08,0,'sine',.04)};
   $('#gResume').onclick=()=>{ov.style.display='none';last=performance.now();E.paused=false;if(E.count<=0){E.count=3;E.cdT=0}};
   $('#gPauseQuit').onclick=()=>{ov.style.display='none';gEnd(E,true)};
   let last=performance.now();
   const loop=ts=>{E.raf=requestAnimationFrame(loop);const dt=Math.min(2.5,(ts-last)/16.67);last=ts;if(E.paused||E.over)return;
     x.setTransform(dpr,0,0,dpr,0,0);
-    if(E.count>0){E.cdT+=dt;if(E.cdT>=42){E.cdT=0;E.count--;tone(E.count?660:1320,.14,0,'triangle',.06);if(!E.count)E.go=36}}
+    if(E.count>0){E.cdT+=dt;if(E.cdT>=42){E.cdT=0;E.count--;tone(E.count?660:1320,.14,0,'triangle',.06);if(!E.count){E.go=36;GMUS.start(E.id)}}}
     else{E.t+=dt;const fl=E.flash;G.update(E,dt);if(E.over)return;if(E.flash>fl+1)vib(35);gMilestones(E)}
     const sh=E.shake;E.shake=Math.max(0,E.shake-dt*.7);
     x.save();if(sh>0)x.translate(rnd(-sh,sh),rnd(-sh,sh));G.draw(E,dt,ts);gDrawFx(E,dt);x.restore();gIntro(E);
@@ -1348,7 +1369,7 @@ function gStart(id){
   E.raf=requestAnimationFrame(loop);SFX.whoosh();
 }
 document.addEventListener('visibilitychange',()=>{const E=GX.E;if(!E||E.over)return;if(document.hidden&&!E.paused){$('#gPause').click()}});
-function gEnd(E,quit){if(E.over)return;E.over=true;cancelAnimationFrame(E.raf);$('#game').classList.remove('on');GX.E=null;$('#gPause').style.display='none';$('#gPauseOv').style.display='none';
+function gEnd(E,quit){if(E.over)return;E.over=true;GMUS.stop();cancelAnimationFrame(E.raf);$('#game').classList.remove('on');GX.E=null;$('#gPause').style.display='none';$('#gPauseOv').style.display='none';
   const meta=GAMES2[E.id],r=E.G.finish(E,quit);const sc=r.score;S.bests=S.bests||{};S.gstars=S.gstars||{};
   const prev=S.bests[E.id]||0,nb=sc>prev&&sc>0;if(nb)S.bests[E.id]=sc;const stars=meta.stars.filter(s=>sc>=s).length;S.gstars[E.id]=Math.max(S.gstars[E.id]||0,stars);
   if(r.loot)for(const k in r.loot)S.inv[k]=(S.inv[k]||0)+r.loot[k];
@@ -1795,8 +1816,9 @@ function renderPlay(){const B=S.bests||{},ST=S.gstars||{};const stars=id=>[0,1,2
   $('#orbitBest').innerHTML=`${stars('orbit')} ${B.orbit?'Best '+B.orbit:'Chain rings, grab power-ups'}`;
   const rot=rotation(),ids=Object.keys(GAMES2).filter(id=>id!=='orbit'),open=ids.filter(gameOpen),shut=ids.filter(id=>!gameOpen(id));
   const card=(id,op)=>{const g=GAMES2[id],th=poseThumb(g.pose),lock=id==='battle'&&stageIdx()<2,hot=op&&rot.feat===id,b=op?0:backIn(id);
-    return`<div class="panel gcard${op?'':' rest'}" data-g="${id}" style="${lock?'opacity:.55':''}"><div class="gi" style="background:${g.bg};overflow:hidden">${th?`<img src="${th}" style="width:118%;margin-top:6px">`:'🎮'}</div><div><b>${g.n}${lock?' 🔒':''}${hot?' <span class="hotb">🔥 2× ⚡</span>':''}${g.train?' <span class="trb">Training</span>':''}</b><span>${op?g.d:`Resting · back ${b===1?'tomorrow':'in '+b+' days'}`}</span><div style="font-size:15px;margin-top:2px">${stars(id)} <span class="muted">${B[id]?'Best '+B[id]+(g.unit||''):''}</span></div></div><div class="rt">${op?g.rw+'<br>›':'💤<br><small>💎 1</small>'}</div></div>`};
-  $('#games').innerHTML=`<div class="rotHead"><span>🎲 Today's line-up</span><small>New games in ${rotLeft()}</small></div>`+open.map(id=>card(id,true)).join('')+(shut.length?`<div class="rotHead off"><span>💤 Resting today</span><small>Tap to unlock for 💎 1</small></div>`+shut.map(id=>card(id,false)).join(''):'');
+    return`<div class="panel gcard${op?'':' rest'}" data-g="${id}" style="${lock?'opacity:.55':''}"><div class="gi" style="background:${g.bg};overflow:hidden">${th?`<img src="${th}" style="width:118%;margin-top:6px">`:'🎮'}</div><div><b>${g.n}${lock?' 🔒':''}${hot?' <span class="hotb">🔥 2× ⚡</span>':''}${g.train?' <span class="trb">Training</span>':''}</b><span>${hot&&dailyCh(id)?(dailyCh(id).done?'✓ Daily challenge done · ':`🔥 Reach ${g.stars[1]}${g.unit||''} today for +1 💎 · `):''}${op?g.d:`Resting · back ${b===1?'tomorrow':'in '+b+' days'}`}</span><div style="font-size:15px;margin-top:2px">${stars(id)} <span class="muted">${B[id]?'Best '+B[id]+(g.unit||''):''}</span></div></div><div class="rt">${op?g.rw+'<br>›':'💤<br><small>💎 1</small>'}</div></div>`};
+  const tot=Object.keys(GAMES2).reduce((n,id)=>n+(ST[id]||0),0),mx=Object.keys(GAMES2).length*3;
+  $('#games').innerHTML=`<div class="rotHead"><span>🎲 Today's line-up</span><small>★ ${tot}/${mx} · new games in ${rotLeft()}</small></div>`+open.map(id=>card(id,true)).join('')+(shut.length?`<div class="rotHead off"><span>💤 Resting today</span><small>Tap to unlock for 💎 1</small></div>`+shut.map(id=>card(id,false)).join(''):'');
   $$('[data-g]').forEach(c=>c.onclick=()=>startGame(c.dataset.g))}
 
 
