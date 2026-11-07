@@ -197,6 +197,34 @@
       "when": 1794000000000,
       "tag": "0027_rate_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794500000000,
+      "tag": "0028_cyberpet_back_office",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794600000000,
+      "tag": "0029_cyberpet_config",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1794700000000,
+      "tag": "0030_cyberpet_items",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794800000000,
+      "tag": "0031_cyberpet_releases",
+      "breakpoints": true
     }
   ]
 }

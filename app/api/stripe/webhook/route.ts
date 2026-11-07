@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import { getDb } from "@/db";
 import { orders } from "@/db/schema";
 import { sendOrderStatusEmail } from "@/lib/order-email";
+import { grantItem } from "@/lib/cyberpet/items";
 
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_SECRET_KEY;
@@ -17,6 +18,11 @@ export async function POST(request: Request) {
   } catch { return NextResponse.json({ error:"Assinatura inválida" }, { status:400 }); }
   if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
     const session = event.data.object;
+    // CyberPet rare item bought with euros: grant it to the pet (idempotent: one grant per pet and item)
+    if (session.metadata?.kind === "cyberpet_item" && session.metadata.pet && session.metadata.item && session.payment_status === "paid") {
+      await grantItem(session.metadata.pet, session.metadata.item, "paid", session.id).catch(() => undefined);
+      return NextResponse.json({ received:true });
+    }
     const reference = session.metadata?.reference;
     if (reference) {
       const db = getDb();

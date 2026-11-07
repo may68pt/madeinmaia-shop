@@ -1702,7 +1702,8 @@ const POUNCE={
 /* ---------- daily game rotation ---------- */
 const ROT_POOL=['run','catch','sync','stack','pounce'],TRAIN_POOL=['sync','stack','pounce'],ROT_OPEN=3;
 function dayNo(d=new Date()){return Math.floor((d.getTime()-d.getTimezoneOffset()*6e4)/864e5)}
-function rotation(day=dayNo()){const r=rng(day*7+3),sh=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function rotation(day=dayNo()){const rr=window.CP&&CP.rotation?CP.rotation(day,rotationBase):null;return rr||rotationBase(day)}
+function rotationBase(day=dayNo()){const r=rng(day*7+3),sh=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
   const tr=sh(TRAIN_POOL)[0],rest=sh(ROT_POOL.filter(g=>g!==tr)),on=[tr,...rest.slice(0,ROT_OPEN-1)];return{on,feat:on[Math.floor(r()*on.length)]}}
 function gameOpen(id){if(!ROT_POOL.includes(id))return true;if(rotation().on.includes(id))return true;return((S.dayPass||{})[id]===dayNo())}
 function backIn(id){const d=dayNo();for(let i=1;i<30;i++)if(rotation(d+i).on.includes(id))return i;return 1}
@@ -1819,7 +1820,7 @@ const GOALS=[
 ];
 const ROOMLV=[null,{n:'Attic'},{n:'Attic + Alcove',cost:400,mat:{scrap:4,shard:3},lv:3},{n:'East Wing',cost:1200,gems:2,mat:{shard:6,scrap:6},lv:6}];
 function ensureRoom(){if(S.room)return;S.room={lv:1,owned:{bed:1,rug:1},tiers:{bed:1,game:0,work:0,aqua:0},items:[{u:1,id:'bed',x:.62,y:.86},{u:2,id:'rug',x:.55,y:.93}],goals:{},next:3,cool:{},music:0,lights:{}}}
-const riImg=id=>'r/'+(RI[id].st?id+Math.max(1,S.room.tiers[id]||1):id)+'.webp';
+const riImg=id=>RI[id].img?RI[id].img:'r/'+(RI[id].st?id+Math.max(1,S.room.tiers[id]||1):id)+'.webp';
 const riH=it=>{const d=RI[it.id];return RI[it.id].st?d.h[Math.max(1,S.room.tiers[it.id]||1)-1]:d.h};
 function comfort(){if(!S.room)return 0;let c=0;for(const it of S.room.items){const d=RI[it.id];c+=d.st?(S.room.tiers[it.id]||1)*4:(d.comfort||1)}return Math.min(100,c)}
 const tierOf=k=>S.room?S.room.tiers[k]||0:0;
@@ -2226,7 +2227,7 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='20261106-dream-nests';
+const FAELIX_BUILD='20261107-b2';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
@@ -2285,13 +2286,36 @@ async function syncPush(){if(!syncOn()){if(APP.onSite&&S.stage!=='egg')syncCreat
     else if(j.conflict){if((j.t||0)>(S.t||0))adopt(j.data,j.rev,`Synced ${j.data.name||'your Cyberpet'} from your other device ☁️`);else{CLOUD.rev=j.rev;CLOUD.busy=false;return syncPush()}}
     else if(j.status===404){CLOUD.id=null;CLOUD.key=null;syncStore()}else CLOUD.ok=false}catch(e){CLOUD.ok=false}
   CLOUD.busy=false}
-async function syncPull(){if(!syncOn()||CLOUD.busy)return;CLOUD.busy=true;let push=false;
+async function syncPull(){if(!syncOn()||CLOUD.busy)return;CLOUD.busy=true;let push=false,ops=null,gifts=null;
   try{const j=await api('GET',null,`?id=${CLOUD.id}&key=${CLOUD.key}`);
-    if(j.ok){CLOUD.ok=true;CLOUD.last=Date.now();
+    if(j.ok){CLOUD.ok=true;CLOUD.last=Date.now();ops=j.ops;gifts=j.gifts;
       if(j.rev!==CLOUD.rev){if((j.t||0)>(S.t||0))adopt(j.data,j.rev,CLOUD.rev?`Synced from your other device ☁️`:'');else{CLOUD.rev=j.rev;CLOUD.dirty=true;push=true}}
       syncStore()}
     else if(j.status===404){CLOUD.id=null;CLOUD.key=null;syncStore()}}catch(e){CLOUD.ok=false}
-  CLOUD.busy=false;if(push)syncPush()}
+  CLOUD.busy=false;if(Array.isArray(gifts)&&gifts.length&&window.CP&&CP.shop){gifts.forEach(g=>{try{CP.shop.applyPatch(g.patch);toast(`🎁 ${g.release}: ${g.patch.def.n}!`)}catch(e){}});SFX.yay();CLOUD.dirty=true}
+  if(Array.isArray(ops)&&ops.length)applyOps(ops);else if(push||CLOUD.dirty)syncPush()}
+
+/* ============ LIVE OPS: gifts, messages and fixes sent from the CyberPet back office ============ */
+const opEsc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function applyOp(p){if(!p||typeof p!=='object')return;const n=v=>Number(v)||0;
+  switch(p.kind){
+    case'grant':{if(p.coins)S.coins=Math.max(0,S.coins+n(p.coins));if(p.gems)S.gems=Math.max(0,S.gems+n(p.gems));
+      if(p.xp){if(p.xp>0)addXP(n(p.xp));else S.xp=Math.max(0,S.xp+n(p.xp))}
+      if(p.items)for(const k in p.items){S.inv[k]=Math.max(0,(S.inv[k]||0)+n(p.items[k]));if(!S.inv[k])delete S.inv[k]}
+      const parts=[p.coins&&`${p.coins} coins`,p.gems&&`${p.gems} 💎`,p.xp&&`${p.xp} XP`].filter(Boolean);toast('🎁 Gift: '+(parts.join(' · ')||'new items'));SFX.coin();break}
+    case'stat':{for(const k in p.set||{})if(k in S)S[k]=clamp(n(p.set[k]));for(const k in p.add||{})if(k in S)S[k]=clamp(S[k]+n(p.add[k]));break}
+    case'message':{if(p.style==='say')say(String(p.text).slice(0,120),4000);else if(p.style==='modal')modal(`<h3>${opEsc(p.title||'📡 Message')}</h3><p>${opEsc(p.text)}</p><button class="btn" data-x>OK</button>`);else toast(String(p.text).slice(0,140));break}
+    case'anim':{setTimeout(()=>{try{sprPlay(p.name)}catch(e){}},600);break}
+    case'flag':{S.flags=S.flags||{};if(p.value===null)delete S.flags[p.key];else S.flags[p.key]=p.value;break}
+    case'revive':{if(S.gone){S.gone=false;S.neglect=0}['energy','health','happy','rest'].forEach(k=>S[k]=Math.max(S[k],60));toast('⚡ Your Cyberpet got a recharge');break}
+  }}
+async function applyOps(ops){const done=new Set(S.opsDone||[]),fresh=ops.filter(o=>o&&!done.has(o.id));
+  for(const o of fresh){try{applyOp(o.payload)}catch(e){}done.add(o.id)}
+  // keep applied ids in the save itself, so a lost ack or a second device never applies an op twice
+  S.opsDone=[...done].slice(-200);S.t=Date.now();CLOUD.dirty=true;store.set(S);
+  if(fresh.some(o=>o.payload&&o.payload.kind==='revive'))boot();renderAll();
+  try{await api('POST',{action:'ops-ack',id:CLOUD.id,key:CLOUD.key,ops:ops.map(o=>o.id)})}catch(e){}
+  syncPush()}
 async function linkCode(){if(!syncOn()){await syncCreate()}if(!syncOn())return null;
   try{const j=await api('POST',{action:'pair',id:CLOUD.id,key:CLOUD.key});return j.ok?j.code:null}catch(e){return null}}
 async function claimCode(code,silent){code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(code.length<6){if(!silent)toast('Codes have 6 letters');return false}
@@ -3178,7 +3202,27 @@ setInterval(lifeTick,900);setInterval(setMoodChip,1500);
 setInterval(check,8000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
 window.__fx={NV,buyNest,nestMote,get SL(){return SL},startGame,gEnd,get GX(){return GX},rotation,gameOpen,openTraining,openProfile,closeM,faceFrame,get SPR(){return SPR},get sprImg(){return sprImg},save,lightsOut,startSleep,wakeUp,faceFx,moodNow,FACE,get RV(){return RV},openInstall,CLOUD,APP,syncPull,syncPush,openLink,claimCode,transferCode,sky:()=>({h:SKY.hour,k:SKY.moodKey,dk:SKY.dk,sh:SKY.shaft}),dbg:()=>({SA:{once:SA.once,pose:SA.pose,rect:SA.rect},LV:{sx:LV.sx,sy:LV.sy,y:LV.y,rot:LV.rot,sway:LV.sway},pk:PK&&PK.id,spr:document.querySelector("#stage").className,wrap:document.querySelector("#heroWrap").style.cssText,pose:document.querySelector("#heroPose").getAttribute("style"),anims:document.querySelector("#heroPose").getAnimations().length}),get S(){return S},set S(v){S=v},skip(h){S.last-=h*HOUR;if(S.hatchedAt)S.hatchedAt-=h*HOUR;check()},check,go,renderAll,setHero,act,burst,boot};
+/* CyberPet extension API: modules in /petz/x/ reach the app only through this object */
+window.__cp={get S(){return S},set S(v){S=v},toast,say,modal,closeM,SFX,tone,addXP,clamp,renderAll,renderItems,renderPlay,renderHUD,
+ sprPlay,sprPose,sprMode,walkTo,turnTo,heroPoint,burst,useItem,save,store,check,go,stageKey,stageIdx,stageName,lvInfo,dayNo,dayKey,now,pick,rnd,
+ RI,ITEMS,GAMES2,GAMEOBJ,ROT_POOL,TRAIN_POOL,gameDone,canPlay,startGame,gPose,gSpr,gBurst,gText,gBanner,gDrawFx,gCombo,gHint,gEnd,sprFilter,o2col,
+ get SPR(){return SPR},get sprImg(){return sprImg},get RV(){return RV},get SL(){return SL},CLOUD,api,syncPush,syncPull,mission,addLog,
+ get busy(){return busy},set busy(v){busy=v},curVariant,VAR,BUILD:FAELIX_BUILD};
+document.dispatchEvent(new Event('cp:ready'));
 })();
 </script>
+<!-- CyberPet extension modules (back office, glass, language, games…) -->
+<script defer src="x/core.js?v=20261107"></script>
+<script defer src="x/assets.js?v=20261107"></script>
+<script defer src="x/room.js?v=20261107"></script>
+<script defer src="x/clouds.js?v=20261107"></script>
+<script defer src="x/gestures.js?v=20261107"></script>
+<script defer src="x/glass.js?v=20261107"></script>
+<script defer src="x/petting.js?v=20261107"></script>
+<script defer src="x/language.js?v=20261107"></script>
+<script defer src="x/games.js?v=20261107"></script>
+<script defer src="x/rotation.js?v=20261107"></script>
+<script defer src="x/shop.js?v=20261107"></script>
+<script defer src="x/rig.js?v=20261107"></script>
 </body>
 </html>
