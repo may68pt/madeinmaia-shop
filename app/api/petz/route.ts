@@ -4,8 +4,9 @@ import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { getDb } from "@/db";
 import { clientIp, rateLimited } from "@/lib/rate-limit";
 import { social } from "./social";
+import { ackOps, pendingOps } from "@/lib/cyberpet/ops";
 
-/* FÆLIX cloud save — no accounts. Each pet has an id + secret key kept on the device.
+/* CyberPet cloud save — no accounts. Each pet has an id + secret key kept on the device.
    Other devices join with a short-lived 6-letter link code. */
 export const dynamic = "force-dynamic";
 const headers = { "Cache-Control": "no-store" };
@@ -20,10 +21,10 @@ const safeParse = (raw: string): unknown => { try { return JSON.parse(raw || "nu
 const json = (o: unknown, status = 200) => NextResponse.json(o, { status, headers });
 const clean = (s: unknown, n: number) => String(s ?? "").replace(/[^A-Za-z0-9]/g, "").slice(0, n);
 
-type Row = { id: string; key_hash: string; rev: number; t: string | number; data: unknown };
+type Row = { id: string; key_hash: string; rev: number; t: string | number; data: unknown; created_at: string };
 async function load(id: string, key: string): Promise<Row | null> {
   if (!id || key.length < 20) return null;
-  const rows = (await getDb().execute(sql`select id, key_hash, rev, t, data from petz_saves where id=${id}`)) as unknown as Row[];
+  const rows = (await getDb().execute(sql`select id, key_hash, rev, t, data, created_at from petz_saves where id=${id}`)) as unknown as Row[];
   const r = rows[0];
   if (!r) return null;
   const b = Buffer.from(hash(key));
@@ -37,7 +38,10 @@ export async function GET(request: Request) {
   if (await limited(ipOf(request), "g", 120)) return json({ ok: false, error: "slow down" }, 429);
   try {
     const r = await load(clean(u.searchParams.get("id"), 16), clean(u.searchParams.get("key"), 64));
-    return r ? json(out(r)) : json({ ok: false, error: "not found" }, 404);
+    if (!r) return json({ ok: false, error: "not found" }, 404);
+    // live ops from the back office ride along with every pull; a failure here never blocks the save
+    const ops = await pendingOps({ id: r.id, createdAt: r.created_at, data: r.data as Record<string, unknown> }).catch(() => []);
+    return json({ ...out(r), ops });
   } catch { return json({ ok: false }, 503); }
 }
 
@@ -65,7 +69,7 @@ export async function POST(request: Request) {
   const ip = ipOf(request);
   const raw = await request.text();
   if (raw.length > MAX) return json({ ok: false, error: "too big" }, 413);
-  const b = safeParse(raw) as { action?: string; id?: string; key?: string; code?: string; data?: unknown; t?: number } | null;
+  const b = safeParse(raw) as { action?: string; id?: string; key?: string; code?: string; data?: unknown; t?: number; ops?: unknown } | null;
   if (!b) return json({ ok: false, error: "invalid" }, 400);
   try {
     const db = getDb();
@@ -75,6 +79,12 @@ export async function POST(request: Request) {
       const pet = await load(clean(b.id, 16), clean(b.key, 64));
       if (!pet) return json({ ok: false, error: "Cloud pet not found" }, 404);
       return await social(pet.id, b);
+    }
+    if (b.action === "ops-ack") {
+      if (await limited(ip, "ack", 60)) return json({ ok: false, error: "slow down" }, 429);
+      const pet = await load(clean(b.id, 16), clean(b.key, 64));
+      if (!pet) return json({ ok: false, error: "not found" }, 404);
+      return json({ ok: true, acked: await ackOps(pet.id, b.ops) });
     }
     if (b.action === "create") {
       if (await limited(ip, "c", 5)) return json({ ok: false, error: "slow down" }, 429);
@@ -100,7 +110,7 @@ export async function POST(request: Request) {
       // hand the joining device its own key for this pet: rotate is avoided so existing devices keep working
       const key = randomBytes(24).toString("hex");
       await db.execute(sql`update petz_saves set key_hash = array_to_string((string_to_array(key_hash, ','))[greatest(1, cardinality(string_to_array(key_hash, ',')) - 18):] || ${hash(key)}::text, ',') where id=${rows[0].pet_id}`);
-      const r = (await db.execute(sql`select id, key_hash, rev, t, data from petz_saves where id=${rows[0].pet_id}`)) as unknown as Row[];
+      const r = (await db.execute(sql`select id, key_hash, rev, t, data, created_at from petz_saves where id=${rows[0].pet_id}`)) as unknown as Row[];
       return json({ ...out(r[0]), key });
     }
     return json({ ok: false, error: "unknown action" }, 400);

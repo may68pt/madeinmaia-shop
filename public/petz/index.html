@@ -2226,7 +2226,7 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='20261106-dream-nests';
+const FAELIX_BUILD='20261107-live-ops';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
@@ -2285,13 +2285,35 @@ async function syncPush(){if(!syncOn()){if(APP.onSite&&S.stage!=='egg')syncCreat
     else if(j.conflict){if((j.t||0)>(S.t||0))adopt(j.data,j.rev,`Synced ${j.data.name||'your Cyberpet'} from your other device ☁️`);else{CLOUD.rev=j.rev;CLOUD.busy=false;return syncPush()}}
     else if(j.status===404){CLOUD.id=null;CLOUD.key=null;syncStore()}else CLOUD.ok=false}catch(e){CLOUD.ok=false}
   CLOUD.busy=false}
-async function syncPull(){if(!syncOn()||CLOUD.busy)return;CLOUD.busy=true;let push=false;
+async function syncPull(){if(!syncOn()||CLOUD.busy)return;CLOUD.busy=true;let push=false,ops=null;
   try{const j=await api('GET',null,`?id=${CLOUD.id}&key=${CLOUD.key}`);
-    if(j.ok){CLOUD.ok=true;CLOUD.last=Date.now();
+    if(j.ok){CLOUD.ok=true;CLOUD.last=Date.now();ops=j.ops;
       if(j.rev!==CLOUD.rev){if((j.t||0)>(S.t||0))adopt(j.data,j.rev,CLOUD.rev?`Synced from your other device ☁️`:'');else{CLOUD.rev=j.rev;CLOUD.dirty=true;push=true}}
       syncStore()}
     else if(j.status===404){CLOUD.id=null;CLOUD.key=null;syncStore()}}catch(e){CLOUD.ok=false}
-  CLOUD.busy=false;if(push)syncPush()}
+  CLOUD.busy=false;if(Array.isArray(ops)&&ops.length)applyOps(ops);else if(push)syncPush()}
+
+/* ============ LIVE OPS: gifts, messages and fixes sent from the CyberPet back office ============ */
+const opEsc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function applyOp(p){if(!p||typeof p!=='object')return;const n=v=>Number(v)||0;
+  switch(p.kind){
+    case'grant':{if(p.coins)S.coins=Math.max(0,S.coins+n(p.coins));if(p.gems)S.gems=Math.max(0,S.gems+n(p.gems));
+      if(p.xp){if(p.xp>0)addXP(n(p.xp));else S.xp=Math.max(0,S.xp+n(p.xp))}
+      if(p.items)for(const k in p.items){S.inv[k]=Math.max(0,(S.inv[k]||0)+n(p.items[k]));if(!S.inv[k])delete S.inv[k]}
+      const parts=[p.coins&&`${p.coins} coins`,p.gems&&`${p.gems} 💎`,p.xp&&`${p.xp} XP`].filter(Boolean);toast('🎁 Gift: '+(parts.join(' · ')||'new items'));SFX.coin();break}
+    case'stat':{for(const k in p.set||{})if(k in S)S[k]=clamp(n(p.set[k]));for(const k in p.add||{})if(k in S)S[k]=clamp(S[k]+n(p.add[k]));break}
+    case'message':{if(p.style==='say')say(String(p.text).slice(0,120),4000);else if(p.style==='modal')modal(`<h3>${opEsc(p.title||'📡 Message')}</h3><p>${opEsc(p.text)}</p><button class="btn" data-x>OK</button>`);else toast(String(p.text).slice(0,140));break}
+    case'anim':{setTimeout(()=>{try{sprPlay(p.name)}catch(e){}},600);break}
+    case'flag':{S.flags=S.flags||{};if(p.value===null)delete S.flags[p.key];else S.flags[p.key]=p.value;break}
+    case'revive':{if(S.gone){S.gone=false;S.neglect=0}['energy','health','happy','rest'].forEach(k=>S[k]=Math.max(S[k],60));toast('⚡ Your Cyberpet got a recharge');break}
+  }}
+async function applyOps(ops){const done=new Set(S.opsDone||[]),fresh=ops.filter(o=>o&&!done.has(o.id));
+  for(const o of fresh){try{applyOp(o.payload)}catch(e){}done.add(o.id)}
+  // keep applied ids in the save itself, so a lost ack or a second device never applies an op twice
+  S.opsDone=[...done].slice(-200);S.t=Date.now();CLOUD.dirty=true;store.set(S);
+  if(fresh.some(o=>o.payload&&o.payload.kind==='revive'))boot();renderAll();
+  try{await api('POST',{action:'ops-ack',id:CLOUD.id,key:CLOUD.key,ops:ops.map(o=>o.id)})}catch(e){}
+  syncPush()}
 async function linkCode(){if(!syncOn()){await syncCreate()}if(!syncOn())return null;
   try{const j=await api('POST',{action:'pair',id:CLOUD.id,key:CLOUD.key});return j.ok?j.code:null}catch(e){return null}}
 async function claimCode(code,silent){code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(code.length<6){if(!silent)toast('Codes have 6 letters');return false}
