@@ -49,7 +49,7 @@ main{padding-bottom:92px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:0 0 0 1px rgba(255,255,255,.02) inset,0 10px 30px rgba(0,0,0,.25)}
 .neon{border:1.5px solid rgba(63,240,255,.55);box-shadow:0 0 14px rgba(63,240,255,.25),inset 0 0 14px rgba(63,240,255,.06)}
 /* STAGE */
-.stage{position:relative;height:420px;border-radius:22px;overflow:hidden;margin-top:10px;border:1.5px solid rgba(160,140,255,.4);box-shadow:0 0 24px rgba(139,92,246,.35)}
+.stage{position:relative;height:420px;height:clamp(420px,calc(100svh - env(safe-area-inset-top,0px) - 272px),720px);border-radius:22px;overflow:hidden;margin-top:10px;border:1.5px solid rgba(160,140,255,.4);box-shadow:0 0 24px rgba(139,92,246,.35)}
 #scene,#fx{position:absolute;inset:0;width:100%;height:100%}
 #scene{z-index:2;pointer-events:none}#night{z-index:3}
 #roomScroll{position:absolute;inset:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:1;overscroll-behavior-x:contain}
@@ -480,6 +480,7 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
   <div class="sec"><h2>Daily missions<span class="stripes"></span></h2><small id="mDate"></small></div>
   <div class="panel" id="missions"></div>
   <div class="panel reward" id="reward"></div>
+  <div id="hub"></div>
   <img class="logo" src="cyberpet-logo.svg" alt="Cyberpet" width="320" height="80" style="display:block;width:min(100%,240px);height:auto;margin:0 auto">
 </section>
 
@@ -1966,7 +1967,7 @@ function renderItems(){roomItemEffects=[];const box=$('#roomItems');box.innerHTM
   $('#stage').classList.toggle('editing',RV.edit)}
 let furnitureRest=null;
 function placePet(instant){const b=roomBounds();RV.PX=clamp(RV.PX,b.min,b.max);const hw=$('#heroWrap'),au=$('#aura');if(instant){hw.style.transition='none';au.style.transition='none'}
-  hw.style.left=RV.PX*RV.worldW+'px';au.style.left=RV.PX*RV.worldW+'px';const pw=$('#stage').clientWidth,ds=depthS(RV.PY)/depthS(.87);hw.style.width=(parseFloat(hw.dataset.pct||100)/100*pw*ds)+'px';au.style.width=pw*.78*ds+'px';if(!S.asleep){
+  hw.style.left=RV.PX*RV.worldW+'px';au.style.left=RV.PX*RV.worldW+'px';const pw=$('#stage').clientWidth*clamp(RV.H/420,1,1.35),ds=depthS(RV.PY)/depthS(.87);hw.style.width=(parseFloat(hw.dataset.pct||100)/100*pw*ds)+'px';au.style.width=pw*.78*ds+'px';if(!S.asleep){
     const rest=furnitureRest,g=rest&&geo(rest.item),lift=g?g.h*(1-rest.seat):0;
     const z=Math.max(Math.round(10+RV.PY*80),g?g.z+2:0);
     hw.style.bottom='calc('+((1-RV.PY)*100)+'% + '+lift+'px)';hw.style.zIndex=z;
@@ -2316,7 +2317,7 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='20261107-b2';
+const FAELIX_BUILD='20261107-b3';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
@@ -3296,7 +3297,8 @@ window.__cp={get S(){return S},set S(v){S=v},toast,say,modal,closeM,SFX,tone,add
  sprPlay,sprPose,sprMode,walkTo,turnTo,heroPoint,burst,useItem,save,store,check,go,stageKey,stageIdx,stageName,lvInfo,dayNo,dayKey,now,pick,rnd,
  RI,ITEMS,GAMES2,GAMEOBJ,ROT_POOL,TRAIN_POOL,gameDone,canPlay,startGame,gPose,gSpr,gBurst,gText,gBanner,gDrawFx,gCombo,gHint,gEnd,sprFilter,o2col,
  get SPR(){return SPR},get sprImg(){return sprImg},get RV(){return RV},get SL(){return SL},CLOUD,api,syncPush,syncPull,mission,addLog,
- get busy(){return busy},set busy(v){busy=v},get GX(){return GX},act,setExpr,lvKick,flyEmoji,mouthPoint,curVariant,VAR,BUILD:FAELIX_BUILD};
+ get busy(){return busy},set busy(v){busy=v},get GX(){return GX},act,setExpr,lvKick,flyEmoji,mouthPoint,curVariant,VAR,BUILD:FAELIX_BUILD,
+ ZONES,ROOMLV,GOALS,STAGES,progressScore,openRoom,openProfile,charUnlocked,get ROSTER(){return ROSTER}};
 document.dispatchEvent(new Event('cp:ready'));
 })();
 </script>
@@ -3314,5 +3316,6 @@ document.dispatchEvent(new Event('cp:ready'));
 <script defer src="x/shop.js?v=20261107"></script>
 <script defer src="x/rig.js?v=20261107"></script>
 <script defer src="x/food.js?v=20261107"></script>
+<script defer src="x/hub.js?v=20261107"></script>
 </body>
 </html>
