@@ -1,0 +1,11 @@
+{
+  "about": "CyberPet sprite sets loaded on demand by /petz/x/assets.js. Each set: files (in /petz/x/art/<set>/ unless dir is given), optional json (frame data), lo:true when @lo copies exist. Empty sets fall back to drawn effects until the art from the ChatGPT prompt kit arrives (block 15).",
+  "sets": {
+    "glass": { "files": [], "json": null, "lo": false, "use": "Close-up face, paw, tongue, fog and smear frames" },
+    "petting": { "files": [], "json": null, "lo": false, "use": "Purr loops, roll-over, stretch, reactions per zone" },
+    "clouds": { "files": [], "json": null, "lo": false, "use": "Sleep cloud frames, rare cloud variants" },
+    "room": { "files": [], "json": null, "lo": false, "use": "Item interaction animations and costume overlays" },
+    "games": { "files": [], "json": null, "lo": false, "use": "Mini-game packs" },
+    "rig": { "files": [], "json": null, "lo": false, "use": "Mesh-deform rigs and skins (block 16)" }
+  }
+}
