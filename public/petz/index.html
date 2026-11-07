@@ -538,7 +538,7 @@ img.share{width:100%;border-radius:14px;display:block;-webkit-touch-callout:defa
 
 <nav><div class="wrap" id="nav"></div></nav>
 <div class="ovl" id="ov"><div class="modal" id="modal"></div></div>
-<div id="game"><canvas id="gcv"></canvas><div class="gh"><span id="gScore">0</span><span id="gLives"></span><button class="gx" id="gQuit">✕</button></div></div>
+<div id="game"><canvas id="gcv"></canvas><div class="gh"><span id="gScore">0</span><span id="gLives"></span><span style="display:flex;gap:8px"><button class="gx" id="gPause" aria-label="Pause" style="display:none">❚❚</button><button class="gx" id="gQuit">✕</button></span></div><div id="gPauseOv" style="display:none;position:absolute;inset:0;z-index:5;background:rgba(8,6,20,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#fff;text-align:center"><div style="font:italic 800 56px 'Barlow Condensed',sans-serif">PAUSED</div><div id="gPauseInfo" style="font:700 18px 'Barlow Condensed',sans-serif;opacity:.8"></div><button class="btn" id="gResume" style="min-width:180px">▶ Resume</button><button class="btn" id="gPauseQuit" style="min-width:180px;background:rgba(255,255,255,.1);color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.2)">Quit game</button></div></div>
 <div class="toast" id="toast"></div>
 <div class="lvup" id="lvup"><div id="lvupT"></div></div>
 
@@ -1281,11 +1281,11 @@ $('#sShare').onclick=()=>{SFX.tap();share()};$('#sCal').onclick=()=>{go('lab');$
 /* ============ MINI-GAME ENGINE v2 ============ */
 const GAMES2={
  orbit:{n:'Orbit Dash',d:'Hold to fly. Chain rings for combos, grab power-ups, dodge asteroids.',pose:'fly',bg:'linear-gradient(135deg,#ff7a1a,#ff3fd8)',stars:[300,900,1800],trait:'cosmic',rw:'⚡ XP 🔷'},
- run:{n:'Ruins Run',d:'Tap to jump, tap again mid-air to backflip. Collect shards, dodge drones.',pose:'race',bg:'linear-gradient(135deg,#8dff4a,#1fae8c)',stars:[400,1200,2500],trait:'instinct',rw:'⚡ XP 🔷'},
- catch:{n:'Crystal Catch',d:'Drag to move. Catch crystals, dodge bugs. Glitches flip your controls!',pose:'chaseball',bg:'linear-gradient(135deg,#3fd0ff,#8b5cf6)',stars:[300,800,1500],trait:'nature',rw:'Materials'},
- sync:{n:'Signal Sync',d:'Rhythm game: tap the lanes on the beat. Trains skills.',pose:'dance',bg:'linear-gradient(135deg,#ffc93c,#ff7a1a)',stars:[60,80,95],trait:'tech',unit:'%',rw:'XP ++'},
- stack:{n:'Sky Stack',d:'Tap to drop neon blocks. Line them up perfectly and ride your tower into orbit.',pose:'gym',bg:'linear-gradient(135deg,#3f8cff,#b25cff)',stars:[150,400,800],trait:'tech',rw:'⚡ XP · Tech',train:1},
- pounce:{n:'Pounce Patrol',d:'Bonk glitch bugs as they pop from the vents. Never the fireflies!',pose:'chaseball',bg:'linear-gradient(135deg,#ff3fd8,#7a1fd0)',stars:[200,500,900],trait:'instinct',rw:'⚡ XP · Instinct',train:1},
+ run:{n:'Ruins Run',d:'Tap to jump, tap again mid-air to backflip. Collect shards, dodge drones.',pose:'race',bg:'linear-gradient(135deg,#8dff4a,#1fae8c)',stars:[400,1200,2500],trait:'instinct',how:['Tap to jump. Tap again mid-air for a backflip jump.', 'Grab shards 🔷 for points', 'Rocks, logs, mushrooms · drones fly high'],rw:'⚡ XP 🔷'},
+ catch:{n:'Crystal Catch',d:'Drag to move. Catch crystals, dodge bugs. Glitches flip your controls!',pose:'chaseball',bg:'linear-gradient(135deg,#3fd0ff,#8b5cf6)',stars:[300,800,1500],trait:'nature',how:['Drag left and right to move.', 'Catch crystals · 🧲 pulls · dodge bugs', 'Glitches flip your controls for a while!'],rw:'Materials'},
+ sync:{n:'Signal Sync',d:'Rhythm game: tap the lanes on the beat. Trains skills.',pose:'dance',bg:'linear-gradient(135deg,#ffc93c,#ff7a1a)',stars:[60,80,95],trait:'tech',unit:'%',how:['Orbs fall toward the three rings.', 'Tap a lane right as its orb hits the ring.', 'Hit streaks raise your accuracy'],rw:'XP ++'},
+ stack:{n:'Sky Stack',d:'Tap to drop neon blocks. Line them up perfectly and ride your tower into orbit.',pose:'gym',bg:'linear-gradient(135deg,#3f8cff,#b25cff)',stars:[150,400,800],trait:'tech',how:['The block slides side to side.', 'Tap to drop it on the tower.', 'Line it up: 3 perfects in a row grow it'],rw:'⚡ XP · Tech',train:1},
+ pounce:{n:'Pounce Patrol',d:'Bonk glitch bugs as they pop from the vents. Never the fireflies!',pose:'chaseball',bg:'linear-gradient(135deg,#ff3fd8,#7a1fd0)',stars:[200,500,900],trait:'instinct',how:['Bugs and fireflies pop out of the vents.', 'Tap the glitch bugs fast.', 'Never tap the fireflies! ⏰ adds time'],rw:'⚡ XP · Instinct',train:1},
  battle:{n:'Friendly Battle',d:'Turn-based spar against a wild Cyberpet. Charge a special move!',pose:'powerup',bg:'linear-gradient(135deg,#ff3f6a,#8b5cf6)',stars:[1,2,3],trait:'instinct',unit:'★',rw:'⚡ XP ⚙️'}
 };
 const GX={E:null};
@@ -1304,7 +1304,21 @@ function gDrawFx(E,dt){const x=E.x;
   if(E.banner&&E.banner.life>0){const b=E.banner;b.life-=dt;const k=Math.min(1,(110-b.life)/12,b.life/15);x.globalAlpha=Math.max(0,k);x.textAlign='center';x.font="italic 800 52px 'Barlow Condensed',sans-serif";x.fillStyle='#fff';x.shadowColor='#ff7a1a';x.shadowBlur=24;x.fillText(b.t,E.W/2,E.H*.38);x.shadowBlur=0;if(b.s){x.font="700 22px 'Barlow Condensed',sans-serif";x.fillStyle='#ffd23f';x.fillText(b.s,E.W/2,E.H*.38+38)}x.globalAlpha=1}}
 function gCombo(E,yy=72){if(E.combo<2)return;const x=E.x,m=Math.min(5,E.combo);x.textAlign='right';x.font="italic 800 30px 'Barlow Condensed',sans-serif";x.fillStyle=['#fff','#fff','#ffd23f','#ff9a3c','#ff3fd8','#3ff0ff'][m];x.shadowColor=x.fillStyle;x.shadowBlur=12;x.fillText(E.combo+'× COMBO',E.W-14,yy);x.shadowBlur=0}
 function gPower(E,list){const x=E.x;let yy=64;for(const [ic,v] of list){if(v<=0)continue;x.font='20px serif';x.textAlign='left';x.textBaseline='middle';x.fillText(ic,12,yy);x.fillStyle='rgba(255,255,255,.18)';x.fillRect(38,yy-4,64,8);x.fillStyle='#a6ff3c';x.fillRect(38,yy-4,64*Math.min(1,v),8);yy+=26}}
-function gHint(E,t,a){const x=E.x;x.globalAlpha=Math.max(0,a);x.fillStyle='#fff';x.font="800 22px 'Barlow Condensed',sans-serif";x.textAlign='center';x.fillText(t,E.W/2,E.H*.9);x.globalAlpha=1}
+function gHint(E,t,a){const x=E.x;if(a<=0||(E.count>0&&GAMES2[E.id]&&GAMES2[E.id].how))return;x.globalAlpha=Math.min(1,a);x.fillStyle='#fff';let fs=22;x.font=`800 ${fs}px 'Barlow Condensed',sans-serif`;while(fs>13&&x.measureText(t).width>E.W-28){fs--;x.font=`800 ${fs}px 'Barlow Condensed',sans-serif`}x.textAlign='center';x.textBaseline='middle';x.lineWidth=4;x.strokeStyle='rgba(0,0,0,.55)';x.strokeText(t,E.W/2,E.H*.9);x.fillText(t,E.W/2,E.H*.9);x.globalAlpha=1}
+/* how-to-play card during the countdown, for games that list "how" lines in GAMES2 */
+function dailyCh(id){const r=rotation(),m=GAMES2[id];if(!m||r.feat!==id||!r.on.includes(id))return null;S.dch=S.dch&&S.dch.d===dayKey()?S.dch:{d:dayKey(),done:false};return{target:m.stars[1],done:S.dch.done}}
+function gChallenge(E){const c=dailyCh(E.id);if(!c||E.count<=0)return;const x=E.x,m=GAMES2[E.id],y=m.how?E.H-(40+m.how.length*26+28)-64:E.H*.62;
+  x.save();x.fillStyle=c.done?'rgba(141,255,74,.18)':'rgba(255,210,63,.16)';x.strokeStyle=c.done?'#8dff4a':'#ffd23f';x.lineWidth=1.5;x.beginPath();x.roundRect(40,y,E.W-80,40,20);x.fill();x.stroke();
+  x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font="800 17px 'Barlow Condensed',sans-serif";x.fillText(c.done?'✓ Daily challenge done today':`🔥 Daily challenge: reach ${c.target}${m.unit||''} → +1 💎`,E.W/2,y+20);x.restore()}
+function gIntro(E){gChallenge(E);const m=GAMES2[E.id];if(!m||!m.how||E.count<=0)return;const x=E.x,w=E.W-40,h=40+m.how.length*26+28,y0=E.H-h-28;
+  x.save();x.fillStyle='rgba(8,6,20,.84)';x.strokeStyle='rgba(95,244,255,.45)';x.lineWidth=1.5;x.beginPath();x.roundRect(20,y0,w,h,16);x.fill();x.stroke();
+  x.textAlign='center';x.textBaseline='middle';x.fillStyle='#5ff4ff';x.font="800 22px 'Barlow Condensed',sans-serif";x.fillText(m.n,E.W/2,y0+22);
+  x.fillStyle='#fff';x.font="700 18px 'Barlow Condensed',sans-serif";m.how.forEach((l,i)=>x.fillText(l,E.W/2,y0+52+i*26));
+  const b=(S.bests||{})[E.id];x.fillStyle='#ffd23f';x.font="700 16px 'Barlow Condensed',sans-serif";x.fillText(b?`Your best: ${b}${m.unit||''} · ★ at ${m.stars.join(' / ')}`:`★ at ${m.stars.join(' / ')}${m.unit||''}`,E.W/2,y0+h-16);x.restore()}
+/* live feedback while playing: a star chime when you pass each star score, and a NEW BEST moment */
+function gMilestones(E){const m=GAMES2[E.id];if(!m||m.unit==='★'||m.unit==='%')return;const sc=Math.floor(E.score);
+  E._st=E._st||0;while(E._st<3&&sc>=m.stars[E._st]){E._st++;gText(E,E.W/2,96,'★'.repeat(E._st)+'☆'.repeat(3-E._st),'#ffd23f',30);tone(880+E._st*220,.12,0,'triangle',.05);tone(1320+E._st*220,.12,.09,'triangle',.05);vib(15)}
+  const b=(S.bests||{})[E.id]||0;if(b>0&&!E._nb&&sc>b){E._nb=true;gText(E,E.W/2,E.H*.3,'NEW BEST!','#8dff4a',40);gBurst(E,E.W/2,E.H*.3,24,['#8dff4a','#ffd23f','#5ff4ff']);tone(1047,.1);tone(1319,.1,.1);tone(1568,.18,.2);vib([20,40,20])}}
 function gStart(id){
   const G=GAMEOBJ[id],g=$('#game'),cv=$('#gcv'),x=cv.getContext('2d');g.classList.add('on');
   const W=Math.min(innerWidth,520),H=innerHeight,dpr=Math.min(2,devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
@@ -1315,29 +1329,34 @@ function gStart(id){
   cv.onpointermove=e=>{if(E.count>0||E.over)return;const [px,py]=pos(e);G.move&&G.move(E,px,py,E.ptr)};
   cv.onpointerup=cv.onpointercancel=cv.onpointerleave=()=>{E.ptr=false;G.up&&G.up(E)};
   $('#gQuit').onclick=()=>gEnd(E,true);
+  const pb=$('#gPause'),ov=$('#gPauseOv');pb.style.display='';ov.style.display='none';
+  pb.onclick=()=>{if(E.over||E.paused)return;E.paused=true;$('#gPauseInfo').textContent=(G.hud?G.hud(E):Math.floor(E.score)+' pts');ov.style.display='flex';tone(330,.08,0,'sine',.04)};
+  $('#gResume').onclick=()=>{ov.style.display='none';last=performance.now();E.paused=false;if(E.count<=0){E.count=3;E.cdT=0}};
+  $('#gPauseQuit').onclick=()=>{ov.style.display='none';gEnd(E,true)};
   let last=performance.now();
   const loop=ts=>{E.raf=requestAnimationFrame(loop);const dt=Math.min(2.5,(ts-last)/16.67);last=ts;if(E.paused||E.over)return;
     x.setTransform(dpr,0,0,dpr,0,0);
     if(E.count>0){E.cdT+=dt;if(E.cdT>=42){E.cdT=0;E.count--;tone(E.count?660:1320,.14,0,'triangle',.06);if(!E.count)E.go=36}}
-    else{E.t+=dt;G.update(E,dt);if(E.over)return}
+    else{E.t+=dt;const fl=E.flash;G.update(E,dt);if(E.over)return;if(E.flash>fl+1)vib(35);gMilestones(E)}
     const sh=E.shake;E.shake=Math.max(0,E.shake-dt*.7);
-    x.save();if(sh>0)x.translate(rnd(-sh,sh),rnd(-sh,sh));G.draw(E,dt,ts);gDrawFx(E,dt);x.restore();
+    x.save();if(sh>0)x.translate(rnd(-sh,sh),rnd(-sh,sh));G.draw(E,dt,ts);gDrawFx(E,dt);x.restore();gIntro(E);
     if(E.flash>0){x.fillStyle=`rgba(255,40,80,${E.flash/30})`;x.fillRect(0,0,W,H);E.flash-=dt}
     if(E.count>0||E.go>0){const txt=E.count>0?String(E.count):'GO!',k=E.count>0?E.cdT/42:1-E.go/36;E.go=Math.max(0,E.go-dt);x.save();x.globalAlpha=1-k*.6;x.textAlign='center';x.textBaseline='middle';x.font=`italic 800 ${110+k*60}px 'Barlow Condensed',sans-serif`;x.fillStyle='#fff';x.shadowColor='#ff7a1a';x.shadowBlur=30;x.fillText(txt,W/2,H*.42);x.restore()}
     $('#gScore').textContent=(G.hud?G.hud(E):Math.floor(E.score)+' pts');$('#gLives').textContent=E.lives!=null?'❤️'.repeat(Math.max(0,E.lives)):'';
   };
   E.raf=requestAnimationFrame(loop);SFX.whoosh();
 }
-document.addEventListener('visibilitychange',()=>{const E=GX.E;if(!E||E.over)return;if(document.hidden)E.paused=true;else{E.paused=false;if(E.count<=0){E.count=3;E.cdT=0}}});
-function gEnd(E,quit){if(E.over)return;E.over=true;cancelAnimationFrame(E.raf);$('#game').classList.remove('on');GX.E=null;
+document.addEventListener('visibilitychange',()=>{const E=GX.E;if(!E||E.over)return;if(document.hidden&&!E.paused){$('#gPause').click()}});
+function gEnd(E,quit){if(E.over)return;E.over=true;cancelAnimationFrame(E.raf);$('#game').classList.remove('on');GX.E=null;$('#gPause').style.display='none';$('#gPauseOv').style.display='none';
   const meta=GAMES2[E.id],r=E.G.finish(E,quit);const sc=r.score;S.bests=S.bests||{};S.gstars=S.gstars||{};
   const prev=S.bests[E.id]||0,nb=sc>prev&&sc>0;if(nb)S.bests[E.id]=sc;const stars=meta.stars.filter(s=>sc>=s).length;S.gstars[E.id]=Math.max(S.gstars[E.id]||0,stars);
   if(r.loot)for(const k in r.loot)S.inv[k]=(S.inv[k]||0)+r.loot[k];
-  S.base[meta.trait]+=1+stars*.5;const rot=rotation(),hot=rot.feat===E.id&&rot.on.includes(E.id);if(hot){r.coins*=2;r.lines=[...(r.lines||[]),'🔥 Game of the day: 2× ⚡']}const res=gameDone(r.coins,r.xp);
+  S.base[meta.trait]+=1+stars*.5;const rot=rotation(),hot=rot.feat===E.id&&rot.on.includes(E.id);if(hot){r.coins*=2;r.lines=[...(r.lines||[]),'🔥 Game of the day: 2× ⚡']}const ch=!quit&&dailyCh(E.id);if(ch&&!ch.done&&sc>=ch.target){S.dch.done=true;S.gems+=1;r.lines=[...(r.lines||[]),'🔥 Daily challenge complete: +1 💎']}const res=gameDone(r.coins,r.xp);
   modal(`<h3>${r.title||(quit?'Game over':'Run complete!')}</h3>
    <div style="text-align:center;font-size:40px;letter-spacing:6px;margin:4px 0">${[0,1,2].map(i=>`<span style="color:${i<stars?'#ffd23f':'rgba(255,255,255,.18)'};text-shadow:${i<stars?'0 0 14px #ffb13b':'none'}">★</span>`).join('')}</div>
    <p class="h" style="font-size:44px;text-align:center;margin:0">${sc}${meta.unit||' pts'}</p>
-   ${nb?'<p style="text-align:center;color:var(--lm);font-family:Barlow Condensed;font-weight:800;font-size:20px;margin:2px 0">🏆 NEW BEST!</p>':`<p class="muted" style="text-align:center">Best: ${Math.max(prev,sc)}${meta.unit||''}</p>`}
+   ${nb?`<p style="text-align:center;color:var(--lm);font-family:Barlow Condensed;font-weight:800;font-size:20px;margin:2px 0">🏆 NEW BEST!${prev?` +${sc-prev}${meta.unit||''}`:''}</p>`:`<p class="muted" style="text-align:center">Best: ${Math.max(prev,sc)}${meta.unit||''}</p>`}
+   ${stars<3&&meta.unit!=='★'?`<div style="margin:6px auto 2px;max-width:240px"><div style="height:6px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden"><i style="display:block;height:100%;width:${Math.min(100,Math.round(sc/meta.stars[stars]*100))}%;background:linear-gradient(90deg,#ffb13b,#ffd23f)"></i></div><p class="muted" style="text-align:center;margin:4px 0 0;font-size:13px">Next ★ at ${meta.stars[stars]}${meta.unit||''} · ${Math.max(0,meta.stars[stars]-sc)} to go</p></div>`:''}
    ${(r.lines||[]).map(l=>`<p class="muted" style="text-align:center;margin:2px">${l}</p>`).join('')}
    <p style="text-align:center">${res}${r.loot?' · '+Object.entries(r.loot).filter(e=>e[1]).map(([k,n])=>ITEMS[k][1]+'×'+n).join(' '):''}</p>
    ${r.extra?`<p style="text-align:center;color:var(--gd)"><b>${r.extra}</b></p>`:''}
