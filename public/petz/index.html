@@ -1281,13 +1281,13 @@ $('#sShare').onclick=()=>{SFX.tap();share()};$('#sCal').onclick=()=>{go('lab');$
 
 /* ============ MINI-GAME ENGINE v2 ============ */
 const GAMES2={
- orbit:{n:'Orbit Dash',d:'Hold to fly. Chain rings for combos, grab power-ups, dodge asteroids.',pose:'fly',bg:'linear-gradient(135deg,#ff7a1a,#ff3fd8)',stars:[300,900,1800],trait:'cosmic',rw:'⚡ XP 🔷'},
+ orbit:{n:'Orbit Dash',d:'Hold to fly. Chain rings for combos, grab power-ups, dodge asteroids.',pose:'fly',bg:'linear-gradient(135deg,#ff7a1a,#ff3fd8)',stars:[300,900,1800],trait:'cosmic',how:['Hold to fly up · let go to drop.','Fly through rings in a row for combos.','Red ! warns of a comet shower: move!'],rw:'⚡ XP 🔷'},
  run:{n:'Ruins Run',d:'Tap to jump, tap again mid-air to backflip. Collect shards, dodge drones.',pose:'race',bg:'linear-gradient(135deg,#8dff4a,#1fae8c)',stars:[400,1200,2500],trait:'instinct',how:['Tap to jump. Tap again mid-air for a backflip jump.', 'Grab shards 🔷 for points', 'Rocks, logs, mushrooms · drones fly high'],rw:'⚡ XP 🔷'},
  catch:{n:'Crystal Catch',d:'Drag to move. Catch crystals, dodge bugs. Glitches flip your controls!',pose:'chaseball',bg:'linear-gradient(135deg,#3fd0ff,#8b5cf6)',stars:[300,800,1500],trait:'nature',how:['Drag left and right to move.', 'Catch crystals · 🧲 pulls · dodge bugs', 'Glitches flip your controls for a while!'],rw:'Materials'},
  sync:{n:'Signal Sync',d:'Rhythm game: tap the lanes on the beat. Trains skills.',pose:'dance',bg:'linear-gradient(135deg,#ffc93c,#ff7a1a)',stars:[60,80,95],trait:'tech',unit:'%',how:['Orbs fall toward the three rings.', 'Tap a lane right as its orb hits the ring.', 'Hit streaks raise your accuracy'],rw:'XP ++'},
  stack:{n:'Sky Stack',d:'Tap to drop neon blocks. Line them up perfectly and ride your tower into orbit.',pose:'gym',bg:'linear-gradient(135deg,#3f8cff,#b25cff)',stars:[150,400,800],trait:'tech',how:['The block slides side to side.', 'Tap to drop it on the tower.', 'Line it up: 3 perfects in a row grow it'],rw:'⚡ XP · Tech',train:1},
  pounce:{n:'Pounce Patrol',d:'Bonk glitch bugs as they pop from the vents. Never the fireflies!',pose:'chaseball',bg:'linear-gradient(135deg,#ff3fd8,#7a1fd0)',stars:[200,500,900],trait:'instinct',how:['Bugs and fireflies pop out of the vents.', 'Tap the glitch bugs fast.', 'Never tap the fireflies! ⏰ adds time'],rw:'⚡ XP · Instinct',train:1},
- battle:{n:'Friendly Battle',d:'Turn-based spar against a wild Cyberpet. Charge a special move!',pose:'powerup',bg:'linear-gradient(135deg,#ff3f6a,#8b5cf6)',stars:[1,2,3],trait:'instinct',unit:'★',rw:'⚡ XP ⚙️'}
+ battle:{n:'Friendly Battle',d:'Turn-based spar against a wild Cyberpet. Read its style, counter it, climb the win streak.',pose:'powerup',bg:'linear-gradient(135deg,#ff3f6a,#8b5cf6)',stars:[1,2,3],trait:'instinct',unit:'★',how:['🔥 beats 🍃 · 🍃 beats ⚙️ · ⚙️ beats 🔥','Every wild pet has a favourite move: read it.','Win in a row for tougher foes and bonus ⚡'],rw:'⚡ XP ⚙️'}
 };
 const GX={E:null};
 const vib=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
@@ -1370,13 +1370,20 @@ function startGame(id){if(!canPlay())return;if(!gameOpen(id)){lockedGame(id);ret
   if(id==='battle'&&stageIdx()<2){SFX.no();toast('Battles unlock at the Juvenile stage');return}gStart(id)}
 
 /* ---------- ORBIT DASH ---------- */
+const ORBIT_SEC=['Nebula Drift','Asteroid Belt','Ion Storm','Deep Void'];
 const ORBIT={
  init(E){Object.assign(E,{y:E.H*.45,vy:0,th:false,rocks:[],rings:[],items:[],trail:[],sp:3.2,sR:50,sG:70,sI:50,sP:520,shards:0,shield:0,mag:0,slow:0,sector:1,inv:0,hit:0,px:E.W*.26,pw:Math.min(110,E.W*.27),lives:S.eq.wings?4:3});
    E.L=[0,1,2].map(k=>Array.from({length:30+k*25},()=>({x:Math.random()*E.W,y:Math.random()*E.H,z:.3+k*.6+Math.random()*.4})))},
  down(E){E.th=true},up(E){E.th=false},
  update(E,dt){const k=E.slow>0?.55:1,tdt=dt*k;E.slow=Math.max(0,E.slow-dt);E.mag=Math.max(0,E.mag-dt);E.inv=Math.max(0,E.inv-dt);E.hit=Math.max(0,E.hit-dt);
   E.sp=3.2+E.t/650;E.score+=tdt*E.sp*.12;
-  const sec=1+Math.floor(E.score/1000);if(sec>E.sector){E.sector=sec;gBanner(E,'SECTOR '+sec,'Speed up!');SFX.yay()}
+  const sec=1+Math.floor(E.score/1000);if(sec>E.sector){E.sector=sec;gBanner(E,'SECTOR '+sec,ORBIT_SEC[(sec-1)%ORBIT_SEC.length]+' · speed up!');SFX.yay()}
+  // comet showers from sector 2: warning marks on the right edge, then fast comets along those lanes
+  E.cT=(E.cT===undefined?900:E.cT)-tdt;
+  if(E.sector>=2&&E.cT<=0&&!E.warn){E.warn={t:75,lanes:Array.from({length:2+Math.min(3,E.sector-1)},()=>rnd(70,E.H-60))};tone(880,.08,0,'square',.04);tone(880,.08,.15,'square',.04)}
+  if(E.warn){E.warn.t-=dt;if(E.warn.t<=0){for(const y of E.warn.lanes)E.rocks.push({x:E.W+30,y,r:16,rot:0,vr:.1,vy:0,pts:Array.from({length:9},()=>rnd(.85,1.05)),near:0,comet:1});E.warn=null;E.cT=rnd(1100,1500)}}
+  // ring chains: four rings in a wave
+  E.chainT=(E.chainT===undefined?600:E.chainT)-tdt;if(E.chainT<=0){const y0=rnd(150,E.H-150);for(let i=0;i<4;i++)E.rings.push({x:E.W+40+i*95,y:y0+Math.sin(i*1.3)*70,chain:1});E.chainT=rnd(700,1000);E.sG=Math.max(E.sG,200)}
   E.vy+=(E.th?-.55:.38)*dt;E.vy=clamp(E.vy,-7,7);E.y+=E.vy*dt;if(E.y<46){E.y=46;E.vy=0}if(E.y>E.H-40){E.y=E.H-40;E.vy=0}
   E.sR-=tdt;E.sG-=tdt;E.sI-=tdt;E.sP-=tdt;
   if(E.sR<=0){const r=rnd(18,44);E.rocks.push({x:E.W+r,y:rnd(60,E.H-50),r,rot:0,vr:rnd(-.04,.04),vy:Math.random()<.3?rnd(-.7,.7):0,pts:Array.from({length:9},()=>rnd(.75,1.1)),near:0});E.sR=Math.max(18,62-E.t/40)*rnd(.6,1.2)}
@@ -1384,7 +1391,7 @@ const ORBIT={
   if(E.sI<=0){const y0=rnd(100,E.H-80);for(let i=0;i<5;i++)E.items.push({k:'shard',x:E.W+20+i*34,y:y0-Math.sin(i/4*Math.PI)*50});E.sI=rnd(90,160)}
   if(E.sP<=0){E.items.push({k:pick(['shield','magnet','slow',E.lives<3?'heart':'shield']),x:E.W+20,y:rnd(100,E.H-80)});E.sP=rnd(480,760)}
   const sp=E.sp*tdt;
-  for(const r of E.rocks){r.x-=sp*1.1;r.y+=r.vy*tdt;r.rot+=r.vr*tdt}
+  for(const r of E.rocks){r.x-=sp*(r.comet?3.2:1.1);r.y+=r.vy*tdt;r.rot+=r.vr*tdt}
   for(const g of E.rings)g.x-=sp;
   for(const it of E.items){it.x-=sp;if(E.mag>0&&it.k==='shard'){const dx=E.px-it.x,dy=E.y-it.y,d=Math.hypot(dx,dy);if(d<230&&d>1){it.x+=dx/d*7*dt;it.y+=dy/d*7*dt}}}
   const pr=E.pw*.3;
@@ -1411,7 +1418,9 @@ const ORBIT={
   E.rings.forEach(g=>half(g,0));
   for(const it of E.items){if(it.k==='shard'){x.save();x.translate(it.x,it.y+Math.sin(ts/200+it.x)*3);x.fillStyle='#7af7ff';x.shadowColor='#3ff0ff';x.shadowBlur=14;x.beginPath();x.moveTo(0,-11);x.lineTo(7,0);x.lineTo(0,11);x.lineTo(-7,0);x.fill();x.restore()}
     else glowE(x,{shield:'🛡️',magnet:'🧲',slow:'⏳',heart:'❤️'}[it.k],it.x,it.y,30,'#a6ff3c',ts)}
-  for(const r of E.rocks){x.save();x.translate(r.x,r.y);x.rotate(r.rot);const rg=x.createLinearGradient(-r.r,-r.r,r.r,r.r);rg.addColorStop(0,'#b88cff');rg.addColorStop(1,'#3a2470');x.fillStyle=rg;x.strokeStyle='#d9c2ff';x.lineWidth=1.5;x.beginPath();r.pts.forEach((k,i)=>{const a=i/9*6.283;x.lineTo(Math.cos(a)*r.r*k,Math.sin(a)*r.r*k)});x.closePath();x.fill();x.stroke();x.fillStyle='rgba(30,15,60,.5)';x.beginPath();x.arc(r.r*.2,-r.r*.15,r.r*.22,0,7);x.fill();x.restore()}
+  if(E.warn&&Math.floor(E.warn.t/8)%2===0){for(const y of E.warn.lanes){x.fillStyle='#ff4f5f';x.shadowColor='#ff4f5f';x.shadowBlur=16;x.font="800 30px 'Barlow Condensed',sans-serif";x.textAlign='center';x.textBaseline='middle';x.fillText('!',W-22,y);x.shadowBlur=0;x.strokeStyle='rgba(255,79,95,.25)';x.setLineDash([6,8]);x.beginPath();x.moveTo(W-40,y);x.lineTo(E.px+40,y);x.stroke();x.setLineDash([])}}
+  for(const r of E.rocks){if(r.comet){x.save();const tg=x.createLinearGradient(r.x,r.y,r.x+90,r.y);tg.addColorStop(0,'rgba(255,140,60,.9)');tg.addColorStop(1,'rgba(255,60,120,0)');x.fillStyle=tg;x.beginPath();x.moveTo(r.x,r.y-r.r*.7);x.lineTo(r.x+90,r.y);x.lineTo(r.x,r.y+r.r*.7);x.fill();x.fillStyle='#ffd27a';x.shadowColor='#ff7a1a';x.shadowBlur=20;x.beginPath();x.arc(r.x,r.y,r.r*.8,0,7);x.fill();x.restore();continue}
+    x.save();x.translate(r.x,r.y);x.rotate(r.rot);const rg=x.createLinearGradient(-r.r,-r.r,r.r,r.r);rg.addColorStop(0,'#b88cff');rg.addColorStop(1,'#3a2470');x.fillStyle=rg;x.strokeStyle='#d9c2ff';x.lineWidth=1.5;x.beginPath();r.pts.forEach((k,i)=>{const a=i/9*6.283;x.lineTo(Math.cos(a)*r.r*k,Math.sin(a)*r.r*k)});x.closePath();x.fill();x.stroke();x.fillStyle='rgba(30,15,60,.5)';x.beginPath();x.arc(r.r*.2,-r.r*.15,r.r*.22,0,7);x.fill();x.restore()}
   E.trail.forEach((p,i)=>{const a=i/E.trail.length;x.globalAlpha=a*.6;x.fillStyle=E.col;x.beginPath();x.arc(p.x,p.y,3+a*9,0,7);x.fill()});x.globalAlpha=1;
   if(!(E.inv>0&&Math.floor(E.inv/4)%2)){const hh=E.pw*.95;x.save();x.translate(E.px,E.y);x.rotate(E.vy*.05);x.shadowColor=E.col;x.shadowBlur=16;
     gPose(x,E.hit>0?'dizzy':E.th?'fly':'hover',0,hh/2,hh,false,E.filt)||gSpr(x,'run',ts/70,0,hh/2,hh,false,E.filt);x.restore();
@@ -1576,11 +1585,16 @@ const SYNC={
 /* ---------- FRIENDLY BATTLE ---------- */
 const MV={power:['🔥','Power','#ff7a1a'],agility:['🍃','Agility','#8dff4a'],tech:['⚙️','Tech','#3ff0ff'],special:['✨','Special','#ff3fd8']};
 const BEAT2={power:'agility',agility:'tech',tech:'power'};
+const BSTYLE={power:['Fierce','power'],agility:['Swift','agility'],tech:['Clever','tech'],wild:['Wild',null]};
 const BATTLE={
- init(E){const fv=pick(Object.keys(VAR)),lv=lvInfo().l;Object.assign(E,{fv,lv,flv:Math.max(1,lv+((Math.random()*3)|0)-1),hp:100,fhp:100,m:0,fm:0,phase:'choose',q:[],qt:0,log:`A wild ${VAR[fv].n} Cyberpet wants to spar!`,
+ init(E){const fv=pick(Object.keys(VAR)),lv=lvInfo().l,streak=S.flags.bstreak||0,champ=streak>=4;
+   E.style=pick(['power','agility','tech','power','agility','tech','wild']);E.streak=streak;E.champ=champ;
+   Object.assign(E,{fv,lv,flv:Math.max(1,lv+((Math.random()*3)|0)-1+Math.min(3,Math.floor(streak/3))+(champ?1:0)),hp:100,fhp:100,m:0,fm:0,phase:'choose',q:[],qt:0,log:`A wild ${VAR[fv].n} Cyberpet wants to spar!`,
    pp:{x:E.W*.27,dx:0,st:'idle',t:0},fp:{x:E.W*.73,dx:0,st:'idle',t:0},fpk:(()=>{const o=Object.values(PACKS).filter(p=>p!==PK);return o.length&&Math.random()<.6?pick(o):null})(),gy:E.H*.56,ph:Math.min(150,E.W*.36),last:null,won:null,ffilt:VFILTER[fv]||'',turn:0,proj:null});E.btn=[]},
  down(E,px,py){if(E.phase!=='choose')return;for(const b of E.btn){if(px>b.x&&px<b.x+b.w&&py>b.y&&py<b.y+b.h){if(b.k==='special'&&E.m<100){SFX.no();return}this.pick(E,b.k);return}}},
- foeMove(E){if(E.fm>=100&&Math.random()<.7)return'special';const r=Math.random();if(E.last&&r<.4){const counter={power:'tech',agility:'power',tech:'agility'};return counter[E.last]||pick(['power','agility','tech'])}return pick(['power','agility','tech'])},
+ foeMove(E){if(E.fm>=100&&Math.random()<.7)return'special';const r=Math.random();
+   // its fighting style: a favourite move it picks half the time (a "Wild" one has none)
+   if(E.style!=='wild'&&r<.5)return BSTYLE[E.style][1];if(E.last&&r<.4){const counter={power:'tech',agility:'power',tech:'agility'};return counter[E.last]||pick(['power','agility','tech'])}return pick(['power','agility','tech'])},
  pick(E,k){SFX.tap();const f=this.foeMove(E);E.last=k==='special'?E.last:k;E.turn++;const pFirst=!(f==='agility'&&k!=='agility');
    const a={who:'p',mv:k,vs:f},b={who:'f',mv:f,vs:k};E.q=pFirst?[a,b]:[b,a];E.phase='anim';E.qt=0},
  dmg(E,act){const atkLv=act.who==='p'?E.lv:E.flv,defLv=act.who==='p'?E.flv:E.lv;let d=12+Math.random()*6,tag='';
@@ -1595,9 +1609,10 @@ const BATTLE={
     if(act.mv==='special')(act.who==='p'?E.m=0:E.fm=0);
     D.st='hit';D.t=30;D.dx=dir*18;E.shake=act.mv==='special'?16:r.crit?10:6;gBurst(E,D.x,E.gy-E.ph*.5,act.mv==='special'?40:18,[col,'#fff']);gText(E,D.x,E.gy-E.ph-10,'-'+r.d,r.crit?'#ffd23f':'#fff',r.crit?36:30);if(r.tag)gText(E,D.x,E.gy-E.ph-46,r.tag,col,20);
     act.who==='p'?SFX.zap():SFX.no();if(act.who==='f'){E.flash=8;vib(50)}
-    E.log=`${act.who==='p'?S.name:'Wild '+VAR[E.fv].n+(E.fpk?' '+E.fpk.meta.name:'')} used ${MV[act.mv][0]} ${MV[act.mv][1]}${r.tag?' — '+r.tag:''}`}
+    E.log=`${act.who==='p'?S.name:'Wild '+VAR[E.fv].n+(E.fpk?' '+E.fpk.meta.name:'')} used ${MV[act.mv][0]} ${MV[act.mv][1]}${r.tag?' — '+r.tag:''}`;
+    if(act.who==='f'&&E.turn===2&&!E.told){E.told=1;E.tell=E.style==='wild'?'It fights wild: no favourite move.':`It looks ${BSTYLE[E.style][0].toLowerCase()}… it loves ${MV[BSTYLE[E.style][1]][0]} ${MV[BSTYLE[E.style][1]][1]}!`}}
   if(E.qt>=44){E.q.shift();E.qt=0;
-    if(E.fhp<=0||E.hp<=0){E.won=E.fhp<=0;E.phase='end';(E.won?E.pp:E.fp).st='win';(E.won?E.fp:E.pp).st='ko';E.log=E.won?'Victory! 🏆':'Your Cyberpet fainted… good fight!';E.won?SFX.yay():SFX.sad();E.endT=110;E.q=[]}
+    if(E.fhp<=0||E.hp<=0){E.won=E.fhp<=0;S.flags.bstreak=E.won?(S.flags.bstreak||0)+1:0;E.phase='end';(E.won?E.pp:E.fp).st='win';(E.won?E.fp:E.pp).st='ko';E.log=E.won?'Victory! 🏆':'Your Cyberpet fainted… good fight!';E.won?SFX.yay():SFX.sad();E.endT=110;E.q=[]}
     else if(!E.q.length)E.phase='choose'}
   if(E.phase==='end'){}},
  draw(E,dt,ts){const x=E.x,W=E.W,H=E.H,gy=E.gy;
@@ -1616,13 +1631,18 @@ const BATTLE={
     x.fillStyle='rgba(255,255,255,.1)';x.fillRect(bx,96,bw,5);x.fillStyle=m>=100?'#ff3fd8':'#b06bff';x.fillRect(al==='left'?bx:bx+bw*(1-m/100),96,bw*m/100,5)};
   bar(14,S.name,E.hp,E.m,E.lv,'left');bar(W-14-W*.42,'Wild '+VAR[E.fv].n+(E.fpk?' '+E.fpk.meta.name:''),E.fhp,E.fm,E.flv,'right');
   x.textAlign='center';x.font="600 17px Barlow,sans-serif";x.fillStyle='#e8e4ff';x.fillText(E.log,W/2,gy+66);
+  if(E.tell&&E.phase==='choose'){x.font="700 15px Barlow,sans-serif";x.fillStyle='#ffd23f';x.fillText('💡 '+E.tell,W/2,gy+90)}
+  if(E.champ||E.streak){x.font="800 15px 'Barlow Condensed',sans-serif";x.fillStyle=E.champ?'#ffd23f':'#b06bff';x.fillText(E.champ?'⭐ CHAMPION BATTLE · '+E.streak+' wins in a row':'🔥 Win streak: '+E.streak,W/2,124)}
   E.btn=[];if(E.phase==='choose'){const bw=(W-42)/2,bh=58,y0=H*.73;['power','agility','tech','special'].forEach((k,i)=>{const bx=14+(i%2)*(bw+14),by=y0+Math.floor(i/2)*(bh+12),dis=k==='special'&&E.m<100;E.btn.push({k,x:bx,y:by,w:bw,h:bh});
     x.globalAlpha=dis?.35:1;x.fillStyle=MV[k][2]+'33';x.strokeStyle=MV[k][2];x.lineWidth=2;x.beginPath();x.roundRect?x.roundRect(bx,by,bw,bh,14):x.rect(bx,by,bw,bh);x.fill();x.stroke();
-    x.fillStyle='#fff';x.font="800 22px 'Barlow Condensed',sans-serif";x.textAlign='center';x.textBaseline='middle';x.fillText(MV[k][0]+' '+MV[k][1]+(k==='special'&&dis?` ${E.m|0}%`:''),bx+bw/2,by+bh/2);x.textBaseline='alphabetic';x.globalAlpha=1});
+    x.fillStyle='#fff';x.font="800 22px 'Barlow Condensed',sans-serif";x.textAlign='center';x.textBaseline='middle';x.fillText(MV[k][0]+' '+MV[k][1]+(k==='special'&&dis?` ${E.m|0}%`:''),bx+bw/2,by+bh/2-(k!=='special'?7:0));
+    if(k!=='special'){x.font="700 12px Barlow,sans-serif";x.fillStyle='rgba(255,255,255,.65)';x.fillText('beats '+MV[BEAT2[k]][0]+(k==='agility'?' · strikes first':''),bx+bw/2,by+bh/2+15)}
+    x.textBaseline='alphabetic';x.globalAlpha=1});
     x.font="600 13px Barlow,sans-serif";x.fillStyle='rgba(255,255,255,.55)';x.fillText('🔥 beats 🍃 · 🍃 beats ⚙️ · ⚙️ beats 🔥 · 🍃 strikes first',W/2,H*.73-14)}},
  hud:E=>'Round '+Math.max(1,E.turn),
- finish(E,quit){const won=!quit&&E.won;const st=won?(E.hp>75?3:E.hp>40?2:1):0;if(won)S.flags.wins=(S.flags.wins||0)+1;
-  return{score:st,title:won?'Victory! 🏆':quit?'Forfeit':'Good fight!',coins:won?30+E.flv*2:8,xp:won?30:10,loot:won?{scrap:1}:null,lines:[`vs Wild ${VAR[E.fv].n} Lv${E.flv} · ${E.hp} HP left`]}}
+ finish(E,quit){const won=!quit&&E.won;const st=won?(E.hp>75?3:E.hp>40?2:1):0;if(won)S.flags.wins=(S.flags.wins||0)+1;if(quit)S.flags.bstreak=0;
+  const sk=S.flags.bstreak||0,bonus=won?Math.min(5,sk)*8+(E.champ?40:0):0;
+  return{score:st,title:won?(E.champ?'Champion defeated! ⭐':'Victory! 🏆'):quit?'Forfeit':'Good fight!',coins:won?30+E.flv*2+bonus:8,extra:won&&sk>1?`🔥 ${sk} wins in a row · +${bonus} ⚡ streak bonus`:'',xp:won?30:10,loot:won?{scrap:1}:null,lines:[`vs Wild ${VAR[E.fv].n} Lv${E.flv} · ${E.hp} HP left`]}}
 };
 /* ---------- SKY STACK: tap to drop neon blocks, stack a tower, the pet rides the top ---------- */
 const STACK={
