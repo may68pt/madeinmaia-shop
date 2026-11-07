@@ -16,14 +16,17 @@
   ];
   const LESSON_TIME = 9 * 60; // frames at 60fps
 
+  /** Where the pet is drawn: feet at by, h tall. Sized so the sprite stays crisp on phones. */
+  const petBox = E => { const h = Math.min(E.H * 0.46, E.W * 0.95); return { cx: E.W / 2, by: E.H * 0.84, h, top: E.H * 0.84 - h }; };
+  const ZONE_NAME = { head: 'Head', chin: 'Chin', back: 'Back', chest: 'Chest', paw: 'Paw' };
   function zones(E) {
-    const cx = E.W / 2, top = E.H * 0.2, h = E.H * 0.62;
+    const b = petBox(E), h = b.h;
     return {
-      head: { x: cx, y: top + h * 0.18, r: E.W * 0.17 },
-      chin: { x: cx, y: top + h * 0.4, r: E.W * 0.1 },
-      back: { x: cx + E.W * 0.12, y: top + h * 0.58, r: E.W * 0.17 },
-      chest: { x: cx - E.W * 0.06, y: top + h * 0.6, r: E.W * 0.12 },
-      paw: { x: cx - E.W * 0.2, y: top + h * 0.9, r: E.W * 0.09 },
+      head: { x: b.cx, y: b.top + h * 0.24, r: h * 0.2 },
+      chin: { x: b.cx, y: b.top + h * 0.47, r: h * 0.1 },
+      chest: { x: b.cx - h * 0.04, y: b.top + h * 0.64, r: h * 0.12 },
+      back: { x: b.cx + h * 0.2, y: b.top + h * 0.66, r: h * 0.15 },
+      paw: { x: b.cx - h * 0.14, y: b.by - h * 0.07, r: h * 0.09 },
     };
   }
 
@@ -73,7 +76,6 @@
         if (passed) { E.done++; E.score += Math.round(200 * (1 - E.lt / LESSON_TIME)) + 100; CP.app().gBanner(E, 'Lesson learned!', L.t); CP.app().SFX.yay(); CP.app().gBurst(E, E.W / 2, E.H * 0.4, 30, ['#ff5fb8', '#5ff4ff', '#ffd23f']); }
         else CP.app().gBanner(E, 'Next one', 'It wanted: ' + L.tip);
         E.li++; E.lt = 0; E.bliss = 0; E.combo = 0; E.fingers = [];
-        E.fingers.length = 0;
         // each passed lesson teaches the pet that technique for the glass too
         if (passed) { const S = CP.S(); S.cpTech = S.cpTech || {}; S.cpTech[L.id] = (S.cpTech[L.id] || 0) + 1; }
       }
@@ -81,18 +83,29 @@
     draw(E, dt, ts) {
       const x = E.x, a = CP.app(), L = E.lessons[E.li], Z = zones(E);
       const g = x.createLinearGradient(0, 0, 0, E.H); g.addColorStop(0, '#1d1640'); g.addColorStop(1, '#0a0818'); x.fillStyle = g; x.fillRect(0, 0, E.W, E.H);
-      // the pet, big and relaxed; it leans in as bliss grows and flinches when startled
-      const lean = Math.min(1, E.bliss / E.need), bob = Math.sin(ts / 600) * 4 * (1 - lean * 0.5);
+      // soft spotlight + cushion under the pet
+      const B = petBox(E);
+      const sg = x.createRadialGradient(B.cx, B.by - B.h * 0.45, 10, B.cx, B.by - B.h * 0.45, B.h * 0.8); sg.addColorStop(0, 'rgba(255,95,184,.14)'); sg.addColorStop(1, 'rgba(255,95,184,0)'); x.fillStyle = sg; x.fillRect(0, 0, E.W, E.H);
+      x.fillStyle = 'rgba(176,107,255,.22)'; x.beginPath(); x.ellipse(B.cx, B.by + 4, B.h * 0.42, B.h * 0.07, 0, 0, 7); x.fill();
+      // the pet: relaxed, leans in as bliss grows, flinches when startled
+      const lean = Math.min(1, E.bliss / E.need), bob = Math.sin(ts / 600) * 3 * (1 - lean * 0.5);
       x.save(); if (E.startle) x.translate(Math.sin(ts / 20) * 6, 0);
-      const ok = a.gPose(x, lean > 0.6 ? 'inlove' : E.startle ? 'refuse' : 'happy', E.W / 2, E.H * 0.86 + bob, E.H * 0.66, false, E.filt) || a.gPose(x, 'idle', E.W / 2, E.H * 0.86 + bob, E.H * 0.66, false, E.filt);
-      if (!ok) { x.font = `${E.H * 0.3}px serif`; x.textAlign = 'center'; x.fillText('🐱', E.W / 2, E.H * 0.6); }
+      x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+      const role = lean > 0.6 ? 'inlove' : E.startle ? 'refuse' : lean > 0.25 ? 'happy' : 'idle';
+      const ok = a.gPose(x, role, B.cx, B.by + bob, B.h, false, E.filt) || a.gPose(x, 'idle', B.cx, B.by + bob, B.h, false, E.filt);
+      if (!ok) { x.font = `${B.h * 0.7}px serif`; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillText('🐱', B.cx, B.by); }
       x.restore();
-      // target zone
+      // target zone: pulsing ring, glow fills as you get it right, zone name and finger count
       if (L) {
-        const z = Z[L.zone], p = 0.5 + Math.sin(ts / 300) * 0.5;
-        x.save(); x.strokeStyle = `rgba(95,244,255,${0.4 + p * 0.4})`; x.lineWidth = 3; x.setLineDash([8, 8]); x.lineDashOffset = -ts / 40;
-        x.beginPath(); x.arc(z.x, z.y, z.r * (0.95 + p * 0.08), 0, 7); x.stroke(); x.restore();
-        x.fillStyle = 'rgba(95,244,255,.08)'; x.beginPath(); x.arc(z.x, z.y, z.r, 0, 7); x.fill();
+        const z = Z[L.zone], p = 0.5 + Math.sin(ts / 300) * 0.5, good = E.fingers.length && E.quality > 0.7;
+        x.save(); x.fillStyle = good ? 'rgba(255,95,184,.22)' : 'rgba(95,244,255,.10)'; x.beginPath(); x.arc(z.x, z.y, z.r, 0, 7); x.fill();
+        x.strokeStyle = good ? '#ff5fb8' : `rgba(95,244,255,${0.55 + p * 0.4})`; x.lineWidth = 3; x.setLineDash([10, 7]); x.lineDashOffset = -ts / 40;
+        x.beginPath(); x.arc(z.x, z.y, z.r * (0.96 + p * 0.06), 0, 7); x.stroke(); x.restore();
+        const fingers = '☝️'.repeat(Math.min(3, L.fingers));
+        x.font = "800 15px 'Barlow Condensed',sans-serif"; x.textAlign = 'center'; x.textBaseline = 'middle';
+        const tag = `${ZONE_NAME[L.zone]} ${fingers}`, tw = x.measureText(tag).width + 18, ty = z.y - z.r - 14;
+        x.fillStyle = 'rgba(8,6,20,.75)'; x.beginPath(); x.roundRect(z.x - tw / 2, ty - 11, tw, 22, 11); x.fill();
+        x.fillStyle = '#9ff4ff'; x.fillText(tag, z.x, ty);
       }
       // finger trails
       for (const t of E.trail) { x.globalAlpha = t.life * 0.6; x.fillStyle = E.quality > 0.7 ? '#ff9fd2' : '#ffffff'; x.beginPath(); x.arc(t.x, t.y, 6 * t.life + 2, 0, 7); x.fill(); }
@@ -108,6 +121,14 @@
         x.fillStyle = 'rgba(255,255,255,.35)'; x.fillRect(22, 115, w * tl, 2);
       }
       a.gCombo(E, 150);
+      if (E.count > 0) {
+        const w = E.W - 40, y0 = E.H - 150;
+        x.fillStyle = 'rgba(8,6,20,.85)'; x.beginPath(); x.roundRect(20, y0, w, 120, 16); x.fill();
+        x.textAlign = 'center'; x.fillStyle = '#5ff4ff'; x.font = "800 22px 'Barlow Condensed',sans-serif"; x.fillText('Paw Spa', E.W / 2, y0 + 26);
+        x.fillStyle = '#fff'; x.font = "700 17px 'Barlow Condensed',sans-serif";
+        x.fillText('Touch the glowing spot with the right', E.W / 2, y0 + 54); x.fillText('number of fingers, at the right speed.', E.W / 2, y0 + 76);
+        x.fillStyle = '#ffd23f'; x.fillText('Gentle wins. Rough swipes startle it.', E.W / 2, y0 + 102);
+      }
     },
     finish(E, quit) {
       if (E.g) E.g.detach(); CP.sound && CP.sound.purr(0); E.x.canvas.style.touchAction = E.oldTA || '';

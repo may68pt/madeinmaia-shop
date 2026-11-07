@@ -31,6 +31,28 @@
     c.fillStyle = left / total < 0.2 ? '#ff4f7a' : col; c.fillRect(14, 54, w * clampN(left / total, 0, 1), 5);
   };
   const tone = (f, d, delay = 0, type = 'triangle', v = 0.05) => { try { A().tone(f, d, delay, type, v); } catch (e) { /* muted */ } };
+  const buzz = ms => { try { CP.vib && CP.vib(ms); } catch (e) { /* no haptics */ } };
+  /** "How to play" card shown during the 3-2-1 countdown, with the player's best score. */
+  function intro(E, title, lines) {
+    if (E.count <= 0) return;
+    const x = E.x, w = E.W - 40, h = 34 + lines.length * 26 + 30, y0 = E.H - h - 30;
+    x.fillStyle = 'rgba(8,6,20,.82)'; x.strokeStyle = 'rgba(95,244,255,.45)'; x.lineWidth = 1.5;
+    x.beginPath(); x.roundRect(20, y0, w, h, 16); x.fill(); x.stroke();
+    label(E, title, E.W / 2, y0 + 22, 22, '#5ff4ff');
+    lines.forEach((l, i) => label(E, l, E.W / 2, y0 + 52 + i * 26, 18, '#fff'));
+    const best = (CP.S().bests || {})[E.id];
+    label(E, best ? `Your best: ${best}` : 'First try: no best yet', E.W / 2, y0 + h - 16, 16, '#ffd23f');
+  }
+  /** Small power-up timer chips under the HUD. */
+  function chips(E, list) {
+    let xx = 14;
+    for (const [ic, left, tot] of list) {
+      if (left <= 0) continue;
+      const c = E.x; c.fillStyle = 'rgba(0,0,0,.45)'; c.beginPath(); c.roundRect(xx, 96, 64, 24, 12); c.fill();
+      c.fillStyle = '#8dff4a'; c.fillRect(xx + 30, 106, 28 * (left / tot), 4);
+      label(E, ic, xx + 15, 108, 16); xx += 72;
+    }
+  }
 
   /* =========================================================================================
      LASER CHASE: move the laser dot with your finger. Your pet stalks it, wiggles, then pounces
@@ -41,7 +63,7 @@
     init(E) {
       Object.assign(E, {
         lives: 3, time: 90 * SEC, lx: E.W / 2, ly: E.H * 0.35, px: E.W / 2, py: E.H * 0.85,
-        state: 'stalk', st: 2.2 * SEC, lock: null, jump: null, inv: 0, orbs: [], orbT: SEC, near: 0, dodges: 0, trail: [],
+        state: 'stalk', st: 2.2 * SEC, lock: null, jump: null, inv: 0, orbs: [], orbT: SEC, near: 0, dodges: 0, trail: [], slow: 0,
       });
     },
     down(E, x, y) { E.lx = x; E.ly = clampN(y, 70, E.H - 30); },
@@ -49,16 +71,19 @@
     level: E => Math.min(1, E.t / (70 * SEC)), // 0 → 1 over 70 s
     update(E, dt) {
       const lv = this.level(E), a = A();
+      E.slow = Math.max(0, E.slow - dt); const pdt = E.slow ? dt * 0.45 : dt; // the pet moves in slow motion
       E.time -= dt;
       if (E.time <= 0) { E.score += E.lives * 100; a.gText(E, E.W / 2, E.H * 0.4, `Survived! +${E.lives * 100}`, '#8dff4a', 30); a.gEnd(E, false); return; }
       E.inv = Math.max(0, E.inv - dt); E.score += dt / SEC * (4 + lv * 6);
       // orbs to collect with the dot
       E.orbT -= dt;
-      if (E.orbT <= 0 && E.orbs.length < 4) { E.orbT = R(1.2, 2.2) * SEC; E.orbs.push({ x: R(30, E.W - 30), y: R(90, E.H * 0.75), life: 6 * SEC, gold: Math.random() < 0.12 }); }
+      if (E.orbT <= 0 && E.orbs.length < 4) { E.orbT = R(1.2, 2.2) * SEC; const r = Math.random(); E.orbs.push({ x: R(30, E.W - 30), y: R(130, E.H * 0.75), life: 6 * SEC, gold: r < 0.12, clock: r > 0.94 && !E.slow }); }
       for (const o of E.orbs) {
         o.life -= dt;
         if (Math.hypot(o.x - E.lx, o.y - E.ly) < 26) {
-          o.life = 0; const pts = o.gold ? 50 : 15; E.combo++; E.score += pts * Math.min(4, 1 + Math.floor(E.combo / 5));
+          o.life = 0;
+          if (o.clock) { E.slow = 5 * SEC; a.gText(E, o.x, o.y - 18, 'Slow-mo!', '#8dff4a', 24); tone(392, 0.25, 0, 'sine', 0.06); buzz(20); continue; }
+          const pts = o.gold ? 50 : 15; E.combo++; E.score += pts * Math.min(4, 1 + Math.floor(E.combo / 5));
           a.gBurst(E, o.x, o.y, o.gold ? 18 : 8, o.gold ? '#ffd23f' : '#5ff4ff'); a.gText(E, o.x, o.y - 18, '+' + pts, o.gold ? '#ffd23f' : '#fff', 20);
           tone(o.gold ? 1568 : 988 + E.combo * 20, 0.06);
         }
@@ -67,20 +92,20 @@
       // the pet: stalk → wiggle (ring follows dot) → lock (ring stops) → leap → land
       const head = () => ({ x: E.px, y: E.py - 70 });
       if (E.state === 'stalk') {
-        const sp = (0.9 + lv * 1.6) * dt, h = head(), d = Math.hypot(E.lx - h.x, E.ly - h.y) || 1;
+        const sp = (0.9 + lv * 1.6) * pdt, h = head(), d = Math.hypot(E.lx - h.x, E.ly - h.y) || 1;
         E.px += ((E.lx - h.x) / d) * Math.min(sp, d); E.py = clampN(E.py + ((E.ly + 70 - E.py) / d) * Math.min(sp, d), 150, E.H - 10);
-        E.st -= dt; if (E.st <= 0) { E.state = 'wiggle'; E.st = (0.75 - lv * 0.35) * SEC; tone(300, 0.08, 0, 'square', 0.03); }
+        E.st -= pdt; if (E.st <= 0) { E.state = 'wiggle'; E.st = (0.75 - lv * 0.35) * SEC; tone(300, 0.08, 0, 'square', 0.03); }
       } else if (E.state === 'wiggle') {
-        E.st -= dt; if (E.st <= 0) { E.state = 'locked'; E.lock = { x: E.lx, y: E.ly }; E.st = (0.38 - lv * 0.16) * SEC; tone(520, 0.06, 0, 'square', 0.04); }
+        E.st -= pdt; if (E.st <= 0) { E.state = 'locked'; E.lock = { x: E.lx, y: E.ly }; E.st = (0.38 - lv * 0.16) * SEC; tone(520, 0.06, 0, 'square', 0.04); }
       } else if (E.state === 'locked') {
-        E.st -= dt; if (E.st <= 0) { const h = head(); E.state = 'leap'; E.jump = { x0: E.px, y0: E.py, x1: E.lock.x, y1: E.lock.y + 70, t: 0, dur: (0.42 - lv * 0.1) * SEC }; void h; tone(700, 0.1, 0, 'sawtooth', 0.03); }
+        E.st -= pdt; if (E.st <= 0) { const h = head(); E.state = 'leap'; E.jump = { x0: E.px, y0: E.py, x1: E.lock.x, y1: E.lock.y + 70, t: 0, dur: (0.42 - lv * 0.1) * SEC }; void h; tone(700, 0.1, 0, 'sawtooth', 0.03); }
       } else if (E.state === 'leap') {
-        const j = E.jump; j.t += dt; const k = Math.min(1, j.t / j.dur);
+        const j = E.jump; j.t += pdt; const k = Math.min(1, j.t / j.dur);
         E.px = j.x0 + (j.x1 - j.x0) * k; E.py = j.y0 + (j.y1 - j.y0) * k - Math.sin(k * Math.PI) * 60;
         if (k >= 1) {
           const d = Math.hypot(E.lx - E.lock.x, E.ly - E.lock.y);
           if (d < 34 && !E.inv) {
-            E.lives--; E.inv = 1.5 * SEC; E.combo = 0; E.shake = 9; E.flash = 14; a.SFX.no(); a.gText(E, E.lock.x, E.lock.y - 34, 'Caught!', '#ff4f7a', 30);
+            E.lives--; E.inv = 1.5 * SEC; E.combo = 0; E.shake = 9; E.flash = 14; a.SFX.no(); buzz([40, 30, 60]); a.gText(E, E.lock.x, E.lock.y - 34, 'Caught!', '#ff4f7a', 30);
             if (E.lives <= 0) { a.gEnd(E, false); return; }
           } else if (d < 95) { E.near++; E.score += 30; a.gText(E, E.lx, E.ly - 30, 'Close one! +30', '#ffd23f', 22); tone(1320, 0.08); }
           else E.dodges++;
@@ -93,7 +118,12 @@
       bg(E, '#1a1033', '#090614', true); const x = E.x;
       // floor
       x.fillStyle = 'rgba(255,255,255,.04)'; x.fillRect(0, E.H * 0.82, E.W, E.H * 0.18);
-      for (const o of E.orbs) { const p = 0.7 + Math.sin(ts / 200 + o.x) * 0.3, fade = Math.min(1, o.life / 40); x.globalAlpha = fade; x.fillStyle = o.gold ? '#ffd23f' : '#5ff4ff'; x.shadowColor = x.fillStyle; x.shadowBlur = 14; x.beginPath(); x.arc(o.x, o.y, 9 * p, 0, 7); x.fill(); }
+      for (const o of E.orbs) {
+        const p = 0.7 + Math.sin(ts / 200 + o.x) * 0.3, fade = Math.min(1, o.life / 40); x.globalAlpha = fade;
+        if (o.clock) { x.shadowBlur = 0; x.font = '24px serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('⏱️', o.x, o.y); continue; }
+        x.fillStyle = o.gold ? '#ffd23f' : '#5ff4ff'; x.shadowColor = x.fillStyle; x.shadowBlur = 14; x.beginPath(); x.arc(o.x, o.y, 9 * p, 0, 7); x.fill();
+      }
+      if (E.slow) { x.fillStyle = 'rgba(141,255,74,.06)'; x.fillRect(0, 0, E.W, E.H); }
       x.globalAlpha = 1; x.shadowBlur = 0;
       // target ring: follows the dot while wiggling, freezes when locked
       if (E.state === 'wiggle' || E.state === 'locked' || E.state === 'leap') {
@@ -112,8 +142,9 @@
       for (const t of E.trail) { x.globalAlpha = t.l * 0.5; x.fillStyle = '#ff2050'; x.beginPath(); x.arc(t.x, t.y, 6 * t.l, 0, 7); x.fill(); }
       x.globalAlpha = 1; x.shadowColor = '#ff2050'; x.shadowBlur = 22; x.fillStyle = '#ff5070'; x.beginPath(); x.arc(E.lx, E.ly, 8, 0, 7); x.fill(); x.fillStyle = '#fff'; x.beginPath(); x.arc(E.lx, E.ly, 3, 0, 7); x.fill(); x.shadowBlur = 0;
       timerBar(E, E.time, 90 * SEC, '#ff5070');
+      chips(E, [['⏱️', E.slow, 5 * SEC]]);
       A().gCombo(E, 86);
-      A().gHint(E, 'Drag the dot · collect light · move when the ring turns solid!', 1 - E.t / (5 * SEC));
+      intro(E, 'Laser Chase', ['Drag the red dot. Sweep up the light.', 'Ring turns solid: move away, it pounces!', '⏱️ slows your pet down']);
     },
     finish(E) { const sc = Math.floor(E.score); return { score: sc, coins: Math.floor(sc / 15), xp: Math.floor(sc / 8) + 5, title: E.time <= 0 ? 'Survived the chase!' : undefined, lines: [`${E.dodges + E.near} pounces dodged · ${E.near} close calls`] }; },
     hud(E) { return `${Math.ceil(Math.max(0, E.time) / SEC)}s · ${Math.floor(E.score)}`; },
@@ -134,14 +165,14 @@
       E.mode = 'listen'; E.step = 0;
     },
     geo(E) {
-      const s = Math.min(E.W * 0.42, E.H * 0.25), cx = E.W / 2, cy = E.H * 0.6;
+      const s = Math.min(E.W * 0.42, E.H * 0.24), cx = E.W / 2, cy = E.H * 0.64;
       return PADS.map((_, i) => ({ x: cx + (i % 2 ? 0.55 : -0.55) * s, y: cy + (i < 2 ? -0.55 : 0.55) * s, r: s * 0.47 }));
     },
     flash(E, i, len) { E.lit = i; E.litT = len; tone(PADS[i].f, len / SEC * 0.9, 0, 'triangle', 0.07); },
     down(E, x, y) {
       if (E.mode !== 'input') return;
       const i = this.geo(E).findIndex(p => Math.abs(x - p.x) < p.r && Math.abs(y - p.y) < p.r); if (i < 0) return;
-      this.flash(E, i, 0.22 * SEC); E.press = i;
+      this.flash(E, i, 0.22 * SEC); E.press = i; buzz(8);
       const a = A();
       if (i === E.seq[E.step]) {
         E.step++;
@@ -172,8 +203,9 @@
     draw(E, dt, ts) {
       bg(E, '#14102e', '#07060f', true); const x = E.x;
       const listening = E.mode === 'listen';
-      pet(E, listening ? 'dance' : E.mode === 'input' ? 'curious' : 'happy', E.W / 2, E.H * 0.33, Math.min(130, E.H * 0.18), false);
-      if (listening && E.lit >= 0) label(E, '♪', E.W / 2 + 46 + Math.sin(ts / 90) * 4, E.H * 0.16, 30, PADS[E.lit].c);
+      const ph = Math.min(120, E.H * 0.16), pby = E.H * 0.3;
+      pet(E, listening ? 'dance' : 'idle', E.W / 2, pby + (listening ? Math.sin(ts / 120) * 3 : 0), ph, false);
+      if (listening && E.lit >= 0) { label(E, PADS[E.lit].g, E.W / 2 + ph * 0.55, pby - ph * 0.85 + Math.sin(ts / 90) * 4, 30, PADS[E.lit].c); label(E, '♪', E.W / 2 - ph * 0.55, pby - ph * 0.7, 24, PADS[E.lit].c); }
       this.geo(E).forEach((p, i) => {
         const on = E.lit === i, k = on ? 1 : 0.32;
         x.globalAlpha = k; x.fillStyle = PADS[i].c; x.shadowColor = PADS[i].c; x.shadowBlur = on ? 36 : 0;
@@ -183,8 +215,9 @@
       x.globalAlpha = 1;
       // progress dots for the current tune
       const n = E.seq.length, gap = Math.min(18, (E.W - 40) / Math.max(1, n));
-      for (let i = 0; i < n; i++) { x.fillStyle = E.mode === 'input' && i < E.step ? '#8dff4a' : 'rgba(255,255,255,.25)'; x.beginPath(); x.arc(E.W / 2 - ((n - 1) * gap) / 2 + i * gap, E.H * 0.4, 4, 0, 7); x.fill(); }
-      label(E, listening ? 'Listen…' : E.mode === 'input' ? 'Your turn!' : `Tune ${E.round}`, E.W / 2, E.H * 0.92, 24);
+      for (let i = 0; i < n; i++) { x.fillStyle = E.mode === 'input' && i < E.step ? '#8dff4a' : 'rgba(255,255,255,.25)'; x.beginPath(); x.arc(E.W / 2 - ((n - 1) * gap) / 2 + i * gap, E.H * 0.335, 4, 0, 7); x.fill(); }
+      if (E.count <= 0) label(E, listening ? 'Listen…' : E.mode === 'input' ? 'Your turn!' : `Tune ${E.round}`, E.W / 2, E.H * 0.93, 24);
+      intro(E, 'Echo Song', ['Watch and listen to the tune.', 'Then tap the same pads in order.', 'One more note every round']);
     },
     finish(E) {
       const tunes = Math.max(0, E.best);
@@ -209,7 +242,7 @@
   const SNACK = {
     init(E) {
       tilt0 = null; // re-centre tilt on the way the phone is held now
-      Object.assign(E, { lives: 3, px: E.W / 2, tx: E.W / 2, items: [], st: 0.6 * SEC, time: 60 * SEC, caught: 0, stars: 0, chew: 0, finger: false, misses: 0 });
+      Object.assign(E, { lives: 3, px: E.W / 2, tx: E.W / 2, items: [], st: 0.6 * SEC, time: 60 * SEC, caught: 0, stars: 0, chew: 0, finger: false, misses: 0, magnet: 0 });
     },
     down(E, x) { E.finger = true; E.tx = clampN(x, 40, E.W - 40); },
     move(E, x, y, p) { if (p) E.tx = clampN(x, 40, E.W - 40); },
@@ -225,16 +258,21 @@
       E.st -= dt;
       if (E.st <= 0) {
         E.st = (0.75 - lv * 0.4) * SEC * R(0.7, 1.3);
-        const r = Math.random(), kind = r < 0.16 + lv * 0.14 ? 'bug' : r < 0.22 + lv * 0.14 ? 'star' : r < 0.24 + lv * 0.14 && E.lives < 3 ? 'heart' : 'food';
-        E.items.push({ x: R(30, E.W - 30), y: -24, v: R(2.2, 3) + lv * 2.4, kind, e: kind === 'bug' ? '👾' : kind === 'star' ? '⭐' : kind === 'heart' ? '💗' : a.pick(FOOD), spin: R(-0.05, 0.05), r: 0 });
+        const r = Math.random(), b = 0.16 + lv * 0.14;
+        const kind = r < b ? 'bug' : r < b + 0.06 ? 'star' : r < b + 0.08 && E.lives < 3 ? 'heart' : r < b + 0.1 && !E.magnet ? 'magnet' : 'food';
+        E.items.push({ x: R(30, E.W - 30), y: -24, v: R(2.2, 3) + lv * 2.4, kind, e: { bug: '👾', star: '⭐', heart: '💗', magnet: '🧲' }[kind] || a.pick(FOOD), spin: R(-0.05, 0.05), r: 0 });
       }
       const my = this.mouthY(E);
+      E.magnet = Math.max(0, E.magnet - dt);
       for (const it of E.items) {
+        // magnet pulls good things toward the mouth
+        if (E.magnet && it.kind !== 'bug' && it.y > E.H * 0.25 && it.y < my) it.x += (E.px - it.x) * Math.min(1, 0.08 * dt);
         const prev = it.y; it.y += it.v * dt; it.r += it.spin * dt;
         if (!it.done && prev < my && it.y >= my - 4 && Math.abs(it.x - E.px) < 46) {
           it.done = true;
-          if (it.kind === 'bug') { E.lives--; E.combo = 0; E.shake = 8; E.flash = 12; a.SFX.no(); a.gText(E, it.x, my - 30, 'Glitch!', '#ff4f7a'); if (E.lives <= 0) { a.gEnd(E, false); return; } }
-          else if (it.kind === 'heart') { E.lives = Math.min(3, E.lives + 1); a.gText(E, it.x, my - 30, '+1 ❤️', '#ff9fd2'); tone(880, 0.12); }
+          if (it.kind === 'bug') { E.lives--; E.combo = 0; E.shake = 8; E.flash = 12; a.SFX.no(); buzz([40, 30, 60]); a.gText(E, it.x, my - 30, 'Glitch!', '#ff4f7a'); if (E.lives <= 0) { a.gEnd(E, false); return; } }
+          else if (it.kind === 'heart') { E.lives = Math.min(3, E.lives + 1); a.gText(E, it.x, my - 30, '+1 ❤️', '#ff9fd2'); tone(880, 0.12); buzz(15); }
+          else if (it.kind === 'magnet') { E.magnet = 6 * SEC; a.gText(E, it.x, my - 30, 'Magnet!', '#8dff4a', 26); tone(523, 0.1); tone(784, 0.1, 0.1); buzz(20); }
           else {
             const pts = it.kind === 'star' ? 50 : 10; E.combo++; if (it.kind === 'star') E.stars++; else E.caught++;
             const mult = Math.min(4, 1 + Math.floor(E.combo / 6)); E.score += pts * mult; E.chew = 0.35 * SEC;
@@ -251,10 +289,12 @@
       x.fillStyle = 'rgba(255,255,255,.05)'; x.fillRect(0, E.H * 0.88, E.W, E.H * 0.12);
       x.textAlign = 'center'; x.textBaseline = 'middle';
       for (const it of E.items) { x.save(); x.translate(it.x, it.y); x.rotate(it.r); x.font = '34px serif'; x.fillText(it.e, 0, 0); x.restore(); }
+      if (E.magnet) { const g = x.createRadialGradient(E.px, this.mouthY(E), 10, E.px, this.mouthY(E), 140); g.addColorStop(0, 'rgba(141,255,74,.18)'); g.addColorStop(1, 'rgba(141,255,74,0)'); x.fillStyle = g; x.fillRect(0, 0, E.W, E.H); }
       pet(E, E.chew ? 'eat' : 'happy', E.px, E.H * 0.88, 100, E.tx < E.px - 4);
       timerBar(E, E.time, 60 * SEC);
+      chips(E, [['🧲', E.magnet, 6 * SEC]]);
       A().gCombo(E, 86);
-      A().gHint(E, tilt !== null ? 'Slide your finger or tilt the phone' : 'Slide your finger to move', 1 - E.t / (5 * SEC));
+      intro(E, 'Snack Catch', [tilt !== null ? 'Slide your finger (or tilt) to move.' : 'Slide your finger to move.', 'Catch snacks · ⭐ ×5 · 💗 heals · 🧲 pulls', 'Dodge the 👾 glitch bugs!']);
     },
     finish(E) {
       const S = CP.S(), gain = Math.min(15, E.caught + E.stars * 2); S.energy = A().clamp(S.energy + gain);
@@ -268,14 +308,15 @@
      glitch bubbles (−20), but if your pet pops one it gets dizzy for a moment. 45 seconds.
      ========================================================================================= */
   const BUBBLE = {
-    init(E) { Object.assign(E, { bubbles: [], bt: 0.3 * SEC, px: E.W / 2, py: E.H * 0.75, goal: null, think: 0.8 * SEC, dizzy: 0, mine: 0, its: 0, time: 45 * SEC, lastPop: -99 }); },
+    init(E) { Object.assign(E, { bubbles: [], bt: 0.3 * SEC, px: E.W / 2, py: E.H * 0.75, goal: null, think: 0.8 * SEC, dizzy: 0, mine: 0, its: 0, time: 45 * SEC, lastPop: -99, frozen: 0 }); },
     down(E, x, y) {
       const a = A();
       let hit = null, best = 1e9;
       for (const b of E.bubbles) { const d = Math.hypot(x - b.x, y - b.y); if (!b.pop && d < b.r + 14 && d < best) { best = d; hit = b; } }
       if (!hit) return;
       hit.pop = true;
-      if (hit.kind === 'glitch') { E.score = Math.max(0, E.score - 20); E.combo = 0; E.shake = 6; a.SFX.no(); a.gText(E, hit.x, hit.y, '−20', '#ff4f7a', 24); a.gBurst(E, hit.x, hit.y, 10, '#b06bff'); return; }
+      if (hit.kind === 'ice') { E.frozen = 3 * SEC; a.gText(E, hit.x, hit.y, 'Freeze!', '#9ff4ff', 26); a.gBurst(E, hit.x, hit.y, 16, ['#ffffff', '#9ff4ff']); tone(1760, 0.15, 0, 'sine', 0.05); buzz(20); return; }
+      if (hit.kind === 'glitch') { E.score = Math.max(0, E.score - 20); E.combo = 0; E.shake = 6; a.SFX.no(); buzz(40); a.gText(E, hit.x, hit.y, '−20', '#ff4f7a', 24); a.gBurst(E, hit.x, hit.y, 10, '#b06bff'); return; }
       const quick = E.t - E.lastPop < 0.7 * SEC; E.lastPop = E.t; E.combo = quick ? E.combo + 1 : 1;
       const pts = (hit.kind === 'gold' ? 50 : 10) * Math.min(4, 1 + Math.floor(E.combo / 4)); E.score += pts; E.mine++;
       tone(hit.kind === 'gold' ? 1568 : 880 + Math.min(10, E.combo) * 40, 0.06);
@@ -289,12 +330,13 @@
       if (E.bt <= 0) {
         E.bt = R(0.35, 0.8) * SEC * (1 - lv * 0.3);
         const r = Math.random();
-        E.bubbles.push({ x: R(34, E.W - 34), y: E.H + 30, r: R(18, 30), v: R(0.9, 1.5) + lv * 0.8, kind: r < 0.08 ? 'gold' : r < 0.2 ? 'glitch' : 'plain', w: Math.random() * 6 });
+        E.bubbles.push({ x: R(34, E.W - 34), y: E.H + 30, r: R(18, 30), v: R(0.9, 1.5) + lv * 0.8, kind: r < 0.08 ? 'gold' : r < 0.2 ? 'glitch' : r < 0.23 && !E.frozen ? 'ice' : 'plain', w: Math.random() * 6 });
       }
-      for (const b of E.bubbles) { b.y -= b.v * dt; b.x += Math.sin(E.t / 30 + b.w) * 0.35 * dt; }
+      E.frozen = Math.max(0, E.frozen - dt); const bdt = E.frozen ? dt * 0.12 : dt; // freeze: bubbles and pet almost stop
+      for (const b of E.bubbles) { b.y -= b.v * bdt; b.x += Math.sin(E.t / 30 + b.w) * 0.35 * bdt; }
       // the pet: picks a bubble in the top two thirds, thinks a moment, floats over and pops it
       E.dizzy = Math.max(0, E.dizzy - dt);
-      if (!E.dizzy) {
+      if (!E.dizzy && !E.frozen) {
         if (!E.goal || E.goal.pop || E.goal.y < 40) {
           E.goal = null; E.think -= dt;
           if (E.think <= 0) {
@@ -317,10 +359,10 @@
     draw(E, dt, ts) {
       bg(E, '#0f2a3a', '#06121b', false); const x = E.x;
       for (const b of E.bubbles) {
-        const col = b.kind === 'gold' ? '#ffd23f' : b.kind === 'glitch' ? '#b06bff' : '#9ff4ff';
+        const col = b.kind === 'gold' ? '#ffd23f' : b.kind === 'glitch' ? '#b06bff' : b.kind === 'ice' ? '#ffffff' : '#9ff4ff';
         x.strokeStyle = col; x.lineWidth = 2; x.fillStyle = col + '22'; x.beginPath(); x.arc(b.x, b.y, b.r, 0, 7); x.fill(); x.stroke();
         x.fillStyle = 'rgba(255,255,255,.5)'; x.beginPath(); x.arc(b.x - b.r * 0.35, b.y - b.r * 0.35, b.r * 0.2, 0, 7); x.fill();
-        if (b.kind === 'glitch') { x.font = `${b.r}px serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('👾', b.x, b.y + 1); }
+        if (b.kind === 'glitch' || b.kind === 'ice') { x.font = `${b.r}px serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(b.kind === 'ice' ? '❄️' : '👾', b.x, b.y + 1); }
       }
       x.save(); if (E.dizzy) { x.translate(E.px, E.py - 50); x.rotate(Math.sin(ts / 80) * 0.3); x.translate(-E.px, -(E.py - 50)); }
       pet(E, E.dizzy ? 'refuse' : 'chaseball', E.px, E.py, 96, E.goal && E.goal.x < E.px);
@@ -329,9 +371,11 @@
       // score race bar
       const tot = Math.max(1, E.mine + E.its), w = E.W - 28;
       x.fillStyle = '#5ff4ff'; x.fillRect(14, 62, w * (E.mine / tot), 8); x.fillStyle = '#ff9fd2'; x.fillRect(14 + w * (E.mine / tot), 62, w * (E.its / tot), 8);
-      label(E, `You ${E.mine}`, 16, 82, 16, '#5ff4ff', 'left'); label(E, `${CP.S().name} ${E.its}`, E.W - 16, 82, 16, '#ff9fd2', 'right');
+      label(E, `You ${E.mine}`, 16, 84, 16, '#5ff4ff', 'left'); label(E, `${CP.S().name} ${E.its}`, E.W - 16, 84, 16, '#ff9fd2', 'right');
+      if (E.frozen) { x.fillStyle = 'rgba(159,244,255,.08)'; x.fillRect(0, 0, E.W, E.H); }
       timerBar(E, E.time, 45 * SEC);
-      A().gHint(E, 'Pop bubbles before your pet does · avoid 👾', 1 - E.t / (5 * SEC));
+      chips(E, [['❄️', E.frozen, 3 * SEC]]);
+      intro(E, 'Bubble Pop', ['Pop bubbles before your pet does.', 'Gold ×5 · quick pops build combos', '❄️ freezes all · leave 👾 to your pet']);
     },
     finish(E) {
       const win = E.mine > E.its, sc = Math.floor(E.score);
@@ -365,21 +409,26 @@
     },
     ask(E) {
       const pair = E.dict[E.q % E.dict.length], others = E.dict.filter(p => p[0] !== pair[0]).sort(() => Math.random() - 0.5).slice(0, 2);
-      E.word = pair[0]; E.emoji = pair[1]; E.opts = [pair, ...others].map(p => p[0]).sort(() => Math.random() - 0.5);
-      E.pick = -1; E.wait = 0; E.rt = ROUND_T; E.said = attempt(pair[0]); E.q++;
+      // every third round is reversed: it says the word clearly and you pick the picture
+      E.reverse = E.q % 3 === 2;
+      E.word = pair[0]; E.emoji = pair[1]; E.pairs = [pair, ...others].sort(() => Math.random() - 0.5); E.opts = E.pairs.map(p => p[0]);
+      E.pick = -1; E.wait = 0; E.rt = ROUND_T; E.said = E.reverse ? pair[0] + '!' : attempt(pair[0]); E.q++;
       tone(700, 0.06); tone(900, 0.06, 0.08);
     },
-    rows(E) { const top = E.H * 0.56, h = Math.min(62, (E.H * 0.36) / 3); return E.opts.map((o, i) => ({ y: top + i * (h + 10), h })); },
+    rows(E) {
+      if (E.reverse) { const s = Math.min(100, (E.W - 72) / 3), y = E.H * 0.6; return E.opts.map((o, i) => ({ x: 24 + i * (s + 12), y, w: s, h: s })); }
+      const top = E.H * 0.56, h = Math.min(62, (E.H * 0.36) / 3); return E.opts.map((o, i) => ({ x: 24, y: top + i * (h + 10), w: E.W - 48, h }));
+    },
     down(E, x, y) {
       if (E.pick >= 0) return;
-      const i = this.rows(E).findIndex(r => y >= r.y && y <= r.y + r.h && x > 20 && x < E.W - 20); if (i < 0) return;
+      const i = this.rows(E).findIndex(r => y >= r.y && y <= r.y + r.h && x >= r.x && x <= r.x + r.w); if (i < 0) return;
       this.answer(E, i);
     },
     answer(E, i) {
       const a = A(); E.pick = i; const ok = i >= 0 && E.opts[i] === E.word;
       if (ok) {
         const speed = E.rt / ROUND_T, pts = 50 + Math.round(speed * 50); E.score += pts; E.right++; E.combo++; if (speed > 0.6) E.fast++;
-        a.SFX.ok(); a.gText(E, E.W / 2, E.H * 0.47, '+' + pts, '#8dff4a', 28); a.gBurst(E, E.W / 2, E.H * 0.3, 14, ['#8dff4a', '#5ff4ff']);
+        a.SFX.ok(); buzz(10); a.gText(E, E.W / 2, E.H * 0.47, '+' + pts, '#8dff4a', 28); a.gBurst(E, E.W / 2, E.H * 0.3, 14, ['#8dff4a', '#5ff4ff']);
         const l = CP.lang && CP.lang.state();
         if (l) { const v = l.vocab[E.word] = l.vocab[E.word] || { s: 0, n: 0, t: Date.now() }; v.s = Math.min(1, v.s + 0.1); v.n++; v.t = Date.now(); }
       } else { E.combo = 0; a.SFX.no(); E.shake = 4; }
@@ -394,17 +443,21 @@
       const bx = E.W / 2 + 70, by = E.H * 0.17;
       x.fillStyle = 'rgba(255,255,255,.92)'; x.beginPath(); x.ellipse(bx, by, 46, 38, 0, 0, 7); x.fill();
       x.beginPath(); x.arc(bx - 40, by + 40, 8, 0, 7); x.fill(); x.beginPath(); x.arc(bx - 54, by + 56, 5, 0, 7); x.fill();
-      x.font = '40px serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(E.emoji, bx, by + 2 + Math.sin(ts / 300) * 2);
+      x.font = E.reverse ? '800 34px serif' : '40px serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      if (E.reverse) { x.fillStyle = '#7a3cff'; x.fillText('?', bx, by + 2); } else x.fillText(E.emoji, bx, by + 2 + Math.sin(ts / 300) * 2);
       pet(E, E.pick < 0 ? 'think' : E.opts[E.pick] === E.word ? 'happy' : 'curious', E.W / 2 - 30, E.H * 0.42, Math.min(140, E.H * 0.2), false);
       label(E, '“' + E.said + '”', E.W / 2, E.H * 0.48, 30, '#ffd6f2');
       this.rows(E).forEach((r, i) => {
         const o = E.opts[i], show = E.pick >= 0, ok = show && o === E.word, bad = show && E.pick === i && !ok;
         x.fillStyle = ok ? 'rgba(141,255,74,.35)' : bad ? 'rgba(255,79,122,.35)' : 'rgba(255,255,255,.1)';
-        x.beginPath(); x.roundRect(24, r.y, E.W - 48, r.h, 14); x.fill();
-        label(E, o, E.W / 2, r.y + r.h / 2, 26);
+        x.beginPath(); x.roundRect(r.x, r.y, r.w, r.h, 14); x.fill();
+        if (E.reverse) { x.font = `${r.h * 0.55}px serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(E.pairs[i][1], r.x + r.w / 2, r.y + r.h / 2); if (show) label(E, o, r.x + r.w / 2, r.y + r.h + 16, 16); }
+        else label(E, o, E.W / 2, r.y + r.h / 2, 26);
       });
+      if (E.reverse && E.pick < 0) label(E, 'Which one is it?', E.W / 2, E.H * 0.555, 18, '#9ff4ff');
       if (E.pick < 0) timerBar(E, E.rt, ROUND_T, '#ffd23f');
       label(E, `${E.q}/${E.total}`, 16, 76, 18, '#fff', 'left');
+      intro(E, 'Word Match', ['Your pet tries to say a word.', 'Pick the right word to teach it.', 'Every 3rd round: pick the picture']);
     },
     finish(E) {
       CP.lang && CP.lang.gain(E.right, 'words');
