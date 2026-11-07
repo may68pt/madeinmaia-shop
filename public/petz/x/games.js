@@ -109,7 +109,9 @@
             if (E.lives <= 0) { a.gEnd(E, false); return; }
           } else if (d < 95) { E.near++; E.score += 30; a.gText(E, E.lx, E.ly - 30, 'Close one! +30', '#ffd23f', 22); tone(1320, 0.08); }
           else E.dodges++;
-          E.state = 'stalk'; E.st = R(1.2, 2.4) * (1 - lv * 0.45) * SEC; E.lock = null;
+          // late in the run it sometimes pounces twice in a row
+          if (lv > 0.55 && !E.second && Math.random() < 0.4) { E.second = true; E.state = 'wiggle'; E.st = 0.3 * SEC; a.gText(E, E.px, E.py - 140, 'Again!', '#ff5070', 22); }
+          else { E.second = false; E.state = 'stalk'; E.st = R(1.2, 2.4) * (1 - lv * 0.45) * SEC; E.lock = null; }
         }
       }
       E.trail.push({ x: E.lx, y: E.ly, l: 1 }); E.trail = E.trail.filter(t => (t.l -= 0.08 * dt) > 0).slice(-30);
@@ -177,7 +179,9 @@
       if (i === E.seq[E.step]) {
         E.step++;
         if (E.step >= E.seq.length) {
-          E.score += E.seq.length * 20 + (E.roundMiss ? 0 : 10); if (!E.roundMiss) E.perfect++;
+          const took = (E.t - (E.inputAt || E.t)) / SEC, fast = !E.roundMiss && took < E.seq.length * 0.55;
+          E.score += E.seq.length * 20 + (E.roundMiss ? 0 : 10) + (fast ? E.seq.length * 5 : 0);
+          if (fast) a.gText(E, E.W / 2, E.H * 0.36, `Quick! +${E.seq.length * 5}`, '#5ff4ff', 20); if (!E.roundMiss) E.perfect++;
           E.combo++; E.best = Math.max(E.best, E.seq.length);
           a.gText(E, E.W / 2, E.H * 0.3, ['In tune!', 'Duet!', 'Perfect pitch!', 'Encore!'][E.round % 4], '#8dff4a', 30);
           a.gBurst(E, E.W / 2, E.H * 0.3, 16, PADS.map(p => p.c));
@@ -197,7 +201,7 @@
       if (E.mode === 'listen') {
         const P = E.play; P.t += dt;
         for (const n of P.notes) if (!n.done && P.t >= n.at) { n.done = true; this.flash(E, n.p, P.gap * 0.7); }
-        if (P.t >= P.len + 0.15 * SEC) { E.mode = 'input'; E.step = 0; }
+        if (P.t >= P.len + 0.15 * SEC) { E.mode = 'input'; E.step = 0; E.inputAt = E.t; }
       }
     },
     draw(E, dt, ts) {
@@ -242,7 +246,7 @@
   const SNACK = {
     init(E) {
       tilt0 = null; // re-centre tilt on the way the phone is held now
-      Object.assign(E, { lives: 3, px: E.W / 2, tx: E.W / 2, items: [], st: 0.6 * SEC, time: 60 * SEC, caught: 0, stars: 0, chew: 0, finger: false, misses: 0, magnet: 0 });
+      Object.assign(E, { lives: 3, px: E.W / 2, tx: E.W / 2, items: [], st: 0.6 * SEC, time: 60 * SEC, caught: 0, stars: 0, chew: 0, finger: false, misses: 0, magnet: 0, fire: 0, burned: 0 });
     },
     down(E, x) { E.finger = true; E.tx = clampN(x, 40, E.W - 40); },
     move(E, x, y, p) { if (p) E.tx = clampN(x, 40, E.W - 40); },
@@ -259,11 +263,12 @@
       if (E.st <= 0) {
         E.st = (0.75 - lv * 0.4) * SEC * R(0.7, 1.3);
         const r = Math.random(), b = 0.16 + lv * 0.14;
-        const kind = r < b ? 'bug' : r < b + 0.06 ? 'star' : r < b + 0.08 && E.lives < 3 ? 'heart' : r < b + 0.1 && !E.magnet ? 'magnet' : 'food';
-        E.items.push({ x: R(30, E.W - 30), y: -24, v: R(2.2, 3) + lv * 2.4, kind, e: { bug: '👾', star: '⭐', heart: '💗', magnet: '🧲' }[kind] || a.pick(FOOD), spin: R(-0.05, 0.05), r: 0 });
+        const kind = r < b ? 'bug' : r < b + 0.06 ? 'star' : r < b + 0.08 && E.lives < 3 ? 'heart' : r < b + 0.1 && !E.magnet ? 'magnet' : r < b + 0.12 && !E.fire && E.t > 10 * SEC ? 'chili' : 'food';
+        E.items.push({ x: R(30, E.W - 30), y: -24, v: R(2.2, 3) + lv * 2.4, kind, e: { bug: '👾', star: '⭐', heart: '💗', magnet: '🧲', chili: '🌶️' }[kind] || a.pick(FOOD.filter(f => f !== '🌶️')), spin: R(-0.05, 0.05), r: 0 });
       }
       const my = this.mouthY(E);
-      E.magnet = Math.max(0, E.magnet - dt);
+      E.magnet = Math.max(0, E.magnet - dt); E.fire = Math.max(0, E.fire - dt);
+      if (E.fire) for (const it of E.items) if (it.kind === 'bug' && !it.done && Math.abs(it.x - E.px) < 50 && it.y > my - 260 && it.y < my) { it.done = true; E.burned++; E.score += 15; a.gBurst(E, it.x, it.y, 14, ['#ff7a1a', '#ffd23f']); a.gText(E, it.x, it.y, 'Toasted! +15', '#ff9a3c', 18); tone(160, 0.12, 0, 'sawtooth', 0.03); }
       for (const it of E.items) {
         // magnet pulls good things toward the mouth
         if (E.magnet && it.kind !== 'bug' && it.y > E.H * 0.25 && it.y < my) it.x += (E.px - it.x) * Math.min(1, 0.08 * dt);
@@ -272,6 +277,7 @@
           it.done = true;
           if (it.kind === 'bug') { E.lives--; E.combo = 0; E.shake = 8; E.flash = 12; a.SFX.no(); buzz([40, 30, 60]); a.gText(E, it.x, my - 30, 'Glitch!', '#ff4f7a'); if (E.lives <= 0) { a.gEnd(E, false); return; } }
           else if (it.kind === 'heart') { E.lives = Math.min(3, E.lives + 1); a.gText(E, it.x, my - 30, '+1 ❤️', '#ff9fd2'); tone(880, 0.12); buzz(15); }
+          else if (it.kind === 'chili') { E.fire = 3 * SEC; a.gText(E, it.x, my - 30, 'Fire breath!', '#ff7a1a', 26); tone(220, 0.25, 0, 'sawtooth', 0.04); buzz(30); }
           else if (it.kind === 'magnet') { E.magnet = 6 * SEC; a.gText(E, it.x, my - 30, 'Magnet!', '#8dff4a', 26); tone(523, 0.1); tone(784, 0.1, 0.1); buzz(20); }
           else {
             const pts = it.kind === 'star' ? 50 : 10; E.combo++; if (it.kind === 'star') E.stars++; else E.caught++;
@@ -284,21 +290,22 @@
       }
       E.items = E.items.filter(i => !i.done);
     },
-    draw(E) {
+    draw(E, dt, ts) {
       bg(E, '#16224a', '#0a0d1e', true); const x = E.x;
       x.fillStyle = 'rgba(255,255,255,.05)'; x.fillRect(0, E.H * 0.88, E.W, E.H * 0.12);
       x.textAlign = 'center'; x.textBaseline = 'middle';
       for (const it of E.items) { x.save(); x.translate(it.x, it.y); x.rotate(it.r); x.font = '34px serif'; x.fillText(it.e, 0, 0); x.restore(); }
       if (E.magnet) { const g = x.createRadialGradient(E.px, this.mouthY(E), 10, E.px, this.mouthY(E), 140); g.addColorStop(0, 'rgba(141,255,74,.18)'); g.addColorStop(1, 'rgba(141,255,74,0)'); x.fillStyle = g; x.fillRect(0, 0, E.W, E.H); }
+      if (E.fire) { const my = this.mouthY(E), fg = x.createLinearGradient(0, my, 0, my - 260); fg.addColorStop(0, 'rgba(255,200,60,.85)'); fg.addColorStop(0.5, 'rgba(255,90,30,.5)'); fg.addColorStop(1, 'rgba(255,40,80,0)'); x.fillStyle = fg; x.beginPath(); x.moveTo(E.px - 14, my); x.lineTo(E.px - 50 - Math.sin(ts / 40) * 8, my - 260); x.lineTo(E.px + 50 + Math.sin(ts / 50) * 8, my - 260); x.lineTo(E.px + 14, my); x.fill(); }
       pet(E, E.chew ? 'eat' : 'happy', E.px, E.H * 0.88, 100, E.tx < E.px - 4);
       timerBar(E, E.time, 60 * SEC);
-      chips(E, [['🧲', E.magnet, 6 * SEC]]);
+      chips(E, [['🧲', E.magnet, 6 * SEC], ['🌶️', E.fire, 3 * SEC]]);
       A().gCombo(E, 86);
-      intro(E, 'Snack Catch', [tilt !== null ? 'Slide your finger (or tilt) to move.' : 'Slide your finger to move.', 'Catch snacks · ⭐ ×5 · 💗 heals · 🧲 pulls', 'Dodge the 👾 glitch bugs!']);
+      intro(E, 'Snack Catch', [tilt !== null ? 'Slide your finger (or tilt) to move.' : 'Slide your finger to move.', 'Catch snacks · ⭐ ×5 · 💗 heals · 🧲 pulls', 'Dodge 👾 bugs · 🌶️ = fire breath!']);
     },
     finish(E) {
       const S = CP.S(), gain = Math.min(15, E.caught + E.stars * 2); S.energy = A().clamp(S.energy + gain);
-      return { score: Math.floor(E.score), coins: Math.floor(E.score / 12), xp: Math.floor(E.score / 7) + 4, lines: [`${E.caught} snacks · ${E.stars} stars · +${gain} energy`] };
+      return { score: Math.floor(E.score), coins: Math.floor(E.score / 12), xp: Math.floor(E.score / 7) + 4, lines: [`${E.caught} snacks · ${E.stars} stars · +${gain} energy`, E.burned ? `🔥 ${E.burned} bugs toasted` : ''].filter(Boolean) };
     },
     hud(E) { return `${Math.ceil(E.time / SEC)}s · ${Math.floor(E.score)}`; },
   };
@@ -318,6 +325,11 @@
       if (hit.kind === 'ice') { E.frozen = 3 * SEC; a.gText(E, hit.x, hit.y, 'Freeze!', '#9ff4ff', 26); a.gBurst(E, hit.x, hit.y, 16, ['#ffffff', '#9ff4ff']); tone(1760, 0.15, 0, 'sine', 0.05); buzz(20); return; }
       if (hit.kind === 'glitch') { E.score = Math.max(0, E.score - 20); E.combo = 0; E.shake = 6; a.SFX.no(); buzz(40); a.gText(E, hit.x, hit.y, '−20', '#ff4f7a', 24); a.gBurst(E, hit.x, hit.y, 10, '#b06bff'); return; }
       const quick = E.t - E.lastPop < 0.7 * SEC; E.lastPop = E.t; E.combo = quick ? E.combo + 1 : 1;
+      if (hit.kind === 'gold') { // chain reaction: nearby bubbles burst with it
+        let chain = 0;
+        for (const b of E.bubbles) if (!b.pop && b !== hit && b.kind !== 'glitch' && Math.hypot(b.x - hit.x, b.y - hit.y) < 120) { b.pop = true; chain++; E.mine++; E.score += 10; a.gBurst(E, b.x, b.y, 8, '#ffd23f'); }
+        if (chain) { a.gText(E, hit.x, hit.y - 34, `Chain ×${chain}! +${chain * 10}`, '#ffd23f', 22); tone(1760, 0.1, 0.05); E.shake = 3; }
+      }
       const pts = (hit.kind === 'gold' ? 50 : 10) * Math.min(4, 1 + Math.floor(E.combo / 4)); E.score += pts; E.mine++;
       tone(hit.kind === 'gold' ? 1568 : 880 + Math.min(10, E.combo) * 40, 0.06);
       a.gBurst(E, hit.x, hit.y, hit.kind === 'gold' ? 18 : 9, hit.kind === 'gold' ? '#ffd23f' : '#9ff4ff'); a.gText(E, hit.x, hit.y, '+' + pts, '#fff', 20);
@@ -375,7 +387,7 @@
       if (E.frozen) { x.fillStyle = 'rgba(159,244,255,.08)'; x.fillRect(0, 0, E.W, E.H); }
       timerBar(E, E.time, 45 * SEC);
       chips(E, [['❄️', E.frozen, 3 * SEC]]);
-      intro(E, 'Bubble Pop', ['Pop bubbles before your pet does.', 'Gold ×5 · quick pops build combos', '❄️ freezes all · leave 👾 to your pet']);
+      intro(E, 'Bubble Pop', ['Pop bubbles before your pet does.', 'Gold ×5 and chain-pops its neighbours', '❄️ freezes all · leave 👾 to your pet']);
     },
     finish(E) {
       const win = E.mine > E.its, sc = Math.floor(E.score);
@@ -427,7 +439,8 @@
     answer(E, i) {
       const a = A(); E.pick = i; const ok = i >= 0 && E.opts[i] === E.word;
       if (ok) {
-        const speed = E.rt / ROUND_T, pts = 50 + Math.round(speed * 50); E.score += pts; E.right++; E.combo++; if (speed > 0.6) E.fast++;
+        E.combo++; const speed = E.rt / ROUND_T, mult = E.combo >= 6 ? 2 : E.combo >= 3 ? 1.5 : 1, pts = Math.round((50 + speed * 50) * mult); E.score += pts; E.right++; if (speed > 0.6) E.fast++;
+        if (mult > 1) a.gText(E, E.W / 2, E.H * 0.42, `Streak ×${mult}`, '#ffd23f', 20);
         a.SFX.ok(); buzz(10); a.gText(E, E.W / 2, E.H * 0.47, '+' + pts, '#8dff4a', 28); a.gBurst(E, E.W / 2, E.H * 0.3, 14, ['#8dff4a', '#5ff4ff']);
         const l = CP.lang && CP.lang.state();
         if (l) { const v = l.vocab[E.word] = l.vocab[E.word] || { s: 0, n: 0, t: Date.now() }; v.s = Math.min(1, v.s + 0.1); v.n++; v.t = Date.now(); }
@@ -473,7 +486,7 @@
       echo: { n: 'Echo Song', d: 'Your Cyberpet sings a tune on four pads. Sing it back, one more note each round. Helps it learn to talk.', pose: 'dance', bg: 'linear-gradient(135deg,#ff5fb8,#ffd23f)', stars: [150, 450, 900], trait: 'cosmic', rw: '🗣️ Language XP', train: 1 },
       snack: { n: 'Snack Catch', d: 'Slide to catch falling snacks in its mouth. Stars are 5×, hearts heal, glitch bugs hurt. 60 seconds.', pose: 'eat', bg: 'linear-gradient(135deg,#3f8cff,#8dff4a)', stars: [300, 700, 1300], trait: 'nature', rw: '⚡ XP · 🍴 Energy' },
       bubble: { n: 'Bubble Pop', d: 'Race your Cyberpet to the holo-bubbles. Gold is 5×. Leave the 👾 bubbles for your pet: they make it dizzy.', pose: 'chaseball', bg: 'linear-gradient(135deg,#1fd0ff,#1fae8c)', stars: [250, 550, 950], trait: 'tech', rw: '⚡ XP · Tech' },
-      words: { n: 'Word Match', d: 'Your Cyberpet thinks of something and tries to say it. Pick the right word to teach it.', pose: 'think', bg: 'linear-gradient(135deg,#b06bff,#ff5fb8)', stars: [500, 750, 920], trait: 'cosmic', rw: '🗣️ Language XP', train: 1 },
+      words: { n: 'Word Match', d: 'Your Cyberpet thinks of something and tries to say it. Pick the right word to teach it.', pose: 'think', bg: 'linear-gradient(135deg,#b06bff,#ff5fb8)', stars: [550, 900, 1300], trait: 'cosmic', rw: '🗣️ Language XP', train: 1 },
     });
     Object.assign(a.GAMEOBJ, { laser: LASER, echo: ECHO, snack: SNACK, bubble: BUBBLE, words: WORDS });
     for (const id of ['laser', 'snack', 'bubble', 'echo', 'words']) if (!a.ROT_POOL.includes(id)) a.ROT_POOL.push(id);

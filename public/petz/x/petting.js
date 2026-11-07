@@ -64,7 +64,12 @@
     },
     update(E, dt) {
       const L = E.lessons[E.li];
-      if (!L) { CP.app().gEnd(E, false); return; }
+      if (!L) {
+        // finale: after a good session the pet drifts off to sleep, purring
+        if (E.done >= 3 && !E.finale) { E.finale = 3 * 60; CP.app().gBanner(E, 'So relaxed…', `${E.done} lessons learned · zzz`); }
+        if (E.finale > 0) { E.finale -= dt; E.purr = 0.8; CP.sound && CP.sound.purr(0.8 * Math.min(1, E.finale / 60)); if (E.finale > 0) return; }
+        CP.app().gEnd(E, false); return;
+      }
       E.lt += dt; E.startle = Math.max(0, E.startle - dt);
       if (E.fingers.length && E.quality > 0.7) { E.bliss += 0.35 * dt * E.quality / CP.cfg('petting_difficulty', 1); E.score += 0.4 * dt * E.quality; E.good += dt; }
       if (!E.fingers.length) E.quality *= 0.95;
@@ -91,10 +96,11 @@
       const lean = Math.min(1, E.bliss / E.need), bob = Math.sin(ts / 600) * 3 * (1 - lean * 0.5);
       x.save(); if (E.startle) x.translate(Math.sin(ts / 20) * 6, 0);
       x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
-      const role = lean > 0.6 ? 'inlove' : E.startle ? 'refuse' : lean > 0.25 ? 'happy' : 'idle';
+      const role = E.finale > 0 ? 'sleep' : lean > 0.6 ? 'inlove' : E.startle ? 'refuse' : lean > 0.25 ? 'happy' : 'idle';
       const ok = a.gPose(x, role, B.cx, B.by + bob, B.h, false, E.filt) || a.gPose(x, 'idle', B.cx, B.by + bob, B.h, false, E.filt);
       if (!ok) { x.font = `${B.h * 0.7}px serif`; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillText('🐱', B.cx, B.by); }
       x.restore();
+      if (E.finale > 0) { for (let i = 0; i < 3; i++) { const k = ((ts / 1400) + i / 3) % 1; x.globalAlpha = 1 - k; x.fillStyle = '#bfefff'; x.font = `800 ${18 + i * 6}px 'Barlow Condensed',sans-serif`; x.textAlign = 'center'; x.fillText('z', B.cx + B.h * 0.2 + k * 30, B.top + B.h * 0.15 - k * 70); } x.globalAlpha = 1; }
       // target zone: pulsing ring, glow fills as you get it right, zone name and finger count
       if (L) {
         const z = Z[L.zone], p = 0.5 + Math.sin(ts / 300) * 0.5, good = E.fingers.length && E.quality > 0.7;
