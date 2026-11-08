@@ -143,7 +143,7 @@
             else if (g.zone === 'paw') { G.hint('Thumb circles on the paw pads'); G.bond(1, 'pawcircle'); }
             break;
           case 'tap':
-            if (g.zone === 'nose') { st.squash = 1; const r = a.pick(['sneeze', 'giggle', 'flick']); G.hint(r === 'sneeze' ? 'Ah… ACHOO!' : r === 'giggle' ? 'Hehe!' : 'Hey! *ear flick*'); a.tone(r === 'sneeze' ? 300 : 1500, .08); if (r !== 'flick') G.bond(1, 'boop'); }
+            if (g.zone === 'nose') { st.squash = 1; const r = a.pick(['sneeze', 'giggle', 'flick']); g.react = r; G.hint(r === 'sneeze' ? 'Ah… ACHOO!' : r === 'giggle' ? 'Hehe!' : 'Hey! *ear flick*'); a.tone(r === 'sneeze' ? 300 : 1500, .08); if (r !== 'flick') G.bond(1, 'boop'); }
             else if (g.zone === 'glass') G.smudge(g.x, g.y, 14, 'rgba(255,255,255,.18)');
             else { st.squash = 0.6; a.tone(1100, .05); }
             break;

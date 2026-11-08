@@ -998,7 +998,7 @@ function renderPlayOld(){$('#orbitBest').textContent=S.best?`Best: ${S.best} · 
   $$('[data-g]').forEach(g=>g.onclick=()=>{if(!canPlay())return;({catch:openCatch,sync:openSync,battle:openBattle})[g.dataset.g]()})}
 function canPlay(){if(S.stage==='egg'){SFX.no();toast('Hatch your egg first');return false}if(S.gone)return false;if(S.asleep){SFX.no();toast(S.name+' is sleeping 💤');return false}if(S.rest<10){SFX.no();toast(S.name+' is too tired. Let it rest.');return false}return true}
 $('#featOrbit').onclick=()=>startGame('orbit');
-function gameDone(coins,xp,label){const inv=S.calib.mode==='inverse';if(inv)coins=Math.round(coins*1.5);coins=Math.round(coins*(1+.1*tierOf('game')));xp=Math.round(xp*(1+.08*tierOf('race')));S.flags.games=(S.flags.games||0)+1;S.coins+=coins;addXP(xp);S.happy=clamp(S.happy+8);S.rest=clamp(S.rest-7);S.energy=clamp(S.energy-5);mission('game');save();renderAll();return`+${coins} ⚡${inv?' (inverse bonus)':''} · +${xp} XP`}
+function gameDone(coins,xp,label){const inv=S.calib.mode==='inverse';if(inv)coins=Math.round(coins*1.5);coins=Math.round(coins*(1+.1*tierOf('game')));const emo=window.CP&&CP.emotion?CP.emotion.coinMult():1;if(emo>1)coins=Math.round(coins*emo);xp=Math.round(xp*(1+.08*tierOf('race')));S.flags.games=(S.flags.games||0)+1;S.coins+=coins;addXP(xp);S.happy=clamp(S.happy+8);S.rest=clamp(S.rest-7);S.energy=clamp(S.energy-5);mission('game');save();renderAll();return`+${coins} ⚡${inv?' (inverse bonus)':''}${emo>1?' (good mood +10%)':''} · +${xp} XP`}
 
 /* --- Orbit Dash --- */
 let OD=null;
@@ -1375,7 +1375,7 @@ function gEnd(E,quit){if(E.over)return;E.over=true;GMUS.stop();cancelAnimationFr
   const meta=GAMES2[E.id],r=E.G.finish(E,quit);const sc=r.score;S.bests=S.bests||{};S.gstars=S.gstars||{};
   const prev=S.bests[E.id]||0,nb=sc>prev&&sc>0;if(nb)S.bests[E.id]=sc;const stars=meta.stars.filter(s=>sc>=s).length;S.gstars[E.id]=Math.max(S.gstars[E.id]||0,stars);
   if(r.loot)for(const k in r.loot)S.inv[k]=(S.inv[k]||0)+r.loot[k];
-  S.base[meta.trait]+=1+stars*.5;const rot=rotation(),hot=rot.feat===E.id&&rot.on.includes(E.id);if(hot){r.coins*=2;r.lines=[...(r.lines||[]),'🔥 Game of the day: 2× ⚡']}const ch=!quit&&dailyCh(E.id);if(ch&&!ch.done&&sc>=ch.target){S.dch.done=true;S.gems+=1;r.lines=[...(r.lines||[]),'🔥 Daily challenge complete: +1 💎']}const res=gameDone(r.coins,r.xp);
+  S.base[meta.trait]+=1+stars*.5;const rot=rotation(),hot=rot.feat===E.id&&rot.on.includes(E.id);if(hot){r.coins*=2;r.lines=[...(r.lines||[]),'🔥 Game of the day: 2× ⚡']}const ch=!quit&&dailyCh(E.id);if(ch&&!ch.done&&sc>=ch.target){S.dch.done=true;S.gems+=1;r.lines=[...(r.lines||[]),'🔥 Daily challenge complete: +1 💎']}const res=gameDone(r.coins,r.xp);try{window.CP&&CP.emit('game',{id:E.id,name:meta.n,score:sc,stars,nb,quit:!!quit})}catch(e){}
   modal(`<h3>${r.title||(quit?'Game over':'Run complete!')}</h3>
    <div style="text-align:center;font-size:40px;letter-spacing:6px;margin:4px 0">${[0,1,2].map(i=>`<span style="color:${i<stars?'#ffd23f':'rgba(255,255,255,.18)'};text-shadow:${i<stars?'0 0 14px #ffb13b':'none'}">★</span>`).join('')}</div>
    <p class="h" style="font-size:44px;text-align:center;margin:0">${sc}${meta.unit||' pts'}</p>
@@ -2515,6 +2515,7 @@ function faceNow(){const t=performance.now();
   return moodNow()}
 function faceFx(k,ms=1600){FACE.ov=k;FACE.ovT=performance.now()+ms}
 function setMoodChip(){const el=$('#moodChip');if(!el)return;const m=moodNow();if(S.stage==='egg'){el.style.display='none';return}el.style.display='';
+  if(window.CP&&CP.emotion){CP.emotion.paint();return}
   const d=MOODS[m.k]||MOODS.content,txt=`${d.e} ${d.n}`;if(el.textContent!==txt){el.textContent=txt;if(FACE.last!==m.k){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}FACE.last=m.k}}
 const FCV=document.createElement('canvas'),FCX=FCV.getContext('2d');
 function paintFace(x,v,sw,sh){const [cx,cy,rx,ry]=v,t=performance.now(),f=faceNow(),k=f.k,I=f.i,col=eyeColor();
@@ -3311,12 +3312,12 @@ document.dispatchEvent(new Event('cp:ready'));
 </script>
 <!-- CyberPet extension modules (back office, glass, language, games…) -->
 <script defer src="x/core.js?v=20261107"></script>
-<script defer src="x/assets.js?v=20261107"></script>
+<script defer src="x/assets.js?v=20261108c"></script>
 <script defer src="x/room.js?v=20261107"></script>
 <script defer src="x/clouds.js?v=20261107"></script>
-<script defer src="x/gestures.js?v=20261107"></script>
-<script defer src="x/glass.js?v=20261107"></script>
-<script defer src="x/petting.js?v=20261107d"></script>
+<script defer src="x/gestures.js?v=20261108b"></script>
+<script defer src="x/glass.js?v=20261108b"></script>
+<script defer src="x/petting.js?v=20261108bd"></script>
 <script defer src="x/language.js?v=20261107"></script>
 <script defer src="x/games.js?v=20261107e"></script>
 <script defer src="x/rotation.js?v=20261107"></script>
@@ -3324,5 +3325,7 @@ document.dispatchEvent(new Event('cp:ready'));
 <script defer src="x/rig.js?v=20261107"></script>
 <script defer src="x/food.js?v=20261107"></script>
 <script defer src="x/hub.js?v=20261108"></script>
+<script defer src="x/emotion.js?v=20261108d"></script>
+<script defer src="x/glass2.js?v=20261108d"></script>
 </body>
 </html>

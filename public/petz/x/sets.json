@@ -1,11 +1,137 @@
 {
   "about": "CyberPet sprite sets loaded on demand by /petz/x/assets.js. Each set: files (in /petz/x/art/<set>/ unless dir is given), optional json (frame data), lo:true when @lo copies exist. Empty sets fall back to drawn effects until the art from the ChatGPT prompt kit arrives (block 15).",
   "sets": {
-    "glass": { "files": [], "json": null, "lo": false, "use": "Close-up face, paw, tongue, fog and smear frames" },
-    "petting": { "files": [], "json": null, "lo": false, "use": "Purr loops, roll-over, stretch, reactions per zone" },
-    "clouds": { "files": [], "json": null, "lo": false, "use": "Sleep cloud frames, rare cloud variants" },
-    "room": { "files": [], "json": null, "lo": false, "use": "Item interaction animations and costume overlays" },
-    "games": { "files": [], "json": null, "lo": false, "use": "Mini-game packs" },
-    "rig": { "files": [], "json": null, "lo": false, "use": "Mesh-deform rigs and skins (block 16)" }
+    "glass": {
+      "files": [],
+      "json": null,
+      "lo": false,
+      "use": "Close-up face, paw, tongue, fog and smear frames"
+    },
+    "petting": {
+      "files": [
+        "head_lean.webp",
+        "cheek_bliss.webp",
+        "chin_lift.webp",
+        "ear_scratch.webp",
+        "paw_rub.webp",
+        "chest_heartbeat.webp",
+        "belly_roll.webp",
+        "kneading.webp",
+        "purr_curl.webp",
+        "stretch.webp",
+        "back_arch.webp",
+        "tail_twitch.webp",
+        "giggle_nose.webp",
+        "sneeze_nose.webp",
+        "pull_away.webp",
+        "flinch.webp",
+        "massage_melt.webp",
+        "blissed.webp"
+      ],
+      "json": "frames.json",
+      "lo": true,
+      "use": "cyberpet_petting_reactions_atlas.png (18 shots)"
+    },
+    "clouds": {
+      "files": [],
+      "json": null,
+      "lo": false,
+      "use": "Sleep cloud frames, rare cloud variants"
+    },
+    "room": {
+      "files": [],
+      "json": null,
+      "lo": false,
+      "use": "Item interaction animations and costume overlays"
+    },
+    "games": {
+      "files": [],
+      "json": null,
+      "lo": false,
+      "use": "Mini-game packs"
+    },
+    "rig": {
+      "files": [],
+      "json": null,
+      "lo": false,
+      "use": "Mesh-deform rigs and skins (block 16)"
+    },
+    "expr": {
+      "files": [
+        "neutral.webp",
+        "happy.webp",
+        "purr.webp",
+        "sleepy.webp",
+        "drowsy.webp",
+        "startled.webp",
+        "surprised.webp",
+        "confused.webp",
+        "proud.webp",
+        "clingy.webp",
+        "sulky.webp",
+        "annoyed.webp",
+        "giggle.webp",
+        "sneeze_windup.webp",
+        "sneeze.webp",
+        "nuzzle_ready.webp",
+        "tongue_playful.webp",
+        "pleading.webp",
+        "scared.webp",
+        "calm.webp"
+      ],
+      "json": "frames.json",
+      "lo": true,
+      "use": "cyberpet_expressions_atlas.png (20 shots)"
+    },
+    "glass2": {
+      "files": [
+        "approach.webp",
+        "face_fill.webp",
+        "lick_left.webp",
+        "lick_right.webp",
+        "tongue_smear.webp",
+        "paw_press.webp",
+        "double_paw.webp",
+        "nose_boop.webp",
+        "fog.webp",
+        "nuzzle.webp",
+        "eye_left.webp",
+        "eye_right.webp",
+        "knock.webp",
+        "sleepy_cuddle.webp",
+        "reunion.webp",
+        "cling.webp"
+      ],
+      "json": "frames.json",
+      "lo": true,
+      "use": "cyberpet_glass_interaction_atlas.png (16 shots)"
+    },
+    "glassfx": {
+      "files": [
+        "fog_soft.webp",
+        "fog_heavy.webp",
+        "lick_short.webp",
+        "lick_long.webp",
+        "nose_smudge.webp",
+        "paw_print.webp",
+        "paw_double.webp",
+        "fingerprints.webp",
+        "ripple.webp",
+        "hearts.webp",
+        "purr_sparkle.webp",
+        "zzz.webp",
+        "surprise_lines.webp",
+        "anger.webp",
+        "sneeze_puff.webp",
+        "sparkles.webp",
+        "sweat.webp",
+        "reflection.webp",
+        "wipe.webp",
+        "edge_mist.webp"
+      ],
+      "json": "frames.json",
+      "lo": true,
+      "use": "cyberpet_glass_fx_atlas.png (20 fxs)"
+    }
   }
 }

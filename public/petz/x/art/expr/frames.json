@@ -1,0 +1,229 @@
+{
+ "set": "expr",
+ "kind": "shot",
+ "board": "cyberpet_expressions_atlas.png",
+ "scale": 2,
+ "note": "Cut from the 2026-11-07 concept board; base palette, tinted per variant at runtime",
+ "frames": {
+  "neutral": {
+   "label": "Neutral curious",
+   "w": 552,
+   "h": 310,
+   "src": [
+    19,
+    146,
+    295,
+    301
+   ]
+  },
+  "happy": {
+   "label": "Happy",
+   "w": 520,
+   "h": 310,
+   "src": [
+    315,
+    146,
+    575,
+    301
+   ]
+  },
+  "purr": {
+   "label": "Blissful purr",
+   "w": 526,
+   "h": 310,
+   "src": [
+    595,
+    146,
+    858,
+    301
+   ]
+  },
+  "sleepy": {
+   "label": "Sleepy",
+   "w": 528,
+   "h": 310,
+   "src": [
+    877,
+    146,
+    1141,
+    301
+   ]
+  },
+  "drowsy": {
+   "label": "Drowsy",
+   "w": 534,
+   "h": 310,
+   "src": [
+    1161,
+    146,
+    1428,
+    301
+   ]
+  },
+  "startled": {
+   "label": "Startled",
+   "w": 552,
+   "h": 310,
+   "src": [
+    19,
+    353,
+    295,
+    508
+   ]
+  },
+  "surprised": {
+   "label": "Surprised",
+   "w": 520,
+   "h": 310,
+   "src": [
+    315,
+    353,
+    575,
+    508
+   ]
+  },
+  "confused": {
+   "label": "Confused",
+   "w": 526,
+   "h": 310,
+   "src": [
+    595,
+    353,
+    858,
+    508
+   ]
+  },
+  "proud": {
+   "label": "Proud",
+   "w": 528,
+   "h": 310,
+   "src": [
+    877,
+    353,
+    1141,
+    508
+   ]
+  },
+  "clingy": {
+   "label": "Clingy",
+   "w": 534,
+   "h": 310,
+   "src": [
+    1161,
+    353,
+    1428,
+    508
+   ]
+  },
+  "sulky": {
+   "label": "Sulky",
+   "w": 552,
+   "h": 310,
+   "src": [
+    19,
+    560,
+    295,
+    715
+   ]
+  },
+  "annoyed": {
+   "label": "Annoyed flick",
+   "w": 520,
+   "h": 310,
+   "src": [
+    315,
+    560,
+    575,
+    715
+   ]
+  },
+  "giggle": {
+   "label": "Giggling",
+   "w": 526,
+   "h": 310,
+   "src": [
+    595,
+    560,
+    858,
+    715
+   ]
+  },
+  "sneeze_windup": {
+   "label": "Sneeze windup",
+   "w": 528,
+   "h": 310,
+   "src": [
+    877,
+    560,
+    1141,
+    715
+   ]
+  },
+  "sneeze": {
+   "label": "Sneeze release",
+   "w": 534,
+   "h": 310,
+   "src": [
+    1161,
+    560,
+    1428,
+    715
+   ]
+  },
+  "nuzzle_ready": {
+   "label": "Nuzzle-ready",
+   "w": 552,
+   "h": 308,
+   "src": [
+    19,
+    767,
+    295,
+    921
+   ]
+  },
+  "tongue_playful": {
+   "label": "Tongue-out playful",
+   "w": 520,
+   "h": 308,
+   "src": [
+    315,
+    767,
+    575,
+    921
+   ]
+  },
+  "pleading": {
+   "label": "Pleading",
+   "w": 526,
+   "h": 308,
+   "src": [
+    595,
+    767,
+    858,
+    921
+   ]
+  },
+  "scared": {
+   "label": "Scared startle",
+   "w": 528,
+   "h": 308,
+   "src": [
+    877,
+    767,
+    1141,
+    921
+   ]
+  },
+  "calm": {
+   "label": "Calm eyes-closed",
+   "w": 534,
+   "h": 308,
+   "src": [
+    1161,
+    767,
+    1428,
+    921
+   ]
+  }
+ }
+}

@@ -15,6 +15,31 @@
     { id: 'ears', zone: 'head', fingers: 2, speed: [0.05, 0.7], type: 'stroke', t: 'Two-finger ear rub', tip: 'Two fingers, slow' },
   ];
   const LESSON_TIME = 9 * 60; // frames at 60fps
+  /* Reaction cam: a close-up from the petting art board shows how the pet feels about your touch right now. */
+  const CAM = { head: 'head_lean', chin: 'chin_lift', knead: 'kneading', rake: 'tail_twitch', paw: 'paw_rub', chest: 'chest_heartbeat', ears: 'ear_scratch' };
+  function camShot(E, L) {
+    if (E.cam && performance.now() < E.cam.until) return E.cam.k;
+    if (E.finale > 0) return 'massage_melt';
+    if (!L) return 'purr_curl';
+    if (E.fingers.length && E.quality > 0.7) return E.bliss / E.need > 0.75 ? (L.zone === 'head' ? 'cheek_bliss' : L.zone === 'back' ? 'back_arch' : 'purr_curl') : CAM[L.id] || 'head_lean';
+    if (E.fingers.length && E.quality < 0.3) return 'giggle_nose';
+    return E.sulky ? 'pull_away' : E.bliss / E.need > 0.4 ? 'stretch' : 'purr_curl';
+  }
+  function drawCam(E, L, ts) {
+    const im = CP.assets && CP.assets.img('petting', camShot(E, L)); if (!im) return;
+    const x = E.x, w = Math.min(170, E.W * 0.42), h = w * im.height / im.width, x0 = E.W - w - 14, y0 = 126;
+    if (E.cam0 !== im) { E.cam0 = im; E.camT = ts; }
+    const k = Math.min(1, (ts - (E.camT || 0)) / 220);
+    x.save(); x.globalAlpha = 0.6 + 0.4 * k;
+    x.beginPath(); x.roundRect(x0, y0, w, h, 14); x.fillStyle = '#0a0818'; x.fill(); x.clip();
+    x.filter = E.filt || 'none'; x.drawImage(im, x0, y0 + (1 - k) * 6, w, h); x.filter = 'none';
+    x.restore();
+    x.save(); x.strokeStyle = E.quality > 0.7 && E.fingers.length ? '#ff5fb8' : 'rgba(95,244,255,.6)'; x.lineWidth = 2; x.beginPath(); x.roundRect(x0, y0, w, h, 14); x.stroke();
+    x.fillStyle = 'rgba(8,6,20,.75)'; x.beginPath(); x.roundRect(x0 + 6, y0 + 6, 46, 16, 8); x.fill();
+    x.fillStyle = '#ff4f7a'; x.beginPath(); x.arc(x0 + 14, y0 + 14, 3 + Math.sin(ts / 200), 0, 7); x.fill();
+    x.fillStyle = '#fff'; x.font = "800 11px 'Barlow Condensed',sans-serif"; x.textAlign = 'left'; x.textBaseline = 'middle'; x.fillText('LIVE', x0 + 21, y0 + 14.5);
+    x.restore();
+  }
 
   /** Where the pet is drawn: feet at by, h tall. Sized so the sprite stays crisp on phones. */
   const petBox = E => { const h = Math.min(E.H * 0.46, E.W * 0.95); return { cx: E.W / 2, by: E.H * 0.84, h, top: E.H * 0.84 - h }; };
@@ -34,7 +59,8 @@
     init(E) {
       const diff = CP.cfg('petting_difficulty', 1);
       const order = LESSONS.slice().sort(() => Math.random() - 0.5).slice(0, 5);
-      Object.assign(E, { lessons: order, li: 0, lt: 0, bliss: 0, need: 100 * diff, quality: 0, purr: 0, fingers: [], score: 0, combo: 0, good: 0, startle: 0, done: 0, trail: [] });
+      const sulky = CP.emotion && CP.emotion.bondMult() < 1; if (CP.assets) CP.assets.load('petting');
+      Object.assign(E, { lessons: order, li: 0, lt: 0, bliss: 0, need: 100 * diff * (sulky ? 1.25 : 1), sulky, cam: null, quality: 0, purr: 0, fingers: [], score: 0, combo: 0, good: 0, startle: 0, done: 0, trail: [] });
       const cv = E.x.canvas; E.oldTA = cv.style.touchAction; cv.style.touchAction = 'none';
       const rect = () => cv.getBoundingClientRect();
       const Z = zones(E);
@@ -57,6 +83,7 @@
             CP.app().gText(E, g.x - r.left, g.y - r.top - 30, ['Nice!', 'Purrfect', 'Mmm…', '♥'][E.combo % 4], '#ffd23f', 24);
           } else if (g.type === 'rough') {
             E.bliss = Math.max(0, E.bliss - 25); E.combo = 0; E.startle = 30; E.shake = 6; CP.vib(50);
+            E.cam = { k: Math.random() < 0.5 ? 'pull_away' : 'flinch', until: performance.now() + 1400 }; if (CP.emotion) CP.emotion.upset('Too rough in Paw Spa');
             CP.app().gText(E, E.W / 2, E.H * 0.3, 'Too rough!', '#ff4f7a', 30);
           }
         },
@@ -78,6 +105,7 @@
       E.trail = E.trail.filter(t => (t.life -= 0.04 * dt) > 0).slice(-80);
       if (E.bliss >= E.need || E.lt >= LESSON_TIME) {
         const passed = E.bliss >= E.need;
+        if (passed) E.cam = { k: 'blissed', until: performance.now() + 1800 };
         if (passed) { E.done++; E.score += Math.round(200 * (1 - E.lt / LESSON_TIME)) + 100; CP.app().gBanner(E, 'Lesson learned!', L.t); CP.app().SFX.yay(); CP.app().gBurst(E, E.W / 2, E.H * 0.4, 30, ['#ff5fb8', '#5ff4ff', '#ffd23f']); }
         else CP.app().gBanner(E, 'Next one', 'It wanted: ' + L.tip);
         E.li++; E.lt = 0; E.bliss = 0; E.combo = 0; E.fingers = [];
@@ -126,6 +154,7 @@
         x.fillStyle = 'rgba(255,255,255,.15)'; x.fillRect(22, 108, w, 5); x.fillStyle = '#ff5fb8'; x.fillRect(22, 108, w * k, 5);
         x.fillStyle = 'rgba(255,255,255,.35)'; x.fillRect(22, 115, w * tl, 2);
       }
+      drawCam(E, L, ts);
       a.gCombo(E, 150);
       if (E.count > 0) {
         const w = E.W - 40, y0 = E.H - 150;

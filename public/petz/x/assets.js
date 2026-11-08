@@ -6,7 +6,7 @@
   'use strict';
   const CP = window.CP;
   const BASE = '/petz/x/';
-  const KEEP = 3; // sets kept decoded besides pinned ones
+  const KEEP = 5; // sets kept decoded besides pinned ones
   let manifest = { sets: {} };
   const loaded = new Map(); // set -> { imgs: {name: Image}, used: ms }
   const pending = new Map();
@@ -76,6 +76,7 @@
     /** Warm a set while the phone is idle (e.g. entering the room preloads the glass set). */
     prefetch(set) { const go = () => assets.load(set); (window.requestIdleCallback || (f => setTimeout(f, 800)))(go); },
     pin(set) { pinned.add(set); },
+    unpin(set) { pinned.delete(set); evict(); },
     stats: () => ({ tier, loaded: [...loaded.keys()], pending: [...pending.keys()] }),
   };
 

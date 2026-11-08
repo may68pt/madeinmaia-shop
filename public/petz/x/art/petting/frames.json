@@ -1,0 +1,225 @@
+{
+ "set": "petting",
+ "kind": "shot",
+ "board": "cyberpet_petting_reactions_atlas.png",
+ "scale": 2,
+ "note": "Cut from the 2026-11-07 concept board; base palette, tinted per variant at runtime",
+ "frames": {
+  "head_lean": {
+   "label": "Slow head stroke lean",
+   "w": 452,
+   "h": 326,
+   "src": [
+    15,
+    142,
+    241,
+    305
+   ],
+   "zone": "head"
+  },
+  "cheek_bliss": {
+   "label": "Cheek rub bliss",
+   "w": 440,
+   "h": 326,
+   "src": [
+    261,
+    142,
+    481,
+    305
+   ],
+   "zone": "cheek"
+  },
+  "chin_lift": {
+   "label": "Chin-lift slow blink",
+   "w": 436,
+   "h": 326,
+   "src": [
+    500,
+    142,
+    718,
+    305
+   ],
+   "zone": "chin"
+  },
+  "ear_scratch": {
+   "label": "Ear scratch delight",
+   "w": 436,
+   "h": 326,
+   "src": [
+    736,
+    142,
+    954,
+    305
+   ],
+   "zone": "ears"
+  },
+  "paw_rub": {
+   "label": "Paw rub back",
+   "w": 438,
+   "h": 326,
+   "src": [
+    973,
+    142,
+    1192,
+    305
+   ],
+   "zone": "paw"
+  },
+  "chest_heartbeat": {
+   "label": "Chest calm heartbeat",
+   "w": 446,
+   "h": 326,
+   "src": [
+    1211,
+    142,
+    1434,
+    305
+   ],
+   "zone": "chest"
+  },
+  "belly_roll": {
+   "label": "Belly roll over",
+   "w": 452,
+   "h": 320,
+   "src": [
+    15,
+    386,
+    241,
+    546
+   ],
+   "zone": "belly"
+  },
+  "kneading": {
+   "label": "Kneading",
+   "w": 440,
+   "h": 320,
+   "src": [
+    261,
+    386,
+    481,
+    546
+   ],
+   "zone": "paw"
+  },
+  "purr_curl": {
+   "label": "Purr curl",
+   "w": 436,
+   "h": 320,
+   "src": [
+    500,
+    386,
+    718,
+    546
+   ],
+   "zone": "body"
+  },
+  "stretch": {
+   "label": "Soft stretch",
+   "w": 436,
+   "h": 320,
+   "src": [
+    736,
+    386,
+    954,
+    546
+   ],
+   "zone": "body"
+  },
+  "back_arch": {
+   "label": "Back stroke arch",
+   "w": 438,
+   "h": 320,
+   "src": [
+    973,
+    386,
+    1192,
+    546
+   ],
+   "zone": "back"
+  },
+  "tail_twitch": {
+   "label": "Tail-base delighted twitch",
+   "w": 446,
+   "h": 320,
+   "src": [
+    1211,
+    386,
+    1434,
+    546
+   ],
+   "zone": "tail"
+  },
+  "giggle_nose": {
+   "label": "Giggle at nose tap",
+   "w": 452,
+   "h": 346,
+   "src": [
+    15,
+    626,
+    241,
+    799
+   ],
+   "zone": "nose"
+  },
+  "sneeze_nose": {
+   "label": "Sneeze from nose tap",
+   "w": 440,
+   "h": 346,
+   "src": [
+    261,
+    626,
+    481,
+    799
+   ],
+   "zone": "nose"
+  },
+  "pull_away": {
+   "label": "Annoyed pull-away",
+   "w": 436,
+   "h": 322,
+   "src": [
+    500,
+    638,
+    718,
+    799
+   ],
+   "zone": "any"
+  },
+  "flinch": {
+   "label": "Startled flinch",
+   "w": 436,
+   "h": 346,
+   "src": [
+    736,
+    626,
+    954,
+    799
+   ],
+   "zone": "any"
+  },
+  "massage_melt": {
+   "label": "Sleepy massage melt",
+   "w": 438,
+   "h": 346,
+   "src": [
+    973,
+    626,
+    1192,
+    799
+   ],
+   "zone": "back"
+  },
+  "blissed": {
+   "label": "Fully blissed combo",
+   "w": 446,
+   "h": 314,
+   "src": [
+    1211,
+    642,
+    1434,
+    799
+   ],
+   "zone": "combo"
+  }
+ }
+}

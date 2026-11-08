@@ -1,0 +1,229 @@
+{
+ "set": "glassfx",
+ "kind": "fx",
+ "board": "cyberpet_glass_fx_atlas.png",
+ "scale": 2,
+ "note": "Cut from the 2026-11-07 concept board; base palette, tinted per variant at runtime",
+ "frames": {
+  "fog_soft": {
+   "label": "Soft breath fog",
+   "w": 546,
+   "h": 296,
+   "src": [
+    18,
+    145,
+    291,
+    293
+   ]
+  },
+  "fog_heavy": {
+   "label": "Heavy fog",
+   "w": 522,
+   "h": 296,
+   "src": [
+    312,
+    145,
+    573,
+    293
+   ]
+  },
+  "lick_short": {
+   "label": "Lick smear short",
+   "w": 522,
+   "h": 296,
+   "src": [
+    595,
+    145,
+    856,
+    293
+   ]
+  },
+  "lick_long": {
+   "label": "Lick smear long",
+   "w": 522,
+   "h": 296,
+   "src": [
+    877,
+    145,
+    1138,
+    293
+   ]
+  },
+  "nose_smudge": {
+   "label": "Nose boop smudge",
+   "w": 540,
+   "h": 296,
+   "src": [
+    1159,
+    145,
+    1429,
+    293
+   ]
+  },
+  "paw_print": {
+   "label": "Paw print",
+   "w": 546,
+   "h": 308,
+   "src": [
+    18,
+    342,
+    291,
+    496
+   ]
+  },
+  "paw_double": {
+   "label": "Paw print double",
+   "w": 522,
+   "h": 308,
+   "src": [
+    312,
+    342,
+    573,
+    496
+   ]
+  },
+  "fingerprints": {
+   "label": "Fingerprint cluster",
+   "w": 522,
+   "h": 308,
+   "src": [
+    595,
+    342,
+    856,
+    496
+   ]
+  },
+  "ripple": {
+   "label": "Tap ripple",
+   "w": 522,
+   "h": 308,
+   "src": [
+    877,
+    342,
+    1138,
+    496
+   ]
+  },
+  "hearts": {
+   "label": "Heart bubbles",
+   "w": 540,
+   "h": 308,
+   "src": [
+    1159,
+    342,
+    1429,
+    496
+   ]
+  },
+  "purr_sparkle": {
+   "label": "Purr sparkle",
+   "w": 546,
+   "h": 268,
+   "src": [
+    18,
+    545,
+    291,
+    679
+   ]
+  },
+  "zzz": {
+   "label": "Sleepy Z trail",
+   "w": 522,
+   "h": 268,
+   "src": [
+    312,
+    545,
+    573,
+    679
+   ]
+  },
+  "surprise_lines": {
+   "label": "Comic surprise lines",
+   "w": 522,
+   "h": 268,
+   "src": [
+    595,
+    545,
+    856,
+    679
+   ]
+  },
+  "anger": {
+   "label": "Annoyed red flick",
+   "w": 522,
+   "h": 268,
+   "src": [
+    877,
+    545,
+    1138,
+    679
+   ]
+  },
+  "sneeze_puff": {
+   "label": "Sneeze puff",
+   "w": 540,
+   "h": 268,
+   "src": [
+    1159,
+    545,
+    1429,
+    679
+   ]
+  },
+  "sparkles": {
+   "label": "Sparkle star pair",
+   "w": 546,
+   "h": 314,
+   "src": [
+    18,
+    727,
+    291,
+    884
+   ]
+  },
+  "sweat": {
+   "label": "Tear-drop sweat",
+   "w": 522,
+   "h": 314,
+   "src": [
+    312,
+    727,
+    573,
+    884
+   ]
+  },
+  "reflection": {
+   "label": "Reflection stripe",
+   "w": 522,
+   "h": 314,
+   "src": [
+    595,
+    727,
+    856,
+    884
+   ]
+  },
+  "wipe": {
+   "label": "Wipe-clean",
+   "w": 522,
+   "h": 314,
+   "src": [
+    877,
+    727,
+    1138,
+    884
+   ]
+  },
+  "edge_mist": {
+   "label": "Cold-glass edge mist",
+   "w": 540,
+   "h": 314,
+   "src": [
+    1159,
+    727,
+    1429,
+    884
+   ]
+  }
+ }
+}

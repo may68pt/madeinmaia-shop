@@ -24,6 +24,10 @@ export const CONFIG_DEFS: ConfigDef[] = [
   { key: "glass_random_chance", group: "Glass", label: "Random glass visit chance per minute", type: "number", def: 0.04, min: 0, max: 1 },
   { key: "glass_daily_bond", group: "Glass", label: "Bond gained from the glass per day (cap)", type: "number", def: 12, min: 0, max: 100 },
   { key: "petting_difficulty", group: "Petting", label: "Massage game difficulty (0.5 easy – 2 hard)", type: "number", def: 1, min: 0.5, max: 2 },
+  { key: "emotion_effects", group: "Emotion", label: "Moods change gameplay (+10% game coins when happy, half bond while sulking)", type: "boolean", def: true },
+  { key: "emotion_sulk_seconds", group: "Emotion", label: "How long it sulks after rough handling (seconds)", type: "number", def: 45, min: 0, max: 600 },
+  { key: "emotion_proud_minutes", group: "Emotion", label: "How long it stays proud after a great game (minutes)", type: "number", def: 10, min: 0, max: 120 },
+  { key: "emotion_cling_minutes", group: "Emotion", label: "Time away before it gets clingy (minutes)", type: "number", def: 90, min: 5, max: 1440 },
   // Games (Block 12)
   { key: "games_open", group: "Games", label: "Rotating games open per day", type: "number", def: 4, min: 1, max: 20 },
   { key: "games_disabled", group: "Games", label: "Turned-off games", help: "List of game ids", type: "json", def: [] },

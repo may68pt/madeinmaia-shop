@@ -69,19 +69,21 @@
     const a = actQueue.shift(); st.act = a || null; st.actT = 0; if (!a) return;
     if (a === 'paw') { st.paw = { x: W * (Math.random() < 0.5 ? 0.3 : 0.7), y: H * 0.62, press: 0, follow: false }; tone(420, .08); }
     if (a === 'lick') { st.tongue = { p: 0, x: W * (0.4 + Math.random() * 0.2) }; }
-    if (a === 'boop') { st.squash = 1; smudge(W / 2, H * 0.47, 26, 'rgba(255,255,255,.22)'); tone(1400, .05); CP.vib(15); }
+    if (a === 'boop') { st.squash = 1; if (!(CP.glass2 && CP.glass2.stamp(gx, 'nose', W / 2, H * 0.5, 0.9))) smudge(W / 2, H * 0.47, 26, 'rgba(255,255,255,.22)'); tone(1400, .05); CP.vib(15); }
   }
   const tone = (f, d) => { try { A().tone(f, d, 0, 'triangle', .04); } catch (e) { /* muted */ } };
 
   /* ---------- glass surface: smears, prints and fog live on their own canvas ---------- */
   function smudge(x, y, r, col) { const g = gx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(255,255,255,0)'); gx.fillStyle = g; gx.beginPath(); gx.arc(x, y, r, 0, 7); gx.fill(); }
   function lickStreak(x, y) {
+    if (CP.glass2 && CP.glass2.stamp(gx, Math.random() < 0.3 ? 'lick2' : 'lick', x, y, 0.8)) return;
     gx.save(); gx.globalAlpha = 0.18; gx.fillStyle = '#e8f6ff';
     gx.beginPath(); gx.ellipse(x, y, 34, 16, -0.25, 0, 7); gx.fill();
     gx.globalAlpha = 0.28; for (let i = 0; i < 4; i++) { gx.beginPath(); gx.arc(x - 20 + i * 13, y + 10 + Math.random() * 10, 2 + Math.random() * 2, 0, 7); gx.fill(); }
     gx.restore();
   }
   function pawPrint(x, y, s = 1) {
+    if (CP.glass2 && CP.glass2.stamp(gx, 'paw', x, y, s)) return;
     gx.save(); gx.globalAlpha = 0.16; gx.fillStyle = '#fff';
     gx.beginPath(); gx.ellipse(x, y + 10 * s, 22 * s, 18 * s, 0, 0, 7); gx.fill();
     [[-20, -14], [-7, -24], [7, -24], [20, -14]].forEach(([dx, dy]) => { gx.beginPath(); gx.ellipse(x + dx * s, y + dy * s, 7 * s, 9 * s, 0, 0, 7); gx.fill(); });
@@ -121,7 +123,8 @@
   function bond(n, src) {
     const S = CP.S(), cap = CP.cfg('glass_daily_bond', 12);
     const got = CP.daily('glassBond'); if (got >= cap) return;
-    const add = Math.min(n, cap - got); CP.daily('glassBond', add); st.bondGot += add;
+    const mult = CP.emotion ? CP.emotion.bondMult() : 1; n = Math.max(mult < 1 ? 0.5 : 1, n * mult);
+    const add = Math.min(Math.round(n * 2) / 2, cap - got); CP.daily('glassBond', add); st.bondGot += add;
     S.bond = A().clamp(S.bond + add); S.happy = A().clamp(S.happy + add * 0.5);
     root.querySelector('#cpgBond').style.width = Math.min(100, (CP.daily('glassBond') / cap) * 100) + '%';
     CP.emit('bond', { n: add, src: 'glass:' + src });
@@ -155,6 +158,7 @@
     const p = st.paw; if (!p) return;
     p.press = Math.min(1, p.press + 0.05 * dt);
     if (st.act === 'paw' && st.actT > 160 && !p.follow) { pawPrint(p.x, p.y); st.paw = null; return; }
+    if (CP.glass.artMode) return; // the painted shot already shows the paw
     const s = 1 + p.press * 0.25, img = CP.assets && CP.assets.img('glass', 'paw');
     px.save(); px.translate(p.x, p.y + (1 - p.press) * 80);
     if (img) { const w = 150 * s; px.drawImage(img, -w / 2, -w / 2, w, w); }
@@ -171,6 +175,7 @@
     t.p += 0.018 * dt; const k = Math.sin(Math.min(1, t.p) * Math.PI);
     const x = t.x + (t.p - 0.5) * 120, y = H * 0.56 - k * 50;
     const img = CP.assets && CP.assets.img('glass', 'tongue');
+    if (CP.glass.artMode) { if (k > 0.6 && Math.random() < 0.25) lickStreak(x, y - 20); if (t.p >= 1) { st.tongue = null; tone(300, .1); } return; }
     px.save(); px.translate(x, y); px.rotate((t.p - 0.5) * 0.6);
     if (img) px.drawImage(img, -50, -70 * k, 100, 140 * k);
     else { px.fillStyle = '#ff6fae'; px.beginPath(); px.ellipse(0, 0, 30, 46 * k + 4, 0, 0, 7); px.fill(); px.fillStyle = '#ff4f96'; px.fillRect(-2, -40 * k, 4, 44 * k); }
@@ -194,13 +199,13 @@
 
   /* ---------- when does the pet come to the glass? ---------- */
   let hiddenAt = 0, lastVisit = 0;
-  const canVisit = () => CP.idle() && performance.now() - lastVisit > 10 * 60e3 && CP.daily('glassAuto') < 4;
+  const canVisit = () => CP.idle() && performance.now() - lastVisit > (CP.emotion && CP.emotion.state() && CP.emotion.state().cling > Date.now() ? 2 : 10) * 60e3 && CP.daily('glassAuto') < 4;
   function visit() { if (!canVisit()) return; lastVisit = performance.now(); CP.daily('glassAuto', 1); setTimeout(() => CP.idle() && show('visit'), 1200); }
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { hiddenAt = Date.now(); return; }
     if (hiddenAt && Date.now() - hiddenAt > CP.cfg('glass_visit_minutes', 20) * 60e3) visit();
   });
-  setInterval(() => { if (!document.hidden && Math.random() < CP.cfg('glass_random_chance', 0.04)) visit(); }, 60e3);
+  setInterval(() => { if (!document.hidden && Math.random() < CP.cfg('glass_random_chance', 0.04) * (CP.emotion && CP.emotion.state() && CP.emotion.state().cling > Date.now() ? 4 : 1)) visit(); }, 60e3);
 
   CP.glass = { show, close, queue, bond, smudge, pawPrint, wipe, state: st, get open() { return open; }, gestures: null, hint: t => root && hint(t) };
   CP.on('start', () => { CP.sideButton('sGlass', '🪟', 'Glass close-up', () => show('button')); });

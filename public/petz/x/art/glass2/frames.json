@@ -1,0 +1,185 @@
+{
+ "set": "glass2",
+ "kind": "shot",
+ "board": "cyberpet_glass_interaction_atlas.png",
+ "scale": 2,
+ "note": "Cut from the 2026-11-07 concept board; base palette, tinted per variant at runtime",
+ "frames": {
+  "approach": {
+   "label": "Approach to glass",
+   "w": 678,
+   "h": 296,
+   "src": [
+    18,
+    141,
+    357,
+    289
+   ]
+  },
+  "face_fill": {
+   "label": "Face-fill idle",
+   "w": 674,
+   "h": 296,
+   "src": [
+    377,
+    141,
+    714,
+    289
+   ]
+  },
+  "lick_left": {
+   "label": "Lick left",
+   "w": 676,
+   "h": 296,
+   "src": [
+    734,
+    141,
+    1072,
+    289
+   ]
+  },
+  "lick_right": {
+   "label": "Lick right",
+   "w": 674,
+   "h": 296,
+   "src": [
+    1092,
+    141,
+    1429,
+    289
+   ]
+  },
+  "tongue_smear": {
+   "label": "Tongue smear",
+   "w": 678,
+   "h": 306,
+   "src": [
+    18,
+    336,
+    357,
+    489
+   ]
+  },
+  "paw_press": {
+   "label": "Paw press flat",
+   "w": 674,
+   "h": 306,
+   "src": [
+    377,
+    336,
+    714,
+    489
+   ]
+  },
+  "double_paw": {
+   "label": "Double-paw press",
+   "w": 676,
+   "h": 306,
+   "src": [
+    734,
+    336,
+    1072,
+    489
+   ]
+  },
+  "nose_boop": {
+   "label": "Nose boop",
+   "w": 674,
+   "h": 306,
+   "src": [
+    1092,
+    336,
+    1429,
+    489
+   ]
+  },
+  "fog": {
+   "label": "Breath fog",
+   "w": 678,
+   "h": 276,
+   "src": [
+    18,
+    536,
+    357,
+    674
+   ]
+  },
+  "nuzzle": {
+   "label": "Nuzzle against glass",
+   "w": 674,
+   "h": 276,
+   "src": [
+    377,
+    536,
+    714,
+    674
+   ]
+  },
+  "eye_left": {
+   "label": "Eye-follow left",
+   "w": 676,
+   "h": 276,
+   "src": [
+    734,
+    536,
+    1072,
+    674
+   ]
+  },
+  "eye_right": {
+   "label": "Eye-follow right",
+   "w": 674,
+   "h": 276,
+   "src": [
+    1092,
+    536,
+    1429,
+    674
+   ]
+  },
+  "knock": {
+   "label": "Tap-back knock",
+   "w": 678,
+   "h": 322,
+   "src": [
+    18,
+    720,
+    357,
+    881
+   ]
+  },
+  "sleepy_cuddle": {
+   "label": "Sleepy fogged cuddle",
+   "w": 674,
+   "h": 322,
+   "src": [
+    377,
+    720,
+    714,
+    881
+   ]
+  },
+  "reunion": {
+   "label": "Happy reunion press",
+   "w": 676,
+   "h": 322,
+   "src": [
+    734,
+    720,
+    1072,
+    881
+   ]
+  },
+  "cling": {
+   "label": "Wants-attention cling",
+   "w": 674,
+   "h": 322,
+   "src": [
+    1092,
+    720,
+    1429,
+    881
+   ]
+  }
+ }
+}
