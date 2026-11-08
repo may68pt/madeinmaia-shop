@@ -64,6 +64,7 @@ main{padding-bottom:92px}
 .lampGlow{position:absolute;top:26%;width:150px;height:150px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,214,140,.55),transparent 65%);mix-blend-mode:screen;animation:lamp 4s ease-in-out infinite;pointer-events:none;z-index:1}
 @keyframes lamp{50%{opacity:.7;transform:translate(-50%,-50%) scale(.92)}}
 .roomLock{position:absolute;top:0;left:0;height:100%;z-index:70;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;background:repeating-linear-gradient(135deg,rgba(14,10,30,.88) 0 22px,rgba(40,26,60,.88) 22px 44px);border-right:3px dashed rgba(255,201,60,.6);font-family:'Barlow Condensed';font-weight:800;font-size:20px;color:#ffd27a}
+.roomSeam{position:absolute;top:0;height:100%;width:26px;transform:translateX(-50%);z-index:2;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(10,8,24,.85) 30%,#1a1433 45%,rgba(63,240,255,.55) 50%,#1a1433 55%,rgba(10,8,24,.85) 70%,transparent);box-shadow:0 0 18px rgba(63,240,255,.25)}
 .roomLock small{font-size:13px;color:#fff;opacity:.8}
 .roomLock.east{width:110px;border-right:none;border-left:3px dashed rgba(255,201,60,.6);left:auto}
 .ri{position:absolute;transform:translateX(-50%);cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -591,7 +592,7 @@ const BUILD_D={Mosskeeper:'A harmony of nature and technology. Grows with care, 
 const STATES={aligned:['Aligned','Balanced / Stable','#3ff0ff','happy'],overclocked:['Overclocked','More power / More play','#ffc93c','angry'],inverted:['Inverted','Opposite behaviour','#ff3fd8','dash'],hybrid:['Hybrid','Mixed traits','#b06bff','inf'],dormant:['Dormant','Rest / Regenerate','#e8e6ff','sleep']};
 const STAGES=[['egg','Egg','Hatch',0],['baby','Baby','0–3 days',0],['juv','Juvenile','3–14 days',72],['teen','Teen','15–30 days',360],['adult','Adult','31+ days',744]];
 const ITEMS={
- shard:['Crystal Shard','🔷','mat'],leaf:['Bio-leaf','🍃','mat'],scrap:['Tech Scrap','⚙️','mat'],spore:['Glow Spore','💠','mat'],
+ shard:['Crystal Shard','🔷','mat'],leaf:['Bio-leaf','🍃','mat'],scrap:['Tech Scrap','⚙️','mat'],spore:['Glow Spore','💠','mat'],starcore:['Star Core','🌟','mat'],
  sprout:['Sprout','🌱','plant'],glowcap:['Glowcap','🍄','plant'],moonflower:['Moonflower','🌸','plant'],vine:['Star Vine','🌿','plant'],crystalbloom:['Crystal Bloom','🪻','plant'],
  chip:['Calibration Chip','🔲','relic'],tablet:['Rune Tablet','🗿','relic'],coin:['Maia Coin','🪙','relic'],lens:['Signal Lens','🔮','relic'],idol:['Ancient Core','🏺','relic']
 };
@@ -684,7 +685,7 @@ function ensureMissions(){
   const ch=['feed'];while(ch.length<3){const k=pool[(r()*pool.length)|0];if(!ch.includes(k))ch.push(k)}
   S.missions={day:dk,list:ch.map(id=>({id,p:0,c:false})),bonus:false};
 }
-function mission(id,amt=1,set){if(!S.missions)return;const m=S.missions.list.find(x=>x.id===id);if(!m||m.c)return;const g=MPOOL[id][1];const was=m.p>=g;m.p=set?Math.max(m.p,amt):Math.min(g,m.p+amt);if(!was&&m.p>=g){toast('✅ Mission ready: '+MPOOL[id][0]);SFX.coin()}renderMissions()}
+function mission(id,amt=1,set){try{window.CP&&CP.emit&&CP.emit('act',{id,amt,set:!!set})}catch(e){}if(!S.missions)return;const m=S.missions.list.find(x=>x.id===id);if(!m||m.c)return;const g=MPOOL[id][1];const was=m.p>=g;m.p=set?Math.max(m.p,amt):Math.min(g,m.p+amt);if(!was&&m.p>=g){toast('✅ Mission ready: '+MPOOL[id][0]);SFX.coin()}renderMissions()}
 
 /* ============ sound ============ */
 let AC=null;
@@ -1908,7 +1909,10 @@ const GOALS=[
  {id:'games',d:'Play 20 mini-games',it:'mini_arcade',c:()=>(S.flags.games||0)>=20},
  {id:'decor',d:'Own 12 room items',it:'neon_sign',c:()=>Object.keys(S.room.owned).length>=12}
 ];
-const ROOMLV=[null,{n:'Attic'},{n:'Attic + Alcove',cost:400,mat:{scrap:4,shard:3},lv:3},{n:'East Wing',cost:1200,gems:2,mat:{shard:6,scrap:6},lv:6}];
+const ROOMLV=[null,{n:'Attic'},{n:'Attic + Alcove',cost:400,mat:{scrap:4,shard:3},lv:3},{n:'East Wing',cost:1200,gems:2,mat:{shard:6,scrap:6},lv:6},{n:'Third Wing',cost:2500,gems:4,mat:{shard:8,scrap:8,starcore:1},lv:10},{n:'Grand Loft',cost:5000,gems:8,mat:{shard:12,scrap:12,spore:4,starcore:2},lv:15}];
+const roomSecs=()=>{const l=(S.room&&S.room.lv)||1;return l>=5?4:l>=4?3:l>=3?2:1};
+const wingSkins=()=>['original','rose','mint'].filter(k=>k!==((S.room&&S.room.skin)||'original'));
+const ROOM_SEC_NAMES=()=>{const nm=k=>({original:'Cyber Loft',rose:'Rose Loft',mint:'Mint Lab'})[k];const w=wingSkins();return['Attic','East Wing',nm(w[0]),nm(w[1])]};
 function ensureRoom(){if(S.room)return;S.room={lv:1,owned:{bed:1,rug:1},tiers:{bed:1,game:0,work:0,aqua:0},items:[{u:1,id:'bed',x:.62,y:.86},{u:2,id:'rug',x:.55,y:.93}],goals:{},next:3,cool:{},music:0,lights:{}}}
 const riImg=id=>RI[id].img?RI[id].img:'r/'+(RI[id].st?id+Math.max(1,S.room.tiers[id]||1):id)+'.webp';
 const riH=it=>{const d=RI[it.id];return RI[it.id].st?d.h[Math.max(1,S.room.tiers[it.id]||1)-1]:d.h};
@@ -1920,11 +1924,13 @@ const depthName=y=>y<.72?'Back':y<.84?'Middle':'Front';
 const depthZ=(d,y)=>d.kind==='rug'?4:d.kind==='wall'?5:Math.round(10+y*80);
 let RV={PY:.87,H:420,imgW:840,worldW:840,edit:false,sel:null,userT:0,PX:.5,drag:null};
 function roomBounds(){return{min:S.room.lv>=2?.04:.38*RV.imgW/RV.worldW+.03,max:.97}}
-function layoutRoom(){const st=$('#stage');RV.H=st.clientHeight||420;const a=RDIM.room?RDIM.room[0]/RDIM.room[1]:2;RV.imgW=Math.round(RV.H*a);RV.worldW=RV.imgW*(S.room.lv>=3?2:1);
+function layoutRoom(){const st=$('#stage');RV.H=st.clientHeight||420;const a=RDIM.room?RDIM.room[0]/RDIM.room[1]:2;RV.imgW=Math.round(RV.H*a);RV.worldW=RV.imgW*roomSecs();
   const w=$('#world');w.style.width=RV.worldW+'px';
   $('#roomBg2').style.display=S.room.lv>=3?'block':'none';$('#roomBg2').style.left=RV.imgW+'px';
   const lk=$('#roomLock');lk.style.display=S.room.lv<2?'flex':'none';lk.style.width=RV.imgW*.37+'px';
-  const lk2=$('#roomLock2');lk2.style.display=S.room.lv<3?'flex':'none';lk2.style.left=RV.worldW+'px';
+  const lk2=$('#roomLock2'),NX=ROOMLV[S.room.lv+1];lk2.style.display=S.room.lv>=2&&NX?'flex':'none';lk2.style.left=(RV.worldW-110)+'px';if(NX)lk2.innerHTML=`<span>🚧<br>${ROOM_SEC_NAMES()[roomSecs()]||NX.n}<br><small>Expand room</small></span>`;
+  const ws=wingSkins();[3,4].forEach((n,i)=>{let im=$('#roomBg'+n);if(!im){im=document.createElement('img');im.id='roomBg'+n;im.className='roomBg';im.alt='';im.draggable=false;if(n===4)im.style.transform='scaleX(-1)';$('#roomBg2').after(im)}const on=roomSecs()>=n;im.style.display=on?'block':'none';im.style.left=RV.imgW*(n-1)+'px';const src=roomArt(ws[i]);if(on&&im.getAttribute('src')!==src)im.src=src});
+  $$('#world .roomSeam').forEach(e=>e.remove());for(let k=2;k<roomSecs();k++){const sm=document.createElement('div');sm.className='roomSeam';sm.style.left=RV.imgW*k+'px';$('#world').appendChild(sm)}
   $('#lampGlow2').style.display=S.room.lv>=3?'block':'none';$('#lampGlow2').style.left=(RV.imgW*2-RV.imgW*.403)+'px';$('#lampGlow').style.left=RV.imgW*.403+'px';
   applyRoomSkin();drawDepthGrid();renderItems();placePet(true);if(typeof placeSky==='function')placeSky()}
 function drawDepthGrid(){const W=RV.worldW,H=RV.H,vx=W/2,vy=H*.38;let s='';const ys=[.64,.72,.84,.98];
@@ -2111,7 +2117,7 @@ async function initSky(){try{SKY.win=await (await fetch('r/win.json')).json()}ca
   SKY.cars=Array.from({length:5},()=>({p:r(),v:(r()<.5?-1:1)*(.00004+r()*.00005),c:r()<.5}));
   placeSky();
 }
-function placeSky(){if(!SKY.win||!RV.H)return;const k=RV.H/SKY.win.size[1];const set=(c,b,mirror)=>{const L=mirror?RV.worldW-b[2]*k:b[0]*k;c.style.left=L+'px';c.style.top=b[1]*k+'px';c.style.width=(b[2]-b[0])*k+'px';c.style.height=(b[3]-b[1])*k+'px'};
+function placeSky(){if(!SKY.win||!RV.H)return;const k=RV.H/SKY.win.size[1];const set=(c,b,mirror)=>{const L=mirror?RV.imgW*2-b[2]*k:b[0]*k;c.style.left=L+'px';c.style.top=b[1]*k+'px';c.style.width=(b[2]-b[0])*k+'px';c.style.height=(b[3]-b[1])*k+'px'};
   set(SKY.cv,SKY.win.win);set(SKY.cv2,SKY.win.win2);set(SKY.cvm,SKY.win.win,1);set(SKY.cvm2,SKY.win.win2,1);const m=S.room&&S.room.lv>=3;SKY.cvm.style.display=SKY.cvm2.style.display=m?'block':'none';
   applyRoomSkin()}
 function cloudShape(x,cx,cy,s){x.beginPath();[[0,0,26],[-28,6,18],[28,6,20],[-12,-12,18],[14,-14,20],[46,10,13],[-46,10,12]].forEach(([a,b,r])=>{x.moveTo(cx+a*s+r*s,cy+b*s);x.arc(cx+a*s,cy+b*s,r*s,0,7)});x.fill()}
@@ -2309,7 +2315,7 @@ function openRoom(tab){if(tab)roomTab=tab;ensureRoom();const c=comfort(),xpb=Mat
     S.coins-=c[0];for(const m in c[1])S.inv[m]-=c[1][m];S.room.tiers[k]=nx;SFX.level();burst('confetti',30);toast(`${RI[k].n} → Tier ${nx}!`);addLog('⬆️','Room upgrade',`${RI[k].n} reached tier ${nx}.`);save();layoutRoom();renderAll();openRoom('up')});
   const ru=$('#roomUp');if(ru)ru.onclick=()=>{const N=ROOMLV[S.room.lv+1];if(lvInfo().l<N.lv){SFX.no();toast(`Needs pet level ${N.lv}`);return}
     if(S.coins<N.cost||(N.gems&&S.gems<N.gems)||Object.entries(N.mat).some(([m,q])=>(S.inv[m]||0)<q)){SFX.no();toast('Not enough resources');return}
-    S.coins-=N.cost;if(N.gems)S.gems-=N.gems;for(const m in N.mat)S.inv[m]-=N.mat[m];S.room.lv++;SFX.level();burst('confetti',40);toast(`🏠 Room expanded: ${N.n}!`);addLog('🏠','Room expanded',`The room grew: ${N.n}.`);save();closeM();go('home');layoutRoom();setTimeout(()=>{$('#roomScroll').scrollTo({left:S.room.lv>=3?RV.imgW*.8:0,behavior:'smooth'})},300);renderAll()}}
+    S.coins-=N.cost;if(N.gems)S.gems-=N.gems;for(const m in N.mat)S.inv[m]-=N.mat[m];const n0=roomSecs();S.room.lv++;const n1=roomSecs();if(n1!==n0){S.room.items.forEach(it=>{if(typeof it.x==='number')it.x=it.x*n0/n1});RV.PX=RV.PX*n0/n1}SFX.level();burst('confetti',40);toast(`🏠 Room expanded: ${N.n}!`);addLog('🏠','Room expanded',`The room grew: ${N.n}.`);save();closeM();go('home');layoutRoom();setTimeout(()=>{$('#roomScroll').scrollTo({left:S.room.lv>=3?RV.imgW*(roomSecs()-1)-RV.imgW*.2:0,behavior:'smooth'})},300);renderAll()}}
 function checkGoals(){if(!S.room)return;for(const g of GOALS){if(!S.room.goals[g.id]&&g.c()){S.room.goals[g.id]=1;grantItem(g.it,g.d)}}}
 async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch('r/dims.json')).json())}catch(e){}RDIM.room=[1774,887];roomPointer();await initSky();layoutRoom();followPet(true);
   addEventListener('resize',()=>{layoutRoom();followPet(true)});setInterval(roomFx,450)}
@@ -2317,7 +2323,7 @@ async function initRoom(){ensureRoom();try{Object.assign(RDIM,await (await fetch
 const rcq=rc=>{const t=tierOf('work'),o={};for(const i in rc)o[i]=Math.max(1,Math.ceil(rc[i]*(1-.1*t)));return o};
 
 /* ============ APP: install button, auto-updates, pet transfer ============ */
-const FAELIX_BUILD='20261107-b3';
+const FAELIX_BUILD='20261108-b1';
 const APP={deferred:null,standalone:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
  safari:/^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent),onSite:location.pathname.startsWith('/petz')};
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.deferred=e;showAppBar()});
@@ -3249,6 +3255,7 @@ function applyRoomSkin(){
   for(const id of ['#roomBg','#roomBg2']){
     const image=$(id);if(image.getAttribute('src')!==src)image.src=src;
   }
+  wingSkins().forEach((k,i)=>{const im=$('#roomBg'+(i+3));if(im){const w=roomArt(k);if(im.getAttribute('src')!==w)im.src=w}});
 }
 
 /* ============ nav ============ */
@@ -3298,7 +3305,7 @@ window.__cp={get S(){return S},set S(v){S=v},toast,say,modal,closeM,SFX,tone,add
  RI,ITEMS,GAMES2,GAMEOBJ,ROT_POOL,TRAIN_POOL,gameDone,canPlay,startGame,gPose,gSpr,gBurst,gText,gBanner,gDrawFx,gCombo,gHint,gEnd,sprFilter,o2col,
  get SPR(){return SPR},get sprImg(){return sprImg},get RV(){return RV},get SL(){return SL},CLOUD,api,syncPush,syncPull,mission,addLog,
  get busy(){return busy},set busy(v){busy=v},get GX(){return GX},act,setExpr,lvKick,flyEmoji,mouthPoint,curVariant,VAR,BUILD:FAELIX_BUILD,
- ZONES,ROOMLV,GOALS,STAGES,progressScore,openRoom,openProfile,charUnlocked,get ROSTER(){return ROSTER}};
+ ZONES,ROOMLV,GOALS,STAGES,roomSecs,ROOM_SEC_NAMES,wingSkins,roomArt,layoutRoom,ITEMS,progressScore,openRoom,openProfile,charUnlocked,get ROSTER(){return ROSTER}};
 document.dispatchEvent(new Event('cp:ready'));
 })();
 </script>
@@ -3316,6 +3323,6 @@ document.dispatchEvent(new Event('cp:ready'));
 <script defer src="x/shop.js?v=20261107"></script>
 <script defer src="x/rig.js?v=20261107"></script>
 <script defer src="x/food.js?v=20261107"></script>
-<script defer src="x/hub.js?v=20261107"></script>
+<script defer src="x/hub.js?v=20261108"></script>
 </body>
 </html>
