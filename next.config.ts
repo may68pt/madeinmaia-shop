@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   ]},
   async rewrites(){return {
     beforeFiles:[
+      {source:"/snake",destination:"/snake-nokia-5510/index.html"},
       {source:"/snake-nokia-5510",destination:"/snake-nokia-5510/index.html"},
       {source:"/oracle",destination:"/oracle/index.html"},
       {source:"/oracle/magic-8-ball-machine",destination:"/oracle/results-may-vary/index.html"},
