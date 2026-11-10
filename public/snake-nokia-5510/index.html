@@ -46,6 +46,11 @@ canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated }
 .key:focus-visible { outline: 3px solid #f0fa8d; outline-offset: 1px }
 #action { left: 48.8%; top: 59%; width: 13%; height: 6.3% }
 footer { line-height: 1.65; padding-inline: 12px; color: #d1cee5 }
+.sound-toggle {
+  margin-top: 7px; min-height: 32px; padding: 4px 10px;
+  border: 1px solid #6c6885; border-radius: 4px;
+  background: #222338; color: inherit; font: inherit; cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -68,7 +73,7 @@ footer { line-height: 1.65; padding-inline: 12px; color: #d1cee5 }
 <button class="key" style="left:62.8%;top:58%" data-dir="up" aria-label="Move up"></button>
 <button class="key" style="left:61.5%;top:64.3%" data-dir="down" aria-label="Move down"></button>
 </section>
-<footer>Blue key to start · 2 / 4 / 6 / 8 to steer<br>Swipe the screen or use your arrow keys</footer>
+<footer>Blue key to start · 2 / 4 / 6 / 8 to steer<br>Swipe the screen or use your arrow keys<br><button class="sound-toggle" id="sound" type="button" aria-pressed="true">Sound on</button></footer>
 </main>
 <script>
 const board = document.querySelector('#board');
@@ -80,6 +85,63 @@ const directions = {up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 let snake, direction, queued, food, score, timer, startPoint;
 let state = 'ready', best = 0;
 try { best = Number(localStorage.getItem('snake5110-best')) || 0; } catch {}
+const soundButton = document.querySelector('#sound');
+const cues = {
+  start: [[660, 0, .065], [990, .075, .09]],
+  eat: [[1050, 0, .055], [1400, .06, .045]],
+  over: [[520, 0, .09], [390, .105, .09], [260, .21, .17]],
+  win: [[660, 0, .07], [880, .08, .07], [1320, .16, .17]],
+};
+let soundOn = true;
+let audioContext, volume;
+try { soundOn = localStorage.getItem('snake5110-muted') !== 'true'; } catch {}
+function updateSoundButton() {
+  soundButton.textContent = soundOn ? 'Sound on' : 'Sound off';
+  soundButton.setAttribute('aria-pressed', String(soundOn));
+  if (volume) volume.gain.value = soundOn ? .055 : 0;
+}
+async function unlockAudio() {
+  if (!soundOn) return;
+  const Audio = window.AudioContext || window.webkitAudioContext;
+  if (!Audio) return;
+  try {
+    if (!audioContext) {
+      audioContext = new Audio();
+      volume = audioContext.createGain();
+      volume.connect(audioContext.destination);
+      updateSoundButton();
+    }
+    if (audioContext.state !== 'running') await audioContext.resume();
+  } catch {}
+}
+function playSound(cue) {
+  if (!soundOn || audioContext?.state !== 'running') return;
+  const now = audioContext.currentTime;
+  for (const [pitch, offset, length] of cues[cue]) {
+    const oscillator = audioContext.createOscillator();
+    const envelope = audioContext.createGain();
+    const start = now + offset;
+    oscillator.type = 'square';
+    oscillator.frequency.value = pitch;
+    envelope.gain.setValueAtTime(.001, start);
+    envelope.gain.linearRampToValueAtTime(1, start + .004);
+    envelope.gain.exponentialRampToValueAtTime(.001, start + length);
+    oscillator.connect(envelope);
+    envelope.connect(volume);
+    oscillator.start(start);
+    oscillator.stop(start + length);
+  }
+}
+soundButton.addEventListener('click', async () => {
+  soundOn = !soundOn;
+  try { localStorage.setItem('snake5110-muted', String(!soundOn)); } catch {}
+  updateSoundButton();
+  if (soundOn) {
+    await unlockAudio();
+    playSound('eat');
+  }
+});
+updateSoundButton();
 const format = n => String(n).padStart(2,'0');
 const same = (a,b) => a[0] === b[0] && a[1] === b[1];
 function placeFood() {
@@ -128,11 +190,13 @@ function step() {
   const eating = same(head,food);
   const body = eating ? snake : snake.slice(0,-1);
   if (head[0]<0 || head[0]>=columns || head[1]<0 || head[1]>=rows || body.some(cell => same(cell,head))) {
+    playSound('over');
     show('over','GAME OVER','SCORE '+format(score),'Retry game');
     return;
   }
   snake.unshift(head);
   if (eating) {
+    playSound('eat');
     score++;
     if (score>best) {
       best = score;
@@ -144,7 +208,10 @@ function step() {
   }
   draw();
   if (food) schedule();
-  else show('over','YOU WIN!','SCORE '+format(score),'Retry game');
+  else {
+    playSound('win');
+    show('over','YOU WIN!','SCORE '+format(score),'Retry game');
+  }
 }
 function toggle() {
   if (state === 'playing') {
@@ -152,7 +219,11 @@ function toggle() {
     show('paused','PAUSED','PRESS THE BLUE KEY','Resume game');
     return;
   }
-  if (state !== 'paused') reset();
+  const starting = state !== 'paused';
+  if (starting) reset();
+  unlockAudio().then(() => {
+    if (starting && state === 'playing') playSound('start');
+  });
   show('playing','','','Pause game');
   schedule();
 }
@@ -171,7 +242,7 @@ window.addEventListener('keydown',event => {
   if (name && Object.hasOwn(directions,name)) {
     event.preventDefault();
     turn(name);
-  } else if (key === ' ' && !event.target.closest('#action')) {
+  } else if (key === ' ' && !event.target.closest('button')) {
     event.preventDefault();
     if (!event.repeat) toggle();
   }
