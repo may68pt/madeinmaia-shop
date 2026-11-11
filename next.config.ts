@@ -23,6 +23,8 @@ const nextConfig: NextConfig = {
       {source:"/outrunning-portugal",destination:"/outrunning-portugal/index.html"},
       // "FÆLIX" bio-tech virtual pet (static files in public/petz/)
       {source:"/petz",destination:"/petz/index.html"},
+      // "Bad Samaritan: O Pulso do Porto" 16-bit platformer (static files in public/badsamaritan/)
+      {source:"/badsamaritan",destination:"/badsamaritan/index.html"},
     ],
     afterFiles:[],
     fallback:[],

@@ -1,0 +1,419 @@
+{
+  "character": "Bad Samaritan",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "pivot": {
+    "x": 32,
+    "y": 57
+  },
+  "facing": "right",
+  "leftFacing": "Flip horizontally around the pivot",
+  "filter": "nearest",
+  "animations": {
+    "idle": {
+      "atlas": "movement.png",
+      "loop": true,
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 160
+        },
+        {
+          "x": 64,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 160
+        },
+        {
+          "x": 128,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 120
+        },
+        {
+          "x": 192,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 90
+        },
+        {
+          "x": 256,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 120
+        },
+        {
+          "x": 320,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 160
+        }
+      ]
+    },
+    "run": {
+      "atlas": "movement.png",
+      "loop": true,
+      "frames": [
+        {
+          "x": 0,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 75
+        },
+        {
+          "x": 64,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 65
+        },
+        {
+          "x": 128,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 65
+        },
+        {
+          "x": 192,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 75
+        },
+        {
+          "x": 256,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 65
+        },
+        {
+          "x": 320,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 65
+        }
+      ]
+    },
+    "jump": {
+      "atlas": "movement.png",
+      "loop": false,
+      "frames": [
+        {
+          "x": 0,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 75
+        },
+        {
+          "x": 64,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 65
+        },
+        {
+          "x": 128,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 110
+        },
+        {
+          "x": 192,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 125
+        },
+        {
+          "x": 256,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 110
+        },
+        {
+          "x": 320,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 90
+        }
+      ]
+    },
+    "slide_roll": {
+      "atlas": "movement.png",
+      "loop": false,
+      "frames": [
+        {
+          "x": 0,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 75
+        },
+        {
+          "x": 64,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 85
+        },
+        {
+          "x": 128,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 85
+        },
+        {
+          "x": 192,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 80
+        },
+        {
+          "x": 256,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 85
+        },
+        {
+          "x": 320,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 100
+        }
+      ]
+    },
+    "wall_cling_kick": {
+      "atlas": "actions.png",
+      "loop": false,
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 80
+        },
+        {
+          "x": 64,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 85
+        },
+        {
+          "x": 128,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 110
+        },
+        {
+          "x": 192,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 110
+        },
+        {
+          "x": 256,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 75
+        },
+        {
+          "x": 320,
+          "y": 0,
+          "w": 64,
+          "h": 64,
+          "durationMs": 100
+        }
+      ]
+    },
+    "claw_swipe": {
+      "atlas": "actions.png",
+      "loop": false,
+      "frames": [
+        {
+          "x": 0,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 65
+        },
+        {
+          "x": 64,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 70
+        },
+        {
+          "x": 128,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 60
+        },
+        {
+          "x": 192,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 65
+        },
+        {
+          "x": 256,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 95
+        },
+        {
+          "x": 320,
+          "y": 64,
+          "w": 64,
+          "h": 64,
+          "durationMs": 95
+        }
+      ]
+    },
+    "smoke_cast": {
+      "atlas": "actions.png",
+      "loop": false,
+      "frames": [
+        {
+          "x": 0,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 85
+        },
+        {
+          "x": 64,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 95
+        },
+        {
+          "x": 128,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 80
+        },
+        {
+          "x": 192,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 65
+        },
+        {
+          "x": 256,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 100
+        },
+        {
+          "x": 320,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 115
+        }
+      ]
+    },
+    "hit_ko": {
+      "atlas": "actions.png",
+      "loop": false,
+      "frames": [
+        {
+          "x": 0,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 70
+        },
+        {
+          "x": 64,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 80
+        },
+        {
+          "x": 128,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 85
+        },
+        {
+          "x": 192,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 115
+        },
+        {
+          "x": 256,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 100
+        },
+        {
+          "x": 320,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 185
+        }
+      ]
+    }
+  },
+  "effects": {
+    "smoke_projectile": {
+      "atlas": "smoke_projectile.png",
+      "frameWidth": 32,
+      "frameHeight": 24,
+      "spawnOnFrame": 3,
+      "spawnAnimation": "smoke_cast",
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "durationMs": 140
+        },
+        {
+          "x": 32,
+          "y": 0,
+          "durationMs": 90
+        }
+      ]
+    }
+  }
+}

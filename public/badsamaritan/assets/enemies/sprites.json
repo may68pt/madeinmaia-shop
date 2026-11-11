@@ -1,0 +1,328 @@
+{
+  "facing": "right",
+  "textureFilter": "nearest",
+  "enemies": {
+    "ticket_drone": {
+      "area": "Mercado Ferreira Borges",
+      "atlas": "enemies.png",
+      "pivot": {
+        "x": 48,
+        "y": 63
+      },
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 96,
+          "h": 96,
+          "pose": "hover",
+          "durationMs": 140
+        },
+        {
+          "x": 96,
+          "y": 0,
+          "w": 96,
+          "h": 96,
+          "pose": "alarm",
+          "durationMs": 140
+        },
+        {
+          "x": 192,
+          "y": 0,
+          "w": 96,
+          "h": 96,
+          "pose": "fire",
+          "durationMs": 85
+        },
+        {
+          "x": 288,
+          "y": 0,
+          "w": 96,
+          "h": 96,
+          "pose": "recoil",
+          "durationMs": 115
+        }
+      ]
+    },
+    "ledger_automaton": {
+      "area": "Palácio da Bolsa",
+      "atlas": "enemies.png",
+      "pivot": {
+        "x": 48,
+        "y": 82
+      },
+      "frames": [
+        {
+          "x": 0,
+          "y": 96,
+          "w": 96,
+          "h": 96,
+          "pose": "left_step",
+          "durationMs": 120
+        },
+        {
+          "x": 96,
+          "y": 96,
+          "w": 96,
+          "h": 96,
+          "pose": "right_step",
+          "durationMs": 120
+        },
+        {
+          "x": 192,
+          "y": 96,
+          "w": 96,
+          "h": 96,
+          "pose": "wind_up",
+          "durationMs": 190
+        },
+        {
+          "x": 288,
+          "y": 96,
+          "w": 96,
+          "h": 96,
+          "pose": "stamp",
+          "durationMs": 95
+        }
+      ]
+    },
+    "azulejo_gargoyle": {
+      "area": "Sé do Porto",
+      "atlas": "enemies.png",
+      "pivot": {
+        "x": 48,
+        "y": 63
+      },
+      "frames": [
+        {
+          "x": 0,
+          "y": 192,
+          "w": 96,
+          "h": 96,
+          "pose": "perch",
+          "durationMs": 150
+        },
+        {
+          "x": 96,
+          "y": 192,
+          "w": 96,
+          "h": 96,
+          "pose": "takeoff",
+          "durationMs": 105
+        },
+        {
+          "x": 192,
+          "y": 192,
+          "w": 96,
+          "h": 96,
+          "pose": "swoop",
+          "durationMs": 85
+        },
+        {
+          "x": 288,
+          "y": 192,
+          "w": 96,
+          "h": 96,
+          "pose": "recover",
+          "durationMs": 120
+        }
+      ]
+    },
+    "fiscal_zero": {
+      "area": "Mercado Ferreira Borges",
+      "atlas": "enemies.png",
+      "pivot": {
+        "x": 48,
+        "y": 82
+      },
+      "frames": [
+        {
+          "x": 0,
+          "y": 288,
+          "w": 96,
+          "h": 96,
+          "pose": "idle",
+          "durationMs": 180
+        },
+        {
+          "x": 96,
+          "y": 288,
+          "w": 96,
+          "h": 96,
+          "pose": "wind_up",
+          "durationMs": 240
+        },
+        {
+          "x": 192,
+          "y": 288,
+          "w": 96,
+          "h": 96,
+          "pose": "slam",
+          "durationMs": 95
+        },
+        {
+          "x": 288,
+          "y": 288,
+          "w": 96,
+          "h": 96,
+          "pose": "stagger",
+          "durationMs": 270
+        }
+      ]
+    }
+  },
+  "weapons": {
+    "ticket_blaster": {
+      "atlas": "weapons_fx.png",
+      "pickup": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "projectile": {
+        "x": 0,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "projectilePivot": {
+        "x": 32,
+        "y": 32
+      }
+    },
+    "azulejo_pulse_pistol": {
+      "atlas": "weapons_fx.png",
+      "pickup": {
+        "x": 64,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "projectile": {
+        "x": 64,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "projectilePivot": {
+        "x": 32,
+        "y": 32
+      }
+    },
+    "rivet_launcher": {
+      "atlas": "weapons_fx.png",
+      "pickup": {
+        "x": 128,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "projectile": {
+        "x": 128,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "projectilePivot": {
+        "x": 32,
+        "y": 32
+      }
+    },
+    "metro_arc_carbine": {
+      "atlas": "weapons_fx.png",
+      "pickup": {
+        "x": 192,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "projectile": {
+        "x": 192,
+        "y": 64,
+        "w": 64,
+        "h": 64
+      },
+      "projectilePivot": {
+        "x": 32,
+        "y": 32
+      }
+    }
+  },
+  "effects": {
+    "muzzle_flash": {
+      "atlas": "weapons_fx.png",
+      "pivot": {
+        "x": 32,
+        "y": 32
+      },
+      "frames": [
+        {
+          "x": 0,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 40
+        },
+        {
+          "x": 64,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 45
+        },
+        {
+          "x": 128,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 50
+        },
+        {
+          "x": 192,
+          "y": 128,
+          "w": 64,
+          "h": 64,
+          "durationMs": 55
+        }
+      ]
+    },
+    "impact_sparks": {
+      "atlas": "weapons_fx.png",
+      "pivot": {
+        "x": 32,
+        "y": 32
+      },
+      "frames": [
+        {
+          "x": 0,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 40
+        },
+        {
+          "x": 64,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 50
+        },
+        {
+          "x": 128,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 65
+        },
+        {
+          "x": 192,
+          "y": 192,
+          "w": 64,
+          "h": 64,
+          "durationMs": 70
+        }
+      ]
+    }
+  }
+}
