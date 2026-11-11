@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   ]},
   async rewrites(){return {
     beforeFiles:[
+      {source:"/sprites",destination:"/sprites/index.html"},
       {source:"/snake",destination:"/snake-nokia-5510/index.html"},
       {source:"/snake-nokia-5510",destination:"/snake-nokia-5510/index.html"},
       {source:"/oracle",destination:"/oracle/index.html"},
