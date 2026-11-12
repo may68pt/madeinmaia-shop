@@ -25,6 +25,8 @@ const nextConfig: NextConfig = {
       {source:"/petz",destination:"/petz/index.html"},
       // "Bad Samaritan: O Pulso do Porto" 16-bit platformer (static files in public/badsamaritan/)
       {source:"/badsamaritan",destination:"/badsamaritan/index.html"},
+      // its service worker (offline play + install); served from the site root so its scope can be /badsamaritan
+      {source:"/badsamaritan-sw.js",destination:"/badsamaritan/sw.js"},
     ],
     afterFiles:[],
     fallback:[],
@@ -35,6 +37,10 @@ const nextConfig: NextConfig = {
       {key:"X-Frame-Options",value:"DENY"},
       {key:"Referrer-Policy",value:"strict-origin-when-cross-origin"},
       {key:"Permissions-Policy",value:"camera=(), microphone=(), geolocation=()"},
+    ]},
+    {source:"/badsamaritan-sw.js",headers:[
+      {key:"Cache-Control",value:"no-cache"},
+      {key:"Content-Type",value:"application/javascript; charset=utf-8"},
     ]},
     {source:"/mockup-templates/:asset*.avif",headers:[
       {key:"Cache-Control",value:"public, max-age=31536000, immutable"},
