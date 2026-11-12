@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><base href="/sprites/"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#172521"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-192.png"><link rel="stylesheet" href="./style.css"><title>Sprite Player</title></head>
+<body><main><div id="sprite-player">
+
+<header><div class="mark" aria-hidden="true">▶</div><div><h1>Sprite Player</h1><p>Preview a sprite sheet or strip.</p></div></header>
+<div class="source"><label class="open" for="sprite-file">Choose image</label><input id="sprite-file" class="file-input" data-file type="file" accept="image/*"><button type="button" data-demo>Try a sample</button></div>
+<div class="sprite-stage" data-stage><div class="empty" data-empty>Choose or drop a sprite sheet here</div><canvas width="360" height="260" role="img" aria-label="Sprite animation preview"></canvas></div>
+<div class="sprite-time"><input class="form-range" aria-label="Animation frame" data-frame type="range" min="1" value="1"><output data-count></output></div>
+<div class="sprite-actions">
+<button class="btn btn-primary" data-play type="button">Play</button>
+<button class="btn" data-prev type="button" aria-label="Previous frame">−1 frame</button>
+<button class="btn" data-next type="button" aria-label="Next frame">+1 frame</button>
+<label class="form-check"><input class="form-check-input" data-loop type="checkbox" checked> Loop</label>
+</div>
+<details><summary>Layout and speed</summary><div class="sprite-inputs">
+<label class="form-label">Columns <input class="form-control" data-cols type="number" min="1" max="256" value="1"></label>
+<label class="form-label">Rows <input class="form-control" data-rows type="number" min="1" max="256" value="1"></label>
+<label class="form-label">Frames <input class="form-control" data-frames type="number" min="1" max="65536" value="1"></label>
+<label class="form-label">FPS <input class="form-control" data-fps type="number" min="1" max="60" value="12"></label>
+</div>
+
+<div class="sprite-actions"><button class="btn" data-detect type="button">Detect layout</button>
+<label class="form-label">Playback <select class="form-select" data-row><option value="-1">All rows</option></select></label></div>
+</details><p data-status role="status"></p>
+<img data-sample hidden alt="">
+</div>
+<p class="privacy">Images stay on this device. Open from Photos or Files, drop an image, or paste it from the clipboard.</p></main><script src="./app.js" defer></script></body></html>
