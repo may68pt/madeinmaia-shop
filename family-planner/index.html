@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><meta name="theme-color" content="#f5f4ef"><title>Daylist</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif&display=swap');
+*{box-sizing:border-box}body{margin:0;background:#f5f4ef;color:#232821;font:16px 'DM Sans',sans-serif}main{max-width:760px;margin:auto;padding:28px 20px 68px}header,.nav,.foot,.task,.tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}header,.nav,.foot{justify-content:space-between}header{border-bottom:1px solid #d7dbce;padding-bottom:18px}.brand{font-size:22px;font-weight:700;letter-spacing:-.05em}h1,h2{font:400 clamp(39px,8vw,65px)/1 'Instrument Serif',Georgia,serif;margin:12px 0}h2{font-size:36px}h3{margin:0;font-size:18px}.hero{padding:28px 0 18px}.muted{color:#52604e}.date{font-size:13px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:#36513a}button,.button,input,textarea,select{font:inherit;border:1px solid #bfc8ba;border-radius:9px;padding:10px 12px;color:inherit;background:#fff;max-width:100%}button,.button{cursor:pointer;text-decoration:none;display:inline-block;font-weight:700}button:hover,.button:hover{background:#e5eddf}.primary{background:#294d36;color:white;border-color:#294d36}.primary:hover{background:#376347}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #507c55;outline-offset:2px}.nav{padding-bottom:18px}.card,.empty,form{background:#fff;border:1px solid #d8ddcf;border-radius:14px;padding:17px;margin:0 0 12px}.card .foot{border-top:1px solid #e2e6db;margin-top:13px;padding-top:11px}.task{flex-wrap:nowrap;align-items:flex-start;padding:7px 0}.task input{width:19px;height:19px;margin:3px 0 0;accent-color:#315c3e;flex:none}.task:has(:checked) span{text-decoration:line-through;color:#52604e}.time{color:#36513a;font-size:14px}.small{font-size:14px}.tools a{color:#284f36;overflow-wrap:anywhere}.foot button{padding:6px 9px}.stack{display:grid;gap:10px}.stack label{display:grid;gap:4px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}.danger{color:#923c2b}.setup{background:#e8eee2}.status{min-height:1.4em}.section{margin-top:27px}details summary{cursor:pointer;font-weight:700}details form{margin-top:15px}input[type=date]{min-width:0} [hidden]{display:none!important}
+@media(max-width:480px){main{padding-top:17px}.pair{grid-template-columns:1fr}.nav{justify-content:flex-start}.nav input{order:3}}
+</style></head>
+<body><main>
+<header><div class="brand">Daylist</div><button id="calendar">Download calendar</button></header>
+<section class="hero"><div class="date" id="dateLabel"></div><h1>Daily checklist</h1><div class="muted" id="progress"></div></section>
+<div class="nav"><div><button id="prev" aria-label="Previous day">←</button> <button id="today">Today</button> <button id="next" aria-label="Next day">→</button></div><input id="day" type="date" aria-label="Checklist date"><button id="copy">Copy daily list</button></div>
+<section id="setup" class="card setup"><h3>Set up your family schedule</h3><p>Start with Tuesday prep, Wednesday arrivals and alternating weekends. Choose the Friday of your first weekend with the kids.</p><label>First weekend Friday <input id="firstWeekend" type="date"></label> <button class="primary" id="activate">Add family schedule</button></section>
+<section id="list" aria-label="Tasks for selected day"></section>
+<div class="tools"><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Open ChatGPT</a><button id="agendaToggle" aria-expanded="false">Upcoming</button></div>
+<section class="section" id="agenda" hidden><h2>Next 14 days</h2><div id="upcoming"></div></section>
+<details class="section" id="editor"><summary>Add a task or recurring checklist</summary>
+<form id="form" class="stack"><input id="editId" type="hidden">
+<label>Title <input id="title" maxlength="100" required></label>
+<div class="pair"><label>First date <input id="start" type="date" required></label><label>Reminder time (Lisbon) <input id="time" type="time" value="09:00" required></label></div>
+<label>Repeat <select id="repeat"><option value="0">Once</option><option value="1">Every day</option><option value="7">Every week</option><option value="14">Every two weeks</option></select></label>
+<label>Checklist items, one per line <textarea id="items" rows="3" maxlength="2000" placeholder="Get snacks"></textarea></label>
+<label>Tool or reference link <input id="url" type="url" maxlength="500" placeholder="https://"></label>
+<div class="tools"><button class="primary" type="submit">Save checklist</button><button type="button" id="cancel">Cancel</button></div></form></details>
+<p class="status small muted" id="status" role="status"></p>
+<details class="small muted"><summary>Calendar reminders and device storage</summary><p>Download the calendar and import it into your calendar app to receive alerts there. This is a snapshot. If you change a checklist, remove the old imported events before importing the new file. Checklist ticks and links are stored in this browser.</p></details>
+</main><script>
+'use strict';
+const $ = id => document.getElementById(id);
+const timezone = 'Europe/Lisbon';
+const storageKey = 'daylist-v1';
+const formatter = new Intl.DateTimeFormat('en-GB',{timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit'});
+function today(){
+  const p = Object.fromEntries(formatter.formatToParts(new Date()).map(x=>[x.type,x.value]));
+  return [p.year,p.month,p.day].join('-');
+}
+const dateAt = iso => new Date(iso+'T12:00:00Z');
+const shift = (iso,days) => new Date(dateAt(iso).getTime()+days*86400000).toISOString().slice(0,10);
+const label = iso => dateAt(iso).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'});
+let state={tasks:[],done:{},configured:false};
+try{ const saved=localStorage.getItem(storageKey); if(saved) state=JSON.parse(saved); }catch{}
+let selected=today();
+function status(message){$('status').textContent=message;}
+function save(){
+  try{localStorage.setItem(storageKey,JSON.stringify(state));return true;}
+  catch{status('This browser could not save your changes. Keep this tab open to retain them for now.');return false;}
+}
+function el(tag,txt,cls){
+  const node=document.createElement(tag);
+  if(txt)node.textContent=txt;
+  if(cls)node.className=cls;
+  return node;
+}
+function button(txt,action,cls){
+  const node=el('button',txt,cls);node.type='button';node.onclick=action;return node;
+}
+function active(task,day){
+  const days=Math.round((dateAt(day)-dateAt(task.start))/86400000);
+  return days===0 || (days>0 && task.repeat>0 && days%task.repeat===0);
+}
+function dayTasks(day){
+  return state.tasks.filter(t=>active(t,day)).sort((a,b)=>a.time.localeCompare(b.time));
+}
+function key(task,day,index){return task.id+'/'+day+'/'+index;}
+function safeUrl(raw){
+  try{const u=new URL(raw);if(['https:','http:'].includes(u.protocol))return u.href;}catch{}
+  return '';
+}
+function render(){
+  $('dateLabel').textContent=label(selected);
+  $('day').value=selected;
+  $('setup').hidden=state.configured;
+  const tasks=dayTasks(selected);
+  $('list').replaceChildren();
+  let total=0,complete=0;
+  for(const task of tasks){
+    const card=el('article','','card');
+    card.append(el('div',task.time,'time'),el('h3',task.title));
+    task.items.forEach((item,i)=>{
+      const id=key(task,selected,i);
+      const row=el('label','','task');
+      const check=el('input');check.type='checkbox';check.checked=Boolean(state.done[id]);
+      total++;if(check.checked)complete++;
+      check.onchange=()=>{
+        if(check.checked)state.done[id]=true;else delete state.done[id];
+        save();
+        const ticks=$('list').querySelectorAll('input:checked').length;
+        $('progress').textContent=ticks+' of '+total+' items complete';
+      };
+      row.append(check,el('span',item));card.append(row);
+    });
+    const footer=el('div','','foot small');
+    const links=el('div','','tools');
+    if(safeUrl(task.url)){
+      const link=el('a','Open tool ↗');link.href=safeUrl(task.url);link.target='_blank';link.rel='noopener noreferrer';links.append(link);
+    }
+    links.append(button('Edit',()=>edit(task)));
+    footer.append(links,button('Delete',()=>{
+      if(!confirm('Delete this checklist and its future occurrences?'))return;
+      state.tasks=state.tasks.filter(t=>t.id!==task.id);
+      for(const id of Object.keys(state.done))if(id.startsWith(task.id+'/'))delete state.done[id];
+      save();render();
+    },'danger'));
+    card.append(footer);$('list').append(card);
+  }
+  if(!tasks.length)$('list').append(el('p','No checklists for this day.','empty muted'));
+  $('progress').textContent=total?complete+' of '+total+' items complete':'';
+  const upcoming=$('upcoming');upcoming.replaceChildren();
+  for(let i=0;i<14;i++){
+    const day=shift(selected,i), list=dayTasks(day);
+    if(list.length)upcoming.append(button(label(day)+' · '+list.map(t=>t.title).join(', '),()=>select(day),'card'));
+  }
+  if(!upcoming.children.length)upcoming.append(el('p','Nothing scheduled in this period.','muted'));
+}
+function select(day){if(day){selected=day;render();}}
+function clearEditor(){
+  $('form').reset();$('editId').value='';$('start').value=selected;
+}
+function edit(task){
+  $('editor').open=true;
+  for(const field of ['title','start','time','repeat','url']) $(field).value=task[field];
+  $('editId').value=task.id;$('items').value=task.items.join('\n');$('title').focus();
+}
+$('editor').ontoggle=()=>{if($('editor').open&&!$('start').value)$('start').value=selected;};
+$('cancel').onclick=()=>{clearEditor();$('editor').open=false;};
+$('form').onsubmit=e=>{
+  e.preventDefault();
+  const old=state.tasks.find(t=>t.id===$('editId').value);
+  const url=$('url').value.trim();
+  const title=$('title').value.trim();
+  if(!title){status('Enter a title.');return;}
+  if(url&&!safeUrl(url)){status('Use a valid http or https tool link.');return;}
+  const items=$('items').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  const task={id:old?.id??crypto.randomUUID(),title,start:$('start').value,time:$('time').value,repeat:Number($('repeat').value),url,items:items.length?items:['Complete this task']};
+  if(old&&JSON.stringify(old.items)!==JSON.stringify(task.items)){
+    for(const id of Object.keys(state.done))if(id.startsWith(task.id+'/'))delete state.done[id];
+  }
+  state.tasks=state.tasks.filter(t=>t.id!==task.id).concat(task);
+  if(save())status('Checklist saved.');
+  select(task.start);clearEditor();$('editor').open=false;
+};
+function nextWeekday(day,weekday){
+  return shift(day,(weekday-dateAt(day).getUTCDay()+7)%7);
+}
+$('firstWeekend').value=nextWeekday(today(),5);
+$('activate').onclick=()=>{
+  const friday=$('firstWeekend').value;
+  if(!friday||dateAt(friday).getUTCDay()!==5){status('Choose a Friday for the first weekend.');$('firstWeekend').focus();return;}
+  if(state.configured)return;
+  const templates=[
+    ['Wednesday visit prep',nextWeekday(today(),2),'15:00',7,['Get snacks for the kids to take Thursday morning','Check if any clothes need washing, packing or handing over']],
+    ['Kids’ arrival check',nextWeekday(today(),3),'15:00',7,['When the kids arrive, check each child brought all the clothes they need','Hand over any clothes set aside for them','Put the snacks ready for Thursday morning']],
+    ['Weekend with the kids',friday,'08:00',14,['Get snacks and groceries','Wash and pack any clothes to hand over','Confirm pickup and weekend plans','At arrival, check each child’s clothes and hand over anything set aside']]
+  ];
+  state.tasks.push(...templates.map(([title,start,time,repeat,items])=>({id:crypto.randomUUID(),title,start,time,repeat,items,url:''})));
+  state.configured=true;
+  if(save())status('Family schedule added. Download the calendar to set up alerts.');
+  select(templates[0][1]);
+};
+$('prev').onclick=()=>select(shift(selected,-1));
+$('next').onclick=()=>select(shift(selected,1));
+$('today').onclick=()=>select(today());
+$('day').onchange=e=>select(e.target.value);
+$('agendaToggle').onclick=()=>{
+  const panel=$('agenda');panel.hidden=!panel.hidden;
+  $('agendaToggle').setAttribute('aria-expanded',String(!panel.hidden));
+};
+function dailyText(){
+  const tasks=dayTasks(selected);
+  return [label(selected),...tasks.map(t=>[t.time+' '+t.title,...t.items.map((v,i)=>(state.done[key(t,selected,i)]?'[x] ':'[ ] ')+v),safeUrl(t.url)].filter(Boolean).join('\n'))].join('\n\n');
+}
+$('copy').onclick=async()=>{
+  try{await navigator.clipboard.writeText(dailyText());status('Daily list copied. Paste it into ChatGPT or wherever you need it.');}
+  catch{status('Clipboard access was blocked by this browser.');}
+};
+function escapeIcs(value){return value.replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/[,;]/g,m=>'\\'+m);}
+function fold(line){
+  const encoder=new TextEncoder();
+  let result='',width=0;
+  for(const char of line){
+    const size=encoder.encode(char).length;
+    if(width+size>75){result+='\r\n ';width=1;}
+    result+=char;width+=size;
+  }
+  return result;
+}
+function calendar(){
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Daylist//Checklists//EN','CALSCALE:GREGORIAN','X-WR-CALNAME:Daylist',
+    'BEGIN:VTIMEZONE','TZID:Europe/Lisbon',
+    'BEGIN:DAYLIGHT','DTSTART:19960331T010000','RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU','TZOFFSETFROM:+0000','TZOFFSETTO:+0100','TZNAME:WEST','END:DAYLIGHT',
+    'BEGIN:STANDARD','DTSTART:19961027T020000','RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU','TZOFFSETFROM:+0100','TZOFFSETTO:+0000','TZNAME:WET','END:STANDARD','END:VTIMEZONE'];
+  for(const task of state.tasks){
+    const start=task.start.replace(/-/g,'')+'T'+task.time.replace(':','')+'00';
+    const url=safeUrl(task.url);
+    lines.push('BEGIN:VEVENT','UID:'+task.id+'@daylist','DTSTAMP:'+stamp,'DTSTART;TZID='+timezone+':'+start,'DURATION:PT15M','SUMMARY:'+escapeIcs(task.title),'DESCRIPTION:'+escapeIcs([...task.items.map(x=>'• '+x),url].filter(Boolean).join('\n')));
+    if(url)lines.push('URL:'+url);
+    if(task.repeat===1)lines.push('RRULE:FREQ=DAILY');
+    if(task.repeat===7||task.repeat===14)lines.push('RRULE:FREQ=WEEKLY;INTERVAL='+task.repeat/7);
+    lines.push('BEGIN:VALARM','ACTION:DISPLAY','TRIGGER:PT0M','DESCRIPTION:'+escapeIcs(task.title),'END:VALARM','END:VEVENT');
+  }
+  return lines.concat('END:VCALENDAR').map(fold).join('\r\n')+'\r\n';
+}
+$('calendar').onclick=()=>{
+  if(!state.tasks.length){status('Add a checklist before downloading the calendar.');return;}
+  const url=URL.createObjectURL(new Blob([calendar()],{type:'text/calendar;charset=utf-8'}));
+  const link=el('a');link.href=url;link.download='daylist.ics';link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  status('Calendar downloaded. Import it to receive reminders.');
+};
+render();
+</script></body></html>
