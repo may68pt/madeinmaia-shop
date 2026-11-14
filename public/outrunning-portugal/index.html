@@ -1523,6 +1523,7 @@ function buildTrack(){
   goalIdx=fs+60;goalZ=goalIdx*segL;
   cpLines=new Set(STAGES.map((z,i)=>i>0&&STAGES[i-1].leg!==z.leg?cpIdx[i]:-1));
   decorate();
+  placeJumpFeatures();
 }
 function decorate(){
   const R=rng(4242);
@@ -1729,6 +1730,7 @@ function spawnCar(c,near){
   if(idx>goalIdx-40){c.active=false;return;}
   const zd=diffOf(segments[idx].stage);let na=0;for(const o of cars)if(o!==c&&o.active)na++;if(na>=Math.round(24*(0.33+0.67*zd))){c.active=false;return;}
   let type=pick(Math.random,STAGES[segments[idx].stage].traffic);type=mixTraffic(type,STAGES[segments[idx].stage]);
+  if(['van','van2','paoVan'].includes(type)&&Math.random()<.3)type='towRamp';
   c.active=true;c.key=type;c.z=zi*segL;
   c.offset=pick(Math.random,[-0.66,0,0.66])+(Math.random()-.5)*0.12;
   const base={bike:.14,bike2:.14,cart:.1,moto:.5,moto2:.5,retro0:.3,retro1:.3,retro2:.3,paoVan:.3,tram:.18,bus:.26,tuk:.24,tuk2:.24,vespa:.32,vespa2:.32,van:.36,van2:.36,taxi:.5};
@@ -2175,16 +2177,16 @@ function drawBustFX(g){
 
 // ------------------------------------------------------------------ update
 function startRace(){
-  raceResult=null;
+  raceResult=null;jumpTime=0;
   if(typeof WX!=='undefined'){WX.kind='clear';WX.k=0;WX.target=0;WX.next=null;WX.stageKey='';}
   position=0;playerX=0;speed=0;steer=0;stageIdx=0;legIdx=0;timeLeft=LEGS[0].bonus;score=0;natas=0;crash=null;finishT=0;overT=0;raceTime=0;bgOff=[0,0,0];
   boosts=0;boostT=0;for(const k in PW)PW[k]=0;lastPIdx=0;inTunnel=false;police=null;busted=null;behindT=0;passes=0;shoutCD=0;lunaCD=9;flashT=0;
   parts.length=0;fw.length=0;bubbles.length=0;setAnim('w','idle',0);setAnim('d','idle',0);
-  for(const s of segments)for(const sp of s.sprites){if(sp.pickup)sp.taken=false;if(sp.hz){sp.used=false;sp.warned=false;sp.broken=false;}}
+  for(const s of segments)for(const sp of s.sprites){if(sp.pickup)sp.taken=false;if(sp.ramp)sp.used=false;if(sp.hz){sp.used=false;sp.warned=false;sp.broken=false;}}
   boardDebris.length=0;resetCars();
 }
 function useBoost(){if(state!=='play'||crash||busted||boosts<=0||boostT>0)return;boosts--;boostT=3.2;sfx('boost');crewEvent('boost');popText(LL('pTurbo'),1);say('d',SL('boost'),2,true);shake=0.15;}
-function checkPickups(seg){for(const s of seg.sprites){if(!s.pickup||s.taken)continue;if(!overlap(playerX,PLAYER_HITW,s.offset,0.24))continue;s.taken=true;if(powerPickup(s))continue;
+function checkPickups(seg){for(const s of seg.sprites){if(!s.pickup||s.taken)continue;if(!overlap(playerX,PLAYER_HITW,s.offset,0.24))continue;s.taken=true;if(s.key==='mpCharge'){MP.charges++;sfx('pickup');popText('⚡ WALL CHARGE',1);continue;}if(powerPickup(s))continue;
   if(s.key==='bica'){if(boosts<3){boosts++;popText(LL('pBica'));}else{score+=1500;popText('+1500 ⚡');}sfx('pickup');}
   else{natas++;score+=500;sfx('nata');popText(LL('pNata'));crewEvent('nata');if(natas%10===0){timeLeft+=5;popText(LL('pBonus'),1);sfx('cp');}}}}
 function onPass(c){passes++;score+=100;const close=Math.abs(c.offset-playerX)<0.55;
@@ -2226,15 +2228,17 @@ function update(dt){
     else if(brake)speed+=breaking*dt;else speed+=decel*dt;
   }
   if(boostT>0)boostT-=dt;
-  const off=playerX<-1||playerX>1;
+  const off=playerX<-1||playerX>(pSeg.width||1);
   if(off&&speed>maxSpeed*(0.4-0.15*DIFF())&&!crash)speed+=offRoadDecel*(0.55+0.45*DIFF())*dt;
-  if(ctrlOK)powerUpdate(dt,pSeg);
+  jumpTime=Math.max(0,jumpTime-dt);
+  if(ctrlOK){roadJumpUpdate(pSeg);powerUpdate(dt,pSeg,jumpTime>0);}
   if(ctrlOK){
-    if(off&&PW.fly<=0){for(const s of pSeg.sprites){const sp=SP[s.key];if(s.pickup||!sp.hit)continue;const sw=sp.ww*sp.hit;if(overlap(playerX,PLAYER_HITW,s.offset+sw/2*(s.offset>0?1:-1),sw)){hitObstacle(pSeg);break;}}}
-    if(!crash&&PW.fly<=0)for(const s of pSeg.sprites){const pl=s.over&&SP[s.key].pillar;if(pl&&Math.abs(playerX)>pl[0]&&Math.abs(playerX)<pl[1]+0.3){hitObstacle(pSeg);break;}}
+    if(off&&PW.fly<=0&&jumpTime<=0){for(const s of pSeg.sprites){const sp=SP[s.key];if(s.pickup||!sp.hit)continue;const sw=sp.ww*sp.hit;if(overlap(playerX,PLAYER_HITW,s.offset+sw/2*(s.offset>0?1:-1),sw)){hitObstacle(pSeg);break;}}}
+    if(!crash&&PW.fly<=0&&jumpTime<=0)for(const s of pSeg.sprites){const pl=s.over&&SP[s.key].pillar;if(pl&&Math.abs(playerX)>pl[0]&&Math.abs(playerX)<pl[1]+0.3){hitObstacle(pSeg);break;}}
     if(!crash&&pSeg.tunnel&&Math.abs(playerX)>TUN_W-0.12){playerX=Math.sign(playerX)*(TUN_W-0.2);speed*=0.6;sfx('bump');shake=0.25;if(Math.random()<.5)say('w',LL('wall'),1.6);}
     for(let i=Math.min(lastPIdx+1,pSeg.index);i<=pSeg.index;i++){checkPickups(segments[i]);if(segments[i].radar&&speed>maxSpeed*(0.97-0.12*DIFF())&&!police)startPolice();}
-    if(!crash&&PW.fly<=0)for(const c of pSeg.cars){const cs=c.speed*maxSpeed;const sp=SP[c.key];if(speed>cs&&overlap(playerX,PLAYER_HITW,c.offset,sp.ww*0.9,0.85)){
+    if(!crash&&PW.fly<=0&&jumpTime<=0)for(const c of pSeg.cars){const cs=c.speed*maxSpeed;const sp=SP[c.key];if(speed>cs&&overlap(playerX,PLAYER_HITW,c.offset,sp.ww*0.9,0.85)){
+      if(c.key==='towRamp'&&speed>maxSpeed*.38){launchJump();break;}
       if(speed-cs>maxSpeed*(0.62-0.17*DIFF())){startCrash(c.offset<playerX?1:-1,'car');speed=cs*0.6;}
       else{speed=cs*(cs/speed);sfx('bump');shake=0.25;vib(30);crewEvent('bump');say('d',pick(Math.random,BUMP),2.2,true);honk();}
       position=Math.max(0,c.z-playerZ-20);break;}}
@@ -2308,15 +2312,17 @@ function project(p,cx,cy,cz){
 function quad(x1,y1,x2,y2,x3,y3,x4,y4,col){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.lineTo(x4,y4);ctx.closePath();ctx.fill();}
 const ceilY=p=>Math.round(HZY-p.screen.scale*(p.camera.y+TH)*VS);
 function drawSegment(s){
+  const edge1=s.width||1,edge2=segments[s.index+1]?.width||1;
   const st=STAGES[s.stage],a=s.alt,tun=s.tunnel,x1=s.p1.screen.x,y1=s.p1.screen.y,w1=s.p1.screen.w,x2=s.p2.screen.x,y2=s.p2.screen.y,w2=s.p2.screen.w;
   if(s.p2.screen.y<s.p1.screen.y){
     ctx.fillStyle=tun?(a?'#26242e':'#2e2b38'):st.grass[a];ctx.fillRect(0,y2,W,y1-y2+1);
     const r1=w1/6,r2=w2/6;
-    quad(x1-w1-r1,y1,x1-w1,y1,x2-w2,y2,x2-w2-r2,y2,st.rumble[a]);quad(x1+w1+r1,y1,x1+w1,y1,x2+w2,y2,x2+w2+r2,y2,st.rumble[a]);
+    quad(x1-w1-r1,y1,x1-w1,y1,x2-w2,y2,x2-w2-r2,y2,st.rumble[a]);quad(x1+w1*edge1,y1,x1+w1*edge1+r1,y1,x2+w2*edge2+r2,y2,x2+w2*edge2,y2,st.rumble[a]);
     const isLine=(s.index>=8&&s.index<=10)||Math.abs(s.index-goalIdx)<=1||cpLines.has(s.index);
-    quad(x1-w1,y1,x1+w1,y1,x2+w2,y2,x2-w2,y2,isLine?(s.index%2?'#f4f4f4':'#1a1a1a'):(tun?(a?'#4a4650':'#504c58'):st.road[a]));
+    quad(x1-w1,y1,x1+w1*edge1,y1,x2+w2*edge2,y2,x2-w2,y2,isLine?(s.index%2?'#f4f4f4':'#1a1a1a'):(tun?(a?'#4a4650':'#504c58'):st.road[a]));
     if(!a&&!isLine){const l1=w1/32,l2=w2/32,lw1=w1*2/lanes,lw2=w2*2/lanes;let lx1=x1-w1+lw1,lx2=x2-w2+lw2;for(let l=1;l<lanes;l++,lx1+=lw1,lx2+=lw2)quad(lx1-l1/2,y1,lx1+l1/2,y1,lx2+l2/2,y2,lx2-l2/2,y2,tun?'#ffd27a':st.lane);}
-    if(!isLine){const e1=w1/40,e2=w2/40;quad(x1-w1+e1,y1,x1-w1+e1*2,y1,x2-w2+e2*2,y2,x2-w2+e2,y2,'rgba(255,255,255,.5)');quad(x1+w1-e1,y1,x1+w1-e1*2,y1,x2+w2-e2*2,y2,x2+w2-e2,y2,'rgba(255,255,255,.5)');}
+    if(edge1>1&&!a&&!isLine)quad(x1+w1,y1,x1+w1+w1/32,y1,x2+w2+w2/32,y2,x2+w2,y2,st.lane);
+    if(!isLine){const e1=w1/40,e2=w2/40;quad(x1-w1+e1,y1,x1-w1+e1*2,y1,x2-w2+e2*2,y2,x2-w2+e2,y2,'rgba(255,255,255,.5)');quad(x1+w1*edge1-e1,y1,x1+w1*edge1-e1*2,y1,x2+w2*edge2-e2*2,y2,x2+w2*edge2-e2,y2,'rgba(255,255,255,.5)');}
     if(s.fogA>0.01){ctx.globalAlpha=s.fogA;ctx.fillStyle=tun?'#0d0c12':st.fog;ctx.fillRect(0,y2,W,y1-y2+1);ctx.globalAlpha=1;}
   }
   if(tun)tunnelFrame(s,st,!segments[s.index-1]||!segments[s.index-1].tunnel);
@@ -2389,9 +2395,16 @@ function render(){
     drawSegment(s);
     const fade=clamp((drawDist-s.n)/50,0,1),sc=s.p1.screen.scale;
     for(const sp of s.sprites){
-      if(sp.taken||sp.broken||(sp.hz==='aqua'&&wetK()<0.15))continue;const S=SP[sp.key];
+      if(sp.taken||sp.broken||(sp.hz==='aqua'&&wetK()<0.15))continue;const S=SP[sp.key==='nata'&&MP.session?'mpCoin':sp.key];
+      if(sp.mpWall){
+        const x=s.p1.screen.x+sc*sp.offset*roadW*HW,y=s.p1.screen.y;
+        const rise=clamp((perfNow-sp.riseAt)/700,0,1);
+        const height=S.ww*roadW*sc*HW*S.img.height/S.img.width;
+        ctx.save();ctx.beginPath();ctx.rect(0,0,W,Math.max(0,y));ctx.clip();
+        drawSprite(S.img,S.ww,sc,x,y+(1-rise)*height,-.5,-1,fade);ctx.restore();continue;
+      }
       if(sp.pickup){const bob=Math.sin(perfNow*0.006+s.index)*0.25;const dw=S.ww*roadW*sc*HW;drawSprite(S.img,S.ww,sc,s.p1.screen.x+sc*sp.offset*roadW*HW,s.p1.screen.y-dw*(0.35+bob*0.3),-0.5,-1,fade);continue;}
-      drawSprite(S.img,S.ww,sc,s.p1.screen.x+sc*sp.offset*roadW*HW,s.p1.screen.y,(sp.over||sp.hz)?-0.5:(sp.offset<0?-1:0),-1,fade);
+      drawSprite(S.img,S.ww,sc,s.p1.screen.x+sc*sp.offset*roadW*HW,s.p1.screen.y,(sp.over||sp.hz||sp.ramp)?-0.5:(sp.offset<0?-1:0),-1,fade);
     }
     for(const c of s.cars){const S=SP[c.key];const cs=lerp(s.p1.screen.scale,s.p2.screen.scale,c.pct);
       drawSprite(S.img,S.ww,cs,lerp(s.p1.screen.x,s.p2.screen.x,c.pct)+cs*c.offset*roadW*HW,lerp(s.p1.screen.y,s.p2.screen.y,c.pct),-0.5,-1,fade);}
@@ -2517,7 +2530,7 @@ function drawPlayerFX(g){
   const pw=PLAYER_WW*roadW*(camDepth/playerZ)*HW*2,s=pw/160;carScale=s;
   const T=perfNow/1000,pct=speed/maxSpeed,off=Math.abs(playerX)>1;
   let cx=W,cy=(HZY+VS)*2-4,rot=0,sxs=1,lift=0,sq=1,slide=0,lean=steer,crewOn=true;
-  const fl=flyLift();if(!crash&&fl>0){lift=fl*120*s+Math.sin(T*3)*6*s*fl;rot=Math.sin(T*2.2)*0.04*fl;}
+  const fl=Math.max(flyLift(),Math.sin(Math.PI*jumpTime/JUMP_DURATION));if(!crash&&fl>0){lift=fl*120*s+Math.sin(T*3)*6*s*fl;rot=Math.sin(T*2.2)*0.04*fl;}
   else if(!crash){if(PW.slip>0){const e=Math.min(1,PW.slip);rot=PW.slipDir*Math.sin(T*14)*0.18*e;slide=PW.slipDir*Math.sin(T*7)*30*e*s;lean=PW.slipDir*Math.sin(T*9);}if(PW.aqua>0){rot=Math.sin(T*11)*0.1;slide=Math.sin(T*6)*24*s;}lift=(off&&speed>0?Math.random()*5:0)+(speed>0?Math.abs(Math.sin(T*18))*1.2*Math.min(pct,1):0);}
   else{const t=crash.t,k=Math.min(1,t/crash.dur),d=crash.dir;
     if(crash.type==='spin'){const yaw=d*(1-Math.pow(1-k,2))*Math.PI*4,c=Math.cos(yaw);sxs=Math.sign(c||1)*Math.max(0.28,Math.abs(c));lean=Math.sin(yaw);rot=Math.sin(yaw)*0.06;}
@@ -2877,6 +2890,7 @@ function saveRaceResult(win){
   const bonus=win?Math.round(timeLeft)*1000:0;
   const fs=Math.floor(score+bonus);
   const result={s:fs,st:stageIdx,w:win,c:chapter,bonus};
+  if(MP.session){raceResult=result;pendingScore=null;return;}
   lastFinal={s:fs,c:chapter};
   if(win)unlockNext();
   store.set('cbest'+chapter,Math.max(chapterBest(chapter),fs));
@@ -2887,6 +2901,16 @@ function saveRaceResult(win){
   raceResult=result;
 }
 function showEnd(win){
+  mpResults.classList.toggle('hidden',!MP.session);
+  for(const id of ['againBtn','overTable'])$(id).classList.toggle('hidden',!!MP.session);
+  if(MP.session){
+    $('overT').textContent=MP.ended?.status==='finished'?'RACE COMPLETE':'RUN ENDED';
+    $('overS').textContent=mpTrack(MP.room.chapter).name+' · '+natas+' 🪙';
+    $('nextBtn').classList.add('hidden');$('nameEntry').classList.add('hidden');$('over').classList.add('naming');
+    $('toast').classList.add('hidden');$('miniMap').classList.remove('show');
+    show('over');mpQuit.classList.add('hidden');inGameUI(false);ptrs.clear();evalPtrs();
+    musicStop();engineSound(-1);sirenSound(false);mpRaceDisplay(MP.room);mpBoard(MP.room);return;
+  }
   const {s:fs,bonus}=raceResult;
   $('overT').innerHTML=win?winTitle(CUR())+'<small>'+CUR().flag+' '+CUR().name+' · '+(chapter+1<CHAPTERS.length?T('nextC')+': '+CHAPTERS[chapter+1].flag+' '+CHAPTERS[chapter+1].name:T('tourDone'))+'</small>':T('timeUp')+'<small>GAME OVER</small>';
   const m=Math.floor(raceTime/60),s=Math.floor(raceTime%60);
@@ -3823,12 +3847,12 @@ function genericBG(st,R){return{far:mk(LW,LH,g=>paintOps(g,st.bg.far,R)),near:mk
 let unlocked=Math.max(0,Math.min(CHAPTERS.length-1,+store.get('unlock',0)||0));
 function unlockNext(){if(chapter+1<CHAPTERS.length&&unlocked<chapter+1){unlocked=chapter+1;store.set('unlock',unlocked);return true;}return false;}
 // ---------------------------------------------------------------- switch chapter: rebuild track & visuals
-function loadChapter(ci){
+function loadChapter(ci, multiplayerRoute){
   chapter=clamp(ci,0,CHAPTERS.length-1);const C=CUR();buildEuroSprites();
-  LEGS=C.legs;STAGES=C.stages;for(const k in BG)delete BG[k];
+  const stages=multiplayerRoute?.stages||C.stages;LEGS=multiplayerRoute?.legs||C.legs;STAGES=stages;for(const k in BG)delete BG[k];
   SP.gateStart={img:gate(T('start')+' · '+C.start,'cp'),ww:3.2,hit:0};SP.gateGoal={img:gate(T('goal')+' · '+C.goal,'goal'),ww:3.2,hit:0};refreshPoliceCar();
-  buildTrack();resetCars();store.set('chapter',chapter);
-  for(let i=0;i<STAGES.length;i++)setTimeout(()=>{if(STAGES===C.stages)buildBG(i);},30+i*25);
+  buildTrack();resetCars();if(!multiplayerRoute)store.set('chapter',chapter);
+  for(let i=0;i<STAGES.length;i++)setTimeout(()=>{if(STAGES===stages)buildBG(i);},30+i*25);
   updatePlayLabel();
 }
 function updatePlayLabel(){const C=CUR();C.name=CNAME(C);const el=document.querySelector('#playBtn small');if(el)el.textContent=C.flag+' '+C.name;}
@@ -5012,13 +5036,13 @@ function powerPickup(s){
   if(s.key==='pwMega'){PW.fly=4.6;boostT=Math.max(boostT,4.6);sfx('boost');setTimeout(()=>sfx('boost'),250);popText(HZ('mega'),1);setAnim('w','armsUp',4);setAnim('d','fist',2);shake=0.35;vib(80);return true;}
   if(s.key==='pwSiren'){PW.siren=6.5;sfx('pickup');popText(HZ('siren'),1);setAnim('w','stand',2.5);return true;}
   return false;}
-function powerUpdate(dt,pSeg){for(const k of ['fly','siren','slip','aqua','mud'])if(PW[k]>0)PW[k]=Math.max(0,PW[k]-dt);
+function powerUpdate(dt,pSeg,airborne=false){for(const k of ['fly','siren','slip','aqua','mud'])if(PW[k]>0)PW[k]=Math.max(0,PW[k]-dt);
   if(PW.siren>0&&!crash)speed+=accel*1.5*dt;
   // traffic gets out of the way of the siren
   if(PW.siren>0){const pz=position+playerZ;for(const c of cars){if(!c.active)continue;const rel=c.z-pz;if(rel>0&&rel<segL*45&&Math.abs(c.offset-playerX)<0.75){const dir=c.offset>=playerX?1:-1;c.offset=clamp(c.offset+dir*dt*1.6,-0.95,0.95);}}}
   {const pz=position+playerZ;for(const c of cars)if(c.active&&c.key==='parade'&&!c.ann2){const rel=c.z-pz;if(rel>0&&rel<segL*70){c.ann2=1;popText(HZ('parade'),1);say('w',HZ('parade'),2);}}}
   // hazards under the wheels
-  for(let i=Math.min(lastPIdx+1,pSeg.index);i<=pSeg.index;i++){for(const s of segments[i].sprites){if(!s.hz||s.used)continue;const sp=SP[s.key],hitWidth=s.key==='hzBarrier'?sp.ww*0.92:s.key==='hzCone'?sp.ww*0.65:sp.ww*0.85;
+  for(let i=Math.min(lastPIdx+1,pSeg.index);i<=pSeg.index;i++){for(const s of segments[i].sprites){if(airborne||!s.hz||s.used)continue;const sp=SP[s.key],hitWidth=s.key==='hzBarrier'?sp.ww*0.92:s.key==='hzCone'?sp.ww*0.65:sp.ww*0.85;
     if(overlap(playerX,PLAYER_HITW*0.85,s.offset,hitWidth))hazardHit(s);}}
   // early warning for roadworks
   for(let i=pSeg.index+20;i<pSeg.index+26&&i<segments.length;i++)for(const s of segments[i].sprites)if(s.hzStart&&!s.warned){s.warned=true;popText(HZ('works'),1);}
@@ -5083,6 +5107,55 @@ function syncCopChallenge(){
  for(const [side,index] of [['left',2],['right',3]]){const button=$('copTap'+(side==='left'?'Left':'Right'));button.textContent=(side==='left'?'◀ ':'')+L[index]+(side==='right'?' ▶':'');button.disabled=!active;button.classList.toggle('expected',active&&c.next===side);}
 }
 
+const JUMP_DURATION=1.25;
+let jumpTime=0;
+function launchJump(){
+ if(jumpTime>0||PW.fly>0||crash)return;
+ jumpTime=JUMP_DURATION;speed=Math.max(speed,maxSpeed*.75);sfx('boost');popText('AIRBORNE!',1);vib(15);
+}
+function roadJumpUpdate(seg){
+ for(let i=Math.min(lastPIdx+1,seg.index);i<=seg.index;i++){
+   for(const s of segments[i].sprites){
+     if(s.ramp&&!s.used&&speed>maxSpeed*.38&&overlap(playerX,PLAYER_HITW,s.offset,.5)){s.used=true;launchJump();}
+     if(s.mpWall&&!s.used&&jumpTime<=0&&PW.fly<=0&&overlap(playerX,PLAYER_HITW,s.offset,.48)){
+       s.used=true;speed*=.44;shake=.2;sfx('bump');popText('WALL HIT!',1);
+     }
+   }
+ }
+}
+function placeJumpFeatures(){
+ if(!SP.roadRamp){
+   const ramp=(truck)=>mk(160,88,g=>{
+     if(truck){g.fillStyle='#24273d';g.fillRect(14,63,132,24);g.fillStyle='#05d9e8';g.fillRect(36,0,88,35);}
+     poly(g,[9,76,151,76,126,20,36,20],truck?'#526582':'#734fc0');
+     for(let y=28;y<76;y+=11){g.fillStyle='#bafaff';g.fillRect(38,y,84,3);}
+     poly(g,[60,49,80,27,100,49,87,46,87,65,73,65,73,46],'#ffd23f');
+   });
+   SP.roadRamp={img:ramp(false),ww:.57,hit:0};
+   SP.towRamp={img:ramp(true),ww:.66,hit:.8};
+   SP.mpCharge={img:mk(80,80,g=>{g.fillStyle='#382060';g.fillRect(8,8,64,64);g.strokeStyle='#05d9e8';g.lineWidth=6;g.strokeRect(8,8,64,64);poly(g,[45,13,25,43,39,43,32,69,57,33,42,33],'#ffd23f');}),ww:.25,hit:0};
+   SP.mpCoin={img:mk(64,64,g=>{ell(g,32,32,25,27,'#ff9e35');ell(g,31,31,19,21,'#ffdf70');g.fillStyle='#a85826';g.fillRect(29,18,6,25);}),ww:.23,hit:0};
+   SP.mpWall={img:mk(100,95,g=>{g.fillStyle='#5f637e';g.fillRect(0,11,100,84);g.fillStyle='#33374e';g.fillRect(0,63,100,32);g.fillStyle='#ffc340';for(let x=-20;x<100;x+=32)poly(g,[x,60,x+13,60,x+40,22,x+27,22],'#ffc340');}),ww:.56,hit:0};
+ }
+ // The first build runs before the multiplayer UI is initialised.
+ const room=activeJumpRoom?.();
+ STAGES.forEach((st,j)=>{
+   const start=stageStart[j],end=stageStart[j+1]||goalIdx;
+   if(room?.chapter>=90){
+     for(let base=start+130;base+155<end;base+=270){
+       for(let i=base;i<base+150;i++)segments[i].width=1+(2/3)*Math.min(1,(i-base)/19,(base+149-i)/19);
+     }
+   }
+   for(let i=start+86;i<end-50;i+=155){
+     if(segments[i].tunnel||segments[i].sprites.some(s=>s.hz||s.over))continue;
+     const x=(j+i)%2?2/3:-2/3;
+     addSprite(i,(i-start)%2?'towRamp':'roadRamp',x,{ramp:true});
+     if(room&&!segments[i+36].tunnel)addSprite(i+36,'mpCharge',-x,{pickup:true});
+   }
+ });
+}
+let activeJumpRoom;
+
 resize();buildSprites();buildEuroSprites();buildPower();buildTrack();applyCtrl();
 {const c0=+store.get('chapter',0)||0;if(c0>0&&c0<=unlocked)loadChapter(c0);else updatePlayLabel();fetchGlobal();}
 settings.lang=LANG;applyLang();
@@ -5136,16 +5209,17 @@ $('challengeBtn').onclick=()=>{const n=(store.get('ini','')||'').replace(/[^A-Z0
     setTimeout(()=>{el.classList.remove('hidden');},9000);el.onclick=()=>el.classList.add('hidden');setTimeout(()=>el.classList.add('hidden'),22000);setInterval(()=>{if(state!=='title')el.classList.add('hidden');},500);}}catch(e){}})();
 
 // ------------------------------------------------------------------ two-phone live ghost racing
-const MP={session:null,room:null,offset:0,busy:false,prepared:false,started:false,ended:null,lastOK:0,ghost:null,epoch:0};
+activeJumpRoom=()=>MP.session?MP.room:null;
+const MP={round:0,charges:0,attackSeen:0,cardKey:null,session:null,room:null,offset:0,busy:false,prepared:false,started:false,ended:null,lastOK:0,ghost:null,epoch:0};
 const mpStyle=document.createElement('style');mpStyle.textContent=`
 #mpPanel{z-index:45;overflow-y:auto;background:rgba(14,5,35,.97);gap:14px}#mpPanel input{font:inherit;padding:12px;border:2px solid #05d9e8;border-radius:10px;max-width:90vw;color:#fff;background:#20143b}#mpPanel button{font:inherit;padding:10px 20px;border:2px solid #ffd23f;border-radius:10px;background:#38205b;color:#fff;min-height:46px}#mpPanel .mpRow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}#mpInfo{max-width:440px;white-space:pre-line;line-height:1.5}#mpHUD{position:fixed;left:50%;transform:translateX(-50%);top:32%;z-index:9;pointer-events:none;text-align:center;background:#180b32cc;border:1px solid #05d9e8;border-radius:12px;padding:6px 12px;font:14px system-ui;color:#bafaff;max-width:90vw}#mpCode{font-size:32px;letter-spacing:6px;color:#ffd23f}#mpBtn{font-size:16px;min-height:44px}`;document.head.appendChild(mpStyle);
-const mpPanel=document.createElement('div');mpPanel.id='mpPanel';mpPanel.className='screen hidden';mpPanel.innerHTML=`<h2>2 PLAYER · GHOST RACE</h2><p>Two phones. One route. Race a live ghost — no car-to-car collisions.<br>Wi-Fi or mobile data required on both phones.</p><label id="mpNameLabel">Your name <input id="mpName" maxlength="16" placeholder="Racer"></label><div id="mpSetup" class="mpRow"><button id="mpCreate">Host race</button><input id="mpJoinCode" maxlength="6" placeholder="Room code" aria-label="Room code" style="width:150px;text-transform:uppercase"><button id="mpJoin">Join race</button></div><img id="mpQR" class="hidden" width="180" height="180" alt="Scan to join this race"><b id="mpCode"></b><div id="mpInfo" role="status" aria-live="polite"></div><div class="mpRow"><button id="mpInvite" class="hidden">Share invite</button><button id="mpLeave">Back / Leave</button></div>`;document.body.appendChild(mpPanel);
+const mpPanel=document.createElement('div');mpPanel.id='mpPanel';mpPanel.className='screen hidden';mpPanel.innerHTML=`<h2>MULTIPLAYER · BATTLE RACE</h2><p>Two or three phones. One route. Grab wall charges and race your friends.<br>Wi-Fi or mobile data required on both phones.</p><label id="mpNameLabel">Your name <input id="mpName" maxlength="16" placeholder="Racer"></label><div id="mpSetup" class="mpRow"><button id="mpCreate">Host race</button><input id="mpJoinCode" maxlength="6" placeholder="Room code" aria-label="Room code" style="width:150px;text-transform:uppercase"><button id="mpJoin">Join race</button></div><img id="mpQR" class="hidden" width="180" height="180" alt="Scan to join this race"><b id="mpCode"></b><div id="mpInfo" role="status" aria-live="polite"></div><div class="mpRow"><button id="mpInvite" class="hidden">Share invite</button><button id="mpLeave">Back / Leave</button></div>`;document.body.appendChild(mpPanel);
 const mpHUD=document.createElement('div');mpHUD.id='mpHUD';mpHUD.className='hidden';document.body.appendChild(mpHUD);
 const mpQuit=document.createElement('button');mpQuit.textContent='Leave race';mpQuit.className='hidden';mpQuit.style.cssText='position:fixed;right:12px;top:42%;z-index:20;padding:10px;border:1px solid #05d9e8;border-radius:10px;background:#180b32dd;color:#fff';mpQuit.onclick=()=>toMenu();document.body.appendChild(mpQuit);
-const mpBtn=document.createElement('button');mpBtn.id='mpBtn';mpBtn.className='mbtn';mpBtn.textContent='👻 2 PLAYER';$('menu').appendChild(mpBtn);
+const mpBtn=document.createElement('button');mpBtn.id='mpBtn';mpBtn.className='mbtn';mpBtn.textContent='🏁 MULTIPLAYER';$('menu').appendChild(mpBtn);
 function mpInviteURL(code){const url=new URL(location.pathname,location.origin);url.searchParams.set('race',code);return url.href;}
 function mpMessage(t){$('mpInfo').textContent=t;}
-function mpOpen(){aInit();if(state==='intro')endIntro();state='title';show('title');mpPanel.classList.remove('hidden');$('mpName').value=store.get('racerName','');}
+function mpOpen(){mpRenderHost();aInit();if(state==='intro')endIntro();state='title';show('title');mpPanel.classList.remove('hidden');$('mpName').value=store.get('racerName','');}
 mpBtn.onclick=mpOpen;
 async function mpRequest(action,extra={}){
  const started=Date.now(),r=await fetch('/api/outrunning/rooms',{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',signal:AbortSignal.timeout(5000),body:JSON.stringify({action,...MP.session,...extra})});
@@ -5153,58 +5227,182 @@ async function mpRequest(action,extra={}){
  if(j.serverNow){MP.offset=j.serverNow-(started+Date.now())/2;MP.lastOK=Date.now();}return j;
 }
 function mpApply(j){
+ if(j.round!==MP.round){
+   MP.round=j.round;MP.prepared=false;MP.started=false;MP.ended=null;MP.charges=0;MP.attackSeen=0;MP.cardKey=null;$('mpSummary').textContent='';$('mpMeter').value=50;
+ }
  MP.room=j;const other=j.players.find(p=>!p.me);
  if(other&&other.sample&&other.online)MP.ghost={...other.sample,at:performance.now()-Math.max(0,j.serverNow-other.seen),name:other.name};else MP.ghost=null;
  mpMessage(!other?'Scan the QR code with the second phone, share the invite, or enter the room code.':j.startAt?'Both racers connected. Starting…':'Waiting for both phones to connect…');
  if(j.startAt&&!MP.prepared){
-   MP.prepared=true;loadChapter(j.chapter);startRace();position=0;speed=0;state='mpcount';show(null);inGameUI(true);applyCtrl();calibrate();buildRoute();for(const k in hudCache)delete hudCache[k];updateHUD();
+   MP.prepared=true;const track=mpTrack(j.chapter);loadChapter(track.source,{stages:track.stages,legs:j.chapter>=90?[{name:track.name,bonus:125}]:CHAPTERS[track.source].legs});startRace();position=0;speed=0;state='mpcount';show(null);inGameUI(true);applyCtrl();calibrate();buildRoute();for(const k in hudCache)delete hudCache[k];updateHUD();
    mpPanel.classList.add('hidden');mpHUD.classList.remove('hidden');mpQuit.classList.remove('hidden');$('count').classList.remove('hidden');$('cmsg').textContent='GHOST RACE';setStation(settings.station);musicStart(settings.station);
  }
+ mpReceiveAttacks(j);mpRaceDisplay(j);
+ if(MP.ended)mpBoard(j);
 }
 async function mpConnect(action){
  if(MP.busy)return;const epoch=MP.epoch;MP.busy=true;mpMessage('Connecting…');
- try{aInit();if(settings.ctrl==='tilt'&&tilt.ang==null)await enableTilt();if(epoch!==MP.epoch)return;const j=await mpRequest(action,{autoReady:true,name:$('mpName').value,chapter,code:$('mpJoinCode').value.trim().toUpperCase()});if(epoch!==MP.epoch){fetch('/api/outrunning/rooms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'leave',code:j.code,token:j.token})}).catch(()=>{});return;}MP.session={code:j.code,token:j.token};store.set('racerName',$('mpName').value);MP.prepared=false;MP.started=false;MP.ended=null;MP.ghost=null;$('mpSetup').classList.add('hidden');$('mpNameLabel').classList.add('hidden');if(action==='create'){$('mpCode').textContent=j.code;$('mpInvite').classList.remove('hidden');if(j.qr){$('mpQR').src=j.qr;$('mpQR').classList.remove('hidden');}}mpApply(j);}
+ try{aInit();if(settings.ctrl==='tilt'&&tilt.ang==null)await enableTilt();if(epoch!==MP.epoch)return;const j=await mpRequest(action,{autoReady:true,name:$('mpName').value,chapter:mpSelected,capacity:+$('mpSize').value,code:$('mpJoinCode').value.trim().toUpperCase()});if(epoch!==MP.epoch){fetch('/api/outrunning/rooms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'leave',code:j.code,token:j.token})}).catch(()=>{});return;}MP.session={code:j.code,token:j.token};mpHostCards.hidden=true;mpSize.hidden=true;store.set('racerName',$('mpName').value);MP.prepared=false;MP.started=false;MP.ended=null;MP.ghost=null;$('mpSetup').classList.add('hidden');$('mpNameLabel').classList.add('hidden');if(action==='create'){$('mpCode').textContent=j.code;$('mpInvite').classList.remove('hidden');if(j.qr){$('mpQR').src=j.qr;$('mpQR').classList.remove('hidden');}}mpApply(j);}
  catch(e){mpMessage(e.message);}finally{MP.busy=false;}
 }
 $('mpCreate').onclick=()=>mpConnect('create');$('mpJoin').onclick=()=>mpConnect('join');
 $('mpInvite').onclick=()=>{if(!MP.session)return;doShare('Race my ghost in Outrunning Portugal!',mpInviteURL(MP.session.code));};
-function mpLeave(){MP.epoch++;const s=MP.session;if(s)fetch('/api/outrunning/rooms',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({action:'leave',...s})}).catch(()=>{});MP.session=null;MP.room=null;MP.ghost=null;MP.prepared=false;MP.started=false;MP.ended=null;mpHUD.classList.add('hidden');mpQuit.classList.add('hidden');mpPanel.classList.add('hidden');$('count').classList.add('hidden');$('mpCreate').disabled=false;$('mpJoin').disabled=false;$('mpCode').textContent='';$('mpInvite').classList.add('hidden');$('mpQR').classList.add('hidden');$('mpQR').removeAttribute('src');$('mpSetup').classList.remove('hidden');$('mpNameLabel').classList.remove('hidden');}
-$('mpLeave').onclick=()=>{mpLeave();toMenu();};
-function mpSample(){return MP.started?{z:position+playerZ,x:playerX,speed:MP.ended?0:speed,status:MP.ended?.status||'racing',elapsed:MP.ended?.elapsed??Math.max(0,(Date.now()+MP.offset-MP.room.startAt)/1000)}:undefined;}
+function mpLeave(){mpProgress.classList.add('hidden');mpAttack.classList.add('hidden');mpResults.classList.add('hidden');mpHostCards.hidden=false;mpSize.hidden=false;MP.round=0;MP.queued=null;MP.epoch++;const s=MP.session;if(s)fetch('/api/outrunning/rooms',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({action:'leave',...s})}).catch(()=>{});MP.session=null;MP.room=null;MP.ghost=null;MP.prepared=false;MP.started=false;MP.ended=null;mpHUD.classList.add('hidden');mpQuit.classList.add('hidden');mpPanel.classList.add('hidden');$('count').classList.add('hidden');$('mpCreate').disabled=false;$('mpJoin').disabled=false;$('mpCode').textContent='';$('mpInvite').classList.add('hidden');$('mpQR').classList.add('hidden');$('mpQR').removeAttribute('src');$('mpSetup').classList.remove('hidden');$('mpNameLabel').classList.remove('hidden');}
+$('mpLeave').onclick=()=>toMenu();
+function mpSample(){return MP.started?{z:position+playerZ,x:playerX,speed:MP.ended?0:speed,status:MP.ended?.status||'racing',coins:natas,charges:MP.charges,elapsed:MP.ended?.elapsed??Math.max(0,(Date.now()+MP.offset-MP.room.startAt)/1000)}:undefined;}
 setInterval(async()=>{
- if(!MP.session||MP.busy)return;const session=MP.session;MP.busy=true;
- try{const j=await mpRequest('sync',{sample:mpSample()});if(MP.session===session)mpApply(j);}
- catch(e){if(MP.session!==session)return;MP.ghost=null;mpMessage(e.message);mpHUD.textContent='Connection lost · reconnecting…';if(e.expired){mpLeave();toMenu();mpOpen();mpMessage(e.message);}}
+ if(!MP.session||MP.busy)return;if(MP.queued){const {action,extra}=MP.queued;MP.queued=null;mpSend(action,extra);return;}const session=MP.session;MP.busy=true;
+ try{const j=await mpRequest('sync',{round:MP.round,sample:mpSample()});if(MP.session===session)mpApply(j);}
+ catch(e){if(MP.session!==session)return;MP.ghost=null;mpMessage(e.message);mpHUD.textContent='Connection lost · reconnecting…';if(MP.ended)$('mpVote').textContent='Connection lost · reconnecting…';if(e.expired){toMenu();mpOpen();mpMessage(e.message);}}
  finally{MP.busy=false;}
 },125);
 function mpFrame(){
  if(!MP.session||!MP.prepared)return;
  const left=MP.room.startAt-(Date.now()+MP.offset);
- if(!MP.started){$('countN').textContent=left>0?String(Math.max(1,Math.ceil(left/1000))):'GO!';if(left<=0){if(Date.now()-MP.lastOK>3000){mpHUD.textContent='Waiting for connection…';return;}MP.started=true;state='play';$('count').classList.add('hidden');sfx('go');}}
- const other=MP.room.players.find(p=>!p.me),me=MP.room.players.find(p=>p.me),o=other?.sample;
+ if(!MP.started){$('countN').textContent=left>0?String(Math.max(1,Math.ceil(left/1000))):'GO!';if(left<=0){if(Date.now()-MP.lastOK>3000){mpHUD.textContent='Waiting for connection…';return;}MP.started=true;state='play';mpRaceDisplay(MP.room);$('count').classList.add('hidden');sfx('go');}}
  if(Date.now()-MP.lastOK>3000){MP.ghost=null;mpHUD.textContent='Connection lost · reconnecting…';return;}
  if(!MP.started){mpHUD.textContent='Both ready · race starts together';return;}
- if(o?.status==='finished'&&me?.sample?.status==='finished')mpHUD.textContent=Math.abs(o.elapsed-me.sample.elapsed)<.02?'🏁 Draw':o.elapsed<me.sample.elapsed?'🏁 '+other.name+' wins!':'🏁 You win!';
- else if(MP.ended?.status==='finished')mpHUD.textContent=o?.status==='out'?'🏁 You win!':'🏁 Finished · waiting for opponent';
- else if(MP.ended)mpHUD.textContent='Your run ended · '+(o?.status==='finished'?other.name+' wins!':o?.status==='out'?'Both runs ended':'opponent still racing');
- else if(!other?.online)mpHUD.textContent='Opponent disconnected · waiting…';
- else if(o?.status==='finished')mpHUD.textContent='🏁 '+other.name+' finished · keep racing!';
- else if(o?.status==='out')mpHUD.textContent='Opponent’s run ended · reach the finish to win';
- else{const gap=o?Math.round((o.z-(position+playerZ))/segL):0;mpHUD.textContent='👻 '+(other?.name||'Opponent')+' · '+(gap>0?gap+' sections ahead':gap<0?-gap+' sections behind':'side by side');}
+ const rivals=MP.room.players.filter(p=>!p.me);
+ const nearest=rivals.filter(p=>p.online&&p.sample?.status==='racing').sort((a,b)=>Math.abs(a.sample.z-position-playerZ)-Math.abs(b.sample.z-position-playerZ))[0];
+ if(MP.ended)mpHUD.textContent='🏁 '+(MP.ended.status==='finished'?'Finished':'Run ended');
+ else if(nearest){const gap=Math.round((nearest.sample.z-position-playerZ)/segL);mpHUD.textContent=mpIcons[nearest.slot]+' '+nearest.name+' · '+(gap>0?gap+' sections ahead':gap<0?-gap+' sections behind':'side by side')+' · '+natas+' 🪙';}
+ else mpHUD.textContent=(rivals.some(p=>p.online)?'🏁 Keep racing':'Opponent disconnected')+' · '+natas+' 🪙';
 }
 function mpGhostSegment(s){
- const g=MP.ghost;if(!MP.started||!g||g.status==='out'||performance.now()-g.at>1500)return;
- const z=g.z+(g.status==='racing'?g.speed*Math.min(.25,(performance.now()-g.at)/1000):0);if(Math.floor(z/segL)!==s.index||z<position+playerZ*.25)return;
+ if(!MP.started)return;
+ for(const p of MP.room.players){
+ if(p.me||!p.online||!p.sample||p.sample.status==='out')continue;
+ const g={...p.sample,name:p.name,at:performance.now()-Math.max(0,MP.room.serverNow-p.seen+Date.now()-MP.lastOK)};
+ if(performance.now()-g.at>1500)continue;
+ const z=g.z+(g.status==='racing'?g.speed*Math.min(.25,(performance.now()-g.at)/1000):0);if(Math.floor(z/segL)!==s.index||z<position+playerZ*.25)continue;
  const p=mod(z,segL)/segL,sc=lerp(s.p1.screen.scale,s.p2.screen.scale,p),x=lerp(s.p1.screen.x,s.p2.screen.x,p)+sc*g.x*roadW*HW,y=lerp(s.p1.screen.y,s.p2.screen.y,p);
  drawSprite(mpCar,PLAYER_WW,sc,x,y,-.5,-1,.52*clamp((drawDist-s.n)/50,0,1));
  ctx.save();ctx.font='bold '+Math.max(8,Math.min(15,sc*roadW*HW*.12))+'px system-ui';ctx.fillStyle='#bafaff';ctx.textAlign='center';ctx.fillText(g.name,x,y-sc*roadW*HW*PLAYER_WW*.7-5);ctx.restore();
+ }
 }
 const mpCar=mk(160,85,g=>{g.fillStyle='#05d9e8';rr(g,7,28,146,51,14);g.fill();g.fillStyle='#bafaff';rr(g,29,3,102,49,15);g.fill();g.fillStyle='#28224e';rr(g,38,11,84,30,8);g.fill();g.fillStyle='#ffd23f';g.fillRect(15,52,25,10);g.fillRect(120,52,25,10);g.fillStyle='#303050';g.fillRect(21,78,22,7);g.fillRect(117,78,22,7);g.fillStyle='#fff';g.fillRect(63,64,34,8);});
 // Keep the original single-player controls and progression outside live rooms.
 const mpOldUpdate=update;update=function(dt){if(MP.session&&state==='mpcount')return;const was=state;mpOldUpdate(dt);if(MP.started&&!MP.ended&&(state==='finish'||state==='over'||(was==='play'&&timeLeft<=0)))MP.ended={status:state==='finish'?'finished':'out',elapsed:Math.max(0,(Date.now()+MP.offset-MP.room.startAt)/1000)};};
 const mpOldPause=pauseGame;pauseGame=function(){if(MP.session){popText('Live race · keep racing!',1);return;}mpOldPause();};
-const mpOldMenu=toMenu;toMenu=function(){if(MP.session)mpLeave();mpOldMenu();};$('menuBtn').onclick=toMenu;$('menuBtn2').onclick=toMenu;
+const mpOldMenu=toMenu;toMenu=function(){if(MP.session){mpLeave();loadChapter(+store.get('chapter',0)||0);}mpOldMenu();};$('menuBtn').onclick=toMenu;$('menuBtn2').onclick=toMenu;
 for(const id of ['restartBtn','againBtn','nextBtn']){const original=$(id).onclick;$(id).onclick=function(e){if(MP.session){mpLeave();toMenu();mpOpen();mpMessage('Create a new room for a rematch.');return;}if(original)original.call(this,e);};}
+// Multiplayer-only route cards reuse the game's landmark art.
+const MP_EXTRAS={
+ 90:{name:'Douro Overdrive',source:0,indices:[1,0,1],difficulty:4,tag:'Douro · Porto · Douro',lengths:[470,510,630]},
+ 91:{name:'Alpine Launch Club',source:3,indices:[0,1,0],difficulty:5,tag:'Alpine bends · long jumps',lengths:[560,670,760]}
+};
+function mpTrack(id){
+ const extra=MP_EXTRAS[id],source=extra?.source??id,C=CHAPTERS[source];
+ const stages=extra?extra.indices.map((i,j)=>({...C.stages[i%C.stages.length],leg:0,len:extra.lengths[j],tunnels:0,radars:0,curvy:extra.difficulty/5})):C.stages;
+ return {name:extra?.name||CNAME(C),tag:extra?.tag||C.tag,source,stages,difficulty:extra?.difficulty??Math.round(1+4*stages.reduce((n,s)=>n+s.curvy,0)/stages.length)};
+}
+function mpTrackLength(stages){
+ return stages.reduce((total,st,i)=>{
+   const R=rng(i*977+31);let count=90,height=0;
+   while(count<st.len){
+     const r=R(),L=[25,40,60][(R()*3)|0];R();R();
+     let hill=0;if(R()<st.hilly*.7){const sign=height>0?(R()<.75?-1:1):(R()<.75?1:-1);hill=sign*[15,30,45][(R()*3)|0];}
+     if(r<.78){count+=3*L;height+=hill;}else count+=160;
+   }
+   return total+count;
+ },60);
+}
+function mpCards(node,capacity,selected,choose){
+ node.replaceChildren();
+ const ids=[0,1,2,3,...(capacity===2?[90,91]:[])];
+ if(!ids.includes(selected)&&selected<90)ids.unshift(selected);
+ for(const id of ids){
+   const t=mpTrack(id),button=document.createElement('button');
+   button.type='button';button.className='mpCard';button.setAttribute('aria-pressed',String(id===selected));
+   const art=chapterThumb(t.source),img=art.cloneNode();img.getContext('2d').drawImage(art,0,0);button.append(img);
+   const label=document.createElement('b');label.textContent=t.name;button.append(label);
+   const meta=document.createElement('small');meta.textContent=mpTrackLength(t.stages)+' sections · '+t.difficulty+'/5'+(id>=90?' · 2P ONLY':'');button.append(meta);
+   const details=document.createElement('small');details.textContent=t.tag;button.append(details);
+   button.onclick=()=>choose(id);node.append(button);
+ }
+}
+const mpProgress=document.createElement('div');mpProgress.id='mpProgress';mpProgress.className='hidden';document.body.append(mpProgress);
+const mpAttack=document.createElement('button');mpAttack.id='mpAttack';mpAttack.className='hidden';document.body.append(mpAttack);
+const mpResults=document.createElement('section');mpResults.id='mpResults';mpResults.className='hidden';
+mpResults.innerHTML='<div id="mpSummary" role="status"></div><meter id="mpMeter" min="0" max="100"></meter><div id="mpResultCards" class="mpCards"></div><button id="mpReplay">Replay this track</button> <button id="mpDecline">Decline rematch</button><p id="mpVote" role="status"></p>';
+$('overS').after(mpResults);
+const mpHostCards=document.createElement('div');mpHostCards.className='mpCards';$('mpSetup').before(mpHostCards);
+const mpSize=document.createElement('label');mpSize.innerHTML='Racers <select id="mpSize"><option>2</option><option>3</option></select>';$('mpSetup').before(mpSize);
+let mpSelected=0;
+function mpRenderHost(){const capacity=+$('mpSize').value;if(capacity===3&&mpSelected>=90)mpSelected=0;mpCards(mpHostCards,capacity,mpSelected,id=>{mpSelected=id;mpRenderHost();});}
+$('mpSize').onchange=mpRenderHost;
+const mpExtraStyle=document.createElement('style');mpExtraStyle.textContent=`
+.mpCards[hidden]{display:none} #mpPanel{justify-content:flex-start;padding:18px 0;box-sizing:border-box}
+.mpCards{display:flex;overflow-x:auto;justify-content:safe center;gap:9px;width:min(94vw,760px);margin:8px auto;scroll-snap-type:x mandatory;touch-action:pan-x pan-y}
+.mpCard{flex:0 0 145px;scroll-snap-align:start;padding:5px!important;text-align:left;border:1px solid #706295!important;background:#24193b!important;color:#fff;border-radius:10px}
+.mpCard[aria-pressed=true]{border:2px solid #05d9e8!important;background:#263952!important}.mpCard canvas{width:100%;display:block;border-radius:6px}.mpCard b,.mpCard small{display:block;padding:3px}.mpCard small{font:11px system-ui}
+#mpProgress{position:fixed;top:max(56px,calc(env(safe-area-inset-top) + 44px));left:20%;width:60%;height:18px;z-index:17;background:#1c1231e8;border:1px solid #bafaff;border-radius:12px;pointer-events:none}
+#mpProgress span{position:absolute;transform:translateX(-50%);font:14px system-ui;text-shadow:0 1px 3px #000}
+#mpAttack{position:fixed;right:12px;top:55%;z-index:17;min-height:46px;border:2px solid #ffd23f;border-radius:10px;background:#361d50;color:white;font-weight:800;touch-action:manipulation}
+#mpResults{width:min(96vw,780px);text-align:center;font:600 13px system-ui;color:white}#mpMeter{width:min(70%,300px);height:18px}#mpSummary{white-space:pre-line}#mpResults button{min-height:42px;touch-action:manipulation}
+`;document.head.append(mpExtraStyle);
+function mpSend(action,extra={}){
+ if(!MP.session)return;
+ if(MP.busy){MP.queued={action,extra};return;}
+ const session=MP.session;MP.busy=true;
+ mpRequest(action,{round:MP.room.round,...extra}).then(j=>{if(MP.session===session)mpApply(j);})
+ .catch(e=>{if(MP.session===session)$('mpVote').textContent=e.message;}).finally(()=>{MP.busy=false;});
+}
+mpAttack.onclick=()=>mpSend('attack');
+$('mpReplay').onclick=()=>mpSend('rematch',{chapter:MP.room.rematch?.chapter??MP.room.chapter});
+$('mpDecline').onclick=()=>mpSend('decline');
+const mpIcons=['🚗','🚙','🏎️'];
+function mpBoard(j){
+ const done=j.players.every(p=>p.sample&&p.sample.status!=='racing');
+ const vote=j.rematch,available=done&&!vote?.declined&&j.players.every(p=>p.online);
+ $('mpReplay').disabled=!available||!!vote?.accepted;
+ $('mpReplay').textContent=vote?'Accept · '+mpTrack(vote.chapter).name:'Replay this track';
+ $('mpDecline').disabled=!!vote?.declined;
+ $('mpVote').textContent=vote?.declined?'Rematch declined':vote?mpTrack(vote.chapter).name+' · '+vote.votes+'/'+j.capacity+' accepted':available?'Pick a route or replay. Everyone must agree.':done?'Waiting for all racers to reconnect…':'Waiting for the other racers to finish…';
+ const key=[j.round,available,!!vote].join(':');
+ if(key!==MP.cardKey){MP.cardKey=key;$('mpResultCards').replaceChildren();if(available&&!vote)mpCards($('mpResultCards'),j.capacity,j.chapter,id=>mpSend('rematch',{chapter:id}));}
+ if(!done)return;
+ const bestTime=Math.min(...j.players.filter(p=>p.sample.status==='finished').map(p=>p.sample.elapsed));
+ const rows=j.players.map(p=>{
+   const s=p.sample,progress=s.status==='finished'?1:clamp(s.z/goalZ,0,1);
+   const pace=s.status==='finished'?Math.max(0,200-Math.round((s.elapsed-bestTime)*8)):0;
+   return {...p,points:Math.round(progress*1000)+s.coins*4+pace};
+ }).sort((a,b)=>b.points-a.points);
+ const me=rows.find(p=>p.me),other=rows.find(p=>!p.me),gap=me.points-other.points;
+ const meter=clamp(50+Math.round(gap/4),0,100);$('mpMeter').value=meter;
+ const tier=meter<20?['You sucked beyond sucking.','The car asked for a transfer.']:meter<42?['A scenic tour with witnesses.','The cones are filing a report.']:meter<=58?['Photo finish. Nobody gets to brag.','That was uncomfortably close.']:meter<82?['Bragging rights unlocked.','That overtake needs a replay.']:['So good we need to rethink our life choices.','The road would like your autograph.'];
+ const leader=rows[0].sample;
+ $('mpSummary').textContent=tier[(j.round+me.slot)%tier.length]+'\n'+rows.map(p=>{
+   const s=p.sample,delta=s.status==='finished'&&leader.status==='finished'?(s.elapsed-leader.elapsed).toFixed(2)+' s':Math.round((s.z-leader.z)/segL)+' sections';
+   return mpIcons[p.slot]+' '+p.name+' · '+p.points+' pts · '+s.coins+' 🪙 · '+delta;
+ }).join('\n');
+}
+function mpRaceDisplay(j){
+ const active=MP.started&&!MP.ended;
+ mpProgress.classList.toggle('hidden',!active);mpAttack.classList.toggle('hidden',!active);
+ if(!active)return;
+ if(mpProgress.children.length!==j.players.length)mpProgress.replaceChildren(...j.players.map(p=>{const el=document.createElement('span');el.textContent=mpIcons[p.slot];el.title=p.name;return el;}));
+ j.players.forEach((p,i)=>{const icon=mpProgress.children[i];icon.style.left=(clamp((p.me?position+playerZ:p.sample?.z??0)/goalZ,0,1)*100)+'%';icon.style.top=(p.slot*6-7)+'px';});
+ mpAttack.textContent='⚡ WALL ×'+j.ammo;mpAttack.disabled=!j.ammo;
+}
+function mpReceiveAttacks(j){
+ if(!MP.started||MP.ended)return;
+ for(const a of j.attacks||[]){
+   if(a.id<=MP.attackSeen)continue;
+   MP.attackSeen=a.id;
+   const i=Math.max(Math.floor(a.z/segL)+90,Math.floor((position+playerZ)/segL)+82);
+   if(i>=goalIdx-15)continue;
+   if(segments[i].tunnel)continue;
+   const wide=segments[i].width>1.5&&segments[i-9].width>1.5;
+   const centers=wide?[-2/3,0,2/3,4/3]:[-2/3,0,2/3];
+   centers.sort((x,y)=>Math.abs(x-a.x)-Math.abs(y-a.x));
+   const count=Math.min(a.lanes,centers.length-(wide&&a.lanes===4?0:1));
+   for(const x of centers.slice(0,count))addSprite(i,'mpWall',x,{mpWall:true,riseAt:performance.now()});
+   popText('⚠ WALL AHEAD · '+(count===centers.length?'TAKE THE RAMP':'DODGE OR JUMP'),2);
+   if(count===centers.length)addSprite(i-9,'roadRamp',2/3,{ramp:true});
+ }
+}
+
 const mpRaceCode=new URLSearchParams(location.search).get('race');if(/^[A-F0-9]{6}$/i.test(mpRaceCode||'')){$('mpJoinCode').value=mpRaceCode.toUpperCase();setTimeout(()=>{mpOpen();mpMessage('Tap Join race to accept your friend’s invitation.');},500);}
 
 </script>
