@@ -54,7 +54,7 @@ slides.innerHTML = [
       ${frame(id+'-simbolos',`${title(chapter,'Tradição e símbolos')}
         <dl class="fields">${fields.map(([key,value])=>`<div class="field"><dt>${key}</dt><dd>${value}</dd></div>`).join('')}</dl>
         <p>${x.simbolo}</p><p class="note">Pūrṇānanda, vv. ${verse}. Na convenção moderna: ${color.toLowerCase()} · ${theme.toLowerCase()}.</p>
-        ${step.som ? `<audio controls preload="none" src="/chakras/audio/${step.som}.mp3" aria-label="Ouvir a sílaba ritual"></audio><span class="sound-note">Voz sintética · pronúncia aproximada</span>` : '<p class="sound-note">Pausa em silêncio, sem sílaba fixa nesta ficha.</p>'}
+        ${ambiente.markup(i)}
         ${nav(link(id+'-estados','Propósito e estados'),link(id,'Voltar à história'))}`,tone)}
       ${frame(id+'-estados',`${title(chapter,'Propósito e estados')}
         <p class="dek">${e.purpose}</p>
@@ -140,7 +140,7 @@ function updatePager(){
 }
 previous.addEventListener('click',()=>Reveal.prev());
 next.addEventListener('click',()=>Reveal.next());
-Reveal.on('slidechanged',updatePager);
+Reveal.on('slidechanged',()=>{ambiente.stop();updatePager();});
 Reveal.initialize({...dimensions(),hash:true,controls:false,progress:true,center:true,margin:.13,
   navigationMode:'linear',transition:quiet?'none':'fade',history:false}).then(updatePager);
 portrait.addEventListener('change', () => Reveal.configure(dimensions()));

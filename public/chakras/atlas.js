@@ -2,7 +2,6 @@
 
 const ids = ['raiz','sacral','umbigo','coracao','garganta','ajna','coroa'];
 const locations = ['Períneo','Região genital','Zona do umbigo','Centro do peito','Garganta','Entre as sobrancelhas','Topo da cabeça'];
-const audioNames = ['lam','vam','ram','yam','ham','om'];
 const mantras = ['Laṃ','Vaṃ','Raṃ','Yaṃ','Haṃ','Oṃ'];
 const modernTones = ['#b95250','#c36d40','#ac8335','#4d8167','#407d9a','#6166a3','#805f9e'];
 const stateNames = ['Em falta','Em equilíbrio','Em excesso','Por observar'];
@@ -59,8 +58,8 @@ function renderCenter(i,{move=false}={}) {
   const id=ids[i], entry=deep[i], [adjacent, connection]=connections[i];
   const swatch = `<i class="dot" aria-hidden="true" style="--tone:${modernTones[i]}"></i>`;
   centerLinks().forEach(a=>a.setAttribute('aria-current',String(a.dataset.center===id)));
-  const sound = audioNames[i] ? `<div class="audio"><h4>Som · ${mantras[i]}</h4><p>Três repetições em voz sintética, com pronúncia aproximada. O áudio ilustra a sílaba e usa a mesma voz para todos os centros.</p><audio controls preload="none" src="/chakras/audio/${audioNames[i]}.mp3" aria-label="Ouvir ${mantras[i]}"></audio></div>` :
-    '<div class="audio"><h4>Som · pausa em silêncio</h4><p>Esta ficha segue a descrição do lótus da coroa, sem fixar uma sílaba-semente. Se quiseres experimentar a proposta contemplativa, faz uma pausa em silêncio e observa os sons que já estão à tua volta.</p></div>';
+  ambiente.stop();
+  const sound = `<div class="audio"><h4>${mantras[i] ? 'Sílaba ritual · '+mantras[i] : 'Coroa · pausa contemplativa'}</h4><p>${mantras[i] ? 'A peça explora uma frequência de referência moderna.' : 'A ficha da coroa não fixa uma sílaba. Podes ficar em silêncio ou ouvir o ambiente instrumental.'}</p>${ambiente.markup(i)}</div>`;
   el('ficha').innerHTML = `
   <p class="eyebrow">CENTRO ${i+1} DE 7 · ${locations[i].toUpperCase()}</p>
   <h3 id="nome-chakra" class="name" tabindex="-1">${name}</h3><p class="meaning">${meaning} · ${theme}</p>
