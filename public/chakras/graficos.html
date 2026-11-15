@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guia dos gráficos · Atlas dos Chakras</title>
+<link rel="stylesheet" href="/chakras/atlas.css">
+<style>
+.brief-intro{padding:4rem 0 3rem}.brief-intro p{max-width:48rem}.brief-list{list-style:none;padding:0;margin:0}.brief-list article{display:grid;grid-template-columns:minmax(9rem,.55fr) minmax(0,1.45fr);gap:1.5rem;border-top:1px solid var(--rule);padding:1.4rem 0}.brief-list h3{font-size:1.25rem}.brief-list p{margin:0 0 .45rem}.brief-list .muted{font-size:.9rem}.brief-list article div:last-child p:last-child{margin:0}.spec{max-width:52rem;margin:2rem 0}.spec li+li{margin-top:.5rem}@media(max-width:680px){.brief-list article{grid-template-columns:1fr;gap:.55rem}.brief-intro{padding:2.5rem 0 1.5rem}}
+</style>
+</head>
+<body>
+<header class="site-header"><a class="brand" href="/chakras">MADE IN MAIA / ATLAS DOS CHAKRAS</a><nav aria-label="Navegação"><a href="/chakras/slides.html">Apresentação</a><a href="/chakras">Atlas</a></nav></header>
+<main class="wrap">
+<section class="brief-intro">
+<p class="eyebrow">GUIA DE PRODUÇÃO VISUAL</p>
+<h1>Os gráficos da experiência</h1>
+<p class="muted">Começa pelo mapa corporal e pela família dos sete símbolos. São os elementos que o leitor vai consultar mais vezes. Os restantes gráficos entram onde ajudam a seguir uma relação ou uma mudança.</p>
+</section>
+<ol class="brief-list">
+<li><article><div><p class="eyebrow">ESSENCIAL · SVG</p><h3>Mapa corporal</h3><a href="/chakras/slides.html#/mapa">Ver no percurso</a></div><div>
+<p>Uma silhueta frontal de cabeça a pélvis, com o eixo vertical e sete pontos. Marca coroa, sobrancelhas, garganta, peito, umbigo, região genital e períneo. Mantém diferentes as duas posições inferiores.</p>
+<p class="muted">Base 4:5. Entrega silhueta, linha central e marcadores em grupos separados. O nome e a área interativa de cada ponto entram no site. Mantém a interpretação simbólica visível na legenda.</p></div></article></li>
+<li><article><div><p class="eyebrow">ESSENCIAL · 7 SVG</p><h3>Família dos lótus</h3><a href="/chakras/slides.html#/raiz">Ver no capítulo da raiz</a></div><div>
+<p>Um símbolo por capítulo, com a mesma grelha, espessura de linha e escala visual. Raiz, 4 pétalas e quadrado. Sacral, 6 e crescente. Umbigo, 10 e triângulo. Coração, 12 e dois triângulos. Garganta, 16 e círculo. Ājñā, 2. Coroa, anéis de pétalas com a indicação «mil pétalas».</p>
+<p class="muted">Base quadrada 240 × 240. Reserva cerca de 12% de margem em cada lado. Entrega o traço monocromático em fundo transparente para podermos aplicar o acento editorial de cada centro.</p></div></article></li>
+<li><article><div><p class="eyebrow">SEGUNDA PRIORIDADE · SVG</p><h3>Canais e percurso</h3><a href="/chakras#energia">Ver no atlas</a></div><div>
+<p>Mostra suṣumṇā como eixo central e distingue iḍā de piṅgalā com traçados diferentes. Marca base, coroa e o sentido ascendente de kuṇḍalinī no esquema contemplativo.</p>
+<p class="muted">Base 4:5. Diferencia as linhas também a preto e branco. O traçado é esquemático. Qualquer detalhe atribuído a um texto específico deve trazer essa indicação na legenda.</p></div></article></li>
+<li><article><div><p class="eyebrow">SEGUNDA PRIORIDADE · SVG</p><h3>Três estados</h3><a href="/chakras/slides.html#/estados">Ver no percurso</a></div><div>
+<p>Cria uma família de três vinhetas a partir da mesma conversa. Uma pessoa cala o pedido, depois faz um pedido e ouve a resposta, e na terceira ocupa toda a conversa. Cada vinheta acompanha um rótulo textual.</p>
+<p class="muted">Três imagens 1:1 independentes, em sequência horizontal no ecrã largo e vertical no telemóvel. Evita medidores e números, porque os estados são descrições de comportamento.</p></div></article></li>
+<li><article><div><p class="eyebrow">SEGUNDA PRIORIDADE · SVG</p><h3>Ciclo de observação</h3><a href="/chakras/slides.html#/ciclo">Ver no percurso</a></div><div>
+<p>Quatro gestos visuais para situar, observar, experimentar e rever. A revisão regressa ao ponto de partida e representa uma nova observação em contexto semelhante.</p>
+<p class="muted">Uma composição 4:3 com quatro motivos autónomos. O percurso também deve ser legível quando apresentado em lista vertical.</p></div></article></li>
+<li><article><div><p class="eyebrow">TERCEIRA PRIORIDADE · 3 IMAGENS</p><h3>Momentos da Inês</h3><a href="/chakras/slides.html#/historia">Ver a história</a></div><div>
+<p>Desenha só três momentos: o aviso de alteração do turno, a conversa com a colega e o novo acordo sobre o aviso prévio. Um mesmo motivo visual, como uma folha de horário, liga as cenas.</p>
+<p class="muted">Base 3:2, assunto junto a uma das margens e cerca de metade da composição livre. Se forem imagens raster, entrega WebP com pelo menos 1440 px no lado maior.</p></div></article></li>
+</ol>
+<section class="spec" aria-labelledby="spec">
+<h2 id="spec">Direção visual</h2>
+<ul>
+<li>Papel quente e tinta verde-escura no atlas. Na apresentação, fundo escuro e texto claro. Um único acento por chakra.</li>
+<li>Contornos simples, sem texto desenhado dentro da imagem. As legendas ficam em HTML e podem adaptar-se ao telemóvel.</li>
+<li>Uma imagem com função por diapositivo. Mantém o fundo livre à volta do foco e verifica os traços no tamanho real de visualização.</li>
+<li>Exporta SVG editável com <code>viewBox</code> e prepara contraste suficiente nos dois fundos. Para ficheiros soltos, usa nomes como <code>mapa-corporal.svg</code> e <code>lotus-01-raiz.svg</code>.</li>
+</ul>
+</section>
+</main>
+<footer class="wrap footer"><a href="/chakras/slides.html">Voltar à apresentação</a><span>Made in Maia</span></footer>
+</body>
+</html>
