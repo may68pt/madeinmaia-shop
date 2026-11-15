@@ -21,73 +21,51 @@ const bodyMap = () => {
 const mapLinks = data.map(([name],i) => `<li><a href="#/${ids[i]}" style="--tone:${tones[i]}"><i class="dot" aria-hidden="true"></i>${name}<small>${locations[i]}</small></a></li>`).reverse().join('');
 const rings = tones.map((tone,i)=>`<i style="--tone:${tone};--ring:${93-i*12}%"></i>`).join('');
 
+const story = [
+  'A Inês confirma quem a pode ajudar a ir buscar a filha.',
+  'Antes de responder, dá nome ao que sente: irritação e preocupação.',
+  'Escolhe o que consegue fazer agora: propor uma troca.',
+  'Pergunta à colega que horários também funcionam para ela.',
+  'Faz um pedido concreto e ouve a proposta da colega.',
+  'Confirma se a chefia viu a mensagem antes de interpretar o silêncio.',
+  'Propõe um prazo de aviso para proteger os compromissos da equipa.'
+];
+const bites = [
+  [['Falta de apoio','Rotina flexível','Rigidez'], 'Sente os pés no chão. Identifica um apoio que podes usar hoje.'],
+  [['Pouco espaço para sentir','Curiosidade','Procura constante de estímulo'], 'Põe uma música e experimenta um movimento durante três minutos.'],
+  [['Adiamento','Iniciativa flexível','Controlo excessivo'], 'Escolhe uma decisão adiada. Faz o primeiro passo em cinco minutos.'],
+  [['Distância','Cuidado com limites','Dar em demasia'], 'Escolhe um gesto de cuidado e define o teu limite de tempo.'],
+  [['Silêncio','Clareza e escuta','Monopolizar a conversa'], 'Diz o que aconteceu, explica o que precisas e faz um pedido concreto.'],
+  [['Conclusão apressada','Atenção e discernimento','Ruminação'], 'Escreve duas colunas: o que observaste e o que interpretaste.'],
+  [['Falta de direção','Valores em ação','Reflexão sem ação'], 'Escolhe um valor e uma ação pequena que o ponha em prática hoje.'],
+];
+const brief = (kicker,heading,body,links='') => `${title(kicker,heading)}<p class="lead">${body}</p>${links}`;
+const states = (words) => `<ol class="state-scale">${words.map((word,i)=>`<li><span>${['Em falta','Em equilíbrio','Em excesso'][i]}</span><strong>${word}</strong></li>`).join('')}</ol>`;
+const atlas = (id,label='Abrir a ficha completa') => `<a href="/chakras#centro-${id}">${label}</a>`;
 slides.innerHTML = [
-  frame('inicio',`<div class="hero"><div><p class="kicker">UM PERCURSO EM SETE CAPÍTULOS</p><h1>Os chakras<br>da raiz à coroa</h1><p class="dek">Segue uma situação do dia a dia, da sensação de apoio à decisão sobre o que importa. Em cada etapa, explora também o símbolo e a prática.</p>${nav(link('historia','Começar o percurso'),link('mapa','Consultar o mapa'))}</div><div class="wheel" aria-hidden="true">${rings}</div></div>`),
-  frame('historia',`${title('Uma situação fictícia','O turno da Inês mudou')}
-     <div class="story-lead"><p class="story-quote">Faltam duas horas para a saída da escola. Um novo turno ameaça o combinado.</p>
-     <p class="dek">Ao longo dos sete capítulos, acompanha o que a Inês observa, sente, decide e comunica. Esta história serve de exemplo para a leitura contemporânea. Cada capítulo inclui também a descrição tântrica do centro.</p></div>
-     ${nav(link('mapa','Ver onde começa o percurso'),link('raiz','Ir para a primeira etapa'))}`),
-  frame('mapa',`${title('Mapa corporal','Onde se situam?')}<div class="map">${bodyMap()}<ol class="map-links">${mapLinks}</ol></div><p class="note">Vista de frente. As posições são simbólicas. As cores seguem a convenção moderna.</p>`),
-  frame('contexto',`${title('Contexto histórico','Como se lê este mapa?')}
-    <div class="split"><div><h3>Rodas e lótus</h3><p>Cakra significa «roda» em sânscrito. Em tradições tântricas hindus e budistas, os centros integram mapas contemplativos e rituais com contagens e disposições diversas.</p><h3>O texto de Pūrṇānanda</h3><p>No século XVI, o <i>Ṣaṭcakranirūpaṇa</i> descreveu seis centros e um lótus na coroa. A tradução inglesa de Arthur Avalon saiu em 1919.</p></div>
-    <div><h3>Um percurso ritual</h3><p>A kuṇḍalinī ascende pela suṣumṇā, o canal central do corpo subtil. Os textos usam pétalas inscritas, sílabas-semente (bīja) e figuras como objetos de contemplação.</p><h3>As cores modernas</h3><p>A sequência de arco-íris difundiu-se no Ocidente no século XX. As cores das pétalas, dos elementos e das figuras no texto variam dentro de cada lótus.</p></div></div>
-    ${nav(link('estados','Como ler os estados'),link('fontes','Fontes'))}`),
-  frame('estados',`${title('Leitura contemporânea','Em falta, em equilíbrio, em excesso')}
-    <p class="dek">Usamos o enquadramento de Anodea Judith como ponto de partida para observar padrões de comportamento.</p>
-    <div class="state"><h3>Em falta</h3><p>O tema recebe pouco espaço. Na comunicação, um exemplo é evitar fazer um pedido importante.</p></div>
-    <div class="state"><h3>Em equilíbrio</h3><p>Há margem para ajustar a resposta. Podes dizer o que precisas e ouvir o que a outra pessoa consegue oferecer.</p></div>
-    <div class="state"><h3>Em excesso</h3><p>O tema ocupa demasiado espaço. Podes insistir tanto em explicar o teu ponto de vista que a outra pessoa perde a oportunidade de responder.</p></div>
-    <p class="note">As categorias variam com o contexto e destinam-se à auto-observação. Ficam fora do âmbito do diagnóstico de saúde.</p>${nav(link('raiz','Começar na raiz'),link('mapa','Voltar ao mapa'))}`),
-  frame('canais',`${title('Corpo subtil','Como os centros se ligam')}
-     <div class="split"><div><h3>Prāṇa</h3><p>O sopro vital faz parte do vocabulário de várias tradições de yoga. As práticas respiratórias dão-lhe um lugar no trabalho contemplativo.</p><h3>Nāḍīs</h3><p>Suṣumṇā é o eixo central. Iḍā e piṅgalā aparecem em descrições dos canais laterais, com associações lunares e solares.</p></div>
-     <div><h3>Kuṇḍalinī</h3><p>Na descrição de Pūrṇānanda, a serpente enrolada na base ascende pelo eixo. A união de Śiva e Śakti na coroa exprime o culminar espiritual do percurso.</p><p class="note">Trata-se de um mapa ritual e contemplativo. As posições têm sentido simbólico.</p></div></div>
-     ${nav('<a href="/chakras#energia">Ver o diagrama dos canais</a>',link('raiz','Começar na raiz'))}`),
-  ...data.map((d,i) => {
-    const [name,meaning,location,icon,element,figures,,color,theme,,verse] = d;
-    const id = ids[i], tone = tones[i], e = deep[i], x = contextos[i], step = percurso[i];
-    const chapter = `Capítulo ${i+1} de 7 · ${name}`;
-    const fields = [['Localização',location],['Iconografia',icon],['Elemento e som',element],['Figuras',figures]];
-    const next = i === data.length-1 ? link('desfecho','Concluir a história') : link(ids[i+1],'Próximo chakra');
+  frame('inicio',`<div class="hero"><div><p class="kicker">SETE CENTROS</p><h1>Da raiz à coroa</h1><p class="lead">Um mapa simbólico dos chakras.</p>${nav(link('mapa','Começar'),'<a href="/chakras#mapa">Consultar o atlas</a>')}</div><div class="wheel" aria-hidden="true">${rings}</div></div>`),
+  frame('mapa',`${title('Posições simbólicas','Os sete centros')}<div class="map">${bodyMap()}<ol class="map-links">${mapLinks}</ol></div>`),
+  frame('contexto',brief('Tradição','O que é um chakra?','«Chakra» significa roda. As tradições tântricas usam estes centros como pontos de contemplação.',nav(link('canais','Ver como se ligam')))),
+  frame('canais',brief('Corpo subtil','Da base à coroa','No texto de Pūrṇānanda, a kuṇḍalinī ascende pelo canal central, a suṣumṇā.',nav('<a href="/chakras#energia">Ver o diagrama dos canais</a>'))),
+  frame('estados',`${title('Leitura contemporânea','Três tendências')}${states(['Pouco espaço','Margem para ajustar','Ocupa espaço a mais'])}<p class="note">Um exercício de auto-observação.</p>`),
+  frame('historia',brief('Um exemplo','O turno da Inês mudou','Faltam duas horas para ir buscar a filha à escola. O que pode fazer?',nav(link('raiz','Acompanhar a Inês')))),
+  ...data.map(([name,meaning,location,,element,,,,theme],i)=>{
+    const id=ids[i], tone=tones[i], step=percurso[i], [words,practice]=bites[i];
+    const chapter=`${i+1} / 7 · ${name}`;
+    const stage=(number,label)=>`${chapter} · ${number}/4 ${label}`;
+    const following=i===6?link('desfecho','Concluir o percurso'):link(ids[i+1],'Próximo chakra');
     return `<section>
-      ${frame(id,`<div class="chapter-open"><div>${title(chapter,step.acao)}<p class="story-quote">${step.frase}</p><p class="dek">${step.cena}</p></div><figure>${glyph(step)}<figcaption>${meaning} · ${location}</figcaption></figure></div>
-        ${nav(link(id+'-simbolos','Ler os símbolos'),link(id+'-estados','Ver os estados'),link('mapa','Mapa'))}`,tone)}
-      ${frame(id+'-simbolos',`${title(chapter,'Tradição e símbolos')}
-        <dl class="fields">${fields.map(([key,value])=>`<div class="field"><dt>${key}</dt><dd>${value}</dd></div>`).join('')}</dl>
-        <p>${x.simbolo}</p><p class="note">Pūrṇānanda, vv. ${verse}. Na convenção moderna: ${color.toLowerCase()} · ${theme.toLowerCase()}.</p>
-        ${ambiente.markup(i)}
-        ${nav(link(id+'-estados','Propósito e estados'),link(id,'Voltar à história'))}`,tone)}
-      ${frame(id+'-estados',`${title(chapter,'Propósito e estados')}
-        <p class="dek">${e.purpose}</p>
-        ${e.states.map((v,j)=>`<div class="state"><h3>${['Em falta','Em equilíbrio','Em excesso'][j]}</h3><p>${v}</p></div>`).join('')}
-        <div class="callout"><h3>Na prática</h3><p>${x.cenario}</p></div>
-        ${nav(link(id+'-praticas','Experimentar uma ferramenta'),link(id+'-simbolos','Tradição e símbolos'))}`,tone)}
-      ${frame(id+'-praticas',`${title(chapter,'Ferramentas e reflexão')}
-        <div class="split">${e.tools.map(([k,v])=>`<div class="tool"><h3>${k}</h3><p>${v}</p></div>`).join('')}</div>
-        <div class="block"><h3>Quando aplicar</h3><p>${x.metodo}</p></div>
-        <div class="block"><h3>O que observar depois</h3><p>${x.observar}</p></div>
-        <p class="callout">${e.prompts} <span class="note-inline">Na situação da Inês: ${step.pergunta}</span></p>
-        ${nav(next,link(id+'-estados','Rever os estados'),link('mapa','Mapa'))}`,tone)}
+      ${frame(id,`<div class="chapter-open"><div>${title(stage(1,'História'),step.acao)}<p class="lead">${story[i]}</p>${nav(link(id+'-simbolos','Ver o símbolo'))}</div><figure>${glyph(step)}</figure></div>`,tone)}
+      ${frame(id+'-simbolos',`<div class="chapter-open"><div>${title(stage(2,'Símbolo'),meaning)}<p class="lead">${location}.</p><p class="note">${step.petalas===1000?'Mil pétalas':step.petalas+' pétalas'} · ${i===6?'Lótus da coroa':element}</p>${ambiente.markup(i)}${nav(atlas(id))}</div><figure>${glyph(step)}</figure></div>`,tone)}
+      ${frame(id+'-estados',`${title(stage(3,'Estados'),theme.split(',')[0])}${states(words)}${nav(link(id+'-praticas','Experimentar uma ação'))}`,tone)}
+      ${frame(id+'-praticas',brief(stage(4,'Prática'),'Experimenta',practice,nav(following,atlas(id,'Mais exercícios'))),tone)}
     </section>`;
   }),
-  frame('desfecho',`${title('A história completa','Do apoio ao acordo')}
-     <p class="story-quote">A Inês resolveu o dia com a colega. Para a semana seguinte, levou à equipa uma proposta de aviso prévio.</p>
-     <p class="dek">O mesmo episódio atravessou sete temas. Se a dificuldade reaparecer, podes voltar ao ponto em que perdeste margem de escolha e experimentar uma ação diferente.</p>
-     ${nav(link('ciclo','Passar à prática'),link('comparar','Comparar os sete'))}`),
-  frame('ciclo',`${title('Aplicação pessoal','Uma semana de observação')}
-     <ol class="cycle-steps"><li><strong>Situar.</strong> Escolhe um episódio recente e dá-lhe um contexto.</li><li><strong>Observar.</strong> Escreve o que fizeste e o que aconteceu a seguir.</li><li><strong>Experimentar.</strong> Escolhe uma ação pequena para uma situação semelhante.</li><li><strong>Rever.</strong> Ao fim de uma semana, compara com o primeiro episódio.</li></ol>
-     <p class="note">O progresso que podes observar é a mudança nas escolhas e nos comportamentos. O atlas apresenta também o sentido tradicional de alinhamento.</p>
-     ${nav('<a href="/chakras#leitura">Fazer a leitura pessoal</a>',link('comparar','Rever antes do quiz'))}`),
-  frame('comparar',`${title('Síntese','Como distinguir os sete?')}
-    <div class="split"><div><h3>Os cinco elementos</h3><ol><li>Raiz · terra e quadrado</li><li>Sacral · água e crescente</li><li>Umbigo · fogo e triângulo</li><li>Coração · ar e dois triângulos</li><li>Garganta · espaço e círculo</li></ol></div>
-    <div><h3>Os dois pontos superiores</h3><p>Ājñā liga-se à mente e tem duas pétalas. Sahasrāra coroa o percurso com o lótus de mil pétalas.</p><h3>O mesmo centro em duas leituras</h3><p>O coração é avermelhado na descrição de Pūrṇānanda. O verde pertence ao arco-íris moderno.</p></div></div>
-    ${nav(link('quiz','Jogar o quiz'),link('mapa','Rever o mapa'))}`),
-  frame('quiz',`${title('Oito perguntas de escolha múltipla','Da raiz à coroa')}<div class="quiz" id="jogo"></div>`),
-  frame('fontes',`${title('Referências','Para continuar a ler')}<ul class="sources">
-    <li><a href="https://www.wisdomlib.org/hinduism/book/shat-cakra-nirupana-english">Pūrṇānanda · Ṣaṭcakranirūpaṇa</a>. Texto com tradução de Arthur Avalon e comentário de Kālīcaraṇa.</li>
-    <li><a href="https://rw-ktf.univie.ac.at/fileadmin/user_upload/i_religionswiss/Theosophical_Orientalism_and_the_Structures_of_Intercultural_Transfer_-_Annotations_on_the_Appropriation_of_the_Cakras_in_Early_Theosophy__Karl_Baier_2016_.pdf">Karl Baier · Theosophical Orientalism</a>. A receção dos chakras na teosofia.</li>
-    <li><a href="https://www.theosophical.org/publications/quest-magazine/the-rainbow-body-how-the-western-chakra-system-came-to-be-2">Kurt Leland · The Rainbow Body</a>. História das cores e interpretações modernas.</li>
-    <li><a href="https://books.google.ie/books?id=T_VOWcbig0wC">Anodea Judith · Eastern Body, Western Mind</a>. Enquadramento contemporâneo dos padrões de comportamento.</li>
-    </ul>${nav(link('inicio','Voltar ao início'),link('quiz','Jogar novamente'))}`),
+  frame('desfecho',brief('A história completa','Do apoio ao acordo','A Inês resolve a troca de turno. Depois propõe à equipa um prazo de aviso para futuras mudanças.',nav(link('ciclo','Passar à prática')))),
+  frame('ciclo',`${title('Aplicação pessoal','Uma semana de observação')}<ol class="cycle-steps"><li>Situar</li><li>Observar</li><li>Experimentar</li><li>Rever</li></ol>${nav('<a href="/chakras#leitura">Fazer a leitura pessoal</a>')}`),
+  frame('comparar',brief('Revisão','Que centro te ficou na memória?','Reabre o mapa ou testa o que aprendeste.',nav(link('mapa','Rever o mapa'),link('quiz','Fazer o quiz')))),
+  frame('quiz',`<div class="quiz" id="jogo" aria-label="Quiz dos chakras"></div>`),
+  frame('fontes',brief('Leitura complementar','Fontes do percurso','Consulta os textos tântricos e as referências modernas no atlas.',nav('<a href="/chakras#fontes">Abrir as fontes</a>',link('inicio','Voltar ao início')))),
 ].join('');
 
 const game = document.querySelector('#jogo');
@@ -125,22 +103,21 @@ function renderQuestion({focus = false} = {}) {
 }
 renderQuestion();
 
-const portrait = matchMedia('(max-width:680px) and (orientation:portrait)');
-const dimensions = () => portrait.matches ? {width:580,height:790} : {width:1040,height:645};
 const quiet = matchMedia('(prefers-reduced-motion:reduce)').matches;
 const previous=document.querySelector('#slide-prev');
 const next=document.querySelector('#slide-next');
 const page=document.querySelector('#slide-page');
 function updatePager(){
   const all=Reveal.getSlides();
-  const index=all.indexOf(Reveal.getCurrentSlide());
+  const current=Reveal.getCurrentSlide();
+  const index=all.indexOf(current);
   previous.disabled=index<=0;
   next.disabled=index>=all.length-1;
   page.textContent=`${index+1} / ${all.length}`;
+  current?.scrollTo?.(0,0);
 }
 previous.addEventListener('click',()=>Reveal.prev());
 next.addEventListener('click',()=>Reveal.next());
 Reveal.on('slidechanged',()=>{ambiente.stop();updatePager();});
-Reveal.initialize({...dimensions(),hash:true,controls:false,progress:true,center:true,margin:.13,
-  navigationMode:'linear',transition:quiet?'none':'fade',history:false}).then(updatePager);
-portrait.addEventListener('change', () => Reveal.configure(dimensions()));
+Reveal.initialize({width:'100%',height:'100%',hash:true,controls:false,progress:false,center:true,margin:0,
+  navigationMode:'linear',transition:quiet?'none':'fade',history:false,scrollActivationWidth:0}).then(updatePager);
