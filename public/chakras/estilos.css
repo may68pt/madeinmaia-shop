@@ -1,13 +1,13 @@
-:root{color-scheme:dark;--bg:#171b18;--ink:#f8f0df;--muted:#c2c0b1;--rule:#54574c;--accent:#efba80}
+:root{color-scheme:dark;--bg:#141416;--surface:#222124;--ink:#faf5e9;--muted:#d0c8bc;--gold:#e7c98b;--bronze:#b78960;--rule:#665347;--accent:var(--gold)}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,sans-serif}
 a{color:inherit;text-underline-offset:.2em}
-:focus-visible{outline:3px solid #f0c17d;outline-offset:4px}
-.bar{position:fixed;inset:0 0 auto;z-index:30;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 max(20px,env(safe-area-inset-right));background:#171b18;border-bottom:1px solid var(--rule);font-size:14px}
-.bar>a{font-weight:800;letter-spacing:.15em;text-decoration:none;font-size:11px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+.bar{position:fixed;inset:0 0 auto;z-index:30;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 max(20px,env(safe-area-inset-right));background:var(--bg);border-bottom:1px solid var(--bronze);font-size:14px}
+.bar>a{color:var(--gold);font-weight:800;letter-spacing:.15em;text-decoration:none;font-size:11px}
 .bar nav{display:flex;gap:25px}
 .bar nav a{padding:8px 2px}
-.reveal{font-size:25px;color:var(--ink);--r-link-color:var(--accent);--r-link-color-hover:#ffe0b3;--r-selection-background-color:#685438;--r-controls-spacing:10px}
+.reveal{background:var(--bg);font-size:25px;color:var(--ink);--r-link-color:var(--accent);--r-link-color-hover:#ffe0b3;--r-selection-background-color:#685438;--r-controls-spacing:10px}
 .reveal .slides{text-align:left}
 .reveal .slides section{padding:20px 30px 32px}
 .reveal .slides section.stack{padding:0}
@@ -47,9 +47,9 @@ a{color:inherit;text-underline-offset:.2em}
 .quiz{display:grid;gap:.56em}
 .quiz ol{padding:0;list-style:none;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:.45em}
 .quiz li+li{margin:0}
-.quiz button{font:inherit;font-size:.79em;color:var(--ink);background:#222720;border:1px solid #68695c;border-radius:6px;padding:.52em .7em;text-align:left;cursor:pointer;min-height:2.5em}
+.quiz button{font:inherit;font-size:.79em;color:var(--ink);background:var(--surface);border:1px solid var(--bronze);border-radius:6px;padding:.52em .7em;text-align:left;cursor:pointer;min-height:2.5em}
 .quiz li button{width:100%;height:100%}
-.quiz button:hover:not(:disabled){background:#343a31}
+.quiz button:hover:not(:disabled){background:#38302b}
 .quiz button[data-mark="certa"]{border-color:#a9dcab;background:#2a442e}
 .quiz button[data-mark="errada"]{border-color:#f6a39b;background:#492e29}
 .quiz button:disabled{cursor:default}
@@ -76,18 +76,20 @@ a{color:inherit;text-underline-offset:.2em}
 .story-quote{font-family:Georgia,serif;font-size:1.45em;line-height:1.15;color:var(--ink)}
 .story-lead{max-width:29em}
 .chapter-open{display:grid;grid-template-columns:1.45fr .8fr;gap:1.6em;align-items:center}
-.chapter-open figure{margin:0;text-align:center;color:var(--accent)}
+.chapter-open figure{margin:0;text-align:center;color:var(--chakra-tone,var(--gold))}
 .chapter-open figcaption{font-size:.66em;color:var(--muted)}
 .symbol-art{display:block;width:min(100%,270px);margin:0 auto .45em}
 .sound-note{display:inline-block;font-size:.62em;color:var(--muted);margin:0 .55em;vertical-align:middle}
 .reveal audio{width:min(100%,280px);height:36px;vertical-align:middle}
 .note-inline{display:block;font-size:.74em;color:var(--muted)}
 .cycle-steps strong{color:var(--accent)}
-.slide-pager{position:fixed;inset:auto 0 0;z-index:29;display:flex;justify-content:center;align-items:center;gap:1rem;padding:5px 14px max(5px,env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--rule);font-size:12px}
-.slide-pager button{min-height:35px;padding:0 .85rem;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:4px;cursor:pointer;font:inherit}
+.slide-pager{position:fixed;inset:auto 0 0;z-index:29;display:flex;justify-content:center;align-items:center;gap:1rem;padding:5px 14px max(5px,env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--bronze);font-size:12px}
+.slide-pager button{min-height:35px;padding:0 .85rem;color:var(--ink);background:var(--surface);border:1px solid var(--bronze);border-radius:4px;cursor:pointer;font:inherit}
 .slide-pager button:disabled{opacity:.42;cursor:default}.slide-pager span{min-width:4em;text-align:center;color:var(--muted)}
 @media(max-width:680px) and (orientation:portrait){
  .chapter-open{grid-template-columns:1fr;gap:.35em}
  .symbol-art{width:36%;max-height:165px}
  .reveal .story-quote{font-size:1.26em}
 }
+
+.reveal .progress{color:var(--bronze)}

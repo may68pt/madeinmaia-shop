@@ -6,15 +6,15 @@ const tones = ['#f4968c','#fab583','#f0cf7b','#92d0aa','#8cc9e3','#a8b6f7','#d3a
 const locations = ['Períneo','Região genital','Zona do umbigo','Centro do peito','Garganta','Entre as sobrancelhas','Topo da cabeça'];
 const link = (id, label) => `<a href="#/${id}">${label}</a>`;
 const nav = (...links) => `<nav class="controls-nav" aria-label="Avançar na apresentação">${links.join('')}</nav>`;
-const frame = (id, content, tone = '#efba80') => `<section id="${id}" style="--accent:${tone}">${content}</section>`;
+const frame = (id, content, tone = 'var(--gold)') => `<section id="${id}" style="--chakra-tone:${tone}">${content}</section>`;
 const title = (label, headline) => `<p class="kicker">${label}</p><h2>${headline}</h2>`;
 const bodyMap = () => {
   const points = [351,306,266,203,151,88,39];
-  const markers = points.map((y,i) => `<a href="#/${ids[i]}" aria-label="${data[i][0]}, ${locations[i]}"><circle cx="150" cy="${y}" r="19" fill="transparent"/><circle cx="150" cy="${y}" r="8" fill="${tones[i]}" stroke="#171b18" stroke-width="2"/></a>`).join('');
+  const markers = points.map((y,i) => `<a href="#/${ids[i]}" aria-label="${data[i][0]}, ${locations[i]}"><circle cx="150" cy="${y}" r="19" fill="transparent"/><circle cx="150" cy="${y}" r="8" fill="${tones[i]}" stroke="#141416" stroke-width="2"/></a>`).join('');
   return `<svg viewBox="0 0 300 420" aria-label="Silhueta de frente com sete posições simbólicas">
-    <path d="M134 127 L134 137 Q122 149 89 158 Q69 164 61 195 L26 312 Q23 324 33 327 Q43 330 50 313 L86 234 Q92 253 85 278 Q75 315 100 345 Q121 362 132 395 L168 395 Q179 362 200 345 Q225 315 215 278 Q208 253 214 234 L250 313 Q257 330 267 327 Q277 324 274 312 L239 195 Q231 164 211 158 Q178 149 166 137 L166 127 Z" fill="#292f27" stroke="#777969" stroke-width="2"/>
-    <ellipse cx="150" cy="90" rx="40" ry="51" fill="#292f27" stroke="#777969" stroke-width="2"/>
-    <line x1="150" y1="39" x2="150" y2="351" stroke="#b8ac95" stroke-dasharray="4 6"/>
+    <path d="M134 127 L134 137 Q122 149 89 158 Q69 164 61 195 L26 312 Q23 324 33 327 Q43 330 50 313 L86 234 Q92 253 85 278 Q75 315 100 345 Q121 362 132 395 L168 395 Q179 362 200 345 Q225 315 215 278 Q208 253 214 234 L250 313 Q257 330 267 327 Q277 324 274 312 L239 195 Q231 164 211 158 Q178 149 166 137 L166 127 Z" fill="#242224" stroke="#a77954" stroke-width="2"/>
+    <ellipse cx="150" cy="90" rx="40" ry="51" fill="#242224" stroke="#a77954" stroke-width="2"/>
+    <line x1="150" y1="39" x2="150" y2="351" stroke="#b78960" stroke-dasharray="4 6"/>
     ${markers}
   </svg>`;
 };
