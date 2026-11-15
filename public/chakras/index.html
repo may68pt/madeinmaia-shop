@@ -3,19 +3,108 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Os Chakras · Da raiz à coroa | Made in Maia</title>
-<meta name="description" content="Apresentação interativa sobre os sete chakras: mapa corporal, simbolismo tântrico, estados, práticas de reflexão e quiz.">
+<title>Atlas dos Chakras | Made in Maia</title>
+<meta name="description" content="Atlas interativo dos sete chakras, com mapa corporal, sons, práticas, leitura guiada e apresentação em Reveal.js.">
 <link rel="canonical" href="https://madeinmaia.pt/chakras">
-<link rel="stylesheet" href="/chakras/vendor/reset.css">
-<link rel="stylesheet" href="/chakras/vendor/reveal.css">
-<link rel="stylesheet" href="/chakras/estilos.css">
-<script defer src="/chakras/vendor/reveal.js"></script>
+<link rel="stylesheet" href="/chakras/atlas.css">
+<script defer src="/chakras/legado.js"></script>
 <script defer src="/chakras/conteudo.js"></script>
-<script defer src="/chakras/apresentacao.js"></script>
+<script defer src="/chakras/atlas.js"></script>
 </head>
 <body>
-<header class="bar"><a href="#/inicio">MADE IN MAIA</a><nav aria-label="Navegação"><a href="#/mapa">Mapa</a><a href="#/quiz">Quiz</a></nav></header>
-<main class="reveal"><div class="slides" id="slides"></div></main>
-<noscript>Ativa o JavaScript para abrir a apresentação interativa.</noscript>
+<a class="skip" href="#mapa">Saltar para o mapa</a>
+<header class="site-header">
+  <a class="brand" href="#inicio">MADE IN MAIA <span> / </span> ATLAS DOS CHAKRAS</a>
+  <nav aria-label="Secções principais">
+    <a href="#mapa">Mapa</a><a href="#energia">Energia</a><a href="#leitura">Leitura pessoal</a><a href="/chakras/slides.html">Apresentação</a>
+  </nav>
+</header>
+<main id="inicio">
+  <section class="intro wrap" aria-labelledby="titulo">
+    <p class="eyebrow">GUIA DE ESTUDO E REFLEXÃO</p>
+    <h1 id="titulo">Atlas dos chakras</h1>
+    <p>Explora os sete centros, ouve as sílabas rituais e usa o mapa para observar como estes temas aparecem na tua vida.</p>
+    <div class="actions"><a class="primary" href="#mapa">Explorar o mapa</a><a class="secondary" href="#leitura">Fazer a leitura pessoal</a></div>
+  </section>
+
+  <section class="wrap chapter" id="mapa" aria-labelledby="titulo-mapa">
+    <div class="heading"><div><p class="eyebrow">OS SETE CENTROS</p><h2 id="titulo-mapa">Mapa corporal</h2></div><p>Seleciona um ponto no corpo ou um nome. A ficha reúne posição, cor, som, estados e práticas.</p></div>
+    <div class="atlas">
+      <div class="atlas-map">
+        <div id="corpo"></div>
+        <ol id="centros" class="centers" aria-label="Escolher chakra"></ol>
+        <p class="muted map-note">Posições simbólicas · cores da convenção moderna</p>
+      </div>
+      <article id="ficha" class="record" aria-labelledby="nome-chakra"></article>
+    </div>
+  </section>
+
+  <section class="wrap chapter" id="energia" aria-labelledby="titulo-energia">
+    <div class="heading"><div><p class="eyebrow">CORPO SUBTIL</p><h2 id="titulo-energia">Energia e ligações</h2></div><p>O vocabulário usado pelos textos ajuda a perceber como os centros fazem parte de um percurso.</p></div>
+    <div class="energy-grid">
+      <figure class="channel-figure">
+        <svg viewBox="0 0 340 370" role="img" aria-label="Esquema simbólico com suṣumṇā ao centro e iḍā e piṅgalā aos lados">
+          <path d="M170 36V324" stroke="#667d73" stroke-width="3"/>
+          <path d="M170 322C64 270 67 229 170 184S271 91 170 48" fill="none" stroke="#587da2" stroke-width="3" stroke-dasharray="7 5"/>
+          <path d="M170 322C276 270 273 229 170 184S69 91 170 48" fill="none" stroke="#b7804f" stroke-width="3" stroke-dasharray="3 5"/>
+          <path d="M163 43l7-8 7 8" fill="none" stroke="#3b5b4d" stroke-width="3"/>
+          <circle cx="170" cy="324" r="7" fill="#a64f4d"/><circle cx="170" cy="38" r="6" fill="#765595"/>
+          <text x="182" y="30">Coroa</text><text x="181" y="345">Raiz</text><text x="183" y="146">Suṣumṇā</text>
+          <text x="72" y="237">Iḍā</text><text x="230" y="237">Piṅgalā</text>
+        </svg>
+        <figcaption>Esquema dos três canais em certas tradições. O desenho indica as relações e simplifica o trajeto.</figcaption>
+      </figure>
+      <div class="explain">
+        <h3>Prāṇa, a ideia de sopro vital</h3><p>Em tradições de yoga, prāṇa pode nomear o sopro vital em sentido amplo ou uma das suas funções. A respiração é uma via de prática. O termo tem um sentido próprio no quadro do corpo subtil e não corresponde a uma medição de energia em watts ou hertz.</p>
+        <h3>Nāḍīs e chakras</h3><p>Os nāḍīs são canais desse mapa. Os chakras são centros onde o praticante pode instalar ou contemplar sons, figuras e elementos. Suṣumṇā é o eixo central. Iḍā e piṅgalā aparecem como canais laterais em várias descrições, com correspondências lunares e solares.</p>
+        <h3>Kuṇḍalinī, do enrolamento à ascensão</h3><p>No texto de Pūrṇānanda, a kuṇḍalinī repousa na base e a sua ascensão culmina no lótus da coroa. A união de Śiva e Śakti faz parte de uma visão de libertação espiritual.</p>
+      </div>
+    </div>
+    <div class="links-explained">
+      <h3>Como os temas se podem ligar no dia a dia</h3>
+      <p>Uma conversa difícil pode começar por notar o apoio do corpo (raiz), dar nome à emoção (sacral), escolher uma ação (umbigo), reconhecer a outra pessoa (coração), fazer um pedido (garganta), rever suposições (Ājñā) e voltar ao valor que orienta a decisão (coroa). É um exemplo de reflexão que permite começar em qualquer ponto.</p>
+    </div>
+  </section>
+
+  <section class="wrap chapter" id="ciclos" aria-labelledby="titulo-ciclos">
+    <div class="heading"><div><p class="eyebrow">PADRÕES E ACOMPANHAMENTO</p><h2 id="titulo-ciclos">Alinhamento e ciclos</h2></div><p>Observa o que muda entre situações e ao longo do tempo.</p></div>
+    <div class="three">
+      <article><h3>Alinhamento na tradição</h3><p>Em certas linhagens, as práticas contemplativas organizam-se em torno do eixo central e da ascensão da kuṇḍalinī. O percurso tem sentido ritual e espiritual próprio.</p></article>
+      <article><h3>Alinhamento no quotidiano</h3><p>Aqui, significa coerência entre o que sentes, o que valorizas e o que fazes. Um efeito observável seria adiar menos uma conversa, conseguir pedir ajuda ou rever uma decisão perante informação nova.</p></article>
+      <article><h3>O que se pode atribuir à prática</h3><p>Estudos sobre algumas práticas de meditação sugerem benefícios possíveis para certos aspetos do bem-estar, com resultados variáveis. Esses estudos avaliam práticas e resultados, sem demonstrar a abertura ou o alinhamento de centros energéticos.</p></article>
+    </div>
+    <div class="cycle">
+      <h3>Um ciclo simples de observação</h3>
+      <ol><li><strong>Situar</strong><span>Escolhe uma situação concreta das últimas duas semanas.</span></li><li><strong>Observar</strong><span>Regista o que fizeste, em que contexto e com que consequência.</span></li><li><strong>Experimentar</strong><span>Escolhe uma ferramenta pequena para testar nessa situação.</span></li><li><strong>Rever</strong><span>Repete a leitura após uma semana e compara situações semelhantes.</span></li></ol>
+      <p class="muted">Os ritmos diários, as mudanças de contexto e os modelos de desenvolvimento pessoal são formas de organizar observações. A apresentação usa um ciclo semanal ajustável. A tradição contém vários mapas e os seus usos variam.</p>
+    </div>
+  </section>
+
+  <section class="wrap chapter" id="leitura" aria-labelledby="titulo-leitura">
+    <div class="heading"><div><p class="eyebrow">AUTO-OBSERVAÇÃO</p><h2 id="titulo-leitura">Lê o teu próprio mapa</h2></div><p>Pensa num contexto específico. Escolhe o padrão que te descreve melhor nas últimas duas semanas.</p></div>
+    <form id="checkin" class="checkin">
+      <label for="contexto-pessoal">Em que contexto estás a pensar? <span>(opcional)</span></label>
+      <input id="contexto-pessoal" maxlength="100" placeholder="Ex.: trabalho, família ou uma mudança recente">
+      <div id="perguntas-leitura"></div>
+      <div class="actions"><button class="primary" type="submit">Ver a minha leitura</button><button class="secondary" type="reset">Limpar respostas</button></div>
+    </form>
+    <div id="resultado" class="results" hidden></div>
+    <details class="history"><summary>Histórico neste dispositivo</summary><p class="muted">Consulta ou apaga as leituras que decidiste guardar neste navegador. Os registos ficam neste dispositivo.</p><div id="historico"></div><button id="limpar-historico" class="secondary" type="button" hidden>Apagar histórico</button></details>
+  </section>
+
+  <section class="wrap chapter" id="fontes" aria-labelledby="titulo-fontes">
+    <div class="heading"><div><p class="eyebrow">CONTINUAR A EXPLORAR</p><h2 id="titulo-fontes">Apresentação e fontes</h2></div><div class="actions"><a class="primary" href="/chakras/slides.html">Abrir Reveal.js</a><a class="secondary" href="/chakras/slides.html#/quiz">Jogar o quiz</a></div></div>
+    <ul class="sources">
+      <li><a href="https://www.wisdomlib.org/hinduism/book/shat-cakra-nirupana-english">Pūrṇānanda · Ṣaṭcakranirūpaṇa</a> · Texto, versos e comentário.</li>
+      <li><a href="https://hareesh.org/blog/2016/2/5/the-real-story-on-the-chakras">Christopher Wallis · The Real Story on the Chakras</a> · Diferenças entre sistemas e sílabas dos elementos.</li>
+      <li><a href="https://hyp.soas.ac.uk/chapters/">SOAS · Haṭha Yoga Project</a> · Contexto dos textos e da prática de prāṇāyāma.</li>
+      <li><a href="https://www.theosophical.org/publications/quest-magazine/the-rainbow-body-how-the-western-chakra-system-came-to-be-2">Kurt Leland · The Rainbow Body</a> · História da convenção cromática moderna.</li>
+      <li><a href="https://books.google.ie/books?id=T_VOWcbig0wC">Anodea Judith · Eastern Body, Western Mind</a> · Enquadramento contemporâneo dos padrões.</li>
+      <li><a href="https://www.nccih.nih.gov/health/tips/8-things-to-know-about-meditation-and-mindfulness">NCCIH · Meditação e mindfulness</a> · O que a investigação permite concluir.</li>
+    </ul>
+  </section>
+</main>
+<footer class="wrap footer"><a href="#inicio">Voltar ao início</a><span>Made in Maia</span></footer>
+<noscript><p class="wrap">Ativa o JavaScript para usar o mapa, o áudio e a leitura pessoal.</p></noscript>
 </body>
 </html>
