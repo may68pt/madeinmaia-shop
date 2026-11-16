@@ -8,19 +8,7 @@ const link = (id, label) => `<a href="#/${id}">${label}</a>`;
 const nav = (...links) => `<nav class="controls-nav" aria-label="Avançar na apresentação">${links.join('')}</nav>`;
 const frame = (id, content, tone = 'var(--gold)') => `<section id="${id}" style="--chakra-tone:${tone}">${content}</section>`;
 const title = (label, headline) => `<p class="kicker">${label}</p><h2>${headline}</h2>`;
-const bodyMap = () => {
-  const points = [351,306,266,203,151,88,39];
-  const markers = points.map((y,i) => `<a href="#/${ids[i]}" aria-label="${data[i][0]}, ${locations[i]}"><circle cx="150" cy="${y}" r="19" fill="transparent"/><circle cx="150" cy="${y}" r="8" fill="${tones[i]}" stroke="#141416" stroke-width="2"/></a>`).join('');
-  return `<svg viewBox="0 0 300 420" aria-label="Silhueta de frente com sete posições simbólicas">
-    <path d="M134 127 L134 137 Q122 149 89 158 Q69 164 61 195 L26 312 Q23 324 33 327 Q43 330 50 313 L86 234 Q92 253 85 278 Q75 315 100 345 Q121 362 132 395 L168 395 Q179 362 200 345 Q225 315 215 278 Q208 253 214 234 L250 313 Q257 330 267 327 Q277 324 274 312 L239 195 Q231 164 211 158 Q178 149 166 137 L166 127 Z" fill="#242224" stroke="#a77954" stroke-width="2"/>
-    <ellipse cx="150" cy="90" rx="40" ry="51" fill="#242224" stroke="#a77954" stroke-width="2"/>
-    <line x1="150" y1="39" x2="150" y2="351" stroke="#b78960" stroke-dasharray="4 6"/>
-    ${markers}
-  </svg>`;
-};
-const mapLinks = data.map(([name],i) => `<li><a href="#/${ids[i]}" style="--tone:${tones[i]}"><i class="dot" aria-hidden="true"></i>${name}<small>${locations[i]}</small></a></li>`).reverse().join('');
-const rings = tones.map((tone,i)=>`<i style="--tone:${tone};--ring:${93-i*12}%"></i>`).join('');
-
+const mapLinks = data.map(([name],i) => `<li><a href="#/${ids[i]}" style="--tone:${tones[i]}"><span class="energy-number">${i+1}</span><span>${chakraDiagram.names[i]}</span><small>${name} · ${locations[i]}</small></a></li>`).join('');
 const story = [
   'A Inês confirma quem a pode ajudar a ir buscar a filha.',
   'Antes de responder, dá nome ao que sente: irritação e preocupação.',
@@ -43,8 +31,8 @@ const brief = (kicker,heading,body,links='') => `${title(kicker,heading)}<p clas
 const states = (words) => `<ol class="state-scale">${words.map((word,i)=>`<li><span>${['Em falta','Em equilíbrio','Em excesso'][i]}</span><strong>${word}</strong></li>`).join('')}</ol>`;
 const atlas = (id,label='Abrir a ficha completa') => `<a href="/chakras#centro-${id}">${label}</a>`;
 slides.innerHTML = [
-  frame('inicio',`<div class="hero"><div><p class="kicker">SETE CENTROS</p><h1>Da raiz à coroa</h1><p class="lead">Um mapa simbólico dos chakras.</p>${nav(link('mapa','Começar'),'<a href="/chakras#mapa">Consultar o atlas</a>')}</div><div class="wheel" aria-hidden="true">${rings}</div></div>`),
-  frame('mapa',`${title('Posições simbólicas','Os sete centros')}<div class="map">${bodyMap()}<ol class="map-links">${mapLinks}</ol></div>`),
+  frame('mapa',`${title('Da raiz à coroa','Os sete centros')}<div class="map"><figure class="energy-figure">${chakraDiagram.render(ids,tones,id=>'#/'+id,'slides')}${chakraDiagram.motionButton('slides')}</figure><ol class="map-links">${mapLinks}</ol></div>`),
+  frame('inicio',brief('Sete centros','Da raiz à coroa','Começa na raiz e percorre os sete centros até à coroa.',nav(link('raiz','Começar pelo 1'),link('mapa','Ver o mapa')))),
   frame('contexto',brief('Tradição','O que é um chakra?','«Chakra» significa roda. As tradições tântricas usam estes centros como pontos de contemplação.',nav(link('canais','Ver como se ligam')))),
   frame('canais',brief('Corpo subtil','Da base à coroa','No texto de Pūrṇānanda, a kuṇḍalinī ascende pelo canal central, a suṣumṇā.',nav('<a href="/chakras#energia">Ver o diagrama dos canais</a>'))),
   frame('estados',`${title('Leitura contemporânea','Três tendências')}${states(['Pouco espaço','Margem para ajustar','Ocupa espaço a mais'])}<p class="note">Um exercício de auto-observação.</p>`),

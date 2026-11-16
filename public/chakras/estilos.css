@@ -69,3 +69,14 @@ a{color:inherit;text-underline-offset:.2em}
  .quiz button{font-size:max(16px,.85em)}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:0s!important;transition-duration:0s!important}}
+
+.reveal .map{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);max-width:850px}
+.reveal .map .energy-diagram{height:min(52dvh,460px)}
+.map-links .energy-number{grid-row:span 2;align-self:center}
+.map-links small{grid-column:2}
+@media(max-width:680px){
+ .reveal .map{grid-template-columns:minmax(0,1fr) minmax(0,.82fr)}
+ .reveal .map .energy-diagram{height:auto;max-height:48dvh}
+ .map-links a{gap:0 .35em;font-size:.75em}
+ .map-links small{font-size:.76em}
+}

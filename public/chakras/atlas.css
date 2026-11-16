@@ -27,3 +27,27 @@ h1,h2{font-family:Georgia,serif;font-weight:400;line-height:1.02;letter-spacing:
 .channel-figure svg [stroke="#667d73"]{stroke:#d0c8bc}
 .channel-figure svg [stroke="#3b5b4d"]{stroke:#e7c98b}
 .channel-figure svg [stroke="#587da2"]{stroke:#91b7e5}
+
+#mapa{border-top:0;padding-top:clamp(1rem,3vw,2.4rem)}
+.map-heading{margin-bottom:1rem}
+.map-heading h1{font-size:clamp(2.5rem,6vw,5rem)}
+.atlas{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:start}
+.atlas-map{grid-template-columns:minmax(0,1fr) minmax(100px,.42fr);background:#19171a;align-items:center;padding:1rem}
+.atlas-map .energy-diagram{max-height:570px}
+.centers small{display:block;color:var(--muted);font-size:.74em}
+.centers a{min-height:44px;font-size:.9rem}
+.atlas-map .energy-toggle{font-size:.78rem}
+@media(max-width:780px){
+ .atlas{grid-template-columns:1fr}
+ .atlas-map{grid-template-columns:minmax(0,1fr) minmax(90px,.49fr);padding:.6rem;gap:.4rem}
+ .atlas-map .energy-diagram{max-height:min(50dvh,370px)}
+ .centers a{font-size:.8rem;padding:.25rem}
+ .centers li+li{margin-top:0}
+ .map-heading{gap:.25rem}
+}
+@media(max-width:600px){
+ .atlas-map{grid-template-columns:1fr}
+ .atlas-map .energy-diagram{height:min(53dvh,380px);max-height:none}
+ .atlas-map .centers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 8px}
+ .atlas-map .map-note{padding:0 .3rem .35rem}
+}

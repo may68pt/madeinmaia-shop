@@ -44,14 +44,8 @@ const connections = [
 const el = (id) => document.getElementById(id);
 const linkTo = (id) => '#centro-' + id;
 const centerLinks = () => [...document.querySelectorAll('[data-center]')];
-const targets = [354,309,265,205,149,91,42];
-el('corpo').innerHTML = `<svg viewBox="0 0 280 405" aria-label="Mapa corporal de frente com sete pontos selecionáveis">
-  <path d="M125 125v14q-9 10-39 18-20 5-28 34L28 302q-3 11 5 14t14-12l36-78q8 17 2 42-13 39 12 68 22 15 31 45h24q9-30 31-45 25-29 12-68-6-25 2-42l36 78q6 15 14 12t5-14l-30-111q-8-29-28-34-30-8-39-18v-14Z" fill="#dce7df" stroke="#99ada2" stroke-width="2"/>
-  <ellipse cx="140" cy="91" rx="38" ry="49" fill="#dce7df" stroke="#99ada2" stroke-width="2"/>
-  <path d="M140 42v312" stroke="#8fa297" stroke-dasharray="4 5"/>
-  ${targets.map((y,i)=>`<a href="${linkTo(ids[i])}" data-center="${ids[i]}" aria-label="${data[i][0]}, ${locations[i]}"><circle class="target" cx="140" cy="${y}" r="19" fill="transparent"/><circle cx="140" cy="${y}" r="9" fill="${modernTones[i]}" stroke="white" stroke-width="2"/></a>`).join('')}
-</svg>`;
-el('centros').innerHTML = ids.map((id,i)=>`<li><a href="${linkTo(id)}" data-center="${id}"><i class="dot" aria-hidden="true" style="--tone:${modernTones[i]}"></i>${data[i][0]}</a></li>`).reverse().join('');
+el('corpo').innerHTML = chakraDiagram.render(ids,modernTones,linkTo,'atlas')+chakraDiagram.motionButton('atlas');
+el('centros').innerHTML = ids.map((id,i)=>`<li><a href="${linkTo(id)}" data-center="${id}" style="--tone:${modernTones[i]}"><span class="energy-number">${i+1}</span><span>${chakraDiagram.names[i]}<small>${data[i][0]}</small></span></a></li>`).join('');
 
 function renderCenter(i,{move=false}={}) {
   const [name,meaning,location,icon,element,figures,detail,color,theme,,verses] = data[i];
@@ -74,7 +68,10 @@ function renderCenter(i,{move=false}={}) {
   <details><summary>Ferramentas para praticar</summary><div>${entry.tools.map(([name,desc])=>`<div class="tool"><h4>${name}</h4><p>${desc}</p></div>`).join('')}<p><strong>Para refletir.</strong> ${entry.prompts}</p></div></details>
   <details><summary>Iconografia e função ritual</summary><div><p>${icon}.</p><p>${detail}</p><p class="muted">Pūrṇānanda, vv. ${verses}. As cores das figuras e regiões do lótus têm significados próprios no texto.</p></div></details>
   <details><summary>Como se liga a outro centro</summary><div><p>${connection}</p><a href="${linkTo(adjacent)}">Explorar ${data[ids.indexOf(adjacent)][0]}</a></div></details>
-  <p><a href="/chakras/slides.html#/${id}">Ver este capítulo no Reveal.js</a></p>`;
+  <nav class="actions" aria-label="Percurso do chakra">
+    <a class="primary" href="/chakras/slides.html#/${id}">Ver capítulo ${i+1}</a>
+    ${i<ids.length-1?`<a class="secondary" href="${linkTo(ids[i+1])}">Seguinte · ${i+2}. ${chakraDiagram.names[i+1]}</a>`:'<a class="secondary" href="/chakras/slides.html#/quiz">Fazer o quiz</a>'}
+  </nav>`;
   if (move) el('nome-chakra').focus();
 }
 function openFromHash() {

@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="/chakras/ambiente.css">
 <script defer src="/chakras/ambiente.js"></script>
 <script defer src="/chakras/conteudo.js"></script>
+<link rel="stylesheet" href="/chakras/diagrama.css">
+<script defer src="/chakras/diagrama.js"></script>
 <script defer src="/chakras/atlas.js"></script>
 </head>
 <body>
@@ -20,22 +22,15 @@
 <header class="site-header">
   <a class="brand" href="#inicio">MADE IN MAIA <span> / </span> ATLAS DOS CHAKRAS</a>
   <nav aria-label="Secções principais">
-    <a href="#mapa">Mapa</a><a href="#energia">Energia</a><a href="#leitura">Leitura pessoal</a><a href="/chakras/slides.html">Apresentação</a>
+    <a href="#mapa">Mapa</a><a href="#energia">Energia</a><a href="#leitura">Leitura pessoal</a><a href="/chakras/slides.html#/mapa">Apresentação</a>
   </nav>
 </header>
 <main id="inicio">
-  <section class="intro wrap" aria-labelledby="titulo">
-    <p class="eyebrow">GUIA DE ESTUDO E REFLEXÃO</p>
-    <h1 id="titulo">Atlas dos chakras</h1>
-    <p>Explora os sete centros, ouve os ambientes sonoros e usa o mapa para observar como estes temas aparecem na tua vida.</p>
-    <div class="actions"><a class="primary" href="/chakras/slides.html">Começar a apresentação</a><a class="secondary" href="#mapa">Consultar o mapa</a></div>
-  </section>
-
   <section class="wrap chapter" id="mapa" aria-labelledby="titulo-mapa">
-    <div class="heading"><div><p class="eyebrow">OS SETE CENTROS</p><h2 id="titulo-mapa">Mapa corporal</h2></div><p>Seleciona um ponto no corpo ou um nome. A ficha reúne posição, cor, som, estados e práticas.</p></div>
+    <div class="heading map-heading"><div><p class="eyebrow">ATLAS DOS CHAKRAS</p><h1 id="titulo-mapa">Da raiz à coroa</h1></div><p>Começa no 1 e sobe até ao 7. Toca num ponto para abrir a ficha.</p></div>
     <div class="atlas">
       <div class="atlas-map">
-        <div id="corpo"></div>
+        <figure id="corpo" class="energy-figure"></figure>
         <ol id="centros" class="centers" aria-label="Escolher chakra"></ol>
         <p class="muted map-note">Posições simbólicas · cores da convenção moderna</p>
       </div>

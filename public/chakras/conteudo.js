@@ -99,7 +99,7 @@ const contextos = [
 ];
 
 const questions = [
- ['Qual é a localização simbólica de Ājñā?', ['Base do tronco','Entre as sobrancelhas','Centro do peito','Topo da cabeça'], 1,'Ājñā é o lótus de duas pétalas na região entre as sobrancelhas.'],
+ ['Qual é a posição simbólica de Mūlādhāra, o primeiro chakra?', ['Base do tronco','Entre as sobrancelhas','Centro do peito','Topo da cabeça'], 0,'Mūlādhāra é o centro da raiz, na região do períneo.'],
  ['Qual é o par associado a Svādhiṣṭhāna no texto?', ['Terra e quadrado','Ar e dois triângulos','Água e crescente lunar','Espaço e círculo'], 2,'A região da água é branca e contém um crescente lunar.'],
  ['Que sílaba acompanha a região do fogo em Maṇipūra?', ['Raṃ','Haṃ','Laṃ','Vaṃ'],0,'Raṃ aparece associado ao fogo, no interior do triângulo.'],
  ['Porque é que o coração aparece a verde no mapa?', ['Por causa do animal simbólico','Por causa da sílaba-semente','Por causa da forma das pétalas','Por convenção cromática moderna'],3,'A cor verde pertence à convenção moderna. Pūrṇānanda compara o lótus à flor avermelhada bandhūka.'],
