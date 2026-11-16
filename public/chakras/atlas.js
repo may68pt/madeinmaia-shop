@@ -47,25 +47,32 @@ const centerLinks = () => [...document.querySelectorAll('[data-center]')];
 el('corpo').innerHTML = chakraDiagram.render(ids,modernTones,linkTo,'atlas')+chakraDiagram.motionButton('atlas');
 el('centros').innerHTML = ids.map((id,i)=>`<li><a href="${linkTo(id)}" data-center="${id}" style="--tone:${modernTones[i]}"><span class="energy-number">${i+1}</span><span>${chakraDiagram.names[i]}<small>${data[i][0]}</small></span></a></li>`).join('');
 
+const textTones=['#ffa29f','#ffc08a','#ffe08a','#a8dfbd','#a3dff5','#b8bcff','#dfbaf5'];
+
 function renderCenter(i,{move=false}={}) {
-  const [name,meaning,location,icon,element,figures,detail,color,theme,,verses] = data[i];
+  const [name,meaning,location,icon,element,,detail,color,theme,,verses] = data[i];
   const id=ids[i], entry=deep[i], [adjacent, connection]=connections[i];
   const swatch = `<i class="dot" aria-hidden="true" style="--tone:${modernTones[i]}"></i>`;
   centerLinks().forEach(a=>a.setAttribute('aria-current',String(a.dataset.center===id)));
   ambiente.stop();
   const sound = `<div class="audio"><h4>${mantras[i] ? 'Sílaba ritual · '+mantras[i] : 'Coroa · pausa contemplativa'}</h4><p>${mantras[i] ? 'A peça explora uma frequência de referência moderna.' : 'A ficha da coroa não fixa uma sílaba. Podes ficar em silêncio ou ouvir o ambiente instrumental.'}</p>${ambiente.markup(i)}</div>`;
+  el('ficha').style.setProperty('--chakra-accent',textTones[i]);
   el('ficha').innerHTML = `
   <p class="eyebrow">CENTRO ${i+1} DE 7 · ${locations[i].toUpperCase()}</p>
   <h3 id="nome-chakra" class="name" tabindex="-1">${name}</h3><p class="meaning">${meaning} · ${theme}</p>
   <dl class="facts"><div><dt>Localização simbólica</dt><dd>${location}</dd></div>
   <div><dt>Cor moderna</dt><dd>${swatch}${color}</dd></div>
   <div><dt>Elemento e som no texto</dt><dd>${i===6?'Além dos cinco elementos':element}</dd></div>
-  <div><dt>Figuras</dt><dd>${figures}</dd></div></dl>
+  </dl>
+  ${chakraFigures.gallery(i)}
   ${sound}
   <details open><summary>Propósito, estados e ações</summary><div><p>${entry.purpose}</p><ul class="state-list">
-  ${entry.states.map((state,j)=>`<li><h4>${stateNames[j]}</h4><p>${state}</p><p><strong>Experimenta.</strong> ${firstSteps[i][j]}</p></li>`).join('')}
+  ${entry.states.map((state,j)=>`<li><h4 class="state-label">${chakraFigures.state(j)}${stateNames[j]}</h4><p>${state}</p><p><strong>Experimenta.</strong> ${firstSteps[i][j]}</p></li>`).join('')}
   </ul></div></details>
-  <details><summary>Ferramentas para praticar</summary><div>${entry.tools.map(([name,desc])=>`<div class="tool"><h4>${name}</h4><p>${desc}</p></div>`).join('')}<p><strong>Para refletir.</strong> ${entry.prompts}</p></div></details>
+  <details><summary>Ferramentas para praticar</summary><div>${entry.tools.map(([label,desc])=>{
+    const [toolName,duration]=label.split(' · ');
+    return `<div class="tool"><div class="tool-head"><h4>${toolName}</h4><span class="tool-time">${chakraFigures.clock}${duration}</span></div><p>${desc}</p></div>`;
+  }).join('')}<p><strong>Para refletir.</strong> ${entry.prompts}</p></div></details>
   <details><summary>Iconografia e função ritual</summary><div><p>${icon}.</p><p>${detail}</p><p class="muted">Pūrṇānanda, vv. ${verses}. As cores das figuras e regiões do lótus têm significados próprios no texto.</p></div></details>
   <details><summary>Como se liga a outro centro</summary><div><p>${connection}</p><a href="${linkTo(adjacent)}">Explorar ${data[ids.indexOf(adjacent)][0]}</a></div></details>
   <nav class="actions" aria-label="Percurso do chakra">

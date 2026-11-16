@@ -80,3 +80,5 @@ a{color:inherit;text-underline-offset:.2em}
  .map-links a{gap:0 .35em;font-size:.75em}
  .map-links small{font-size:.76em}
 }
+.state-scale .state-label{display:flex;align-items:center;gap:.35em}
+.state-scale .state-icon{width:1.2em;height:1.2em;flex:none}

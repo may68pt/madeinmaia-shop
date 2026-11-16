@@ -28,7 +28,7 @@ const bites = [
   [['Falta de direção','Valores em ação','Reflexão sem ação'], 'Escolhe um valor e uma ação pequena que o ponha em prática hoje.'],
 ];
 const brief = (kicker,heading,body,links='') => `${title(kicker,heading)}<p class="lead">${body}</p>${links}`;
-const states = (words) => `<ol class="state-scale">${words.map((word,i)=>`<li><span>${['Em falta','Em equilíbrio','Em excesso'][i]}</span><strong>${word}</strong></li>`).join('')}</ol>`;
+const states = (words) => `<ol class="state-scale">${words.map((word,i)=>`<li><span class="state-label">${chakraFigures.state(i)}${['Em falta','Em equilíbrio','Em excesso'][i]}</span><strong>${word}</strong></li>`).join('')}</ol>`;
 const atlas = (id,label='Abrir a ficha completa') => `<a href="/chakras#centro-${id}">${label}</a>`;
 slides.innerHTML = [
   frame('mapa',`${title('Da raiz à coroa','Os sete centros')}<div class="map"><figure class="energy-figure">${chakraDiagram.render(ids,tones,id=>'#/'+id,'slides')}${chakraDiagram.motionButton('slides')}</figure><ol class="map-links">${mapLinks}</ol></div>`),
