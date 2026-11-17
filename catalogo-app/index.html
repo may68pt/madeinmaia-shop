@@ -365,12 +365,13 @@ table.tb input{font-size:17px;padding:2px 5px}
 
 <div class="modal" id="mDes"><div class="box desbox"><div class="bx-h"><h2 id="mdT">DESIGN</h2><div class="pltabs" id="mdTabs" style="margin:0 0 0 10px"><button data-mdt="set" class="on">⚙ DEFINIÇÕES</button><button data-mdt="pl">👕 COLOCAÇÃO</button><button data-mdt="gen">🖼 GERAÇÕES</button></div><span style="flex:1"></span><button class="btn xs alt" id="mdClose">✕</button></div>
  <div class="bx-b"><div id="mdSet"><div class="row" id="mdActs" style="gap:6px;flex-wrap:wrap;margin-bottom:10px"></div></div><div id="mdPl" hidden></div><div id="mdGen" hidden></div></div></div></div>
+<div class="modal" id="mSet"><div class="box desbox"><div class="bx-h"><h2>⚙ DEFINIÇÕES DA APP</h2><div class="pltabs" id="stTabs" style="margin:0 0 0 10px"><button data-stt="gen" class="on">GERAL</button><button data-stt="pl">COLOCAÇÃO PADRÃO</button><button data-stt="ph">FOTOS DE MOCKUP</button><button data-stt="mk">MOCKUPS</button></div><span style="flex:1"></span><button class="btn xs alt" id="stClose">✕</button></div><div class="bx-b" id="stBody"></div></div></div>
 <div class="modal" id="mPlace"><div class="box plbox"><div class="bx-h"><h2 id="plTitle">COLOCAÇÃO</h2><button class="btn xs alt" id="plClose">✕</button></div><div class="bx-b">
   <div class="pltabs" id="plGar"></div><div class="pltabs" id="plSide"></div>
   <div class="plwrap"><canvas id="plCv" width="900" height="900"></canvas></div>
   <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px"><label class="f" style="flex:1;min-width:150px">Cor da peça<select id="plCol"></select></label>
-   <label class="f" style="flex:2;min-width:200px">Tamanho <span id="plCm" class="hint"></span><input type="range" id="plW" min="4" max="70" step="0.5"></label></div>
-  <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn xs alt" id="plCenter">↔ CENTRAR</button><button class="btn xs alt" id="plUp">↑ GOLA</button><button class="btn xs alt" id="plReset">↺ REPOR</button><button class="btn xs alt" id="plCopy">⇉ USAR EM TODAS AS PEÇAS</button><span style="flex:1"></span><button class="btn xs yel" id="plSave">✓ GUARDAR</button></div>
+   <label class="f" style="flex:2;min-width:200px">Tamanho <span id="plCm" class="hint"></span><input type="range" id="plW" min="3" max="70" step="0.5"></label><label class="f" style="flex:1;min-width:150px">Rotação <span id="plRv" class="hint"></span><input type="range" id="plR" min="-90" max="90" step="1"></label></div>
+  <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn xs alt" id="plCenter">↔ CENTRAR</button><button class="btn xs alt" id="plUp">↑ GOLA</button><button class="btn xs alt" id="plReset">↺ REPOR</button><button class="btn xs alt" id="plCopy" title="Também substitui as peças que afinaste à mão">⇉ FORÇAR EM TODAS</button><span style="flex:1"></span><button class="btn xs yel" id="plSave">✓ GUARDAR EM TODAS AS PEÇAS</button></div>
   <p class="hint" id="plHint">Arrasta o design para o mover · arrasta o canto amarelo ou usa a roda do rato para mudar o tamanho · setas movem 0,5%.</p></div></div></div>
 <div class="modal" id="mConfirm"><div class="box">
   <h2 id="cfT">TENS A CERTEZA?</h2><p class="hint" id="cfB"></p>
@@ -581,10 +582,10 @@ async function renderPage(canvas,id,o={}){const p=S.pages[id];if(!p)return [];co
   const u=tplDef(p.tpl);const els=[...(u?u.els:[]),...(p.layers||[])];const T0=themeOf(u&&u.themeable===false?{theme:u.theme}:p);
   await Promise.all(els.filter(el=>el.type==="svg").map(async el=>{const col=el.color?colorOf(el.color,{T:T0,sec:secOf(id)}):null;imgs["svg:"+el.id]=await loadImg(svgTinted(el.svg,col))}));
   await preloadTees(p);
-  {const jobs=[];const add=(slot,showK,sz)=>{const k=p[slot];if(!k||!LIB[k]||!p[showK])return;(getPageCols(p,slot)||[]).slice(0,3).filter(cl=>cl&&cl[1]).forEach(cl=>jobs.push((async()=>{imgs["fm:"+k+"|"+cl[1]]=await hangMock(cl[1],k,{hanger:false,size:sz})})()))};
+  {const jobs=[];const add=(slot,showK,sz)=>{const k=p[slot];if(!k||!LIB[k]||!p[showK])return;(getPageCols(p,slot)||[]).slice(0,3).filter(cl=>cl&&cl[1]).forEach(cl=>jobs.push((async()=>{imgs["fm:"+k+"|"+cl[1]]=await hangMock(cl[1],k,{hanger:false,size:sz,alpha:S.settings.mkAlpha??.96,warp:S.settings.mkWarp??1})})()))};
    const hi=o.hi||s>=6;if(p.tpl==="produto")add("d","showCols",hi?900:520);if(p.tpl==="duo"){add("d","showCols",hi?700:420);add("d2","showCols2",hi?700:420)}await Promise.all(jobs)}
-  await Promise.all(els.filter(el=>el.type==="mockup").map(async el=>{imgs["mk:"+el.id]=await tintMock(garOf(el,p),mockColor(el,p))}));
-  await Promise.all(els.filter(el=>el.type==="hangmock").map(async el=>{const key=LIB[el.src]?el.src:p[el.slot||"d"];imgs["hm:"+el.id]=await hangMock(mockColor(el,p),key,{size:o.hi||s>=6?1400:900,warp:el.warp??1,alpha:el.alpha??.96,hanger:el.hanger!==false})}));
+  await Promise.all(els.filter(el=>el.type==="mockup").map(async el=>{const gk=garOf(el,p),sd=el.side||"front";await sideBase(gk,sd);imgs["mk:"+el.id]=await tintMock(gk,mockColor(el,p),1000,sd)}));
+  await Promise.all(els.filter(el=>el.type==="hangmock").map(async el=>{const key=LIB[el.src]?el.src:p[el.slot||"d"];imgs["hm:"+el.id]=await hangMock(mockColor(el,p),key,{size:o.hi||s>=6?1400:900,warp:el.warp??S.settings.mkWarp??1,alpha:el.alpha??S.settings.mkAlpha??.96,hanger:el.hanger!==false})}));
   await Promise.all(els.filter(el=>el.type==="shirts").flatMap(el=>{const gk=garOf(el,p),{sug,rest}=shirtSets(el,p);
     return [...sug.map(async c=>{imgs["sh:"+gk+"|"+c[1]+"|b"]=await tintMock(gk,c[1],640)}),...(el.rest===false?[]:rest.map(async c=>{imgs["sh:"+gk+"|"+c[1]+"|s"]=await tintMock(gk,c[1],240)}))]}));
   await Promise.all(els.filter(el=>el.type==="scene").map(async el=>{const sc=scOf(el,p);imgs["sb:"+sc]=await loadImg("designs/assets/scene/"+sc+"-base.webp");imgs["so:"+sc]=await loadImg("designs/assets/scene/"+sc+"-over.webp")}));
@@ -621,8 +622,7 @@ function drawEls(c,e,els){for(const el of els){if(el.hidden)continue;c.save();c.
   else if(el.type==="svg"){const im=e.imgs["svg:"+el.id];if(im){const r=(im.naturalWidth||1)/(im.naturalHeight||1);let dw=w,dh=w/r;if(dh>h){dh=h;dw=h*r}c.drawImage(im,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}}
   else if(el.type==="mockup"){const mk=e.imgs["mk:"+el.id];const gk=garOf(el,e.p);const g=MOCKS[gk];const S0=Math.min(w,h),ox=x+(w-S0)/2,oy=y+(h-S0)/2;
     if(mk){c.drawImage(mk,ox,oy,S0,S0);const key=LIB[el.src]?el.src:e.p[el.slot||"d"],im=e.imgs[key],l=LIB[key];
-      if(im&&l){const pl=placeBox(key,gk,el.side||"front"),px=ox+S0*pl[0]/100,py=oy+S0*pl[1]/100,pw=S0*pl[2]/100,ph=S0*pl[3]/100;let dw=pw,dh=pw*l.h/l.w;if(dh>ph){dh=ph;dw=ph*l.w/l.h}
-        const ax=px+(pw-dw)/2,ay=py+(e.p&&el.top===false?(ph-dh)/2:0);drawArt(c,im,l,ax,ay,dw,dh);const base=MOCKIMG[gk];if(base&&!g.noTint){c.save();c.beginPath();c.rect(ax,ay,dw,dh);c.clip();c.globalCompositeOperation="multiply";c.globalAlpha=.55;c.drawImage(base,ox,oy,S0,S0);c.restore()}}}
+      if(im&&l){const sd=el.side||"front";drawPlaced(c,im,l,placeBox(key,gk,sd),ox,oy,S0,{mid:el.top===false,base:!g.noTint?sideBaseSync(gk,sd):null,mult:.55})}}
     if(el.label){txt(c,tokens(el.label,e,el.slot),x+w/2,y+h+3.4,{f:"mono",size:2.2,color:colorOf(el.lcolor||"ink",e),align:"center",maxW:w})}}
   else if(el.type==="scene"){const sk=scOf(el,e.p);const b0=e.imgs["sb:"+sk],o0=e.imgs["so:"+sk],sc=SCENES.find(s=>s.id===sk);
     if(b0&&sc){c.save();c.beginPath();c.rect(x,y,w,h);c.clip();const k=Math.max(w/sc.w,h/sc.h),dw=sc.w*k,dh=sc.h*k,dx=x+(w-dw)/2,dy=y+(h-dh)/2;c.drawImage(b0,dx,dy,dw,dh);
@@ -654,11 +654,18 @@ function renderCustom(c,e,u){const T=themeOf({theme:u.themeable===false?u.theme:
 /* ---- per-design print placement, per garment and side: S.ovr[key].place["tshirt:front"]=[x,y,w] in % of the mockup photo ---- */
 const PL_SIDES={front:"FRENTE",back:"COSTAS",sleeveL:"MANGA ESQ.",sleeveR:"MANGA DIR."};
 const PL_CM={tshirt:.8,hoodie:.85,longsleeve:1.05,tote:.62};
-const PL_DEF={tshirt:{sleeveL:[10,22,9],sleeveR:[81,22,9]},hoodie:{sleeveL:[9,30,8],sleeveR:[83,30,8]},longsleeve:{sleeveL:[7,40,7],sleeveR:[86,40,7]},tote:{}};
-function sidesOf(gk){return gk==="tote"?["front","back"]:["front","back","sleeveL","sleeveR"]}
-function placeBox(key,gk,side="front"){const g=MOCKS[gk]||MOCKS.tshirt,l=LIB[key],r=l&&l.w?l.h/l.w:1;const o=l&&l.place&&l.place[gk+":"+side];
-  if(o)return [o[0],o[1],o[2],o[2]*r];const d=(PL_DEF[gk]||{})[side];if(d)return [d[0],d[1],d[2],d[2]*r];
-  if(side==="back"){const p=g.pl;return [p[0]-2,p[1]-3,p[2]+4,p[3]+10]}return g.pl}
+const PL_DEF={tshirt:{sleeveL:[10,22,9,24],sleeveR:[81,22,9,-24]},hoodie:{sleeveL:[9,30,8,20],sleeveR:[83,30,8,-20]},longsleeve:{sleeveL:[7,40,7,12],sleeveR:[86,40,7,-12]},tote:{}};
+function sidesOf(gk){return gk==="tote"?["front"]:["front","back","sleeveL","sleeveR"]}
+function defBox(gk,side="front"){const g=MOCKS[gk]||MOCKS.tshirt,sd=(typeof S!=="undefined"&&S&&S.settings&&S.settings.plDefaults||{})[gk+":"+side];if(sd)return sd;
+  const d=(PL_DEF[gk]||{})[side];if(d)return d;if(side==="back"){const p=g.pl;return [p[0]-2,p[1]-3,p[2]+4,0]}return [g.pl[0],g.pl[1],g.pl[2],0]}
+/* [x,y,w,h,rot] in % of the mockup photo; h follows the design proportions; rot in degrees (sleeves follow the sleeve) */
+function placeBox(key,gk,side="front"){const g=MOCKS[gk]||MOCKS.tshirt,l=LIB[key],r=l&&l.w?l.h/l.w:1;const o=(l&&l.place&&l.place[gk+":"+side])||defBox(gk,side);
+  if(side==="front"&&!(l&&l.place&&l.place[gk+":front"])&&!(S&&S.settings&&S.settings.plDefaults&&S.settings.plDefaults[gk+":front"]))return [g.pl[0],g.pl[1],g.pl[2],g.pl[3],0];
+  return [o[0],o[1],o[2],o[2]*r,o[3]||0]}
+function drawPlaced(c,im,l,pl,ox,oy,S0,o={}){const px=ox+S0*pl[0]/100,py=oy+S0*pl[1]/100,pw=S0*pl[2]/100,ph=S0*pl[3]/100;let dw=pw,dh=pw*l.h/l.w;if(dh>ph){dh=ph;dw=ph*l.w/l.h}
+  const ax=px+(pw-dw)/2,ay=py+(o.mid?(ph-dh)/2:0),rot=(pl[4]||0)*Math.PI/180,cx=ax+dw/2,cy=ay+dh/2;
+  c.save();c.translate(cx,cy);c.rotate(rot);c.globalAlpha=(c.globalAlpha||1)*(o.alpha??1);drawArt(c,im,l,-dw/2,-dh/2,dw,dh);c.restore();
+  if(o.base){c.save();c.translate(cx,cy);c.rotate(rot);c.beginPath();c.rect(-dw/2,-dh/2,dw,dh);c.rotate(-rot);c.translate(-cx,-cy);c.clip();c.globalCompositeOperation="multiply";c.globalAlpha=o.mult??.5;c.drawImage(o.base,ox,oy,S0,S0);c.restore()}}
 function placeSig(key){const l=LIB[key];return l&&l.place?JSON.stringify(l.place):""}
 const MOCKS={tshirt:{name:"T-shirt",file:"tshirt-neutral-v1",pl:[35,22,30,30]},hoodie:{name:"Hoodie",file:"hoodie-neutral-v1",pl:[34,27,32,27]},longsleeve:{name:"Sweat / manga comprida",file:"long-sleeve-neutral-v1",pl:[34,22,32,30]},tote:{name:"Tote denim",file:"tote-denim-neutral-v1",pl:[29,40,42,32],noTint:true}};
 const MOCKIMG={},MOCKTINT=new Map();
@@ -666,7 +673,15 @@ const garOf=(el,p)=>(u0=>(u0&&u0.els.includes(el)&&p.garment)?p.garment:(el.garm
 const scOf=(el,p)=>(u0=>(u0&&u0.els.includes(el)&&p.scene)?p.scene:el.scene)(tplDef(p.tpl));
 function getPageCols(p,slot){const k=slot==="d2"?"colors2":"colors";const cs=p[k]&&p[k].length?p[k]:defColors(LIB[p[slot||"d"]]);return cs}
 function mockColor(el,p){const v=el.color||"c1";const m=/^c([1-3])$/.exec(v);if(m){const cs=getPageCols(p,el.slot||"d");return (cs[+m[1]-1]||["White","#FFFFFF"])[1]}if(v[0]==="#")return v;return colHex(v)}
-async function tintMock(g,col,size=1000){const G=MOCKS[g]||MOCKS.tshirt;const k=g+"|"+col+"|"+size;if(MOCKTINT.has(k))return MOCKTINT.get(k);const im=MOCKIMG[g]||(MOCKIMG[g]=await loadImg("designs/assets/mock/"+G.file+".webp"));if(!im)return null;
+function mockUrl(g,side){const m=(typeof S!=="undefined"&&S&&S.settings&&S.settings.mockImg)||{};return m[g+":"+(side==="back"?"back":"front")]||""}
+const SIDEBASE=new Map();
+async function sideBase(g,side="front"){const G=MOCKS[g]||MOCKS.tshirt,cu=mockUrl(g,side),k=g+"|"+(side==="back"?"back":"front")+"|"+cu;if(SIDEBASE.has(k))return SIDEBASE.get(k);
+  const front=MOCKIMG[g]||(MOCKIMG[g]=await loadImg("designs/assets/mock/"+G.file+".webp"));let im=cu?await loadImg(cu):null;
+  if(!im&&side==="back"&&mockUrl(g,"front"))im=await loadImg(mockUrl(g,"front"));if(!im&&side!=="back"&&cu===""&&mockUrl(g,"front"))im=await loadImg(mockUrl(g,"front"));
+  if(!im&&side==="back"&&front){const c=document.createElement("canvas");c.width=front.naturalWidth||1000;c.height=front.naturalHeight||1000;const x=c.getContext("2d");x.translate(c.width,0);x.scale(-1,1);x.drawImage(front,0,0);im=c;im.mirrored=true}
+  if(!im)im=front;SIDEBASE.set(k,im);return im}
+function sideBaseSync(g,side="front"){const cu=mockUrl(g,side);return SIDEBASE.get(g+"|"+(side==="back"?"back":"front")+"|"+cu)||MOCKIMG[g]}
+async function tintMock(g,col,size=1000,side="front"){const G=MOCKS[g]||MOCKS.tshirt;const sd=side==="back"?"back":"front";const k=g+"|"+col+"|"+size+"|"+sd+"|"+mockUrl(g,side);if(MOCKTINT.has(k))return MOCKTINT.get(k);const im=await sideBase(g,sd);if(!im)return null;
   const c=document.createElement("canvas");c.width=c.height=size;const x=c.getContext("2d");x.drawImage(im,0,0,size,size);const L=lumHex(col)/255;
   if(!G.noTint&&!/^#f{6}$/i.test(String(col))&&L<.995){x.globalCompositeOperation="multiply";x.fillStyle=col;x.fillRect(0,0,size,size);if(L<.3){x.globalCompositeOperation="screen";x.globalAlpha=.16;x.drawImage(im,0,0,size,size);x.globalAlpha=1}x.globalCompositeOperation="destination-in";x.drawImage(im,0,0,size,size)}
   MOCKTINT.set(k,c);return c}
@@ -675,7 +690,7 @@ const HANGIMG={},HANGCACHE=new Map();
 async function hangMock(hex,key,o={}){const size=o.size||1000,warp=o.warp??1,alpha=o.alpha??.96,hanger=o.hanger!==false;
   const ck=[hex,key,size,warp,alpha,hanger,o.side||"",placeSig(key)].join("|");if(HANGCACHE.has(ck))return HANGCACHE.get(ck);
   const G=MOCKS.tshirt,off=Math.round(size*.1),Hc=size+off;
-  const base=MOCKIMG.tshirt||(MOCKIMG.tshirt=await loadImg("designs/assets/mock/"+G.file+".webp"));const tee=await tintMock("tshirt",hex,size);
+  const base=await sideBase("tshirt","front");const tee=await tintMock("tshirt",hex,size);
   if(!base||!tee)return null;const cv=document.createElement("canvas");cv.width=size;cv.height=Hc;const x=cv.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(tee,0,off,size,size);
   const l=LIB[key],im=key?await loadImg(libImgUrl(key,true)):null;
   if(im&&l){const pl=placeBox(key,"tshirt",o.side||"front"),bx=size*pl[0]/100,by=size*pl[1]/100,bw=size*pl[2]/100,bh=size*pl[3]/100;let dw=bw,dh=bw*l.h/l.w;if(dh>bh){dh=bh;dw=bh*l.w/l.h}
@@ -698,9 +713,8 @@ async function hangMock(hex,key,o={}){const size=o.size||1000,warp=o.warp??1,alp
 /* ---- t-shirt colour strip: suggested colours big (with the design) + every other garment colour small, stretched along the bottom ---- */
 function shirtSets(el,p){const sug=getPageCols(p,el.slot||"d").slice(0,3).filter(c=>c&&c[1]);const hx=new Set(sug.map(c=>String(c[1]).toLowerCase())),nm=new Set(sug.map(c=>String(c[0]).toLowerCase()));
   return {sug,rest:COLORS.filter(([n,h])=>!hx.has(String(h).toLowerCase())&&!nm.has(String(n).toLowerCase()))}}
-function garmentArt(c,e,gk,el,ox,oy,S0){const g=MOCKS[gk]||MOCKS.tshirt;const key=LIB[el.src]?el.src:e.p[el.slot||"d"],im=e.imgs[key],l=LIB[key];if(!im||!l)return;
-  const pl=placeBox(key,gk,el.side||"front"),px=ox+S0*pl[0]/100,py=oy+S0*pl[1]/100,pw=S0*pl[2]/100,ph=S0*pl[3]/100;let dw=pw,dh=pw*l.h/l.w;if(dh>ph){dh=ph;dw=ph*l.w/l.h}
-  const ax=px+(pw-dw)/2;drawArt(c,im,l,ax,py,dw,dh);const base=MOCKIMG[gk];if(base&&!g.noTint){c.save();c.beginPath();c.rect(ax,py,dw,dh);c.clip();c.globalCompositeOperation="multiply";c.globalAlpha=.55;c.drawImage(base,ox,oy,S0,S0);c.restore()}}
+function garmentArt(c,e,gk,el,ox,oy,S0){const g=MOCKS[gk]||MOCKS.tshirt;const key=LIB[el.src]?el.src:e.p[el.slot||"d"],im=e.imgs[key],l=LIB[key];if(!im||!l)return;const sd=el.side||"front";
+  drawPlaced(c,im,l,placeBox(key,gk,sd),ox,oy,S0,{base:!g.noTint?sideBaseSync(gk,sd):null,mult:.55})}
 /* ---- blueprint templates: element versions of the master list (editable copies) ---- */
 const _E=(o)=>({id:"bp"+Math.random().toString(36).slice(2,8),...o});
 const BP={
@@ -1883,28 +1897,29 @@ if(HOSTED){const BASE="/mimbo-the-good-stuff-machine/";
 
 /* ================= design placement editor (front / back / sleeves · t-shirt, hoodie, sweat, tote) ================= */
 const PLC={key:null,gk:"tshirt",side:"front",col:"",box:null,drag:null};
-function plCur(){const l=LIB[PLC.key];const b=placeBox(PLC.key,PLC.gk,PLC.side);return {x:b[0],y:b[1],w:b[2],r:l&&l.w?l.h/l.w:1}}
-function openPlacement(key){const l=LIB[key];if(!l)return;PLC.key=key;PLC.gk="tshirt";PLC.side="front";const cols=(l.colors&&l.colors.length?l.colors:defColors(l))||[];PLC.col=(cols[0]&&cols[0][1])||"#ffffff";
-  PLC.box=plCur();$("#plTitle").textContent="COLOCAÇÃO · "+(l.code?l.code+" ":"")+(l.name||"");
+function plCur(){const l=LIB[PLC.key],r=l&&l.w?l.h/l.w:1;if(PLC.def){const d=defBox(PLC.gk,PLC.side);const g=MOCKS[PLC.gk];const f=PLC.side==="front"&&!(S.settings.plDefaults||{})[PLC.gk+":front"]?[g.pl[0],g.pl[1],g.pl[2],0]:d;return {x:f[0],y:f[1],w:f[2],rot:f[3]||0,r}}
+  const b=placeBox(PLC.key,PLC.gk,PLC.side);return {x:b[0],y:b[1],w:b[2],rot:b[4]||0,r}}
+function openPlacement(key,o={}){const l=LIB[key];if(!l)return;PLC.def=!!o.def;PLC.key=key;PLC.gk="tshirt";PLC.side="front";const cols=(l.colors&&l.colors.length?l.colors:defColors(l))||[];PLC.col=(cols[0]&&cols[0][1])||"#ffffff";
+  PLC.box=plCur();$("#plTitle").textContent=PLC.def?"COLOCAÇÃO POR DEFEITO · exemplo: "+(l.name||""):"COLOCAÇÃO · "+(l.code?l.code+" ":"")+(l.name||"");
   $("#plCol").innerHTML=[...cols.map(c=>[c[0]+" (sugerida)",c[1]]),...COLORS].map(([n,h])=>`<option value="${h}" ${h===PLC.col?"selected":""}>${esc(n)}</option>`).join("");
   plTabs();$("#mPlace").classList.add("on");plDraw()}
 function plKey(){return PLC.gk+":"+PLC.side}
 function plTabs(){const l=LIB[PLC.key],pl=(l&&l.place)||{};
-  $("#plGar").innerHTML=Object.entries(MOCKS).map(([g,m])=>`<button data-plg="${g}" class="${PLC.gk===g?"on":""}">${esc(m.name.toUpperCase())}${Object.keys(pl).some(k=>k.startsWith(g+":"))?" <i>●</i>":""}</button>`).join("");
+  $("#plGar").innerHTML=Object.entries(MOCKS).map(([g,m])=>`<button data-plg="${g}" class="${PLC.gk===g?"on":""}">${esc(m.name.toUpperCase())}${Object.entries(pl).some(([k,v])=>k.startsWith(g+":")&&v[4])?" <i>●</i>":""}</button>`).join("");
   if(!sidesOf(PLC.gk).includes(PLC.side))PLC.side="front";
-  $("#plSide").innerHTML=sidesOf(PLC.gk).map(sd=>`<button data-pls="${sd}" class="${PLC.side===sd?"on":""}">${PL_SIDES[sd]}${pl[PLC.gk+":"+sd]?" <i>●</i>":""}</button>`).join("");
+  $("#plSide").innerHTML=sidesOf(PLC.gk).map(sd=>`<button data-pls="${sd}" class="${PLC.side===sd?"on":""}">${PL_SIDES[sd]}${pl[PLC.gk+":"+sd]&&pl[PLC.gk+":"+sd][4]?" <i>●</i>":""}</button>`).join("");
   $("#plW").value=PLC.box.w}
 async function plDraw(){const cv=$("#plCv"),x=cv.getContext("2d"),N=cv.width,l=LIB[PLC.key];x.clearRect(0,0,N,N);x.fillStyle="#e9e5dc";x.fillRect(0,0,N,N);
-  const g=MOCKS[PLC.gk];const t=g.noTint?(MOCKIMG[PLC.gk]||(MOCKIMG[PLC.gk]=await loadImg("designs/assets/mock/"+g.file+".webp"))):await tintMock(PLC.gk,PLC.col,900);
-  x.save();if(PLC.side==="back"){x.translate(N,0);x.scale(-1,1)}if(t)x.drawImage(t,0,0,N,N);x.restore();
-  if(PLC.side==="back"){x.fillStyle="rgba(0,0,0,.08)";x.beginPath();x.ellipse(N*.5,N*.115,N*.1,N*.045,0,0,Math.PI*2);x.fill()}
-  const im=PLC.img&&PLC.img.k===PLC.key?PLC.img.im:null;if(!im){loadImg(libImgUrl(PLC.key,true)).then(i=>{PLC.img={k:PLC.key,im:i};plDraw()});}
-  const b=PLC.box,bx=N*b.x/100,by=N*b.y/100,bw=N*b.w/100,bh=bw*b.r;
-  if(im){x.save();x.globalAlpha=.96;drawArt(x,im,l,bx,by,bw,bh);if(!g.noTint&&MOCKIMG[PLC.gk]){x.beginPath();x.rect(bx,by,bw,bh);x.clip();x.globalCompositeOperation="multiply";x.globalAlpha=.45;x.save();if(PLC.side==="back"){x.translate(N,0);x.scale(-1,1)}x.drawImage(MOCKIMG[PLC.gk],0,0,N,N);x.restore()}x.restore()}
-  x.save();x.setLineDash([10,7]);x.lineWidth=2;x.strokeStyle="#14112b";x.strokeRect(bx,by,bw,bh);x.setLineDash([]);x.fillStyle="#ffd23f";x.strokeStyle="#14112b";x.lineWidth=3;x.fillRect(bx+bw-14,by+bh-14,28,28);x.strokeRect(bx+bw-14,by+bh-14,28,28);
+  const g=MOCKS[PLC.gk],base=await sideBase(PLC.gk,PLC.side);const t=g.noTint?base:await tintMock(PLC.gk,PLC.col,900,PLC.side);if(t)x.drawImage(t,0,0,N,N);
+  const im=PLC.img&&PLC.img.k===PLC.key?PLC.img.im:null;if(!im&&PLC.key){loadImg(libImgUrl(PLC.key,true)).then(i=>{PLC.img={k:PLC.key,im:i};plDraw()})}
+  const b=PLC.box,bx=N*b.x/100,by=N*b.y/100,bw=N*b.w/100,bh=bw*b.r,rot=(b.rot||0)*Math.PI/180;
+  if(im&&l)drawPlaced(x,im,l,[b.x,b.y,b.w,b.w*b.r,b.rot||0],0,0,N,{alpha:.96,base:!g.noTint?base:null,mult:.45});
+  x.save();x.translate(bx+bw/2,by+bh/2);x.rotate(rot);x.setLineDash([10,7]);x.lineWidth=2;x.strokeStyle="#14112b";x.strokeRect(-bw/2,-bh/2,bw,bh);x.restore();
+  x.save();x.setLineDash([]);x.fillStyle="#ffd23f";x.strokeStyle="#14112b";x.lineWidth=3;x.fillRect(bx+bw-14,by+bh-14,28,28);x.strokeRect(bx+bw-14,by+bh-14,28,28);
   x.strokeStyle="rgba(20,17,43,.35)";x.lineWidth=1;x.setLineDash([4,6]);x.beginPath();x.moveTo(N/2,0);x.lineTo(N/2,N);x.stroke();x.restore();
-  if(PLC.side==="back"){x.fillStyle="#14112b";x.font="bold 22px monospace";x.fillText("COSTAS (foto da frente espelhada)",16,N-18)}
-  $("#plCm").textContent="≈ "+Math.round(b.w*(PL_CM[PLC.gk]||.8))+" × "+Math.round(b.w*b.r*(PL_CM[PLC.gk]||.8))+" cm";}
+  x.fillStyle="#14112b";x.font="bold 22px monospace";if(PLC.def)x.fillText("VALOR POR DEFEITO · "+MOCKS[PLC.gk].name.toUpperCase()+" "+PL_SIDES[PLC.side],16,34);
+  if(PLC.side==="back"&&base&&base.mirrored)x.fillText("COSTAS · foto da frente espelhada (carrega a foto das costas nas Definições)",16,N-18);
+  $("#plCm").textContent="≈ "+Math.round(b.w*(PL_CM[PLC.gk]||.8))+" × "+Math.round(b.w*b.r*(PL_CM[PLC.gk]||.8))+" cm";$("#plRv").textContent=Math.round(b.rot||0)+"°";$("#plR").value=b.rot||0}
 function plPt(ev){const cv=$("#plCv"),r=cv.getBoundingClientRect();return {x:(ev.clientX-r.left)/r.width*100,y:(ev.clientY-r.top)/r.height*100}}
 $("#plCv").addEventListener("pointerdown",ev=>{const p=plPt(ev),b=PLC.box,ex=b.x+b.w,ey=b.y+b.w*b.r,hs=3.2;
   if(Math.abs(p.x-ex)<hs&&Math.abs(p.y-ey)<hs)PLC.drag={m:"size",p,b:{...b}};else if(p.x>=b.x&&p.x<=ex&&p.y>=b.y&&p.y<=ey)PLC.drag={m:"move",p,b:{...b}};else return;
@@ -1914,19 +1929,23 @@ $("#plCv").addEventListener("pointermove",ev=>{const d=PLC.drag;if(!d)return;con
   $("#plW").value=PLC.box.w;plDraw()});
 $("#plCv").addEventListener("pointerup",()=>{PLC.drag=null});
 $("#plCv").addEventListener("wheel",ev=>{ev.preventDefault();const b=PLC.box,cx=b.x+b.w/2,cy=b.y+b.w*b.r/2;b.w=Math.max(3,Math.min(80,b.w*(ev.deltaY<0?1.04:1/1.04)));b.x=cx-b.w/2;b.y=cy-b.w*b.r/2;$("#plW").value=b.w;plDraw()},{passive:false});
+$("#plR").addEventListener("input",ev=>{PLC.box.rot=+ev.target.value;plDraw()});
 $("#plW").addEventListener("input",ev=>{const b=PLC.box,cx=b.x+b.w/2;b.w=+ev.target.value;b.x=cx-b.w/2;plDraw()});
 $("#plCol").addEventListener("change",ev=>{PLC.col=ev.target.value;plDraw()});
 $("#plGar").addEventListener("click",ev=>{const b=ev.target.closest("[data-plg]");if(!b)return;PLC.gk=b.dataset.plg;if(!sidesOf(PLC.gk).includes(PLC.side))PLC.side="front";PLC.box=plCur();plTabs();plDraw()});
 $("#plSide").addEventListener("click",ev=>{const b=ev.target.closest("[data-pls]");if(!b)return;PLC.side=b.dataset.pls;PLC.box=plCur();plTabs();plDraw()});
 $("#plCenter").onclick=()=>{const b=PLC.box;b.x=Math.round((50-b.w/2)*10)/10;plDraw()};
 $("#plUp").onclick=()=>{const g=MOCKS[PLC.gk];PLC.box.y=PLC.side==="back"?g.pl[1]-3:g.pl[1];plDraw()};
-$("#plReset").onclick=()=>{const l=LIB[PLC.key],pl={...(l.place||{})};delete pl[plKey()];setOvr(PLC.key,{place:pl});PLC.box=plCur();plTabs();plDraw();plApplied();toast("COLOCAÇÃO REPOSTA")};
-function plApplied(){HANGCACHE.clear();refreshDesignPages(PLC.key);if(typeof renderDesDetail==="function")renderDesDetail()}
-$("#plSave").onclick=()=>{const l=LIB[PLC.key],b=PLC.box,pl={...(l.place||{})};pl[plKey()]=[+b.x.toFixed(1),+b.y.toFixed(1),+b.w.toFixed(1)];setOvr(PLC.key,{place:pl});plTabs();plApplied();toast("GUARDADO · "+MOCKS[PLC.gk].name.toUpperCase()+" "+PL_SIDES[PLC.side])};
-$("#plCopy").onclick=()=>{const l=LIB[PLC.key],b=PLC.box,pl={...(l.place||{})};const base=MOCKS[PLC.gk].pl;
-  Object.entries(MOCKS).forEach(([g,m])=>{if(!sidesOf(g).includes(PLC.side))return;const k=g+":"+PLC.side;if(g===PLC.gk){pl[k]=[b.x,b.y,b.w];return}
-    const f=m.pl[2]/base[2];pl[k]=[+(m.pl[0]+(b.x-base[0])*f).toFixed(1),+(m.pl[1]+(b.y-base[1])*f).toFixed(1),+(b.w*f).toFixed(1)]});
-  setOvr(PLC.key,{place:pl});plTabs();plApplied();toast("APLICADO A TODAS AS PEÇAS · "+PL_SIDES[PLC.side])};
+$("#plReset").onclick=()=>{if(PLC.def){const d={...(S.settings.plDefaults||{})};delete d[plKey()];S.settings.plDefaults=d;save("state")}else{const l=LIB[PLC.key],pl={...(l.place||{})};delete pl[plKey()];setOvr(PLC.key,{place:pl})}PLC.box=plCur();plTabs();plDraw();plApplied();toast("COLOCAÇÃO REPOSTA")};
+function plApplied(){HANGCACHE.clear();if(!PLC.def)refreshDesignPages(PLC.key);if(typeof renderDesDetail==="function")renderDesDetail()}
+function plSpread(force){const b=PLC.box,cur=[+b.x.toFixed(1),+b.y.toFixed(1),+b.w.toFixed(1),Math.round(b.rot||0)],base=defBox(PLC.gk,PLC.side);
+  const src=PLC.def?{...(S.settings.plDefaults||{})}:{...(LIB[PLC.key].place||{})};src[plKey()]=PLC.def?cur:[...cur,1];let n=1;
+  Object.keys(MOCKS).forEach(g=>{if(g===PLC.gk||!sidesOf(g).includes(PLC.side))return;const k=g+":"+PLC.side,ex=src[k];if(ex&&ex[4]&&!force)return;
+    const d=defBox(g,PLC.side),f=(d[2]||1)/(base[2]||1);src[k]=[+(d[0]+(cur[0]-base[0])*f).toFixed(1),+(d[1]+(cur[1]-base[1])*f).toFixed(1),+(cur[2]*f).toFixed(1),cur[3]+((d[3]||0)-(base[3]||0)),PLC.def?undefined:0].filter(v=>v!==undefined);n++});
+  if(PLC.def){S.settings.plDefaults=src;save("state")}else setOvr(PLC.key,{place:src});plTabs();plApplied();if(PLC.def){TH.clear();thumbsAll()}
+  toast((PLC.def?"PADRÃO GUARDADO":"GUARDADO")+" · "+PL_SIDES[PLC.side]+" EM "+n+" PEÇA"+(n>1?"S":""))}
+$("#plSave").onclick=()=>plSpread(false);
+$("#plCopy").onclick=()=>plSpread(true);
 $("#plClose").onclick=()=>$("#mPlace").classList.remove("on");
 document.addEventListener("keydown",ev=>{if(!$("#mPlace").classList.contains("on"))return;const b=PLC.box,st=ev.shiftKey?2:.5;
   if(ev.key==="Escape"){$("#mPlace").classList.remove("on");return}const m={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[ev.key];if(!m)return;
@@ -1958,19 +1977,16 @@ renderDesigns=function(){_renderDesigns9();const bar=$("#incBar");const nDel=LIB
   $$("#desGrid [data-dk]").forEach(el=>{const l=LIB[el.dataset.dk];if(!l)return;if(desInc==="del")el.style.display=l.deleted?"":"none";else if(l.deleted)el.style.display="none"})};
 /* ---- one generated mockup: garment photo tinted + design at its saved placement ---- */
 async function genMock(key,gk,side,hex,size=1200,hanger=false){const l=LIB[key];if(!l)return null;
-  if(gk==="tshirt"&&side==="front"){const c=await hangMock(hex,key,{size,hanger,side});if(!c)return null;if(hanger){const o=document.createElement("canvas");o.width=c.width;o.height=c.height;const ox=o.getContext("2d");ox.fillStyle="#f3f1ec";ox.fillRect(0,0,o.width,o.height);ox.drawImage(c,0,0);return o}const o=document.createElement("canvas");o.width=o.height=size;const ox=o.getContext("2d");ox.fillStyle="#f3f1ec";ox.fillRect(0,0,size,size);ox.drawImage(c,0,c.height-size,size,size,0,0,size,size);return o}
-  const g=MOCKS[gk],cv=document.createElement("canvas");cv.width=cv.height=size;const x=cv.getContext("2d");x.imageSmoothingQuality="high";x.fillStyle="#f3f1ec";x.fillRect(0,0,size,size);
-  const base=MOCKIMG[gk]||(MOCKIMG[gk]=await loadImg("designs/assets/mock/"+g.file+".webp"));const t=g.noTint?base:await tintMock(gk,hex,size);
-  x.save();if(side==="back"){x.translate(size,0);x.scale(-1,1)}if(t)x.drawImage(t,0,0,size,size);x.restore();
-  const im=await loadImg(libImgUrl(key,true));if(im){const pl=placeBox(key,gk,side),px=size*pl[0]/100,py=size*pl[1]/100,pw=size*pl[2]/100,ph=size*pl[3]/100;let dw=pw,dh=pw*l.h/l.w;if(dh>ph){dh=ph;dw=ph*l.w/l.h}
-    const ax=px+(pw-dw)/2;x.save();x.globalAlpha=.96;drawArt(x,im,l,ax,py,dw,dh);x.restore();
-    if(base&&!g.noTint){x.save();x.beginPath();x.rect(ax,py,dw,dh);x.clip();x.globalCompositeOperation="multiply";x.globalAlpha=.45;if(side==="back"){x.translate(size,0);x.scale(-1,1)}x.drawImage(base,0,0,size,size);x.restore()}}
+  if(gk==="tshirt"&&side==="front"){const c=await hangMock(hex,key,{size,hanger,side,alpha:S.settings.mkAlpha??.96,warp:S.settings.mkWarp??1});if(!c)return null;if(hanger){const o=document.createElement("canvas");o.width=c.width;o.height=c.height;const ox=o.getContext("2d");ox.fillStyle=S.settings.genBg||"#f3f1ec";ox.fillRect(0,0,o.width,o.height);ox.drawImage(c,0,0);return o}const o=document.createElement("canvas");o.width=o.height=size;const ox=o.getContext("2d");ox.fillStyle=S.settings.genBg||"#f3f1ec";ox.fillRect(0,0,size,size);ox.drawImage(c,0,c.height-size,size,size,0,0,size,size);return o}
+  const g=MOCKS[gk],cv=document.createElement("canvas");cv.width=cv.height=size;const x=cv.getContext("2d");x.imageSmoothingQuality="high";x.fillStyle=S.settings.genBg||"#f3f1ec";x.fillRect(0,0,size,size);
+  const base=await sideBase(gk,side);const t=g.noTint?base:await tintMock(gk,hex,size,side);if(t)x.drawImage(t,0,0,size,size);
+  const im=await loadImg(libImgUrl(key,true));if(im)drawPlaced(x,im,l,placeBox(key,gk,side),0,0,size,{alpha:S.settings.mkAlpha??.96,base:!g.noTint?base:null,mult:.45});
   return cv}
 function mdCols(){const l=LIB[desSel];return ((l.colors&&l.colors.length?l.colors:defColors(l))||[]).filter(c=>c&&c[1]).slice(0,3)}
 /* ---- placement tab: every support with a live preview, size and an edit button ---- */
 async function mdPlace(){const k=desSel,l=LIB[k],col=(mdCols()[0]||["White","#ffffff"])[1];const items=[];Object.keys(MOCKS).forEach(g=>sidesOf(g).forEach(sd=>items.push([g,sd])));
   $("#mdPl").innerHTML=`<p class="hint" style="margin:0 0 8px">Onde e com que tamanho o design é impresso em cada peça. ● = colocação própria guardada; sem ● usa a posição padrão. Estas posições alimentam as sugestões de cor, os mockups dos modelos e as gerações.</p><div class="mdgrid">${items.map(([g,sd])=>{const pl=placeBox(k,g,sd),own=l.place&&l.place[g+":"+sd];
-    return `<div class="mdcard"><canvas data-mdpv="${g}|${sd}" width="300" height="300"></canvas><div class="t">${esc(MOCKS[g].name.toUpperCase())} · ${PL_SIDES[sd]} ${own?"<span style='color:var(--grn)'>●</span>":""}</div><div class="h">≈ ${Math.round(pl[2]*(PL_CM[g]||.8))} × ${Math.round(pl[3]*(PL_CM[g]||.8))} cm</div><div class="row"><button class="btn xs yel" data-mded="${g}|${sd}">✎ EDITAR</button></div></div>`}).join("")}</div>`;
+    return `<div class="mdcard"><canvas data-mdpv="${g}|${sd}" width="300" height="300"></canvas><div class="t">${esc(MOCKS[g].name.toUpperCase())} · ${PL_SIDES[sd]} ${own&&own[4]?"<span style='color:var(--grn)'>●</span>":""}</div><div class="h">≈ ${Math.round(pl[2]*(PL_CM[g]||.8))} × ${Math.round(pl[3]*(PL_CM[g]||.8))} cm</div><div class="row"><button class="btn xs yel" data-mded="${g}|${sd}">✎ EDITAR</button></div></div>`}).join("")}</div>`;
   for(const cv of $$("#mdPl [data-mdpv]")){const [g,sd]=cv.dataset.mdpv.split("|");const m=await genMock(k,g,sd,col,300);if(m&&cv.isConnected)cv.getContext("2d").drawImage(m,0,0,300,300)}}
 $("#mdPl").addEventListener("click",ev=>{const b=ev.target.closest("[data-mded]");if(!b)return;const [g,sd]=b.dataset.mded.split("|");openPlacement(desSel);PLC.gk=g;PLC.side=sd;PLC.box=plCur();plTabs();plDraw()});
 {const _ap=plApplied;plApplied=function(){_ap();if($("#mDes").classList.contains("on")&&mdTab==="pl")mdPlace()}}
@@ -1986,7 +2002,7 @@ function mdGen(){const k=desSel,l=LIB[k],sug=mdCols(),gens=l.gens||[];const side
 $("#mdGen").addEventListener("click",async ev=>{const k=desSel,l=LIB[k];if(!l)return;
   if(ev.target.closest("#gGo")){const all=$("#gAll").checked,cols=all?COLORS:mdCols().filter(c=>$(`[data-gc="${c[1]}"]`)?.checked),gs=$$("#mdGen [data-gg]").filter(i=>i.checked).map(i=>i.dataset.gg),sds=$$("#mdGen [data-gs]").filter(i=>i.checked).map(i=>i.dataset.gs),hang=$("#gHang").checked;
     const jobs=[];cols.forEach(c=>gs.forEach(g=>sds.filter(sd=>sidesOf(g).includes(sd)).forEach(sd=>jobs.push([c,g,sd]))));if(!jobs.length){toast("ESCOLHE CORES, PEÇAS E LADOS");return}
-    mdOut=mdOut.filter(o=>o.key!==k);let n=0;for(const [c,g,sd] of jobs){$("#gMsg").textContent=`A gerar ${++n}/${jobs.length}…`;const cv=await genMock(k,g,sd,c[1],1200,hang&&g==="tshirt"&&sd==="front");if(!cv)continue;
+    mdOut=mdOut.filter(o=>o.key!==k);let n=0;for(const [c,g,sd] of jobs){$("#gMsg").textContent=`A gerar ${++n}/${jobs.length}…`;const cv=await genMock(k,g,sd,c[1],+(S.settings.genSize||1200),hang&&g==="tshirt"&&sd==="front");if(!cv)continue;
       const blob=await new Promise(r=>cv.toBlob(r,"image/jpeg",.92));const label=`${MOCKS[g].name} · ${PL_SIDES[sd]} · ${c[0]}`;const fn=`${(l.code||k)}_${g}-${sd}_${String(c[0]).toLowerCase().replace(/[^a-z0-9]+/g,"-")}.jpg`;
       mdOut.push({key:k,blob,url:URL.createObjectURL(blob),label,fn,g,sd,hex:c[1]})}
     mdGen();$("#gMsg").textContent=`${mdOut.filter(o=>o.key===k).length} mockups prontos.`;return}
@@ -1997,4 +2013,42 @@ $("#mdGen").addEventListener("click",async ev=>{const k=desSel,l=LIB[k];if(!l)re
     setOvr(k,{gens});mdOut=mdOut.filter(o=>o.key!==k);mdGen();toast(`${n} MOCKUPS GUARDADOS`);return}
   const del=ev.target.closest("[data-gdel]");if(del){const gens=[...(l.gens||[])];gens.splice(+del.dataset.gdel,1);setOvr(k,{gens});mdGen()}});
 $("#mdGen").addEventListener("change",ev=>{if(ev.target.id==="gAll")$$("#mdGen [data-gc]").forEach(i=>i.disabled=ev.target.checked)});
+
+/* ================= ⚙ app settings: general · default placements · garment photos · mockup values ================= */
+let stTab="gen";
+function stOpen(){$("#mSet").classList.add("on");stShow(stTab)}
+function stShow(t){stTab=t;$$("#stTabs [data-stt]").forEach(b=>b.classList.toggle("on",b.dataset.stt===t));const B=$("#stBody"),st=S.settings;
+  const fld=(k,l,ph="")=>`<label class="f">${l}<input type="text" data-sk="${k}" value="${esc(st[k]??"")}" placeholder="${esc(ph)}"></label>`;
+  if(t==="gen")B.innerHTML=`<div class="mdgrid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${fld("title","Título do catálogo")}${fld("edition","Edição")}${fld("year","Ano")}${fld("defaultPrice","Preço por defeito","€20")}${fld("site","Site")}${fld("handle","Instagram")}${fld("qrPattern","Link do QR (padrão)","{site}/designs/{code}-{slug}")}${fld("lblColors","Texto · cores sugeridas","TRY THESE COLOURS")}${fld("lblAlso","Texto · outras cores","ALSO IN")}${fld("lblAsk","Texto · sem QR","ASK BY NUMBER")}${fld("lblFoot","Texto · rodapé","COLLECTION")}</div><p class="hint">Mudanças aplicam-se logo a todas as páginas.</p>`;
+  if(t==="pl"){const items=[];Object.keys(MOCKS).forEach(g=>sidesOf(g).forEach(sd=>items.push([g,sd])));const pd=st.plDefaults||{};
+    B.innerHTML=`<p class="hint" style="margin:0 0 8px">Onde cada design vai por defeito em cada peça e lado. Um design só usa estes valores enquanto não tiver colocação própria. ● = valor alterado aqui. Exemplo desenhado com: <select id="stSample">${LIBLIST.filter(l=>!l.photo&&!l.deleted).slice(0,400).map(l=>`<option value="${l.key}" ${l.key===stSample()?"selected":""}>${esc((l.code||"")+" "+(l.name||""))}</option>`).join("")}</select></p>
+     <div class="mdgrid">${items.map(([g,sd])=>{const d=defBox(g,sd);return `<div class="mdcard"><canvas data-stpv="${g}|${sd}" width="300" height="300"></canvas><div class="t">${esc(MOCKS[g].name.toUpperCase())} · ${PL_SIDES[sd]} ${pd[g+":"+sd]?"<span style='color:var(--grn)'>●</span>":""}</div><div class="h">≈ ${Math.round(d[2]*(PL_CM[g]||.8))} cm de largura${d[3]?" · "+d[3]+"°":""}</div><div class="row"><button class="btn xs yel" data-sted="${g}|${sd}">✎ EDITAR PADRÃO</button></div></div>`}).join("")}</div>`;
+    stPreviews()}
+  if(t==="ph"){const mi=st.mockImg||{};const rows=[];Object.entries(MOCKS).forEach(([g,m])=>(g==="tote"?["front"]:["front","back"]).forEach(sd=>rows.push([g,m,sd])));
+    B.innerHTML=`<p class="hint" style="margin:0 0 8px">As fotos de base de cada peça. Usa uma peça <b>branca ou cinza claro</b>, de frente, em <b>PNG com fundo transparente</b> e quadrada (ex. 2000×2000): é ela que é tingida em todas as cores. Sem foto das costas, as costas usam a foto da frente espelhada.</p>
+     <div class="mdgrid">${rows.map(([g,m,sd])=>`<div class="mdcard"><canvas data-stph="${g}|${sd}" width="300" height="300"></canvas><div class="t">${esc(m.name.toUpperCase())} · ${PL_SIDES[sd]} ${mi[g+":"+sd]?"<span style='color:var(--grn)'>● própria</span>":sd==="back"?"<span style='color:var(--dim)'>(espelhada)</span>":"(original)"}</div><div class="row"><label class="btn xs yel" style="cursor:pointer">⬆ CARREGAR<input type="file" accept="image/png,image/webp,image/jpeg" data-stup="${g}|${sd}" hidden></label>${mi[g+":"+sd]?`<button class="btn xs alt" data-stdel="${g}|${sd}">↺ REPOR</button>`:""}</div></div>`).join("")}</div>`;
+    stPhotos()}
+  if(t==="mk")B.innerHTML=`<div class="mdgrid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+     <label class="f">Opacidade do design na peça <span class="hint">${Math.round((st.mkAlpha??.96)*100)}%</span><input type="range" min="0.7" max="1" step="0.01" data-sn="mkAlpha" value="${st.mkAlpha??.96}"></label>
+     <label class="f">Design segue o tecido (fotos) <span class="hint">${st.mkWarp??1}</span><input type="range" min="0" max="2.5" step="0.1" data-sn="mkWarp" value="${st.mkWarp??1}"></label>
+     <label class="f">Tamanho das gerações (px)<select data-sk="genSize">${[800,1200,1600,2000].map(v=>`<option ${String(st.genSize||1200)===String(v)?"selected":""}>${v}</option>`).join("")}</select></label>
+     <label class="f">Fundo das gerações<input type="color" data-sk="genBg" value="${st.genBg||"#f3f1ec"}"></label></div><p class="hint">Valem para os mockups das páginas, das sugestões de cor e das gerações.</p>`}
+function stSample(){const s=S.settings.sampleKey;if(s&&LIB[s])return s;const l=LIBLIST.find(x=>/camino/i.test(x.name||""))||LIBLIST.find(x=>!x.photo&&!x.deleted);return l&&l.key}
+async function stPreviews(){const k=stSample();for(const cv of $$("#stBody [data-stpv]")){const [g,sd]=cv.dataset.stpv.split("|");const l=LIB[k],x=cv.getContext("2d");x.fillStyle="#f3f1ec";x.fillRect(0,0,300,300);
+  const base=await sideBase(g,sd),t=MOCKS[g].noTint?base:await tintMock(g,"#ffffff",300,sd);if(t)x.drawImage(t,0,0,300,300);const d=defBox(g,sd),pf=sd==="front"&&!(S.settings.plDefaults||{})[g+":front"]?[...MOCKS[g].pl,0]:[d[0],d[1],d[2],d[2]*(l.h/l.w),d[3]||0];
+  const im=await loadImg(libImgUrl(k,true));if(im&&cv.isConnected)drawPlaced(x,im,l,pf,0,0,300,{alpha:.96,base:!MOCKS[g].noTint?base:null,mult:.45})}}
+async function stPhotos(){for(const cv of $$("#stBody [data-stph]")){const [g,sd]=cv.dataset.stph.split("|");const x=cv.getContext("2d");x.fillStyle="#f3f1ec";x.fillRect(0,0,300,300);const b=await sideBase(g,sd);if(b&&cv.isConnected)x.drawImage(b,0,0,300,300)}}
+function stRefresh(){SIDEBASE.clear();MOCKTINT.clear();HANGCACHE.clear();TH.clear();thumbsAll();if(sel)renderStage()}
+$("#stTabs").addEventListener("click",ev=>{const b=ev.target.closest("[data-stt]");if(b)stShow(b.dataset.stt)});
+$("#stClose").onclick=()=>$("#mSet").classList.remove("on");
+$("#stBody").addEventListener("input",ev=>{const t=ev.target;if(t.dataset.sk){S.settings[t.dataset.sk]=t.value;save("state");clearTimeout(stBody.t);stBody.t=setTimeout(()=>{TH.clear();thumbsAll()},600)}
+  if(t.dataset.sn){S.settings[t.dataset.sn]=+t.value;const h=t.closest("label").querySelector(".hint");if(h)h.textContent=t.dataset.sn==="mkAlpha"?Math.round(t.value*100)+"%":t.value;save("state");clearTimeout(stBody.t);stBody.t=setTimeout(stRefresh,600)}});
+const stBody=$("#stBody");
+$("#stBody").addEventListener("change",async ev=>{const t=ev.target;if(t.id==="stSample"){S.settings.sampleKey=t.value;save("state");stPreviews();return}
+  if(t.dataset.stup){const f=t.files[0];if(!f)return;toast("A CARREGAR…");const r=await storeImage(f);if(!r)return;S.settings.mockImg={...(S.settings.mockImg||{}),[t.dataset.stup.replace("|",":")]:r.url};save("state");stRefresh();stShow("ph");toast("FOTO GUARDADA")}});
+$("#stBody").addEventListener("click",ev=>{const e=ev.target.closest("[data-sted]");if(e){const [g,sd]=e.dataset.sted.split("|");openPlacement(stSample(),{def:true});PLC.gk=g;PLC.side=sd;PLC.box=plCur();plTabs();plDraw();return}
+  const d=ev.target.closest("[data-stdel]");if(d){const mi={...(S.settings.mockImg||{})};delete mi[d.dataset.stdel.replace("|",":")];S.settings.mockImg=mi;save("state");stRefresh();stShow("ph")}});
+{const _ap=plApplied;plApplied=function(){_ap();if($("#mSet").classList.contains("on")&&stTab==="pl")stShow("pl")}}
+$("#plClose").addEventListener("click",()=>{if($("#mSet").classList.contains("on")&&stTab==="pl")stShow("pl")});
+$("#hud").insertAdjacentHTML("beforeend",`<button class="btn sm alt" id="btnSet" title="Definições da app">⚙</button>`);$("#btnSet").onclick=stOpen;
 </script></body></html>
