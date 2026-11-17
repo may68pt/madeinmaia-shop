@@ -207,7 +207,7 @@ table.tb input{font-size:17px;padding:2px 5px}
 .mdgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}.mdcard{background:var(--blk);padding:6px;box-shadow:0 0 0 2px #3a3178}.mdcard canvas,.mdcard img{display:block;width:100%;height:auto;background:#e9e5dc}
 .mdcard .t{font:8px var(--pix);color:var(--yel);margin:6px 0 2px}.mdcard .h{font-size:15px;color:var(--dim)}.mdcard .row{gap:4px;margin-top:5px}
 .mdopts{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:10px;font-size:17px}.mdopts label{display:flex;gap:5px;align-items:center}.mdsw{display:inline-block;width:14px;height:14px;box-shadow:0 0 0 2px var(--blk)}
-#cfB{white-space:pre-line;max-height:60vh;overflow:auto}.modal.on{display:flex}.modal .box{width:min(520px,100%);max-height:90vh;overflow:auto}
+#cfB{white-space:pre-line;max-height:60vh;overflow:auto}.pg.flash .th{outline:4px solid var(--yel);outline-offset:3px;transition:outline-color .6s}.modal.on{display:flex}.modal .box{width:min(520px,100%);max-height:90vh;overflow:auto}
 #market{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;background:var(--bg)}
 #market.on{display:flex}
 #market .mh{display:flex;align-items:center;gap:8px;padding:10px 12px;flex-wrap:wrap}
@@ -388,7 +388,7 @@ table.tb input{font-size:17px;padding:2px 5px}
 </div>
 <div id="toast"></div>
 <div id="dropHint">LARGA PARA JUNTAR À MEDIA</div>
-<script>window.__MIMBO_VERSION="1.5.0";window.__MIMBO_NOTES=["Avisos de atualização: a app avisa quando há versão nova e mostra o que mudou", "Número da versão visível no topo e nas Definições"];window.__MIMBO_HISTORY=[{"v": "1.5.0", "date": "2026-11-17", "notes": ["Avisos de atualização: a app avisa quando há versão nova e mostra o que mudou", "Número da versão visível no topo e nas Definições"]}, {"v": "1.4.0", "date": "2026-11-17", "notes": ["Uma só base de dados para telemóvel, site e Mac — alterações juntam-se e aparecem nos outros aparelhos", "Design roda com a manga · tote só com frente · fotos das costas nas Definições", "GUARDAR aplica a colocação a todas as peças · ⚙ Definições da app"]}, {"v": "1.3.0", "date": "2026-11-17", "notes": ["Popup do design: definições, substituir imagem, eliminar/restaurar, colocação e gerações de mockups", "Pré-visualizações nítidas · app instalável"]}, {"v": "1.2.0", "date": "2026-11-17", "notes": ["Novo endereço madeinmaia.pt/mimbo-the-good-stuff-machine", "Editor de colocação na peça"]}];</script>
+<script>window.__MIMBO_VERSION="1.5.1";window.__MIMBO_NOTES=["Ao fechar o editor de página voltas ao sítio do catálogo de onde vieste (grelha ORDENAR incluída), com a página assinalada"];window.__MIMBO_HISTORY=[{"v": "1.5.1", "date": "2026-11-17", "notes": ["Ao fechar o editor de página voltas ao sítio do catálogo de onde vieste (grelha ORDENAR incluída), com a página assinalada"]}, {"v": "1.5.0", "date": "2026-11-17", "notes": ["Avisos de atualização: a app avisa quando há versão nova e mostra o que mudou", "Número da versão visível no topo e nas Definições"]}, {"v": "1.4.0", "date": "2026-11-17", "notes": ["Uma só base de dados para telemóvel, site e Mac — alterações juntam-se e aparecem nos outros aparelhos", "Design roda com a manga · tote só com frente · fotos das costas nas Definições", "GUARDAR aplica a colocação a todas as peças · ⚙ Definições da app"]}, {"v": "1.3.0", "date": "2026-11-17", "notes": ["Popup do design: definições, substituir imagem, eliminar/restaurar, colocação e gerações de mockups", "Pré-visualizações nítidas · app instalável"]}, {"v": "1.2.0", "date": "2026-11-17", "notes": ["Novo endereço madeinmaia.pt/mimbo-the-good-stuff-machine", "Editor de colocação na peça"]}];</script>
 <script>
 "use strict";
 /* ================= constants ================= */
@@ -1687,9 +1687,18 @@ const TPLPROPS=$("#tplProps"),TPLPROPS_HOME=TPLPROPS.parentNode;
 /* sorter */
 $("#btnSorter").onclick=()=>{const on=!$("#p-cat").classList.contains("sorter");$("#p-cat").classList.toggle("sorter",on);$("#p-cat").classList.remove("focus");$("#btnSorter").textContent=on?"✕ FECHAR":"▦ ORDENAR";if(on){$("#p-cat").dataset.m="pages";toast("ARRASTA PARA ORDENAR · ✎ PARA EDITAR")}else{renderStage();renderInspector()}};
 /* editor (focus) */
-function openEditor(id){$("#p-cat").classList.remove("sorter");$("#btnSorter").textContent="▦ ORDENAR";$("#p-cat").classList.add("focus");if(PANEL!=="cat")go("cat");
+/* remember where you were in the catalogue, so closing the editor brings you back there (not to the top) */
+let edFrom=null;
+function scrollersOf(el){const out=[];let n=el;while(n&&n!==document.body){if(n.scrollHeight>n.clientHeight+4&&/(auto|scroll)/.test(getComputedStyle(n).overflowY))out.push([n,n.scrollTop]);n=n.parentElement}out.push([document.scrollingElement,document.scrollingElement.scrollTop]);return out}
+function backToCatalogue(){const f=edFrom;edFrom=null;if(!f)return;if(f.sorter){$("#p-cat").classList.add("sorter");$("#btnSorter").textContent="✕ FECHAR";$("#p-cat").dataset.m="pages"}
+  const go2=()=>{const t=document.querySelector(`#sections .pg[data-id="${sel}"]`)||document.querySelector(`#sections .pg[data-id="${f.id}"]`);
+    if(t&&sel!==f.id)t.scrollIntoView({block:"center"});else{f.scroll.forEach(([n,y])=>{try{n.scrollTop=y}catch{}});if(t){const r=t.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)t.scrollIntoView({block:"center"})}}
+    if(t){t.classList.add("flash");setTimeout(()=>t.classList.remove("flash"),1200)}};
+  requestAnimationFrame(()=>requestAnimationFrame(go2));setTimeout(go2,250)}
+function openEditor(id){{const t=document.querySelector(`#sections .pg[data-id="${id}"]`);edFrom={id,sorter:$("#p-cat").classList.contains("sorter"),scroll:t?scrollersOf(t):[[document.scrollingElement,document.scrollingElement.scrollTop]]}}
+  $("#p-cat").classList.remove("sorter");$("#btnSorter").textContent="▦ ORDENAR";$("#p-cat").classList.add("focus");if(PANEL!=="cat")go("cat");
   layerMode=true;$("#btnLayerMode").classList.add("yel");tplMode=false;inspTab="page";select(id,{scroll:true});if(isMobile())$("#p-cat").dataset.m="page";setTimeout(renderStage,30)}
-function closeEditor(){$("#p-cat").classList.remove("focus");tplMode=false;layerMode=false;$("#btnLayerMode").classList.remove("yel");inspTab="page";if(isMobile())$("#p-cat").dataset.m="pages";setTimeout(()=>{renderStage();renderInspector()},30)}
+function closeEditor(){$("#p-cat").classList.remove("focus");tplMode=false;layerMode=false;$("#btnLayerMode").classList.remove("yel");inspTab="page";if(isMobile())$("#p-cat").dataset.m="pages";backToCatalogue();setTimeout(()=>{renderStage();renderInspector()},30)}
 function renderCrumb(){const c=$("#crumb"),focus=$("#p-cat").classList.contains("focus");c.classList.toggle("hidden",!focus);if(!focus)return;const p=S.pages[sel];if(!p)return;const T=tplOf(p);
   c.innerHTML=`<button data-cr="close">◀ CATÁLOGO</button><span>›</span><button data-cr="page" class="${tplMode?"":"on"}">✎ PÁGINA ${NUM[sel]}</button><span>›</span><button data-cr="model" class="${tplMode||inspTab==="model"?"on":""}">▦ MODELO: ${esc(T.name.toUpperCase())}</button><span style="flex:1"></span><button data-cr="prev">◀</button><button data-cr="next">▶</button>`}
 $("#crumb").onclick=ev=>{const b=ev.target.closest("[data-cr]");if(!b)return;const a=b.dataset.cr;
