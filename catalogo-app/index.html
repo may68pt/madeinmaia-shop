@@ -203,6 +203,10 @@ table.tb input{font-size:17px;padding:2px 5px}
 .modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
 .plbox{width:min(760px,100%)!important}.plwrap{background:#e9e5dc;box-shadow:0 0 0 3px var(--blk);touch-action:none}.plwrap canvas{display:block;width:100%;height:auto;cursor:grab}
 .pltabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}.pltabs button{font:8px var(--pix);padding:8px 9px;border:0;cursor:pointer;background:#2d2660;color:#cfc9f2;box-shadow:inset 0 -3px 0 #1b1640}.pltabs button.on{background:var(--yel);color:#14112b}.pltabs button i{font-style:normal;color:var(--grn)}
+.desbox{width:min(980px,100%)!important}#mPlace{z-index:70}#mConfirm,#mPrompt{z-index:80}
+.mdgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}.mdcard{background:var(--blk);padding:6px;box-shadow:0 0 0 2px #3a3178}.mdcard canvas,.mdcard img{display:block;width:100%;height:auto;background:#e9e5dc}
+.mdcard .t{font:8px var(--pix);color:var(--yel);margin:6px 0 2px}.mdcard .h{font-size:15px;color:var(--dim)}.mdcard .row{gap:4px;margin-top:5px}
+.mdopts{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:10px;font-size:17px}.mdopts label{display:flex;gap:5px;align-items:center}.mdsw{display:inline-block;width:14px;height:14px;box-shadow:0 0 0 2px var(--blk)}
 .modal.on{display:flex}.modal .box{width:min(520px,100%);max-height:90vh;overflow:auto}
 #market{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;background:var(--bg)}
 #market.on{display:flex}
@@ -359,6 +363,8 @@ table.tb input{font-size:17px;padding:2px 5px}
 </main>
 <nav class="mobnav" id="mobnav"></nav>
 
+<div class="modal" id="mDes"><div class="box desbox"><div class="bx-h"><h2 id="mdT">DESIGN</h2><div class="pltabs" id="mdTabs" style="margin:0 0 0 10px"><button data-mdt="set" class="on">⚙ DEFINIÇÕES</button><button data-mdt="pl">👕 COLOCAÇÃO</button><button data-mdt="gen">🖼 GERAÇÕES</button></div><span style="flex:1"></span><button class="btn xs alt" id="mdClose">✕</button></div>
+ <div class="bx-b"><div id="mdSet"><div class="row" id="mdActs" style="gap:6px;flex-wrap:wrap;margin-bottom:10px"></div></div><div id="mdPl" hidden></div><div id="mdGen" hidden></div></div></div></div>
 <div class="modal" id="mPlace"><div class="box plbox"><div class="bx-h"><h2 id="plTitle">COLOCAÇÃO</h2><button class="btn xs alt" id="plClose">✕</button></div><div class="bx-b">
   <div class="pltabs" id="plGar"></div><div class="pltabs" id="plSide"></div>
   <div class="plwrap"><canvas id="plCv" width="900" height="900"></canvas></div>
@@ -1817,7 +1823,7 @@ const _placements=placements;placements=function(){const m=_placements();for(con
 
 /* Designs tab: included / not included in the catalogue — counts, filter and one-click switch on every tile */
 let desInc="all";
-function incState(){const used=usedMap();const all=LIBLIST.filter(l=>!l.photo);const inc=all.filter(l=>isActive(l.key)&&used[l.key]);
+function incState(){const used=usedMap();const all=LIBLIST.filter(l=>!l.photo&&!l.deleted);const inc=all.filter(l=>isActive(l.key)&&used[l.key]);
   return {used,all,inc:new Set(inc.map(l=>l.key)),nIn:inc.length,nOut:all.length-inc.length,nInactive:all.filter(l=>!isActive(l.key)).length}}
 const _renderDesigns3=renderDesigns;
 renderDesigns=function(){_renderDesigns3();const st=incState(),grid=$("#desGrid");
@@ -1930,4 +1936,65 @@ const _renderDesDetail8=renderDesDetail;
 renderDesDetail=function(){_renderDesDetail8();const l=LIB[desSel];if(!l||l.photo)return;const n=Object.keys(l.place||{}).length;
   $("#desDetail").insertAdjacentHTML("afterbegin",`<button class="btn yel" id="dPlace" style="width:100%;margin-bottom:10px">👕 COLOCAÇÃO NA PEÇA${n?` · ${n} definida${n>1?"s":""}`:""}</button>`)};
 $("#desDetail").addEventListener("click",ev=>{if(ev.target.closest("#dPlace"))openPlacement(desSel)});
+
+/* ================= design popup: settings · placement on every support · generated mockups ================= */
+let mdTab="set";
+function mdOpen(){const l=LIB[desSel];if(!l||l.photo)return;const box=$("#desDetail");if(box&&box.parentNode!==$("#mdSet"))$("#mdSet").appendChild(box);
+  $("#mdT").textContent=(l.code?l.code+" · ":"")+(l.name||"");mdActs();$("#mDes").classList.add("on");mdShow(mdTab)}
+function mdShow(t){mdTab=t;$$("#mdTabs [data-mdt]").forEach(b=>b.classList.toggle("on",b.dataset.mdt===t));$("#mdSet").hidden=t!=="set";$("#mdPl").hidden=t!=="pl";$("#mdGen").hidden=t!=="gen";if(t==="pl")mdPlace();if(t==="gen")mdGen()}
+function mdActs(){const l=LIB[desSel];$("#mdActs").innerHTML=`<button class="btn xs alt" id="mdRep">🔄 SUBSTITUIR IMAGEM</button>`+(l.deleted?`<button class="btn xs go" id="mdRestore">↩ RESTAURAR DESIGN</button>`:`<button class="btn xs" id="mdDel" style="background:var(--red);color:#fff">🗑 ELIMINAR DESIGN</button>`)}
+$("#mdTabs").addEventListener("click",ev=>{const b=ev.target.closest("[data-mdt]");if(b)mdShow(b.dataset.mdt)});
+$("#mdClose").onclick=()=>$("#mDes").classList.remove("on");
+$("#mdSet").addEventListener("click",ev=>{const k=desSel,l=LIB[k];if(!l)return;
+  if(ev.target.closest("#mdRep"))$("#dRep")?.click();
+  if(ev.target.closest("#mdDel"))confirmDo("ELIMINAR DESIGN?",`${l.code||""} ${l.name||""} sai do catálogo e da lista de designs. Podes restaurar no filtro 🗑 ELIMINADOS.`,()=>{if(isActive(k))setActive(k,false);setOvr(k,{deleted:true});$("#mDes").classList.remove("on");renderDesigns();toast("DESIGN ELIMINADO")});
+  if(ev.target.closest("#mdRestore")){setOvr(k,{deleted:false});mdActs();renderDesigns();toast("DESIGN RESTAURADO · ATIVA-O PARA VOLTAR AO CATÁLOGO")}});
+/* open on tile click (not on the include switch or mockup tiles) */
+$("#desGrid").addEventListener("click",ev=>{if(ev.target.closest("[data-inc],[data-mock],[data-scn]"))return;const t=ev.target.closest("[data-dk]");if(t&&LIB[t.dataset.dk]&&!LIB[t.dataset.dk].photo){mdTab="set";setTimeout(mdOpen,0)}});
+/* deleted designs: hidden from the grid unless the 🗑 filter is on */
+const _renderDesigns9=renderDesigns;
+renderDesigns=function(){_renderDesigns9();const bar=$("#incBar");const nDel=LIBLIST.filter(l=>l.deleted).length;
+  if(bar&&!bar.querySelector('[data-inc-f="del"]'))bar.insertAdjacentHTML("beforeend",`<button data-inc-f="del" class="${desInc==="del"?"on":""}">🗑 ELIMINADOS ${nDel}</button>`);
+  $$("#desGrid [data-dk]").forEach(el=>{const l=LIB[el.dataset.dk];if(!l)return;if(desInc==="del")el.style.display=l.deleted?"":"none";else if(l.deleted)el.style.display="none"})};
+/* ---- one generated mockup: garment photo tinted + design at its saved placement ---- */
+async function genMock(key,gk,side,hex,size=1200,hanger=false){const l=LIB[key];if(!l)return null;
+  if(gk==="tshirt"&&side==="front"){const c=await hangMock(hex,key,{size,hanger,side});if(!c)return null;if(hanger){const o=document.createElement("canvas");o.width=c.width;o.height=c.height;const ox=o.getContext("2d");ox.fillStyle="#f3f1ec";ox.fillRect(0,0,o.width,o.height);ox.drawImage(c,0,0);return o}const o=document.createElement("canvas");o.width=o.height=size;const ox=o.getContext("2d");ox.fillStyle="#f3f1ec";ox.fillRect(0,0,size,size);ox.drawImage(c,0,c.height-size,size,size,0,0,size,size);return o}
+  const g=MOCKS[gk],cv=document.createElement("canvas");cv.width=cv.height=size;const x=cv.getContext("2d");x.imageSmoothingQuality="high";x.fillStyle="#f3f1ec";x.fillRect(0,0,size,size);
+  const base=MOCKIMG[gk]||(MOCKIMG[gk]=await loadImg("designs/assets/mock/"+g.file+".webp"));const t=g.noTint?base:await tintMock(gk,hex,size);
+  x.save();if(side==="back"){x.translate(size,0);x.scale(-1,1)}if(t)x.drawImage(t,0,0,size,size);x.restore();
+  const im=await loadImg(libImgUrl(key,true));if(im){const pl=placeBox(key,gk,side),px=size*pl[0]/100,py=size*pl[1]/100,pw=size*pl[2]/100,ph=size*pl[3]/100;let dw=pw,dh=pw*l.h/l.w;if(dh>ph){dh=ph;dw=ph*l.w/l.h}
+    const ax=px+(pw-dw)/2;x.save();x.globalAlpha=.96;drawArt(x,im,l,ax,py,dw,dh);x.restore();
+    if(base&&!g.noTint){x.save();x.beginPath();x.rect(ax,py,dw,dh);x.clip();x.globalCompositeOperation="multiply";x.globalAlpha=.45;if(side==="back"){x.translate(size,0);x.scale(-1,1)}x.drawImage(base,0,0,size,size);x.restore()}}
+  return cv}
+function mdCols(){const l=LIB[desSel];return ((l.colors&&l.colors.length?l.colors:defColors(l))||[]).filter(c=>c&&c[1]).slice(0,3)}
+/* ---- placement tab: every support with a live preview, size and an edit button ---- */
+async function mdPlace(){const k=desSel,l=LIB[k],col=(mdCols()[0]||["White","#ffffff"])[1];const items=[];Object.keys(MOCKS).forEach(g=>sidesOf(g).forEach(sd=>items.push([g,sd])));
+  $("#mdPl").innerHTML=`<p class="hint" style="margin:0 0 8px">Onde e com que tamanho o design é impresso em cada peça. ● = colocação própria guardada; sem ● usa a posição padrão. Estas posições alimentam as sugestões de cor, os mockups dos modelos e as gerações.</p><div class="mdgrid">${items.map(([g,sd])=>{const pl=placeBox(k,g,sd),own=l.place&&l.place[g+":"+sd];
+    return `<div class="mdcard"><canvas data-mdpv="${g}|${sd}" width="300" height="300"></canvas><div class="t">${esc(MOCKS[g].name.toUpperCase())} · ${PL_SIDES[sd]} ${own?"<span style='color:var(--grn)'>●</span>":""}</div><div class="h">≈ ${Math.round(pl[2]*(PL_CM[g]||.8))} × ${Math.round(pl[3]*(PL_CM[g]||.8))} cm</div><div class="row"><button class="btn xs yel" data-mded="${g}|${sd}">✎ EDITAR</button></div></div>`}).join("")}</div>`;
+  for(const cv of $$("#mdPl [data-mdpv]")){const [g,sd]=cv.dataset.mdpv.split("|");const m=await genMock(k,g,sd,col,300);if(m&&cv.isConnected)cv.getContext("2d").drawImage(m,0,0,300,300)}}
+$("#mdPl").addEventListener("click",ev=>{const b=ev.target.closest("[data-mded]");if(!b)return;const [g,sd]=b.dataset.mded.split("|");openPlacement(desSel);PLC.gk=g;PLC.side=sd;PLC.box=plCur();plTabs();plDraw()});
+{const _ap=plApplied;plApplied=function(){_ap();if($("#mDes").classList.contains("on")&&mdTab==="pl")mdPlace()}}
+$("#plClose").addEventListener("click",()=>{if($("#mDes").classList.contains("on")&&mdTab==="pl")mdPlace()});
+/* ---- generations tab: render mockups in chosen colours / garments / sides, download or keep them ---- */
+let mdOut=[];
+function mdGen(){const k=desSel,l=LIB[k],sug=mdCols(),gens=l.gens||[];const sides=["front","back","sleeveL","sleeveR"];
+  $("#mdGen").innerHTML=`<div class="mdopts"><b class="pix" style="font-size:8px;width:100%">CORES</b>${sug.map(c=>`<label><input type="checkbox" data-gc="${c[1]}" checked><span class="mdsw" style="background:${c[1]}"></span>${esc(c[0])}</label>`).join("")}<label><input type="checkbox" id="gAll"> todas as ${COLORS.length} cores</label></div>
+   <div class="mdopts"><b class="pix" style="font-size:8px;width:100%">PEÇAS E LADOS</b>${Object.entries(MOCKS).map(([g,m])=>`<label><input type="checkbox" data-gg="${g}" ${g==="tshirt"?"checked":""}> ${esc(m.name)}</label>`).join("")}<span style="width:20px"></span>${sides.map(sd=>`<label><input type="checkbox" data-gs="${sd}" ${sd==="front"?"checked":""}> ${PL_SIDES[sd]}</label>`).join("")}<label><input type="checkbox" id="gHang"> cabide (t-shirt frente)</label></div>
+   <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:10px"><button class="btn xs yel" id="gGo">▶ GERAR</button><button class="btn xs alt" id="gZip" ${mdOut.length?"":"disabled"}>⬇ DESCARREGAR TUDO</button><button class="btn xs go" id="gKeep" ${mdOut.length?"":"disabled"}>💾 GUARDAR NO DESIGN</button><span class="hint" id="gMsg"></span></div>
+   <div class="mdgrid" id="gOut">${mdOut.filter(o=>o.key===k).map((o,i)=>`<div class="mdcard"><img src="${o.url}"><div class="t">${esc(o.label)}</div><div class="row"><button class="btn xs alt" data-gdl="${i}">⬇</button></div></div>`).join("")}</div>
+   <h3 class="pix" style="font-size:9px;margin:16px 0 8px">GUARDADAS NESTE DESIGN · ${gens.length}</h3><div class="mdgrid">${gens.map((g,i)=>`<div class="mdcard"><img src="${g.url}" loading="lazy"><div class="t">${esc(g.label||"")}</div><div class="row"><a class="btn xs alt" href="${g.url}" download target="_blank">⬇</a><button class="btn xs alt" data-gdel="${i}">🗑</button></div></div>`).join("")||`<p class="hint">Ainda nada guardado.</p>`}</div>`}
+$("#mdGen").addEventListener("click",async ev=>{const k=desSel,l=LIB[k];if(!l)return;
+  if(ev.target.closest("#gGo")){const all=$("#gAll").checked,cols=all?COLORS:mdCols().filter(c=>$(`[data-gc="${c[1]}"]`)?.checked),gs=$$("#mdGen [data-gg]").filter(i=>i.checked).map(i=>i.dataset.gg),sds=$$("#mdGen [data-gs]").filter(i=>i.checked).map(i=>i.dataset.gs),hang=$("#gHang").checked;
+    const jobs=[];cols.forEach(c=>gs.forEach(g=>sds.filter(sd=>sidesOf(g).includes(sd)).forEach(sd=>jobs.push([c,g,sd]))));if(!jobs.length){toast("ESCOLHE CORES, PEÇAS E LADOS");return}
+    mdOut=mdOut.filter(o=>o.key!==k);let n=0;for(const [c,g,sd] of jobs){$("#gMsg").textContent=`A gerar ${++n}/${jobs.length}…`;const cv=await genMock(k,g,sd,c[1],1200,hang&&g==="tshirt"&&sd==="front");if(!cv)continue;
+      const blob=await new Promise(r=>cv.toBlob(r,"image/jpeg",.92));const label=`${MOCKS[g].name} · ${PL_SIDES[sd]} · ${c[0]}`;const fn=`${(l.code||k)}_${g}-${sd}_${String(c[0]).toLowerCase().replace(/[^a-z0-9]+/g,"-")}.jpg`;
+      mdOut.push({key:k,blob,url:URL.createObjectURL(blob),label,fn,g,sd,hex:c[1]})}
+    mdGen();$("#gMsg").textContent=`${mdOut.filter(o=>o.key===k).length} mockups prontos.`;return}
+  const dl=ev.target.closest("[data-gdl]");if(dl){const o=mdOut.filter(o=>o.key===k)[+dl.dataset.gdl];if(o)downloadFile(o.fn,o.blob);return}
+  if(ev.target.closest("#gZip")){const mine=mdOut.filter(o=>o.key===k);if(window.JSZip){const z=new JSZip();mine.forEach(o=>z.file(o.fn,o.blob));downloadFile(`${l.code||k}_mockups.zip`,await z.generateAsync({type:"blob"}))}else for(const o of mine)await downloadFile(o.fn,o.blob);return}
+  if(ev.target.closest("#gKeep")){const mine=mdOut.filter(o=>o.key===k);const gens=[...(l.gens||[])];let n=0;
+    for(const o of mine){$("#gMsg").textContent=`A guardar ${++n}/${mine.length}…`;const r=await storeImage(new File([o.blob],o.fn,{type:"image/jpeg"}));if(r&&!/^blob:/.test(r.url))gens.push({url:r.url,label:o.label,g:o.g,sd:o.sd,hex:o.hex,at:Date.now()})}
+    setOvr(k,{gens});mdOut=mdOut.filter(o=>o.key!==k);mdGen();toast(`${n} MOCKUPS GUARDADOS`);return}
+  const del=ev.target.closest("[data-gdel]");if(del){const gens=[...(l.gens||[])];gens.splice(+del.dataset.gdel,1);setOvr(k,{gens});mdGen()}});
+$("#mdGen").addEventListener("change",ev=>{if(ev.target.id==="gAll")$$("#mdGen [data-gc]").forEach(i=>i.disabled=ev.target.checked)});
 </script></body></html>
