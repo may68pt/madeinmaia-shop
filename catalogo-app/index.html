@@ -150,6 +150,12 @@ input[type=color]{width:42px;height:32px;border:0;padding:0;background:none;flex
 .li img{display:block;width:100%;aspect-ratio:1;object-fit:contain;padding:8px}
 .li .cap{position:absolute;left:0;right:0;bottom:0;padding:2px 4px;background:#000c;font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .li .used{position:absolute;top:3px;left:3px;font:7px var(--pix);background:var(--blk);color:var(--grn);padding:3px}
+.li .inc{position:absolute;bottom:26px;right:4px;width:26px;height:26px;border:0;cursor:pointer;font:11px var(--pix);display:grid;place-items:center;box-shadow:0 0 0 2px var(--blk)}
+.li .inc.on{background:var(--grn);color:#0a0818}.li .inc.off{background:var(--red);color:#fff}
+.li.out img{opacity:.35;filter:grayscale(.8)}.li.out .cap{color:#ff8a9d}
+.incbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px;font:16px var(--mono,VT323),monospace}
+.incbar .k{background:var(--blk);padding:4px 8px;box-shadow:0 0 0 2px #3a3178}.incbar b{font:10px var(--pix)}
+.incbar button{font:8px var(--pix);padding:7px 8px;border:0;cursor:pointer;background:#2d2660;color:#cfc9f2;box-shadow:inset 0 -3px 0 #1b1640}.incbar button.on{background:var(--yel);color:#14112b}
 .li .hot{position:absolute;top:3px;right:3px;font:7px var(--pix);background:var(--brand);color:#fff;padding:3px}
 .li .plus{position:absolute;bottom:22px;right:3px;font:9px var(--pix);background:var(--brand);color:#fff;border:0;width:26px;height:26px;box-shadow:0 0 0 2px var(--blk);display:none}
 .li:hover .plus{display:block}
@@ -1780,6 +1786,23 @@ renderDesigns=function(){_renderDesigns2();const cats=$("#desCats");if(!cats.que
   else $$("#desGrid [data-dk]").forEach(el=>{if(LIB[el.dataset.dk]?.inactive){el.style.opacity=.45;el.querySelector(".cap").textContent="○ "+el.querySelector(".cap").textContent}})};
 /* inactive designs are invisible to market, QR and sales placement */
 const _placements=placements;placements=function(){const m=_placements();for(const k of [...m.keys()])if(!isActive(k))m.delete(k);return m};
+
+/* Designs tab: included / not included in the catalogue — counts, filter and one-click switch on every tile */
+let desInc="all";
+function incState(){const used=usedMap();const all=LIBLIST.filter(l=>!l.photo);const inc=all.filter(l=>isActive(l.key)&&used[l.key]);
+  return {used,all,inc:new Set(inc.map(l=>l.key)),nIn:inc.length,nOut:all.length-inc.length,nInactive:all.filter(l=>!isActive(l.key)).length}}
+const _renderDesigns3=renderDesigns;
+renderDesigns=function(){_renderDesigns3();const st=incState(),grid=$("#desGrid");
+  let bar=$("#incBar");if(!bar){grid.parentNode.insertAdjacentHTML("beforebegin",`<div class="incbar" id="incBar"></div>`);bar=$("#incBar")}
+  bar.innerHTML=`<span class="k">● NO CATÁLOGO <b style="color:var(--grn)">${st.nIn}</b></span><span class="k">○ FORA <b style="color:var(--red)">${st.nOut}</b></span><span class="k">TOTAL <b>${st.all.length}</b></span>
+    <span style="flex:1"></span>${[["all","TODOS"],["in","● INCLUÍDOS"],["out","○ NÃO INCLUÍDOS"]].map(([v,l])=>`<button data-inc-f="${v}" class="${desInc===v?"on":""}">${l}</button>`).join("")}`;
+  $$("#desGrid [data-dk]").forEach(el=>{const k=el.dataset.dk,l=LIB[k];if(!l)return;if(l.photo){if(desInc!=="all")el.style.display="none";return}const on=st.inc.has(k);
+    el.classList.toggle("out",!on);el.style.opacity="";
+    el.insertAdjacentHTML("beforeend",`<button class="inc ${on?"on":"off"}" data-inc="${k}" title="${on?"Incluído no catálogo · clica para tirar":"Fora do catálogo · clica para incluir"}">${on?"✓":"✕"}</button>`);
+    if(desInc==="in"&&!on||desInc==="out"&&on)el.style.display="none"})};
+document.addEventListener("click",ev=>{const f=ev.target.closest("[data-inc-f]");if(f){desInc=f.dataset.incF;renderDesigns();return}
+  const b=ev.target.closest("[data-inc]");if(!b)return;ev.stopPropagation();ev.preventDefault();const k=b.dataset.inc,l=LIB[k];if(!l)return;
+  const st=incState();if(st.inc.has(k))setActive(k,false);else setActive(k,true)},true);
 
 
 /* =====================================================================
