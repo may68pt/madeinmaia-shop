@@ -7,7 +7,7 @@ import { authorized, catalogoDir } from "@/lib/catalogo-auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const APP_DIR = path.resolve(process.cwd(), "catalogo-app");
-const TYPES: Record<string, string> = { ".js": "text/javascript; charset=utf-8", ".html": "text/html; charset=utf-8", ".json": "application/json", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".webmanifest": "application/manifest+json", ".js": "text/javascript" };
+const TYPES: Record<string, string> = { ".html": "text/html; charset=utf-8", ".json": "application/json", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".webmanifest": "application/manifest+json", ".js": "text/javascript" };
 const PUBLIC = new Set(["sw.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "favicon.png"]);
 
 const LOGIN = `<!DOCTYPE html><html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="MiMBO"><meta name="theme-color" content="#14112b">
