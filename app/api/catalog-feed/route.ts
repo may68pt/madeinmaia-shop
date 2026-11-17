@@ -5,16 +5,12 @@ import { NextResponse } from "next/server";
 import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { analyticsEvents, orders, products } from "@/db/schema";
-import { sessionFromRequest } from "@/lib/catalogo-auth";
+import { sessionFromRequest, studioHeaders } from "@/lib/catalogo-auth";
 
 export const dynamic = "force-dynamic";
 
 function authenticated(request: Request) {
-  if (sessionFromRequest(request)) return true;
-  const url = new URL(request.url);
-  const user = request.headers.get("x-studio-user") || url.searchParams.get("user");
-  const key = request.headers.get("x-studio-key") || url.searchParams.get("key");
-  return Boolean(process.env.STUDIO_PASSWORD && user === (process.env.STUDIO_USERNAME || "madeinmaia") && key === process.env.STUDIO_PASSWORD);
+  return Boolean(sessionFromRequest(request)) || studioHeaders(request);
 }
 
 type Day = { units: number; revenue: number; orders: number; views: number; cart: number };

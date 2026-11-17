@@ -29,7 +29,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
   if (rel.includes("..") || rel.startsWith(".")) return new Response("Not found", { status: 404 });
   const ok = authorized(request);
   if (!ok && !PUBLIC.has(rel)) {
-    if (rel === "index.html") return new Response(LOGIN, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
+    if (rel === "index.html") return new Response(LOGIN, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" } });
     return NextResponse.json({ error: "login" }, { status: 401 });
   }
   const file = parts[0] === "media" ? catalogoDir("media", path.basename(rel)) : path.join(APP_DIR, rel);
@@ -38,6 +38,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
     const bytes = await readFile(file);
     const ext = path.extname(file).toLowerCase();
     const immutable = /\/(designs|media)\//.test("/" + rel);
-    return new Response(bytes, { headers: { "content-type": TYPES[ext] || "application/octet-stream", "cache-control": rel === "index.html" ? "no-store" : immutable ? "private, max-age=2592000" : "private, max-age=3600", "x-content-type-options": "nosniff" } });
+    return new Response(bytes, { headers: { "content-type": TYPES[ext] || "application/octet-stream", "cache-control": rel === "index.html" ? "no-store" : immutable ? "private, max-age=2592000" : "private, max-age=3600", "x-content-type-options": "nosniff", "x-frame-options": "DENY", "x-robots-tag": "noindex, nofollow", ...(parts[0] === "media" ? { "content-security-policy": "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox" } : {}) } });
   } catch { return new Response("Not found", { status: 404 }); }
 }

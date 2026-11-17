@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rateLimited } from "@/lib/rate-limit";
 import { checkCredentials, makeSession, sessionCookie, CATALOGO_COOKIE } from "@/lib/catalogo-auth";
 
 export const runtime = "nodejs";
@@ -6,6 +7,7 @@ export const dynamic = "force-dynamic";
 const tries = new Map<string, { n: number; t: number }>();
 
 export async function POST(request: Request) {
+  if (await rateLimited(request, "catalogo-login", 5)) return NextResponse.json({ error: "Demasiadas tentativas. Espera um minuto." }, { status: 429 });
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   const t = tries.get(ip); const now = Date.now();
   if (t && now - t.t < 15 * 60_000 && t.n >= 8) return NextResponse.json({ error: "Demasiadas tentativas. Espera 15 minutos." }, { status: 429 });

@@ -3,9 +3,9 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import path from "node:path";
 
 export const CATALOGO_COOKIE = "mimcat";
-const MAX_AGE = 60 * 24 * 3600; // 60 days
+const MAX_AGE = 30 * 24 * 3600; // 30 days
 
-function secret() { return process.env.CATALOGO_SECRET || process.env.STUDIO_PASSWORD || ""; }
+function secret() { const p = process.env.STUDIO_PASSWORD || ""; return p ? (process.env.CATALOGO_SECRET || "") + "|" + p : ""; }
 function sign(payload: string) { return createHmac("sha256", secret()).update(payload).digest("base64url"); }
 function same(a: string, b: string) { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
 
@@ -29,9 +29,16 @@ export function sessionFromRequest(request: Request) {
   return readSession(m ? decodeURIComponent(m.slice(CATALOGO_COOKIE.length + 1)) : null);
 }
 export function studioHeaders(request: Request) {
-  return Boolean(process.env.STUDIO_PASSWORD && request.headers.get("x-studio-user") === (process.env.STUDIO_USERNAME || "madeinmaia") && request.headers.get("x-studio-key") === process.env.STUDIO_PASSWORD);
+  return checkCredentials(request.headers.get("x-studio-user") || "", request.headers.get("x-studio-key") || "");
 }
-export function authorized(request: Request) { return Boolean(sessionFromRequest(request)) || studioHeaders(request); }
+/* Cookie sessions only count for same-site requests that change data (blocks cross-site form/CSRF tricks). */
+function sameOrigin(request: Request) {
+  if (["GET", "HEAD"].includes(request.method)) return true;
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+  try { return new URL(origin).host === (request.headers.get("x-forwarded-host") || request.headers.get("host")); } catch { return false; }
+}
+export function authorized(request: Request) { return (Boolean(sessionFromRequest(request)) && sameOrigin(request)) || studioHeaders(request); }
 export function sessionCookie(token: string) {
   return `${CATALOGO_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${MAX_AGE}`;
 }
