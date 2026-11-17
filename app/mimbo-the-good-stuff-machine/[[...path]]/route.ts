@@ -37,6 +37,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
     const bytes = await readFile(file);
     const ext = path.extname(file).toLowerCase();
     const immutable = /\/(designs|media)\//.test("/" + rel);
-    return new Response(bytes, { headers: { "content-type": TYPES[ext] || "application/octet-stream", "cache-control": rel === "index.html" || rel === "sw.js" || rel === "manifest.webmanifest" ? "no-cache" : immutable ? "private, max-age=2592000" : "private, max-age=3600", "x-content-type-options": "nosniff", "x-frame-options": "DENY", "x-robots-tag": "noindex, nofollow", ...(parts[0] === "media" ? { "content-security-policy": "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox" } : {}) } });
+    return new Response(bytes, { headers: { "content-type": TYPES[ext] || "application/octet-stream", "cache-control": rel === "index.html" || rel === "version.json" || rel === "sw.js" || rel === "manifest.webmanifest" ? "no-cache" : immutable ? "private, max-age=2592000" : "private, max-age=3600", "x-content-type-options": "nosniff", "x-frame-options": "DENY", "x-robots-tag": "noindex, nofollow", ...(parts[0] === "media" ? { "content-security-policy": "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox" } : {}) } });
   } catch { return new Response("Not found", { status: 404 }); }
 }

@@ -1,8 +1,9 @@
 // MiMBO · The Good Stuff Machine — service worker. Makes the catalogue installable as an app.
 // Network first: the catalogue always shows the latest; a small offline note if the connection drops.
-const CACHE = "mimbo-shell-v1";
+const CACHE = "mimbo-shell-v2";
 const BASE = "/mimbo-the-good-stuff-machine/";
 self.addEventListener("install", (e) => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then((c) => c.addAll([BASE + "icon-192.png", BASE + "icon-512.png"])).catch(() => {})); });
+self.addEventListener("message", (e) => { if (e.data === "skip") self.skipWaiting(); });
 self.addEventListener("activate", (e) => { e.waitUntil(self.clients.claim()); });
 self.addEventListener("fetch", (e) => {
   const r = e.request;
