@@ -549,8 +549,8 @@ function qrFor(p,no,field="qr",dkey="d"){const v=(p[field]||"").trim();const cod
 function tplOf(p){const k=typeof p==="string"?p:p.tpl;if(TPL[k])return TPL[k];const u=(S&&S.tpls&&S.tpls[k])||BP[k];if(u)return {name:u.name,group:u.group||"c",desc:u.desc||(u.bp?"Modelo base":"Modelo teu"),fields:customFields(u),custom:u,bp:!!u.bp};return TPL.texto}
 const tplDef=k=>(S&&S.tpls&&S.tpls[k])||BP[k]||null;
 function customFields(u){const f=[];if(u.themeable!==false)f.push(["theme","Cor da página","theme"]);(u.slots||[]).forEach((sl,i)=>f.push([sl,"Design "+(i+1),"design"]));if((u.els||[]).some(e=>e.type==="qr"&&!e.url))f.push(["qr","Link do QR (vazio = auto)","qr"]);
-  const seen=new Set();(u.els||[]).forEach(e=>{String(e.text||"").replace(/\{f:([a-z0-9_]+)\}/gi,(m,k)=>{if(!seen.has(k)){seen.add(k);f.push([k,k.replace(/_/g," "),"area"])}})});const E=u.els||[];if(E.some(e=>(e.type==="colors"&&e.slot!=="d2")||(e.type==="mockup"&&/^c[1-3]$/.test(e.color||"c1")&&e.slot!=="d2")))f.push(["colors","Try these colours"+(u.slots&&u.slots.length>1?" (1)":""),"colors"]);
-  if(E.some(e=>(e.type==="colors"||e.type==="mockup")&&e.slot==="d2"))f.push(["colors2","Cores (2)","colors"]);if(E.some(e=>e.type==="scene"))f.push(["scene","Cena (foto)","scene"]);if(E.some(e=>e.type==="mockup"))f.push(["garment","Peça nos mockups","garment"]);return f}
+  const seen=new Set();(u.els||[]).forEach(e=>{String(e.text||"").replace(/\{f:([a-z0-9_]+)\}/gi,(m,k)=>{if(!seen.has(k)){seen.add(k);f.push([k,k.replace(/_/g," "),"area"])}})});const E=u.els||[];if(E.some(e=>(e.type==="colors"&&e.slot!=="d2")||(e.type==="mockup"&&/^c[1-3]$/.test(e.color||"c1")&&e.slot!=="d2")||(e.type==="shirts"&&e.slot!=="d2")))f.push(["colors","Try these colours"+(u.slots&&u.slots.length>1?" (1)":""),"colors"]);
+  if(E.some(e=>(e.type==="colors"||e.type==="mockup"||e.type==="shirts")&&e.slot==="d2"))f.push(["colors2","Cores (2)","colors"]);if(E.some(e=>e.type==="scene"))f.push(["scene","Cena (foto)","scene"]);if(E.some(e=>e.type==="mockup"||e.type==="shirts"))f.push(["garment","Peça nos mockups","garment"]);return f}
 function pageImages(p){const ks=[];DESIGN_FIELDS.forEach(f=>{if(p[f]&&LIB[p[f]])ks.push(p[f])});const u=tplDef(p.tpl);[...(u?u.els:[]),...(p.layers||[])].forEach(el=>{if(el.type==="image"&&el.src&&LIB[el.src])ks.push(el.src);if((el.type==="mockup"||el.type==="scene")){const k=LIB[el.src]?el.src:p[el.slot||"d"];if(k&&LIB[k])ks.push(k)}});return [...new Set(ks)]}
 function svgUrl(id){const v=(S.svgLib||{})[id]||BUILTIN_SVG[id];if(!v)return null;if(v.url)return v.url;return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(v.svg)}
 function svgTinted(id,col){const v=(S.svgLib||{})[id]||BUILTIN_SVG[id];if(!v||!v.svg)return svgUrl(id);if(!col)return svgUrl(id);
@@ -560,6 +560,8 @@ async function renderPage(canvas,id,o={}){const p=S.pages[id];if(!p)return [];co
   const u=tplDef(p.tpl);const els=[...(u?u.els:[]),...(p.layers||[])];const T0=themeOf(u&&u.themeable===false?{theme:u.theme}:p);
   await Promise.all(els.filter(el=>el.type==="svg").map(async el=>{const col=el.color?colorOf(el.color,{T:T0,sec:secOf(id)}):null;imgs["svg:"+el.id]=await loadImg(svgTinted(el.svg,col))}));
   await Promise.all(els.filter(el=>el.type==="mockup").map(async el=>{imgs["mk:"+el.id]=await tintMock(garOf(el,p),mockColor(el,p))}));
+  await Promise.all(els.filter(el=>el.type==="shirts").flatMap(el=>{const gk=garOf(el,p),{sug,rest}=shirtSets(el,p);
+    return [...sug.map(async c=>{imgs["sh:"+gk+"|"+c[1]+"|b"]=await tintMock(gk,c[1],640)}),...(el.rest===false?[]:rest.map(async c=>{imgs["sh:"+gk+"|"+c[1]+"|s"]=await tintMock(gk,c[1],240)}))]}));
   await Promise.all(els.filter(el=>el.type==="scene").map(async el=>{const sc=scOf(el,p);imgs["sb:"+sc]=await loadImg("designs/assets/scene/"+sc+"-base.webp");imgs["so:"+sc]=await loadImg("designs/assets/scene/"+sc+"-over.webp")}));
   canvas.width=Math.round((W+2*b)*s);canvas.height=Math.round((H+2*b)*s);const ctx=canvas.getContext("2d");
   ctx.setTransform(s,0,0,s,b*s,b*s);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";
@@ -601,6 +603,22 @@ function drawEls(c,e,els){for(const el of els){if(el.hidden)continue;c.save();c.
     if(b0&&sc){c.save();c.beginPath();c.rect(x,y,w,h);c.clip();const k=Math.max(w/sc.w,h/sc.h),dw=sc.w*k,dh=sc.h*k,dx=x+(w-dw)/2,dy=y+(h-dh)/2;c.drawImage(b0,dx,dy,dw,dh);
       const key=LIB[el.src]?el.src:e.p[el.slot||"d"],im=e.imgs[key],l=LIB[key];if(im&&l){const [bx,by,bw,bh]=sc.art;let aw=bw,ah=aw*l.h/l.w;if(ah>bh){ah=bh;aw=ah*l.w/l.h}c.drawImage(im,dx+(bx+(bw-aw)/2)*k,dy+(by+(bh-ah)/2)*k,aw*k,ah*k)}
       if(o0)c.drawImage(o0,dx,dy,dw,dh);c.restore()}else{c.fillStyle="#333";c.fillRect(x,y,w,h)}}
+  else if(el.type==="shirts"){const gk=garOf(el,e.p),{sug,rest}=shirtSets(el,e.p),sc=c.getTransform().a||1,ink=colorOf(el.lcolor||"ink",e);
+    const hasRest=el.rest!==false&&rest.length,sh=hasRest?h*(+el.strip||.34):0,sy=y+h-sh;
+    if(hasRest){const n=rest.length,cw=w/n,bg=el.bg||"colour";
+      rest.forEach(([nm,hx],i)=>{const cx=x+i*cw;if(bg==="colour"){c.fillStyle=hx;c.fillRect(cx,sy,cw+.06,sh)}else if(bg==="band"){c.fillStyle=hx;c.fillRect(cx,sy+sh*.84,cw+.06,sh*.16)}
+        const im=e.imgs["sh:"+gk+"|"+hx+"|s"];if(!im)return;const S1=Math.min(sh*(bg==="band"?.98:1.08),cw*1.5);c.save();
+        if(bg==="colour"){c.shadowColor=lumHex(hx)<90?"rgba(255,255,255,.28)":"rgba(0,0,0,.32)";c.shadowBlur=1.4*sc;c.shadowOffsetY=.25*sc}
+        c.drawImage(im,cx+(cw-S1)/2,sy+(bg==="band"?(sh*.84-S1)/2:(sh-S1)/2),S1,S1);c.restore()})}
+    const k=Math.max(1,sug.length),B=Math.max(8,Math.min(h-sh*.4,(w*(+el.big||.5))/(k*.86+.14))),step=B*.86;
+    sug.forEach((col,i)=>{const im=e.imgs["sh:"+gk+"|"+col[1]+"|b"];const bx=x+i*step,by=Math.max(y,sy+sh*.6-B);
+      if(el.card!==false){c.save();c.fillStyle=e.T&&e.T.bg?e.T.bg:"#fff";c.globalAlpha=(el.opacity??1)*.92;c.shadowColor="rgba(0,0,0,.22)";c.shadowBlur=2*sc;c.beginPath();const r=B*.07;c.roundRect?c.roundRect(bx+B*.06,by+B*.06,B*.88,B*.88,r):c.rect(bx+B*.06,by+B*.06,B*.88,B*.88);c.fill();c.restore()}
+      if(im){c.drawImage(im,bx,by,B,B);if(el.art!==false)garmentArt(c,e,gk,el,bx,by,B)}
+      if(el.names!==false)txt(c,String(col[0]).toUpperCase(),bx+B/2,by+B*(el.card!==false?.9:.99),{f:"monob",size:Math.max(1.3,B*.065),color:el.card!==false?colorOf("ink",e):ink,align:"center",maxW:B*.8})});
+    if(el.title!==false&&sug.length){const tx=x+(k-1)*step+B+3,tw=x+w-tx;if(tw>18){const ty=Math.max(y,sy+sh*.6-B)+B*.42;
+      txt(c,tokens(el.text||S.settings.lblColors||"TRY THESE COLOURS",e,el.slot),tx,ty,{f:"monob",size:2.3,color:ink,maxW:tw});
+      txt(c,sug.map(x=>x[0]).join(" · "),tx,ty+3.4,{f:"mono",size:2,color:ink,maxW:tw});
+      if(hasRest)txt(c,"+ "+rest.length+" "+(el.more||"outras cores"),tx,ty+6.6,{f:"mono",size:1.8,color:ink,maxW:tw})}}}
   else if(el.type==="colors"){const cols=e.p[el.field||"colors"]||defColors(LIB[e.p[el.slot||"d"]]);colourBlock(c,e,cols,null,x,y,e.T,{noQR:true})}
   c.restore()}}
 function wrapLines(c,str,w,f,size){c.font=font(f,size);const out=[];String(str).split("\n").forEach(par=>{let line="";par.split(/\s+/).forEach(word=>{const t=line?line+" "+word:word;if(c.measureText(t).width>w&&line){out.push(line);line=word}else line=t});out.push(line)});return out}
@@ -612,16 +630,25 @@ const garOf=(el,p)=>(u0=>(u0&&u0.els.includes(el)&&p.garment)?p.garment:(el.garm
 const scOf=(el,p)=>(u0=>(u0&&u0.els.includes(el)&&p.scene)?p.scene:el.scene)(tplDef(p.tpl));
 function getPageCols(p,slot){const k=slot==="d2"?"colors2":"colors";const cs=p[k]&&p[k].length?p[k]:defColors(LIB[p[slot||"d"]]);return cs}
 function mockColor(el,p){const v=el.color||"c1";const m=/^c([1-3])$/.exec(v);if(m){const cs=getPageCols(p,el.slot||"d");return (cs[+m[1]-1]||["White","#FFFFFF"])[1]}if(v[0]==="#")return v;return colHex(v)}
-async function tintMock(g,col){const G=MOCKS[g]||MOCKS.tshirt;const k=g+"|"+col;if(MOCKTINT.has(k))return MOCKTINT.get(k);const im=MOCKIMG[g]||(MOCKIMG[g]=await loadImg("designs/assets/mock/"+G.file+".webp"));if(!im)return null;
-  const c=document.createElement("canvas");c.width=c.height=1000;const x=c.getContext("2d");x.drawImage(im,0,0,1000,1000);const L=lumHex(col)/255;
-  if(!G.noTint&&L<.95){x.globalCompositeOperation="multiply";x.fillStyle=col;x.fillRect(0,0,1000,1000);if(L<.3){x.globalCompositeOperation="screen";x.globalAlpha=.16;x.drawImage(im,0,0,1000,1000);x.globalAlpha=1}x.globalCompositeOperation="destination-in";x.drawImage(im,0,0,1000,1000)}
+async function tintMock(g,col,size=1000){const G=MOCKS[g]||MOCKS.tshirt;const k=g+"|"+col+"|"+size;if(MOCKTINT.has(k))return MOCKTINT.get(k);const im=MOCKIMG[g]||(MOCKIMG[g]=await loadImg("designs/assets/mock/"+G.file+".webp"));if(!im)return null;
+  const c=document.createElement("canvas");c.width=c.height=size;const x=c.getContext("2d");x.drawImage(im,0,0,size,size);const L=lumHex(col)/255;
+  if(!G.noTint&&L<.95){x.globalCompositeOperation="multiply";x.fillStyle=col;x.fillRect(0,0,size,size);if(L<.3){x.globalCompositeOperation="screen";x.globalAlpha=.16;x.drawImage(im,0,0,size,size);x.globalAlpha=1}x.globalCompositeOperation="destination-in";x.drawImage(im,0,0,size,size)}
   MOCKTINT.set(k,c);return c}
+/* ---- t-shirt colour strip: suggested colours big (with the design) + every other garment colour small, stretched along the bottom ---- */
+function shirtSets(el,p){const sug=getPageCols(p,el.slot||"d").slice(0,3).filter(c=>c&&c[1]);const hx=new Set(sug.map(c=>String(c[1]).toLowerCase())),nm=new Set(sug.map(c=>String(c[0]).toLowerCase()));
+  return {sug,rest:COLORS.filter(([n,h])=>!hx.has(String(h).toLowerCase())&&!nm.has(String(n).toLowerCase()))}}
+function garmentArt(c,e,gk,el,ox,oy,S0){const g=MOCKS[gk]||MOCKS.tshirt;const key=LIB[el.src]?el.src:e.p[el.slot||"d"],im=e.imgs[key],l=LIB[key];if(!im||!l)return;
+  const pl=g.pl,px=ox+S0*pl[0]/100,py=oy+S0*pl[1]/100,pw=S0*pl[2]/100,ph=S0*pl[3]/100;let dw=pw,dh=pw*l.h/l.w;if(dh>ph){dh=ph;dw=ph*l.w/l.h}
+  const ax=px+(pw-dw)/2;c.drawImage(im,ax,py,dw,dh);const base=MOCKIMG[gk];if(base&&!g.noTint){c.save();c.beginPath();c.rect(ax,py,dw,dh);c.clip();c.globalCompositeOperation="multiply";c.globalAlpha=.55;c.drawImage(base,ox,oy,S0,S0);c.restore()}}
 /* ---- blueprint templates: element versions of the master list (editable copies) ---- */
 const _E=(o)=>({id:"bp"+Math.random().toString(36).slice(2,8),...o});
 const BP={
  "b:produto":{bp:true,name:"Produto v22 (editável)",group:"d",family:"produto",slots:["d"],theme:"white",desc:"O clássico, em caixas que podes mexer",els:[
   _E({type:"text",x:12,y:16.6,w:28,h:12,text:"{num}",font:"bb",size:11.5}),_E({type:"text",x:40,y:20,w:158,h:7,text:"{name}",font:"bb",size:6.6,upper:true,fit:true}),_E({type:"line",x:12,y:33,w:186,h:.3,fill:"ink"}),
   _E({type:"image",x:18,y:40,w:174,h:196,src:"d",fit:"contain"}),_E({type:"line",x:12,y:242,w:186,h:.3,fill:"ink"}),_E({type:"colors",x:12,y:252,w:40,h:16,slot:"d"}),_E({type:"qr",x:176,y:247,w:22,h:22,url:""})]},
+ "b:produto-tira":{bp:true,name:"Produto + tira de cores",group:"d",family:"produto",slots:["d"],theme:"white",desc:"3 t-shirts sugeridas com o design, e todas as outras cores em miniatura ao longo do fundo",els:[
+  _E({type:"text",x:12,y:16.6,w:28,h:12,text:"{num}",font:"bb",size:11.5}),_E({type:"text",x:40,y:20,w:158,h:7,text:"{name}",font:"bb",size:6.6,upper:true,fit:true}),_E({type:"line",x:12,y:33,w:186,h:.3,fill:"ink"}),
+  _E({type:"image",x:18,y:38,w:174,h:180,src:"d",fit:"contain"}),_E({type:"shirts",x:12,y:222,w:186,h:50,garment:"tshirt",slot:"d",bg:"colour",strip:.3,big:.52}),_E({type:"qr",x:176,y:224,w:22,h:22,url:""})]},
  "b:produto-mockup":{bp:true,name:"Produto + 3 t-shirts",group:"d",family:"produto",slots:["d"],theme:"white",desc:"O design e já vestido nas 3 cores sugeridas",els:[
   _E({type:"text",x:12,y:16.6,w:28,h:12,text:"{num}",font:"bb",size:11.5}),_E({type:"text",x:40,y:20,w:158,h:7,text:"{name}",font:"bb",size:6.6,upper:true,fit:true}),_E({type:"line",x:12,y:33,w:186,h:.3,fill:"ink"}),
   _E({type:"image",x:40,y:39,w:130,h:116,src:"d",fit:"contain"}),_E({type:"text",x:12,y:161,w:186,h:5,text:"TRY THESE COLOURS",font:"monob",size:2.4}),
@@ -655,7 +682,7 @@ const BP={
 };
 const EDITABLE_OF={produto:"b:produto",duo:"b:duo",separador:"b:separador",interludio:"b:interludio",capa:"b:capa",contracapa:"b:contracapa"};
 const FAMILIES=[
- {id:"produto",name:"PRODUTO · 1 DESIGN",icon:"▣",desc:"Uma página por design",v:["produto","b:produto-mockup","b:produto-cena","destaque","b:produto"]},
+ {id:"produto",name:"PRODUTO · 1 DESIGN",icon:"▣",desc:"Uma página por design",v:["produto","b:produto-tira","b:produto-mockup","b:produto-cena","destaque","b:produto"]},
  {id:"galeria",name:"GALERIA · VÁRIOS DESIGNS",icon:"▦",desc:"2 a 6 designs por página",v:["duo","b:duo","b:duo-lado","grelha","b:cores-mockup"]},
  {id:"editorial",name:"EDITORIAL & CENAS",icon:"📷",desc:"Fotos, colagens e mockups em cena",v:["editorial","b:cena-pagina","imagem"]},
  {id:"capitulo",name:"CAPÍTULOS & PAUSAS",icon:"01",desc:"Abrir e respirar entre secções",v:["separador","b:separador","interludio","b:interludio"]},
@@ -1000,6 +1027,7 @@ let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(PAN
 function changed(structural,quiet){save("state");if(structural){renderPanel();if(sel)renderStage()}else{if(sel)queueThumb(sel,true);clearTimeout(changed.t);changed.t=setTimeout(()=>{renderStage();order().filter(id=>S.pages[id].tpl==="indice").forEach(id=>queueThumb(id))},120)}if(!quiet)updateChips()}
 function setField(k,v,{quiet}={}){const p=S.pages[sel];if(!p)return;p[k]=v;p.edited=Date.now();changed(false,quiet)}
 
+
 /* ---------- inspector ---------- */
 function openInsp(t){inspTab=t;if(PANEL!=="cat")go("cat");else renderInspector()}
 $("#inspTabs").onclick=ev=>{const b=ev.target.closest("button");if(!b)return;inspTab=b.dataset.t;if(inspTab!=="lib")pickField=null;const was=tplMode;tplMode=inspTab==="model"&&!!tplDef(S.pages[sel]?.tpl)&&!tplDef(S.pages[sel]?.tpl).bp;if(tplMode&&!layerMode){layerMode=true;$("#btnLayerMode").classList.add("yel")}if(was!==tplMode)renderStage();renderInspector()};
@@ -1070,7 +1098,7 @@ $("#insp").addEventListener("click",ev=>{if(ev.target.closest("#tplProps"))retur
 
 /* ---------- layers (page) ---------- */
 let layerPick=null;
-const LAYER_DEF={text:{w:80,h:14,text:"Texto",font:"bb",size:8,color:"ink",lh:1.15},dyn:{w:90,h:10,text:"{num} · {name}",font:"monob",size:3.6,color:"ink",lh:1.15},image:{w:60,h:60,src:"d",fit:"contain"},svg:{w:30,h:30,svg:"b-star"},qr:{w:24,h:24,url:""},rect:{w:60,h:20,fill:"accent"},line:{w:120,h:.4,fill:"ink"},colors:{w:40,h:16,slot:"d"},mockup:{w:70,h:70,garment:"tshirt",color:"c1",slot:"d",label:"{c1}"},scene:{w:96,h:120,scene:"05-Em-Cena",slot:"d"}};
+const LAYER_DEF={text:{w:80,h:14,text:"Texto",font:"bb",size:8,color:"ink",lh:1.15},dyn:{w:90,h:10,text:"{num} · {name}",font:"monob",size:3.6,color:"ink",lh:1.15},image:{w:60,h:60,src:"d",fit:"contain"},svg:{w:30,h:30,svg:"b-star"},qr:{w:24,h:24,url:""},rect:{w:60,h:20,fill:"accent"},line:{w:120,h:.4,fill:"ink"},colors:{w:40,h:16,slot:"d"},mockup:{w:70,h:70,garment:"tshirt",color:"c1",slot:"d",label:"{c1}"},shirts:{w:186,h:50,garment:"tshirt",slot:"d",bg:"colour",strip:.3,big:.52},scene:{w:96,h:120,scene:"05-Em-Cena",slot:"d"}};
 function addLayerTo(arr,type){const d=LAYER_DEF[type];const el={id:uid(),type:type==="dyn"?"text":type,x:Math.round((W-d.w)/2),y:Math.round((H-(d.h||10))/2),...JSON.parse(JSON.stringify(d))};arr.push(el);return el}
 function addLayer(type){const p=S.pages[sel];p.layers=p.layers||[];const el=addLayerTo(p.layers,type);selLayer=el.id;p.edited=Date.now();if(!layerMode){layerMode=true;$("#btnLayerMode").classList.add("yel")}changed(false);renderStage();renderInspector()}
 function curLayer(){const p=S.pages[sel];return (p&&p.layers||[]).find(l=>l.id===selLayer)}
@@ -1082,7 +1110,7 @@ function layerAct(a){const p=S.pages[sel],L=p.layers||[];const i=L.findIndex(l=>
   p.edited=Date.now();changed(false);renderInspector();drawOv()}
 function layersHtml(p){const L=p.layers||[];const el=curLayer();
   let h=`<h3>CAMADAS DESTA PÁGINA</h3><p class="hint">Texto fixo, texto dinâmico (preenche-se sozinho com vendas, preço, nome…), imagens, SVG, QR e caixas por cima do modelo.</p>
-  <div class="row" style="flex-wrap:wrap;gap:0;margin:0 -4px 8px">${[["text","T TEXTO"],["dyn","{ } DINÂMICO"],["image","🖼 IMAGEM"],["svg","✦ SVG"],["qr","▣ QR"],["rect","■ CAIXA"],["line","— LINHA"],["colors","◼◼ CORES"]].map(([k,l])=>`<button class="btn xs alt" data-addl="${k}" style="flex:none">${l}</button>`).join("")}</div>`;
+  <div class="row" style="flex-wrap:wrap;gap:0;margin:0 -4px 8px">${[["text","T TEXTO"],["dyn","{ } DINÂMICO"],["image","🖼 IMAGEM"],["svg","✦ SVG"],["qr","▣ QR"],["rect","■ CAIXA"],["line","— LINHA"],["colors","◼◼ CORES"],["shirts","👕 T-SHIRTS"]].map(([k,l])=>`<button class="btn xs alt" data-addl="${k}" style="flex:none">${l}</button>`).join("")}</div>`;
   h+=L.length?[...L].reverse().map(l=>`<div class="ly ${l.id===selLayer?"on":""}" data-ly="${l.id}"><i>${elLabel(l).split(" ")[0]}</i><span>${esc(l.type==="text"?l.text:l.type==="svg"?((S.svgLib[l.svg]||BUILTIN_SVG[l.svg]||{}).name||"svg"):l.type==="image"?(LIB[l.src]?.name||l.src):l.type==="qr"?(l.url||"QR da página"):l.type)}</span></div>`).join(""):`<p class="hint">Sem camadas. Junta uma acima.</p>`;
   if(el)h+=`<h3>PROPRIEDADES</h3>`+elPropsHtml(el,"lk")+`<div class="row" style="flex-wrap:wrap;gap:0;margin:6px -4px"><button class="btn xs alt" data-lact="up" style="flex:none">▲</button><button class="btn xs alt" data-lact="down" style="flex:none">▼</button><button class="btn xs alt" data-lact="dup" style="flex:none">⧉</button><button class="btn xs alt" data-lact="toall" style="flex:none">→ SECÇÃO</button><button class="btn xs" data-lact="del" style="flex:none">🗑</button></div>`;
   return h}
@@ -1106,6 +1134,15 @@ function elPropsHtml(el,A){const n=(k,l,step=.5)=>`<label class="f" style="margi
     <label class="f">Cor da peça<select ${A}="color">${[["c1","Cor 1 da página"],["c2","Cor 2 da página"],["c3","Cor 3 da página"]].map(([a,b])=>`<option value="${a}" ${el.color===a?"selected":""}>${b}</option>`).join("")}${COLORS.map(([n])=>`<option ${el.color===n?"selected":""}>${n}</option>`).join("")}</select></label>
     <label class="f">Legenda (aceita tokens)<input type="text" ${A}="label" value="${esc(el.label||"")}" placeholder="{c1}"></label><label class="f">Design<select ${A}="slot"><option value="d">Design 1</option><option value="d2" ${el.slot==="d2"?"selected":""}>Design 2</option></select></label>`;
   if(el.type==="scene")h+=`<label class="f">Cena<select ${A}="scene">${SCENES.map(s=>`<option value="${s.id}" ${el.scene===s.id?"selected":""}>${esc(s.name)}</option>`).join("")}</select></label><label class="f">Design<select ${A}="slot"><option value="d">Design 1</option><option value="d2" ${el.slot==="d2"?"selected":""}>Design 2</option></select></label>`;
+  if(el.type==="shirts"){const ck=(k,l,def=true)=>`<label class="f row" style="gap:6px;align-items:center"><input type="checkbox" ${A}="${k}" ${(el[k]??def)!==false?"checked":""}> ${l}</label>`;
+    h+=`<label class="f">Peça<select ${A}="garment">${Object.entries(MOCKS).filter(([g,m])=>!m.noTint).map(([g,m])=>`<option value="${g}" ${el.garment===g?"selected":""}>${esc(m.name)}</option>`).join("")}</select></label>
+    <label class="f">Fundo da tira<select ${A}="bg">${[["colour","Cada peça sobre a sua cor (tira contínua)"],["band","Peças + barra de cor por baixo"],["none","Só as peças"]].map(([v,l])=>`<option value="${v}" ${(el.bg||"colour")===v?"selected":""}>${l}</option>`).join("")}</select></label>
+    <label class="f">Altura da tira<input type="range" min="0.15" max="0.6" step="0.01" ${A}="strip" data-num value="${el.strip??.3}"></label>
+    <label class="f">Tamanho das sugeridas<input type="range" min="0.25" max="0.9" step="0.01" ${A}="big" data-num value="${el.big??.52}"></label>
+    ${ck("rest","Mostrar todas as outras cores")}${ck("art","Design nas t-shirts sugeridas")}${ck("names","Nome da cor nas sugeridas")}${ck("card","Cartão por trás das sugeridas")}${ck("title","Texto “Try these colours”")}
+    <label class="f">Título (aceita tokens)<input type="text" ${A}="text" value="${esc(el.text||"")}" placeholder="${esc(S.settings.lblColors||"TRY THESE COLOURS")}"></label>
+    <label class="f">Design<select ${A}="slot"><option value="d">Design 1</option><option value="d2" ${el.slot==="d2"?"selected":""}>Design 2</option></select></label>
+    <div class="hint">As sugeridas são as 3 cores da página. A tira mostra as outras ${COLORS.length-3} cores da v22, esticadas a toda a largura da caixa.</div>`}
   if(el.type==="colors")h+=`<label class="f">Design<select ${A}="slot"><option value="d">Design 1</option><option value="d2" ${el.slot==="d2"?"selected":""}>Design 2</option></select></label>`;
   h+=`<label class="f" style="margin-top:8px">Opacidade<input type="range" min="0.1" max="1" step="0.05" ${A}="opacity" data-num value="${el.opacity??1}"></label>`;
   return h}
@@ -1168,6 +1205,7 @@ $("#mkUndo").onclick=()=>{const last=ST.log.pop();if(!last){toast("NADA PARA DES
 $("#mkClose").onclick=()=>{$("#market").classList.remove("on");if(PANEL==="cat")renderInspector()};
 $("#btnMarket").onclick=openMarket;
 
+
 /* =====================================================================
    2-3 MODELOS · template editor
    ===================================================================== */
@@ -1202,7 +1240,7 @@ function renderTplProps(){const u=S.tpls[tplSel];const box=TPLPROPS;if(!u){box.i
   <div class="row" style="gap:6px"><label class="f">Fundo<select data-tp="bgmode"><option value="theme" ${u.themeable!==false?"selected":""}>Branca/preta (escolhe na página)</option><option value="fixed" ${u.themeable===false?"selected":""}>Cor fixa</option></select></label>${u.themeable===false?`<label class="f">Cor<input type="color" data-tp="bg" value="${u.bg||"#ff4f1f"}"></label><label class="f">Tinta<select data-tp="theme"><option value="white" ${u.theme!=="black"?"selected":""}>Escura</option><option value="black" ${u.theme==="black"?"selected":""}>Clara</option></select></label>`:""}</div>
   <label class="row" style="justify-content:flex-start;font-size:18px"><input type="checkbox" data-tp="header" ${u.header!==false?"checked":""}> Cabeçalho MADE IN MAIA</label><label class="row" style="justify-content:flex-start;font-size:18px;margin:6px 0 10px"><input type="checkbox" data-tp="footer" ${u.footer!==false?"checked":""}> Rodapé COLLECTION / nº página</label>
   <div class="row" style="flex-wrap:wrap;gap:0;margin:0 -4px"><button class="btn xs go" data-tact="use" style="flex:none">+ USAR NUMA PÁGINA</button><button class="btn xs alt" data-tact="dup" style="flex:none">⧉</button><button class="btn xs" data-tact="del" style="flex:none">🗑</button></div>
-  <h3>CAIXAS</h3><div class="row" style="flex-wrap:wrap;gap:0;margin:0 -4px 8px">${[["text","T TEXTO"],["dyn","{ } DINÂMICO"],["image","🖼 IMAGEM"],["svg","✦ SVG"],["qr","▣ QR"],["rect","■ CAIXA"],["line","— LINHA"],["colors","◼◼ CORES"]].map(([k,l])=>`<button class="btn xs alt" data-tadd="${k}" style="flex:none">${l}</button>`).join("")}</div>
+  <h3>CAIXAS</h3><div class="row" style="flex-wrap:wrap;gap:0;margin:0 -4px 8px">${[["text","T TEXTO"],["dyn","{ } DINÂMICO"],["image","🖼 IMAGEM"],["svg","✦ SVG"],["qr","▣ QR"],["rect","■ CAIXA"],["line","— LINHA"],["colors","◼◼ CORES"],["shirts","👕 T-SHIRTS"]].map(([k,l])=>`<button class="btn xs alt" data-tadd="${k}" style="flex:none">${l}</button>`).join("")}</div>
   ${[...u.els].reverse().map(e=>`<div class="ly ${e.id===tplElSel?"on":""}" data-tel="${e.id}"><i>${elLabel(e).split(" ")[0]}</i><span>${esc(e.type==="text"?e.text:e.type==="image"?e.src:e.type==="svg"?e.svg:e.type)}</span></div>`).join("")}
   ${el?`<h3>CAIXA SELECIONADA</h3>${elPropsHtml(el,"data-tl")}<div class="row" style="flex-wrap:wrap;gap:0;margin:6px -4px"><button class="btn xs alt" data-teact="up" style="flex:none">▲</button><button class="btn xs alt" data-teact="down" style="flex:none">▼</button><button class="btn xs alt" data-teact="dup" style="flex:none">⧉</button><button class="btn xs" data-teact="del" style="flex:none">🗑</button></div>`:""}
   <p class="hint" style="margin-top:14px">Campos livres: escreve <code>{f:nome}</code> num texto e esse campo aparece no inspector de cada página que usa o modelo.</p>`}
@@ -1347,6 +1385,7 @@ async function addDesignFromFile(f,meta={}){const r=await storeImage(f);if(!r)re
   const e={key:"up-"+uid(),name:meta.name||(m?m[2]:base).replace(/[-_]+/g," "),code:meta.code||(m?m[1]:"NOVO"),src:"upload",cat:meta.cat||"novidades",w:r.w,h:r.h,cap:r.w,lum:lumOfImg(r.im),url:meta.url||"",colours:meta.colours||null,bg:meta.bg||null,theme:meta.theme||null};
   S.custom.push({...e,url:meta.url||"",img:r.url});const le={...e,thumb:r.url,hi:r.url};le.url=meta.url||"";LIB[e.key]=le;LIBLIST.push(le);LIBBASE[e.key]={...le};return le}
 $("#desUp").onchange=async ev=>{const fs=[...ev.target.files];ev.target.value="";for(const f of fs){const l=await addDesignFromFile(f,{cat:"uploads"});if(l)desSel=l.key}save("state");desCat="uploads";renderDesigns()};
+
 
 /* =====================================================================
    2-6 VENDAS · business intelligence
@@ -1507,6 +1546,7 @@ function renderAll(){applyOverrides();$("#catTitle").value=S.settings.title;rend
   const h=location.hash.slice(1);PANEL=STAGES.some(s=>s[0]===h)?h:"cat";
   renderAll();go(PANEL);initCaps();initCloud()})();
 
+
 /* =====================================================================
    PAGE SORTER · PAGE EDITOR · TEMPLATE MASTER LIST · MEDIA
    ===================================================================== */
@@ -1614,6 +1654,7 @@ $("#desGrid").addEventListener("click",ev=>{const m=ev.target.closest("[data-moc
   if(m.dataset.mock){confirmDo("NOVA PÁGINA COM MOCKUPS?",`${l.code} ${l.name} com 3 t-shirts (${m.dataset.mock} + cores sugeridas).`,()=>{const cs=defColors(l);cs[0]=[m.dataset.mock,colHex(m.dataset.mock)];go("cat");insertAfter(newPage("b:produto-mockup",{d:key,colors:cs}),sid?null:sel,sid)})}
   if(m.dataset.scn){confirmDo("NOVA PÁGINA EM CENA?",`${l.code} ${l.name} na cena ${SCENES.find(s=>s.id===m.dataset.scn).name}.`,()=>{go("cat");insertAfter(newPage("b:produto-cena",{d:key,scene:m.dataset.scn}),sid?null:sel,sid)})}},true);
 
+
 /* =====================================================================
    ACTIVE / INACTIVE DESIGNS · catalog reflow
    ===================================================================== */
@@ -1662,6 +1703,7 @@ renderDesigns=function(){_renderDesigns2();const cats=$("#desCats");if(!cats.que
 /* inactive designs are invisible to market, QR and sales placement */
 const _placements=placements;placements=function(){const m=_placements();for(const k of [...m.keys()])if(!isActive(k))m.delete(k);return m};
 
+
 /* =====================================================================
    PLATFORM · artifact (claude.ai) or hosted terminal (madeinmaia.pt/catalogo)
    ===================================================================== */
@@ -1690,7 +1732,4 @@ if(HOSTED){
 }
 /* PWA install bits (used when hosted) */
 if(HOSTED){const head=document.head;head.insertAdjacentHTML("beforeend",`<link rel="manifest" href="/catalogo/manifest.webmanifest"><link rel="apple-touch-icon" href="/catalogo/apple-touch-icon.png"><link rel="icon" href="/catalogo/favicon.png"><meta name="theme-color" content="#14112b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="MiM Catálogo">`)}
-
-</script>
-</body>
-</html>
+</script></body></html>
