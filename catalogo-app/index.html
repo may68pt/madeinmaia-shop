@@ -1857,8 +1857,32 @@ document.addEventListener("click",ev=>{const f=ev.target.closest("[data-inc-f]")
    PLATFORM · artifact (claude.ai) or hosted terminal (madeinmaia.pt/mimbo-the-good-stuff-machine)
    ===================================================================== */
 const HOSTED=/^\/(mimbo-the-good-stuff-machine|catalogo)(\/|$)/.test(location.pathname)&&!/claude\.ai|claudeusercontent/.test(location.host);
-async function serverPut(k,body){const r=await fetch("/api/catalogo/store/"+k,{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify(body),credentials:"same-origin"});if(r.status===401){location.reload();throw new Error("login")}if(!r.ok)throw new Error("HTTP "+r.status)}
-async function serverGet(k){const r=await fetch("/api/catalogo/store/"+k,{credentials:"same-origin",cache:"no-store"});if(r.status===401){location.reload();throw new Error("login")}return r.ok?r.json():null}
+/* one database for every entry point: revisions + merge so the phone app, the web and the Mac app never overwrite each other */
+const REV={},BASE={},MAPKEYS=new Set(["pages","ovr","tpls","lib","d","days","log"]);
+const jstr=v=>JSON.stringify(v===undefined?null:v);
+function mergeDoc(server,local,base){if(!server||typeof server!=="object"||Array.isArray(server))return local;base=base||{};const out={...server};
+  for(const k of new Set([...Object.keys(local||{}),...Object.keys(base)])){const lv=(local||{})[k],bv=base[k];if(jstr(lv)===jstr(bv))continue;
+    if(MAPKEYS.has(k)&&lv&&typeof lv==="object"&&!Array.isArray(lv)&&server[k]&&typeof server[k]==="object"&&!Array.isArray(server[k])){const m={...server[k]},bm=bv&&typeof bv==="object"?bv:{};
+      for(const sk of new Set([...Object.keys(lv),...Object.keys(bm)])){if(jstr(lv[sk])===jstr(bm[sk]))continue;if(lv[sk]===undefined)delete m[sk];else m[sk]=lv[sk]}out[k]=m}
+    else if(k==="sections"&&Array.isArray(lv)&&Array.isArray(server[k])){out[k]=lv}
+    else if(lv===undefined)delete out[k];else out[k]=lv}
+  return out}
+async function serverPut(k,body){for(let t=0;t<3;t++){const h={"content-type":"application/json"};if(REV[k])h["x-base-rev"]=REV[k];
+    const r=await fetch("/api/catalogo/store/"+k,{method:"PUT",headers:h,body:JSON.stringify(body),credentials:"same-origin"});if(r.status===401){location.reload();throw new Error("login")}
+    if(r.status===409){const j=await r.json();const merged=mergeDoc(j.doc,body,BASE[k]?JSON.parse(BASE[k]):null);REV[k]=j.rev;BASE[k]=JSON.stringify(j.doc);body=merged;adoptDoc(k,merged,true);continue}
+    if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json().catch(()=>({}));REV[k]=j.rev||r.headers.get("x-rev")||REV[k];BASE[k]=JSON.stringify(body);return}
+  throw new Error("conflito")}
+async function serverGet(k){const r=await fetch("/api/catalogo/store/"+k,{credentials:"same-origin",cache:"no-store"});if(r.status===401){location.reload();throw new Error("login")}if(!r.ok)return null;
+  const t=await r.text();REV[k]=r.headers.get("x-rev")||"";BASE[k]=t;try{return JSON.parse(t)}catch{return null}}
+/* put a document that changed on another device into this one, keeping where you are */
+function adoptDoc(k,doc,quiet){if(!doc)return;if(k==="state"){const keep=S.svgLib;S=doc;S.svgLib=keep;normalize();addCustomToLib();applyOverrides();renderPanel();if(S.pages[sel])renderStage();renderInspector();if(PANEL==="des")renderDesigns()}
+  else if(k==="stats")ST=doc;else if(k==="prints")PR=doc.log||[];else if(k==="sales"&&doc.d)SALES=doc;else if(k==="svgs")S.svgLib=doc.lib||{};
+  LS.set(k,payload(k));if(!quiet)toast("↻ ATUALIZADO NOUTRO APARELHO")}
+async function pullChanges(){if(store.mode!=="server"||document.hidden)return;for(const k of ["state","svgs","stats"]){if(store.busy[k])continue;
+  try{const r=await fetch("/api/catalogo/store/"+k+"?rev="+encodeURIComponent(REV[k]||""),{credentials:"same-origin",cache:"no-store"});if(r.status===204||!r.ok)continue;
+    const t=await r.text();let doc;try{doc=JSON.parse(t)}catch{continue}const rev=r.headers.get("x-rev")||"";const local=payload(k),base=BASE[k]?JSON.parse(BASE[k]):null;
+    const dirty=jstr(local)!==BASE[k]&&base!==null&&jstr(local)!==jstr(base);REV[k]=rev;BASE[k]=t;
+    if(dirty){const m=mergeDoc(doc,local,base);adoptDoc(k,m);flush(k)}else adoptDoc(k,doc)}catch(e){console.warn(e)}}}
 async function syncSales(quiet){try{const r=await fetch("/api/catalog-feed?days=180",{credentials:"same-origin",cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);const obj=await r.json();const n=ingestFeed(obj);LS.set("lastSync",Date.now());if(!quiet)toast("VENDAS ATUALIZADAS · "+n+" REGISTOS");if(PANEL==="bi")renderBI();if(PANEL==="con")renderCon();return n}catch(e){if(!quiet)toast("MIM-DASH: "+(e.message||e));return 0}}
 async function syncInbox(){try{const r=await fetch("/api/catalogo/inbox",{credentials:"same-origin",cache:"no-store"});if(!r.ok)return 0;const items=await r.json();if(!items.length)return 0;const done=[];
   for(const it of items){if(S.inbox.some(x=>x.remote===it.id)){done.push(it.id);continue}const im=await loadImg(it.img);if(!im)continue;const code=String(it.code||"").replace(/^MIM_/i,"");
@@ -1869,8 +1893,9 @@ async function syncInbox(){try{const r=await fetch("/api/catalogo/inbox",{creden
 if(HOSTED){
   initCaps=async function(){store.assets={upload:async f=>{const fd=new FormData();fd.append("file",f);const r=await fetch("/api/catalogo/media",{method:"POST",body:fd,credentials:"same-origin"});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||"upload");return r.json()}};store.dl=null};
   initCloud=async function(){try{const [a,b,c,d,e]=await Promise.all(["state","stats","prints","sales","svgs"].map(k=>serverGet(k).catch(()=>null)));
-      if(a&&a.sections&&a.v===SEED_VERSION&&(!S.updated||a.updated>=S.updated)){S=a;normalize()}if(b)ST=b;if(c)PR=c.log||[];if(d&&d.d)SALES=d;S.svgLib=(e&&e.lib)||S.svgLib||{};
+      if(a&&a.sections&&a.v===SEED_VERSION){if(S.updated&&a.updated<S.updated&&S.sections){const m=mergeDoc(a,payload("state"),null);S=m;normalize();flush("state")}else{S=a;normalize()}}if(b)ST=b;if(c)PR=c.log||[];if(d&&d.d)SALES=d;S.svgLib=(e&&e.lib)||S.svgLib||{};
       store.mode="server";if(!a||a.v!==SEED_VERSION)flush("state");addCustomToLib();renderAll();setStoreChip();
+      setInterval(pullChanges,15e3);addEventListener("focus",pullChanges);document.addEventListener("visibilitychange",()=>{if(!document.hidden)pullChanges()});
       syncInbox();const last=LS.get("lastSync",0);if(Date.now()-last>3*3600e3||!SALES.d)syncSales(true);setInterval(()=>syncSales(true),6*3600e3);setInterval(syncInbox,5*60e3)}
     catch(e){console.warn(e);$("#chipStore").textContent="⚠ SEM SERVIDOR";$("#chipStore").className="chip bad"}};
   downloadFile=async function(name,data){const blob=data instanceof Blob?data:new Blob([data]);const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},4000);toast("GUARDADO: "+name);return true};
