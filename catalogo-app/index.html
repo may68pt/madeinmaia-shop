@@ -406,15 +406,15 @@ const DEF_SETTINGS={title:"Made in Maia Magazine",edition:"v22",defaultPrice:"�
 // field types: design, text, area, theme, color, colors, range, qr
 const TPL={
  produto:{name:"Produto (1 design)",group:"d",desc:"Uma página por design: número, nome, cores e QR",
-   fields:[["d","Design","design"],["theme","Cor da página","theme"],["num","Número (vazio = código)","text"],["title","Nome (vazio = nome do design)","text"],["series","Cabeçalho (vazio = secção)","text"],["scale","Tamanho do design","range"],["colors","Try these colours","colors"],["hideCols","Caixa de cores sugeridas","toggle"],["qr","Link do QR (vazio = link do design)","qr"]]},
+   fields:[["d","Design","design"],["theme","Cor da página","theme"],["num","Número (vazio = código)","text"],["title","Nome (vazio = nome do design)","text"],["series","Cabeçalho (vazio = secção)","text"],["scale","Tamanho do design","range"],["colors","Try these colours","colors"],["showCols","Caixa de cores sugeridas","toggleOn"],["qr","Link do QR (vazio = link do design)","qr"]]},
  duo:{name:"Galeria 2-up",group:"d",desc:"Dois designs empilhados, como no v22",
-   fields:[["theme","Cor da página","theme"],["series","Cabeçalho / família (vazio = secção)","text"],["d","Design de cima","design"],["colors","Cores (cima)","colors"],["hideCols","Caixa de cores (cima)","toggle"],["qr","QR de cima (vazio = auto)","qr"],["d2","Design de baixo","design"],["colors2","Cores (baixo)","colors"],["hideCols2","Caixa de cores (baixo)","toggle"],["qr2","QR de baixo (vazio = auto)","qr"]]},
+   fields:[["theme","Cor da página","theme"],["series","Cabeçalho / família (vazio = secção)","text"],["d","Design de cima","design"],["colors","Cores (cima)","colors"],["showCols","Caixa de cores (cima)","toggleOn"],["qr","QR de cima (vazio = auto)","qr"],["d2","Design de baixo","design"],["colors2","Cores (baixo)","colors"],["showCols2","Caixa de cores (baixo)","toggleOn"],["qr2","QR de baixo (vazio = auto)","qr"]]},
  grelha:{name:"Grelha 4",group:"d",desc:"Quatro designs: variantes ou resumo",
    fields:[["theme","Cor da página","theme"],["h1","Título","text"],["series","Cabeçalho (vazio = secção)","text"],["d","Design 1","design"],["d2","Design 2","design"],["d3","Design 3","design"],["d4","Design 4","design"],["qr","Link do QR (vazio = site)","qr"]]},
  destaque:{name:"Destaque",group:"d",desc:"Design grande sobre cor cheia, para os bestsellers",
    fields:[["d","Design","design"],["bg","Cor de fundo","color"],["num","Número (vazio = código)","text"],["title","Nome (vazio = nome do design)","text"],["sub","Frase curta","text"],["qr","Link do QR (vazio = auto)","qr"]]},
  editorial:{name:"Editorial (foto + design)",group:"d",desc:"Foto de campanha com o design e as cores",
-   fields:[["photo","Foto","design"],["l1","Título linha 1","text"],["l2","Título linha 2","text"],["series","Cabeçalho (vazio = secção)","text"],["d","Design referido","design"],["colors","Try these colours","colors"],["hideCols","Caixa de cores sugeridas","toggle"]]},
+   fields:[["photo","Foto","design"],["l1","Título linha 1","text"],["l2","Título linha 2","text"],["series","Cabeçalho (vazio = secção)","text"],["d","Design referido","design"],["colors","Try these colours","colors"],["showCols","Caixa de cores sugeridas","toggleOn"]]},
  capa:{name:"Capa",group:"c",desc:"Primeira página do catálogo",
    fields:[["theme","Cor da página","theme"],["h1","Título","text"],["sub","Linha 1","text"],["tag","Linha 2","text"],["d","Design/foto (opcional)","design"]]},
  indice:{name:"Índice",group:"c",desc:"Gerado sozinho a partir das secções",fields:[["theme","Cor da página","theme"],["h1","Título","text"]]},
@@ -566,8 +566,8 @@ async function renderPage(canvas,id,o={}){const p=S.pages[id];if(!p)return [];co
   const u=tplDef(p.tpl);const els=[...(u?u.els:[]),...(p.layers||[])];const T0=themeOf(u&&u.themeable===false?{theme:u.theme}:p);
   await Promise.all(els.filter(el=>el.type==="svg").map(async el=>{const col=el.color?colorOf(el.color,{T:T0,sec:secOf(id)}):null;imgs["svg:"+el.id]=await loadImg(svgTinted(el.svg,col))}));
   await preloadTees(p);
-  {const jobs=[];const add=(slot,hideK,sz)=>{const k=p[slot];if(!k||!LIB[k]||p[hideK])return;(getPageCols(p,slot)||[]).slice(0,3).filter(cl=>cl&&cl[1]).forEach(cl=>jobs.push((async()=>{imgs["fm:"+k+"|"+cl[1]]=await hangMock(cl[1],k,{hanger:false,size:sz})})()))};
-   const hi=o.hi||s>=6;if(p.tpl==="produto")add("d","hideCols",hi?900:520);if(p.tpl==="duo"){add("d","hideCols",hi?700:420);add("d2","hideCols2",hi?700:420)}await Promise.all(jobs)}
+  {const jobs=[];const add=(slot,showK,sz)=>{const k=p[slot];if(!k||!LIB[k]||!p[showK])return;(getPageCols(p,slot)||[]).slice(0,3).filter(cl=>cl&&cl[1]).forEach(cl=>jobs.push((async()=>{imgs["fm:"+k+"|"+cl[1]]=await hangMock(cl[1],k,{hanger:false,size:sz})})()))};
+   const hi=o.hi||s>=6;if(p.tpl==="produto")add("d","showCols",hi?900:520);if(p.tpl==="duo"){add("d","showCols",hi?700:420);add("d2","showCols2",hi?700:420)}await Promise.all(jobs)}
   await Promise.all(els.filter(el=>el.type==="mockup").map(async el=>{imgs["mk:"+el.id]=await tintMock(garOf(el,p),mockColor(el,p))}));
   await Promise.all(els.filter(el=>el.type==="hangmock").map(async el=>{const key=LIB[el.src]?el.src:p[el.slot||"d"];imgs["hm:"+el.id]=await hangMock(mockColor(el,p),key,{size:o.hi||s>=6?1400:900,warp:el.warp??1,alpha:el.alpha??.96,hanger:el.hanger!==false})}));
   await Promise.all(els.filter(el=>el.type==="shirts").flatMap(el=>{const gk=garOf(el,p),{sug,rest}=shirtSets(el,p);
@@ -831,7 +831,7 @@ const R={
    const url=qrFor(p,e.no),nx=qrBeforeNum(c,url,12,26.5,12);
    const nw=txt(c,numOf(p),nx,26.5,{size:11.5,color:T.ink});const tx=Math.max(40,nx+nw+7);
    txt(c,nameOf(p).toUpperCase(),tx,25.8,{size:6.6,color:T.ink,maxW:198-tx,minSize:4,env:e});rule(c,33,T.ink,12,186);
-   if(p.hideCols)art(c,e,p.d,18,40,174,238,{scale:p.scale,req:true,ink:T.soft,T});
+   if(!p.showCols)art(c,e,p.d,18,40,174,238,{scale:p.scale,req:true,ink:T.soft,T});
    else{art(c,e,p.d,18,40,174,184,{scale:p.scale,req:true,ink:T.soft,T});rule(c,230,T.ink,12,186);
    colourFooter(c,e,p.colors||defColors(LIB[p.d]),12,234,186,47,T,{ask:url?"":S.settings.lblAsk,d:p.d})}
    ftr(c,e,T.ink)},
@@ -840,7 +840,7 @@ const R={
      const qu=l?qrFor(p,e.no,qf,f):null,nx=qrBeforeNum(c,qu,12,25.5+dy,11);const nw=txt(c,l?numOf(p,f):"—",nx,25.5+dy,{size:10.5,color:T.ink});const tx=Math.max(40,nx+nw+7);
      txt(c,l?l.name.toUpperCase():"",tx,24.8+dy,{size:6,color:T.ink,maxW:198-tx,minSize:4,env:e});rule(c,31.5+dy,T.ink,12,186);
      if(!p[f]&&f==="d2")return;
-     const hide=p[f==="d"?"hideCols":"hideCols2"];
+     const hide=!p[f==="d"?"showCols":"showCols2"];
      if(hide){art(c,e,p[f],12,37+dy,186,104,{req:f==="d",ink:T.soft,T});return}
      const ax=L?84:12,cx=L?12:134;art(c,e,p[f],ax,37+dy,114,104,{req:f==="d",ink:T.soft,T});
      const cb=colourBlock(c,e,p[cf]||defColors(l),null,cx,39+dy,T,{noQR:true,w:64,B:20,d:p[f],restW:.78,s0:8.3,fill:.8});if(!qu)lines(c,S.settings.lblAsk.replace(" BY "," BY\n"),cx,cb+5,{size:3.6,color:T.ink,lh:3.6})});
@@ -849,7 +849,7 @@ const R={
    [[p.l1,17],[p.l2,29]].forEach(([t,y],i)=>{if(!t)return;c.font=font("bb",8.6);const w=c.measureText(t.toUpperCase()).width;c.fillStyle="#f5f2eb";c.fillRect(12,y,i?Math.min(w+40,150):Math.min(186,w+80),10.5);txt(c,t.toUpperCase(),14,y+8.6,{size:8.6,color:"#111"})});
    photoFill(c,e,p.photo,28,47,154,152,"cover");
    const l=LIB[p.d];if(l)txt(c,numOf(p)+" / "+l.name.toUpperCase(),12,216,{size:6.4,color:T.ink,maxW:186});
-   if(l&&!p.hideCols)colourBlock(c,e,p.colors||defColors(l),null,12,226,T,{qrGap:999,d:p.d});ftr(c,e,T.ink)},
+   if(l&&p.showCols)colourBlock(c,e,p.colors||defColors(l),null,12,226,T,{qrGap:999,d:p.d});ftr(c,e,T.ink)},
  capa(c,e){const p=e.p,T=themeOf(p);bgFill(c,e,T.bg);
    const ls=String(p.h1||"").toUpperCase().split("\n");const sz=Math.min(26,...ls.map(w=>fitSize(c,w,"bb",150,26)));ls.forEach((w,i)=>txt(c,w,12,36+i*sz*.98,{size:sz,color:T.ink}));
    let y=36+ls.length*sz*.98+20;txt(c,(p.sub||"").toUpperCase(),12,y,{size:6,color:T.ink,maxW:150});
@@ -1142,6 +1142,7 @@ function fieldHtml(p,k,label,type){const v=p[k]??"";
   if(type==="range")return `<label class="f">${esc(label)} · <b id="rgv" style="color:var(--yel)">${v||100}%</b><input type="range" min="30" max="100" value="${v||100}" data-k="${k}" data-num></label>`;
   if(type==="fit")return `<label class="f">${esc(label)}<select data-k="${k}"><option value="cover" ${v!=="contain"?"selected":""}>Encher a página</option><option value="contain" ${v==="contain"?"selected":""}>Mostrar tudo</option></select></label>`;
   if(type==="colors"){const cs=getCols(p,k);return `<div class="f"><div class="hint" style="margin:0 0 3px">${esc(label)}</div><div class="sw3">${cs.map((c,i)=>`<div class="sw"><div class="c" style="background:${c[1]}"><input type="color" value="${c[1]}" data-ci="${i}" data-ck="${k}"></div><select data-cs="${i}" data-ck="${k}">${COLORS.map(([n,hx])=>`<option value="${hx}|${n}" ${n===c[0]?"selected":""}>${n}</option>`).join("")}${COLORS.some(x=>x[0]===c[0])?"":`<option selected>${esc(c[0])}</option>`}</select></div>`).join("")}</div></div><div style="height:10px"></div>`}
+  if(type==="toggleOn")return `<label class="f">${esc(label)}<select data-k="${k}"><option value="" ${!v?"selected":""}>🚫 Escondida (o design ocupa o espaço)</option><option value="1" ${v?"selected":""}>👁 Mostrar</option></select></label>`;
   if(type==="toggle")return `<label class="f">${esc(label)}<select data-k="${k}"><option value="" ${!v?"selected":""}>👁 Mostrar</option><option value="1" ${v?"selected":""}>🚫 Esconder (o design ocupa o espaço)</option></select></label>`;
   if(type==="area")return `<label class="f">${esc(label)}<textarea data-k="${k}">${esc(v)}</textarea></label>`;
   if(type==="scene")return `<label class="f">${esc(label)}<select data-k="${k}"><option value="">Do modelo</option>${SCENES.map(s=>`<option value="${s.id}" ${v===s.id?"selected":""}>${esc(s.name)}</option>`).join("")}</select></label>`;
