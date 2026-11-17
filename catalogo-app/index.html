@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
 <meta charset="utf-8"><base href="/mimbo-the-good-stuff-machine/">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="MiMBO"><meta name="theme-color" content="#14112b">
 <title>MiM Catálogo 16</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;600&display=block" rel="stylesheet">
@@ -571,7 +571,7 @@ function svgUrl(id){const v=(S.svgLib||{})[id]||BUILTIN_SVG[id];if(!v)return nul
 function svgTinted(id,col){const v=(S.svgLib||{})[id]||BUILTIN_SVG[id];if(!v||!v.svg)return svgUrl(id);if(!col)return svgUrl(id);
   const t=v.svg.replace(/fill="(?!none)[^"]*"/g,`fill="${col}"`).replace(/fill:(?!none)[^;"]+/g,"fill:"+col).replace(/currentColor/g,col);return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(t)}
 async function renderPage(canvas,id,o={}){const p=S.pages[id];if(!p)return [];const s=o.s||2,b=o.bleed||0,no=o.no||NUM[id]||1;
-  const imgs={};await Promise.all(pageImages(p).map(async k=>{imgs[k]=await loadImg(libImgUrl(k,o.hi))}));
+  const imgs={};const useHi=o.hi||s>=2;await Promise.all(pageImages(p).map(async k=>{imgs[k]=await loadImg(libImgUrl(k,useHi))}));
   const u=tplDef(p.tpl);const els=[...(u?u.els:[]),...(p.layers||[])];const T0=themeOf(u&&u.themeable===false?{theme:u.theme}:p);
   await Promise.all(els.filter(el=>el.type==="svg").map(async el=>{const col=el.color?colorOf(el.color,{T:T0,sec:secOf(id)}):null;imgs["svg:"+el.id]=await loadImg(svgTinted(el.svg,col))}));
   await preloadTees(p);
@@ -996,7 +996,7 @@ function thScale(){let w=0;$$(".pg .th").forEach(i=>{const r=i.getBoundingClient
   return Math.min(5,Math.max(1.4,Math.ceil(w*(window.devicePixelRatio||1)/210*4)/4))}
 async function runThumbs(){if(thBusy)return;thBusy=true;const cv=document.createElement("canvas");
   while(thQueue.length){const id=thQueue.shift();if(!S.pages[id])continue;const sc=thScale(),k=thKey(id)+"|s"+sc,c=TH.get(id);if(c&&c.k===k)continue;
-    const warn=await renderPage(cv,id,{s:sc});const url=cv.toDataURL("image/jpeg",.82);TH.set(id,{k,url,warn});
+    const warn=await renderPage(cv,id,{s:sc});const url=cv.toDataURL("image/jpeg",.9);TH.set(id,{k,url,warn});
     $$(`.pg[data-id="${id}"] img.th`).forEach(i=>i.src=url);updateBadges(id);await new Promise(r=>setTimeout(r,0))}
   thBusy=false;updateDirtyChip();const s2=thScale();if([...TH.values()].some(t=>!t.k.endsWith("|s"+s2))&&runThumbs.s!==s2){runThumbs.s=s2;thumbsAll()}}
 function thumbsAll(){if(typeof S==="undefined"||!S||!S.sections)return;order().forEach(id=>queueThumb(id))}
@@ -1861,6 +1861,19 @@ if(HOSTED){
 }
 /* PWA install bits (used when hosted) */
 if(HOSTED){const head=document.head;head.insertAdjacentHTML("beforeend",`<link rel="manifest" href="/mimbo-the-good-stuff-machine/manifest.webmanifest"><link rel="apple-touch-icon" href="/mimbo-the-good-stuff-machine/apple-touch-icon.png"><link rel="icon" href="/mimbo-the-good-stuff-machine/favicon.png"><meta name="theme-color" content="#14112b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="MiM Catálogo">`)}
+
+/* ---- run as an installed app: service worker + install button (Chrome/Edge/Android prompt, iPhone instructions) ---- */
+if(HOSTED){const BASE="/mimbo-the-good-stuff-machine/";
+  const standalone=()=>matchMedia("(display-mode: standalone)").matches||matchMedia("(display-mode: window-controls-overlay)").matches||navigator.standalone===true;
+  if("serviceWorker" in navigator)navigator.serviceWorker.register(BASE+"sw.js",{scope:BASE}).catch(()=>{});
+  let deferred=null;const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const addBtn=()=>{if(standalone()||$("#btnInstall"))return;$("#hud").insertAdjacentHTML("afterbegin",`<button class="btn sm yel" id="btnInstall" title="Instalar como app">⬇ INSTALAR APP</button>`);
+    $("#btnInstall").onclick=async()=>{if(deferred){deferred.prompt();const r=await deferred.userChoice;deferred=null;if(r.outcome==="accepted")$("#btnInstall")?.remove();return}
+      const how=isIOS?"No iPhone/iPad: abre no Safari → botão Partilhar (□↑) → Adicionar ao ecrã principal → Adicionar. Depois abre sempre pelo ícone MiMBO.":/safari/i.test(navigator.userAgent)&&!/chrome|edg/i.test(navigator.userAgent)?"No Safari do Mac: menu Ficheiro → Adicionar à Dock… (macOS Sonoma ou mais recente). Abre depois pela Dock como app.":"No Chrome / Edge: clica no ícone de instalar (🖥⬇) à direita da barra de endereço, ou menu ⋮ → Instalar MiMBO… / Transmitir, guardar e partilhar → Instalar.";
+      confirmDo("INSTALAR APP",how,()=>{})}};
+  addEventListener("beforeinstallprompt",ev=>{ev.preventDefault();deferred=ev;addBtn()});
+  addEventListener("appinstalled",()=>{$("#btnInstall")?.remove();toast("APP INSTALADA")});
+  setTimeout(addBtn,1500)}
 
 /* ================= design placement editor (front / back / sleeves · t-shirt, hoodie, sweat, tote) ================= */
 const PLC={key:null,gk:"tshirt",side:"front",col:"",box:null,drag:null};
