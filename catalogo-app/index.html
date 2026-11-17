@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="utf-8"><base href="/catalogo/">
+<meta charset="utf-8"><base href="/mimbo-the-good-stuff-machine/">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>MiM Catálogo 16</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1834,9 +1834,9 @@ document.addEventListener("click",ev=>{const f=ev.target.closest("[data-inc-f]")
 
 
 /* =====================================================================
-   PLATFORM · artifact (claude.ai) or hosted terminal (madeinmaia.pt/catalogo)
+   PLATFORM · artifact (claude.ai) or hosted terminal (madeinmaia.pt/mimbo-the-good-stuff-machine)
    ===================================================================== */
-const HOSTED=/^\/catalogo(\/|$)/.test(location.pathname)&&!/claude\.ai|claudeusercontent/.test(location.host);
+const HOSTED=/^\/(mimbo-the-good-stuff-machine|catalogo)(\/|$)/.test(location.pathname)&&!/claude\.ai|claudeusercontent/.test(location.host);
 async function serverPut(k,body){const r=await fetch("/api/catalogo/store/"+k,{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify(body),credentials:"same-origin"});if(r.status===401){location.reload();throw new Error("login")}if(!r.ok)throw new Error("HTTP "+r.status)}
 async function serverGet(k){const r=await fetch("/api/catalogo/store/"+k,{credentials:"same-origin",cache:"no-store"});if(r.status===401){location.reload();throw new Error("login")}return r.ok?r.json():null}
 async function syncSales(quiet){try{const r=await fetch("/api/catalog-feed?days=180",{credentials:"same-origin",cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);const obj=await r.json();const n=ingestFeed(obj);LS.set("lastSync",Date.now());if(!quiet)toast("VENDAS ATUALIZADAS · "+n+" REGISTOS");if(PANEL==="bi")renderBI();if(PANEL==="con")renderCon();return n}catch(e){if(!quiet)toast("MIM-DASH: "+(e.message||e));return 0}}
@@ -1860,7 +1860,7 @@ if(HOSTED){
   const _renderCon=renderCon;renderCon=function(){_renderCon();const box=$("#conBody .box");if(box)box.insertAdjacentHTML("afterbegin",`<div class="msg ok" style="margin-bottom:10px">LIGAÇÃO DIRETA ATIVA · as vendas entram sozinhas (a cada 6 h e ao abrir). <button class="btn xs go" id="syncNow">⟳ ATUALIZAR AGORA</button></div>`);const b=$("#syncNow");if(b)b.onclick=()=>syncSales(false)};
 }
 /* PWA install bits (used when hosted) */
-if(HOSTED){const head=document.head;head.insertAdjacentHTML("beforeend",`<link rel="manifest" href="/catalogo/manifest.webmanifest"><link rel="apple-touch-icon" href="/catalogo/apple-touch-icon.png"><link rel="icon" href="/catalogo/favicon.png"><meta name="theme-color" content="#14112b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="MiM Catálogo">`)}
+if(HOSTED){const head=document.head;head.insertAdjacentHTML("beforeend",`<link rel="manifest" href="/mimbo-the-good-stuff-machine/manifest.webmanifest"><link rel="apple-touch-icon" href="/mimbo-the-good-stuff-machine/apple-touch-icon.png"><link rel="icon" href="/mimbo-the-good-stuff-machine/favicon.png"><meta name="theme-color" content="#14112b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="MiM Catálogo">`)}
 
 /* ================= design placement editor (front / back / sleeves · t-shirt, hoodie, sweat, tote) ================= */
 const PLC={key:null,gk:"tshirt",side:"front",col:"",box:null,drag:null};

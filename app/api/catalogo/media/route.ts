@@ -18,5 +18,5 @@ export async function POST(request: Request) {
   const name = `${Date.now().toString(36)}-${randomBytes(4).toString("hex")}.${ext}`;
   await mkdir(catalogoDir("media"), { recursive: true });
   await writeFile(catalogoDir("media", name), Buffer.from(await file.arrayBuffer()));
-  return NextResponse.json({ url: `/catalogo/media/${name}`, id: name, size: file.size });
+  return NextResponse.json({ url: `/mimbo-the-good-stuff-machine/media/${name}`, id: name, size: file.size });
 }
