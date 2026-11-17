@@ -970,12 +970,17 @@ function normalize(){S.settings={...DEF_SETTINGS,...(S.settings||{})};S.custom=S
 const TH=new Map();let thQueue=[],thBusy=false;
 function thKey(id){const p=S.pages[id],sec=secOf(id);return JSON.stringify(p)+(S.tpls[p.tpl]?JSON.stringify(S.tpls[p.tpl]):"")+(SALES.meta?.generated||"")+"|"+NUM[id]+"|"+(sec&&sec.name+sec.color)+"|"+S.settings.title+S.settings.lblColors+S.settings.year+(p.tpl==="indice"?JSON.stringify(S.sections.map(s=>[s.name,s.pages.length])):"")}
 function queueThumb(id,front){if(front)thQueue.unshift(id);else thQueue.push(id);runThumbs()}
+/* previews are drawn at the size they are shown (× screen density), so the arrangement view matches the real page */
+function thScale(){let w=0;$$(".pg .th").forEach(i=>{const r=i.getBoundingClientRect().width;if(r>w)w=r});if(!w)w=150;
+  return Math.min(5,Math.max(1.4,Math.ceil(w*(window.devicePixelRatio||1)/210*4)/4))}
 async function runThumbs(){if(thBusy)return;thBusy=true;const cv=document.createElement("canvas");
-  while(thQueue.length){const id=thQueue.shift();if(!S.pages[id])continue;const k=thKey(id),c=TH.get(id);if(c&&c.k===k)continue;
-    const warn=await renderPage(cv,id,{s:1.4});const url=cv.toDataURL("image/jpeg",.82);TH.set(id,{k,url,warn});
+  while(thQueue.length){const id=thQueue.shift();if(!S.pages[id])continue;const sc=thScale(),k=thKey(id)+"|s"+sc,c=TH.get(id);if(c&&c.k===k)continue;
+    const warn=await renderPage(cv,id,{s:sc});const url=cv.toDataURL("image/jpeg",.82);TH.set(id,{k,url,warn});
     $$(`.pg[data-id="${id}"] img.th`).forEach(i=>i.src=url);updateBadges(id);await new Promise(r=>setTimeout(r,0))}
-  thBusy=false;updateDirtyChip()}
-function thumbsAll(){order().forEach(id=>queueThumb(id))}
+  thBusy=false;updateDirtyChip();const s2=thScale();if([...TH.values()].some(t=>!t.k.endsWith("|s"+s2))&&runThumbs.s!==s2){runThumbs.s=s2;thumbsAll()}}
+function thumbsAll(){if(typeof S==="undefined"||!S||!S.sections)return;order().forEach(id=>queueThumb(id))}
+{let t0=0,last=0;const re=()=>{clearTimeout(t0);t0=setTimeout(()=>{const s=thScale();if(Math.abs(s-last)>=.25){last=s;thumbsAll()}},400)};
+ addEventListener("resize",re);try{new ResizeObserver(re).observe(document.body)}catch{}document.addEventListener("click",ev=>{if(ev.target.closest("[data-zoom],.zoom,[data-gz]"))re()},true)}
 
 
 
