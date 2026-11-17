@@ -23,8 +23,7 @@ button{font:11px "Press Start 2P";color:#fff;background:#ff4f1f;border:0;padding
 
 export async function GET(request: Request, { params }: { params: Promise<{ path?: string[] }> }) {
   const { path: parts = [] } = await params;
-  const url = new URL(request.url);
-  if (!parts.length && !url.pathname.endsWith("/")) return NextResponse.redirect(new URL("/catalogo/", url), 308);
+  // Next strips the trailing slash, so the app is served at /catalogo itself; index.html carries <base href="/catalogo/">.
   const rel = parts.join("/") || "index.html";
   if (rel.includes("..") || rel.startsWith(".")) return new Response("Not found", { status: 404 });
   const ok = authorized(request);
