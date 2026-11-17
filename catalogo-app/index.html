@@ -607,11 +607,11 @@ function drawEls(c,e,els){for(const el of els){if(el.hidden)continue;c.save();c.
   else if(el.type==="mockup"){const mk=e.imgs["mk:"+el.id];const gk=garOf(el,e.p);const g=MOCKS[gk];const S0=Math.min(w,h),ox=x+(w-S0)/2,oy=y+(h-S0)/2;
     if(mk){c.drawImage(mk,ox,oy,S0,S0);const key=LIB[el.src]?el.src:e.p[el.slot||"d"],im=e.imgs[key],l=LIB[key];
       if(im&&l){const pl=g.pl,px=ox+S0*pl[0]/100,py=oy+S0*pl[1]/100,pw=S0*pl[2]/100,ph=S0*pl[3]/100;let dw=pw,dh=pw*l.h/l.w;if(dh>ph){dh=ph;dw=ph*l.w/l.h}
-        const ax=px+(pw-dw)/2,ay=py+(e.p&&el.top===false?(ph-dh)/2:0);c.drawImage(im,ax,ay,dw,dh);const base=MOCKIMG[gk];if(base&&!g.noTint){c.save();c.beginPath();c.rect(ax,ay,dw,dh);c.clip();c.globalCompositeOperation="multiply";c.globalAlpha=.55;c.drawImage(base,ox,oy,S0,S0);c.restore()}}}
+        const ax=px+(pw-dw)/2,ay=py+(e.p&&el.top===false?(ph-dh)/2:0);drawArt(c,im,l,ax,ay,dw,dh);const base=MOCKIMG[gk];if(base&&!g.noTint){c.save();c.beginPath();c.rect(ax,ay,dw,dh);c.clip();c.globalCompositeOperation="multiply";c.globalAlpha=.55;c.drawImage(base,ox,oy,S0,S0);c.restore()}}}
     if(el.label){txt(c,tokens(el.label,e,el.slot),x+w/2,y+h+3.4,{f:"mono",size:2.2,color:colorOf(el.lcolor||"ink",e),align:"center",maxW:w})}}
   else if(el.type==="scene"){const sk=scOf(el,e.p);const b0=e.imgs["sb:"+sk],o0=e.imgs["so:"+sk],sc=SCENES.find(s=>s.id===sk);
     if(b0&&sc){c.save();c.beginPath();c.rect(x,y,w,h);c.clip();const k=Math.max(w/sc.w,h/sc.h),dw=sc.w*k,dh=sc.h*k,dx=x+(w-dw)/2,dy=y+(h-dh)/2;c.drawImage(b0,dx,dy,dw,dh);
-      const key=LIB[el.src]?el.src:e.p[el.slot||"d"],im=e.imgs[key],l=LIB[key];if(im&&l){const [bx,by,bw,bh]=sc.art;let aw=bw,ah=aw*l.h/l.w;if(ah>bh){ah=bh;aw=ah*l.w/l.h}c.drawImage(im,dx+(bx+(bw-aw)/2)*k,dy+(by+(bh-ah)/2)*k,aw*k,ah*k)}
+      const key=LIB[el.src]?el.src:e.p[el.slot||"d"],im=e.imgs[key],l=LIB[key];if(im&&l){const [bx,by,bw,bh]=sc.art;let aw=bw,ah=aw*l.h/l.w;if(ah>bh){ah=bh;aw=ah*l.w/l.h}drawArt(c,im,l,dx+(bx+(bw-aw)/2)*k,dy+(by+(bh-ah)/2)*k,aw*k,ah*k)}
       if(o0)c.drawImage(o0,dx,dy,dw,dh);c.restore()}else{c.fillStyle="#333";c.fillRect(x,y,w,h)}}
   else if(el.type==="hangmock"){const im=e.imgs["hm:"+el.id];if(im){const r=im.width/im.height;let dw=w,dh=w/r;if(dh>h){dh=h;dw=h*r}c.drawImage(im,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}
     if(el.label)txt(c,tokens(el.label,e,el.slot),x+w/2,y+h+3.4,{f:"mono",size:+el.lsize||2.2,color:colorOf(el.lcolor||"ink",e),align:"center",maxW:w})}
@@ -676,7 +676,7 @@ function shirtSets(el,p){const sug=getPageCols(p,el.slot||"d").slice(0,3).filter
   return {sug,rest:COLORS.filter(([n,h])=>!hx.has(String(h).toLowerCase())&&!nm.has(String(n).toLowerCase()))}}
 function garmentArt(c,e,gk,el,ox,oy,S0){const g=MOCKS[gk]||MOCKS.tshirt;const key=LIB[el.src]?el.src:e.p[el.slot||"d"],im=e.imgs[key],l=LIB[key];if(!im||!l)return;
   const pl=g.pl,px=ox+S0*pl[0]/100,py=oy+S0*pl[1]/100,pw=S0*pl[2]/100,ph=S0*pl[3]/100;let dw=pw,dh=pw*l.h/l.w;if(dh>ph){dh=ph;dw=ph*l.w/l.h}
-  const ax=px+(pw-dw)/2;c.drawImage(im,ax,py,dw,dh);const base=MOCKIMG[gk];if(base&&!g.noTint){c.save();c.beginPath();c.rect(ax,py,dw,dh);c.clip();c.globalCompositeOperation="multiply";c.globalAlpha=.55;c.drawImage(base,ox,oy,S0,S0);c.restore()}}
+  const ax=px+(pw-dw)/2;drawArt(c,im,l,ax,py,dw,dh);const base=MOCKIMG[gk];if(base&&!g.noTint){c.save();c.beginPath();c.rect(ax,py,dw,dh);c.clip();c.globalCompositeOperation="multiply";c.globalAlpha=.55;c.drawImage(base,ox,oy,S0,S0);c.restore()}}
 /* ---- blueprint templates: element versions of the master list (editable copies) ---- */
 const _E=(o)=>({id:"bp"+Math.random().toString(36).slice(2,8),...o});
 const BP={
@@ -756,10 +756,13 @@ function fitSize(c,str,f,maxW,maxSize){c.font=font(f,100);const w=c.measureText(
 function wrap(c,str,x,y,w,o={}){const size=o.size||4,lh=o.lh||size*1.35;c.font=font(o.f||"mono",size);c.fillStyle=o.color||"#111";c.textAlign=o.align||"left";c.textBaseline="alphabetic";
   const lines=[];String(str||"").split("\n").forEach(par=>{let line="";par.split(/\s+/).forEach(word=>{const t=line?line+" "+word:word;if(c.measureText(t).width>w&&line){lines.push(line);line=word}else line=t});lines.push(line)});
   const max=o.maxLines||999;lines.slice(0,max).forEach((l,i)=>c.fillText(l,x,y+i*lh));if(lines.length>max&&o.env)o.env.warn.push(["warn","Texto a mais: algumas linhas não cabem."]);return Math.min(lines.length,max)*lh}
+/* draw a design image into its box keeping true proportions, whatever copy we got (full file, or a square preview with the design fitted inside) */
+function drawArt(c,im,l,dx,dy,dw,dh){const Wi=im.naturalWidth||im.width,Hi=im.naturalHeight||im.height;if(!Wi||!Hi||!l||!l.w||!l.h){c.drawImage(im,dx,dy,dw,dh);return}
+  const lr=l.w/l.h,cw=Math.min(Wi,Hi*lr),k=dw/cw,W2=Wi*k,H2=Hi*k;c.drawImage(im,dx+dw/2-W2/2,dy+dh/2-H2/2,W2,H2)}
 function art(c,e,key,x,y,w,h,o={}){const im=e.imgs[key],l=LIB[key];if(!key||!l){if(o.placeholder!==false){c.save();c.strokeStyle=o.ink||"#999";c.setLineDash([2,2]);c.lineWidth=.3;c.strokeRect(x,y,w,h);c.restore();txt(c,"ESCOLHE UM DESIGN",x+w/2,y+h/2,{f:"mono",size:3,color:o.ink||"#999",align:"center",base:"middle"})}if(o.req)e.warn.push(["bad","Falta escolher o design."]);return null}
   if(o.T&&!l.photo){const pale=!o.T.dark&&l.lum>195,dim=o.T.dark&&l.lum<45;if(pale||dim){c.fillStyle=pale?"#2a2a2a":"#ece9e2";const r=3;c.beginPath();c.roundRect?c.roundRect(x,y,w,h,r):c.rect(x,y,w,h);c.fill();x+=4;y+=4;w-=8;h-=8}}
   const sc=Math.min(1,Math.max(.3,(o.scale||100)/100));let dw=w,dh=w*l.h/l.w;if(dh>h){dh=h;dw=h*l.w/l.h}dw*=sc;dh*=sc;
-  const ax=x+(w-dw)/2,ay=o.top?y:y+(h-dh)/2;if(im)c.drawImage(im,ax,ay,dw,dh);
+  const ax=x+(w-dw)/2,ay=o.top?y:y+(h-dh)/2;if(im)drawArt(c,im,l,ax,ay,dw,dh);
   if(l.missing){e.warn.push(["bad",`${l.code} ${l.name}: falta a arte (ARTWORK TO CONFIRM).`]);c.save();c.strokeStyle=o.ink||"#999";c.setLineDash([2,2]);c.lineWidth=.3;c.strokeRect(x,y,w,h);c.restore();txt(c,"ARTWORK TO CONFIRM",x+w/2,y+h/2,{size:6,color:o.ink||"#999",align:"center",base:"middle"});return null}
   const srcPx=Math.min(l.w,l.cap||1800);const ppi=srcPx/(dw/25.4);
   if(ppi<200)e.warn.push(["bad",`${l.code}: só ${Math.floor(ppi)} ppi neste tamanho. Vai sair pixelizado.`]);else if(ppi<260)e.warn.push(["warn",`${l.code}: ${Math.floor(ppi)} ppi. Aceitável, não perfeito.`]);
@@ -793,7 +796,7 @@ function colourBlock(c,e,cols,url,x,y,T,o={}){const st=S.settings,bw=o.w||44;txt
   sug.forEach((cl,i)=>{const sx=x+i*(B+gap),sy=y+1.2,mk=dk?e.imgs["fm:"+dk+"|"+cl[1]]:null;
     if(mk){if(T&&T.dark){c.save();c.fillStyle="rgba(255,255,255,.06)";c.fillRect(sx,sy,B,B);c.restore()}c.drawImage(mk,0,mk.height-mk.width,mk.width,mk.width,sx,sy,B,B)}else teeThumb(c,cl[1],sx,sy,B,T,true);
     if(!mk&&dim&&dl){const pl=MOCKS.tshirt.pl,pw=B*pl[2]/100,ph=B*pl[3]/100;let dw=pw,dh=pw*dl.h/dl.w;if(dh>ph){dh=ph;dw=ph*dl.w/dl.h}
-      const ax=sx+B*pl[0]/100+(pw-dw)/2,ay=sy+B*pl[1]/100;c.save();c.globalAlpha=(c.globalAlpha||1)*.96;c.drawImage(dim,ax,ay,dw,dh);c.restore()}
+      const ax=sx+B*pl[0]/100+(pw-dw)/2,ay=sy+B*pl[1]/100;c.save();c.globalAlpha=(c.globalAlpha||1)*.96;drawArt(c,dim,dl,ax,ay,dw,dh);c.restore()}
     txt(c,(cl[0]||"").toUpperCase(),sx+B/2,y+B+2.6+(B>14?.6:0),{f:"mono",size:B>14?1.8:1.35,color:T.ink,maxW:B+gap-.4,align:"center"})});
   let bottom=y+B+3.4;const yb=B>14?1.4:0;
   if(o.rest!==false){const hx=new Set(sug.map(cl=>String(cl[1]).toLowerCase())),nm=new Set(sug.map(cl=>String(cl[0]).toLowerCase()));
@@ -821,7 +824,7 @@ function qrBeforeNum(c,url,x,base,qs){if(!url)return x;qr(c,url,x,base-qs+.4,qs)
 function themeOf(p){const d=p.theme==="black";return {dark:d,ink:d?"#ffffff":"#111111",bg:d?"#111111":"#f5f2eb",soft:d?"#bdbdbd":"#6b6b6b"}}
 function photoFill(c,e,key,x,y,w,h,mode){const im=e.imgs[key],l=LIB[key];if(!l||!im){c.fillStyle="#555";c.fillRect(x,y,w,h);txt(c,"ESCOLHE UMA IMAGEM",x+w/2,y+h/2,{f:"mono",size:3,color:"#ddd",align:"center",base:"middle"});return}
   const r=l.w/l.h,R=w/h;let sw=l.w,sh=l.h,sx=0,sy=0;if(mode!=="contain"){if(r>R){sw=l.h*R;sx=(l.w-sw)/2}else{sh=l.w/R;sy=(l.h-sh)/2}c.drawImage(im,sx*im.naturalWidth/l.w,sy*im.naturalHeight/l.h,sw*im.naturalWidth/l.w,sh*im.naturalHeight/l.h,x,y,w,h)}
-  else{let dw=w,dh=w/r;if(dh>h){dh=h;dw=h*r}c.drawImage(im,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}
+  else{let dw=w,dh=w/r;if(dh>h){dh=h;dw=h*r}drawArt(c,im,l,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}
   const ppi=Math.min(im.naturalWidth/((mode!=="contain"?w*l.w/sw:w)/25.4),9999);if(ppi<150)e.warn.push(["warn",`${l.name}: ${Math.floor(ppi)} ppi. Serve para rascunho; para impressão final usa a foto original.`])}
 const R={
  produto(c,e){const p=e.p,T=themeOf(p);bgFill(c,e,T.bg);hdr(c,e,seriesOf(e));
