@@ -549,9 +549,9 @@ function qrFor(p,no,field="qr",dkey="d"){const v=(p[field]||"").trim();const cod
 function tplOf(p){const k=typeof p==="string"?p:p.tpl;if(TPL[k])return TPL[k];const u=(S&&S.tpls&&S.tpls[k])||BP[k];if(u)return {name:u.name,group:u.group||"c",desc:u.desc||(u.bp?"Modelo base":"Modelo teu"),fields:customFields(u),custom:u,bp:!!u.bp};return TPL.texto}
 const tplDef=k=>(S&&S.tpls&&S.tpls[k])||BP[k]||null;
 function customFields(u){const f=[];if(u.themeable!==false)f.push(["theme","Cor da página","theme"]);(u.slots||[]).forEach((sl,i)=>f.push([sl,"Design "+(i+1),"design"]));if((u.els||[]).some(e=>e.type==="qr"&&!e.url))f.push(["qr","Link do QR (vazio = auto)","qr"]);
-  const seen=new Set();(u.els||[]).forEach(e=>{String(e.text||"").replace(/\{f:([a-z0-9_]+)\}/gi,(m,k)=>{if(!seen.has(k)){seen.add(k);f.push([k,k.replace(/_/g," "),"area"])}})});const E=u.els||[];if(E.some(e=>(e.type==="colors"&&e.slot!=="d2")||(e.type==="mockup"&&/^c[1-3]$/.test(e.color||"c1")&&e.slot!=="d2")||(e.type==="shirts"&&e.slot!=="d2")))f.push(["colors","Try these colours"+(u.slots&&u.slots.length>1?" (1)":""),"colors"]);
-  if(E.some(e=>(e.type==="colors"||e.type==="mockup"||e.type==="shirts")&&e.slot==="d2"))f.push(["colors2","Cores (2)","colors"]);if(E.some(e=>e.type==="scene"))f.push(["scene","Cena (foto)","scene"]);if(E.some(e=>e.type==="mockup"||e.type==="shirts"))f.push(["garment","Peça nos mockups","garment"]);return f}
-function pageImages(p){const ks=[];DESIGN_FIELDS.forEach(f=>{if(p[f]&&LIB[p[f]])ks.push(p[f])});const u=tplDef(p.tpl);[...(u?u.els:[]),...(p.layers||[])].forEach(el=>{if(el.type==="image"&&el.src&&LIB[el.src])ks.push(el.src);if((el.type==="mockup"||el.type==="scene")){const k=LIB[el.src]?el.src:p[el.slot||"d"];if(k&&LIB[k])ks.push(k)}});return [...new Set(ks)]}
+  const seen=new Set();(u.els||[]).forEach(e=>{String(e.text||"").replace(/\{f:([a-z0-9_]+)\}/gi,(m,k)=>{if(!seen.has(k)){seen.add(k);f.push([k,k.replace(/_/g," "),"area"])}})});const E=u.els||[];if(E.some(e=>(e.type==="colors"&&e.slot!=="d2")||(e.type==="mockup"&&/^c[1-3]$/.test(e.color||"c1")&&e.slot!=="d2")||(e.type==="shirts"&&e.slot!=="d2")||(e.type==="hangmock"&&/^c[1-3]$/.test(e.color||"c1")&&e.slot!=="d2")))f.push(["colors","Try these colours"+(u.slots&&u.slots.length>1?" (1)":""),"colors"]);
+  if(E.some(e=>(e.type==="colors"||e.type==="mockup"||e.type==="shirts"||e.type==="hangmock")&&e.slot==="d2"))f.push(["colors2","Cores (2)","colors"]);if(E.some(e=>e.type==="scene"))f.push(["scene","Cena (foto)","scene"]);if(E.some(e=>e.type==="mockup"||e.type==="shirts"))f.push(["garment","Peça nos mockups","garment"]);return f}
+function pageImages(p){const ks=[];DESIGN_FIELDS.forEach(f=>{if(p[f]&&LIB[p[f]])ks.push(p[f])});const u=tplDef(p.tpl);[...(u?u.els:[]),...(p.layers||[])].forEach(el=>{if(el.type==="image"&&el.src&&LIB[el.src])ks.push(el.src);if((el.type==="mockup"||el.type==="scene"||el.type==="hangmock")){const k=LIB[el.src]?el.src:p[el.slot||"d"];if(k&&LIB[k])ks.push(k)}});return [...new Set(ks)]}
 function svgUrl(id){const v=(S.svgLib||{})[id]||BUILTIN_SVG[id];if(!v)return null;if(v.url)return v.url;return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(v.svg)}
 function svgTinted(id,col){const v=(S.svgLib||{})[id]||BUILTIN_SVG[id];if(!v||!v.svg)return svgUrl(id);if(!col)return svgUrl(id);
   const t=v.svg.replace(/fill="(?!none)[^"]*"/g,`fill="${col}"`).replace(/fill:(?!none)[^;"]+/g,"fill:"+col).replace(/currentColor/g,col);return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(t)}
@@ -560,6 +560,7 @@ async function renderPage(canvas,id,o={}){const p=S.pages[id];if(!p)return [];co
   const u=tplDef(p.tpl);const els=[...(u?u.els:[]),...(p.layers||[])];const T0=themeOf(u&&u.themeable===false?{theme:u.theme}:p);
   await Promise.all(els.filter(el=>el.type==="svg").map(async el=>{const col=el.color?colorOf(el.color,{T:T0,sec:secOf(id)}):null;imgs["svg:"+el.id]=await loadImg(svgTinted(el.svg,col))}));
   await Promise.all(els.filter(el=>el.type==="mockup").map(async el=>{imgs["mk:"+el.id]=await tintMock(garOf(el,p),mockColor(el,p))}));
+  await Promise.all(els.filter(el=>el.type==="hangmock").map(async el=>{const key=LIB[el.src]?el.src:p[el.slot||"d"];imgs["hm:"+el.id]=await hangMock(mockColor(el,p),key,{size:o.hi||s>=6?1400:900,warp:el.warp??1,alpha:el.alpha??.96,hanger:el.hanger!==false})}));
   await Promise.all(els.filter(el=>el.type==="shirts").flatMap(el=>{const gk=garOf(el,p),{sug,rest}=shirtSets(el,p);
     return [...sug.map(async c=>{imgs["sh:"+gk+"|"+c[1]+"|b"]=await tintMock(gk,c[1],640)}),...(el.rest===false?[]:rest.map(async c=>{imgs["sh:"+gk+"|"+c[1]+"|s"]=await tintMock(gk,c[1],240)}))]}));
   await Promise.all(els.filter(el=>el.type==="scene").map(async el=>{const sc=scOf(el,p);imgs["sb:"+sc]=await loadImg("designs/assets/scene/"+sc+"-base.webp");imgs["so:"+sc]=await loadImg("designs/assets/scene/"+sc+"-over.webp")}));
@@ -603,6 +604,8 @@ function drawEls(c,e,els){for(const el of els){if(el.hidden)continue;c.save();c.
     if(b0&&sc){c.save();c.beginPath();c.rect(x,y,w,h);c.clip();const k=Math.max(w/sc.w,h/sc.h),dw=sc.w*k,dh=sc.h*k,dx=x+(w-dw)/2,dy=y+(h-dh)/2;c.drawImage(b0,dx,dy,dw,dh);
       const key=LIB[el.src]?el.src:e.p[el.slot||"d"],im=e.imgs[key],l=LIB[key];if(im&&l){const [bx,by,bw,bh]=sc.art;let aw=bw,ah=aw*l.h/l.w;if(ah>bh){ah=bh;aw=ah*l.w/l.h}c.drawImage(im,dx+(bx+(bw-aw)/2)*k,dy+(by+(bh-ah)/2)*k,aw*k,ah*k)}
       if(o0)c.drawImage(o0,dx,dy,dw,dh);c.restore()}else{c.fillStyle="#333";c.fillRect(x,y,w,h)}}
+  else if(el.type==="hangmock"){const im=e.imgs["hm:"+el.id];if(im){const r=im.width/im.height;let dw=w,dh=w/r;if(dh>h){dh=h;dw=h*r}c.drawImage(im,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}
+    if(el.label)txt(c,tokens(el.label,e,el.slot),x+w/2,y+h+3.4,{f:"mono",size:+el.lsize||2.2,color:colorOf(el.lcolor||"ink",e),align:"center",maxW:w})}
   else if(el.type==="shirts"){const gk=garOf(el,e.p),{sug,rest}=shirtSets(el,e.p),sc=c.getTransform().a||1,ink=colorOf(el.lcolor||"ink",e);
     const hasRest=el.rest!==false&&rest.length,sh=hasRest?h*(+el.strip||.34):0,sy=y+h-sh;
     if(hasRest){const n=rest.length,cw=w/n,bg=el.bg||"colour";
@@ -634,6 +637,31 @@ async function tintMock(g,col,size=1000){const G=MOCKS[g]||MOCKS.tshirt;const k=
   const c=document.createElement("canvas");c.width=c.height=size;const x=c.getContext("2d");x.drawImage(im,0,0,size,size);const L=lumHex(col)/255;
   if(!G.noTint&&L<.95){x.globalCompositeOperation="multiply";x.fillStyle=col;x.fillRect(0,0,size,size);if(L<.3){x.globalCompositeOperation="screen";x.globalAlpha=.16;x.drawImage(im,0,0,size,size);x.globalAlpha=1}x.globalCompositeOperation="destination-in";x.drawImage(im,0,0,size,size)}
   MOCKTINT.set(k,c);return c}
+/* ---- photo mockup on a wooden hanger: tinted photo tee + design warped by the fabric folds, shaded, 96% alpha ---- */
+const HANGIMG={},HANGCACHE=new Map();
+async function hangMock(hex,key,o={}){const size=o.size||1000,warp=o.warp??1,alpha=o.alpha??.96,hanger=o.hanger!==false;
+  const ck=[hex,key,size,warp,alpha,hanger].join("|");if(HANGCACHE.has(ck))return HANGCACHE.get(ck);
+  const G=MOCKS.tshirt,off=Math.round(size*.1),Hc=size+off;
+  const base=MOCKIMG.tshirt||(MOCKIMG.tshirt=await loadImg("designs/assets/mock/"+G.file+".webp"));const tee=await tintMock("tshirt",hex,size);
+  if(!base||!tee)return null;const cv=document.createElement("canvas");cv.width=size;cv.height=Hc;const x=cv.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(tee,0,off,size,size);
+  const l=LIB[key],im=key?await loadImg(libImgUrl(key,true)):null;
+  if(im&&l){const pl=G.pl,bx=size*pl[0]/100,by=size*pl[1]/100,bw=size*pl[2]/100,bh=size*pl[3]/100;let dw=bw,dh=bw*l.h/l.w;if(dh>bh){dh=bh;dw=bh*l.w/l.h}
+    const ax=Math.round(bx+(bw-dw)/2),ay=Math.round(by),W0=Math.max(2,Math.round(dw)),H0=Math.max(2,Math.round(dh)),pad=Math.ceil(size*.02);
+    const A=document.createElement("canvas");A.width=W0+2*pad;A.height=H0+2*pad;const a=A.getContext("2d");a.imageSmoothingQuality="high";a.drawImage(im,pad,pad,W0,H0);
+    const L=document.createElement("canvas");L.width=A.width;L.height=A.height;const lx=L.getContext("2d");lx.filter="blur("+Math.max(1,size*.0018)+"px)";lx.drawImage(base,0,0,base.naturalWidth||base.width,base.naturalHeight||base.height,-(ax-pad),-(ay-pad),size,size);
+    const ad=a.getImageData(0,0,A.width,A.height),ld=lx.getImageData(0,0,L.width,L.height).data,src=ad.data,out=new Uint8ClampedArray(src.length),w=A.width,h=A.height;
+    const lum=new Float32Array(w*h);let mx=0;for(let i=0;i<w*h;i++){const al=ld[i*4+3]/255;const v=(.299*ld[i*4]+.587*ld[i*4+1]+.114*ld[i*4+2])/255;lum[i]=al>.05?v/al:-1;}
+    {const ok=Array.from(lum).filter(v=>v>=0).sort((a,b)=>a-b);mx=ok[Math.floor(ok.length*.9)]||1;for(let i=0;i<w*h;i++)if(lum[i]<0)lum[i]=mx}
+    const K=warp*size*.022;
+    for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++){const i=yy*w+xx;
+      const gx=(lum[yy*w+Math.min(w-1,xx+1)]-lum[yy*w+Math.max(0,xx-1)])*.5,gy=(lum[Math.min(h-1,yy+1)*w+xx]-lum[Math.max(0,yy-1)*w+xx])*.5;
+      const sx=xx+gx*K*10,sy=yy+gy*K*10;const x0=Math.floor(sx),y0=Math.floor(sy),fx=sx-x0,fy=sy-y0;if(x0<0||y0<0||x0>=w-1||y0>=h-1)continue;
+      const shade=Math.min(1.06,Math.pow(lum[i]/mx,1.15));const j=i*4;
+      for(let c=0;c<4;c++){const p00=src[(y0*w+x0)*4+c],p10=src[(y0*w+x0+1)*4+c],p01=src[((y0+1)*w+x0)*4+c],p11=src[((y0+1)*w+x0+1)*4+c];
+        let v=(p00*(1-fx)+p10*fx)*(1-fy)+(p01*(1-fx)+p11*fx)*fy;out[j+c]=c<3?v*shade:v*alpha}}
+    ad.data.set(out);a.putImageData(ad,0,0);x.drawImage(A,ax-pad,off+ay-pad)}
+  if(hanger){const hg=HANGIMG.o||(HANGIMG.o=await loadImg("designs/assets/mock/hanger-over.webp"));if(hg)x.drawImage(hg,0,0,size,Hc)}
+  if(HANGCACHE.size>40)HANGCACHE.delete(HANGCACHE.keys().next().value);HANGCACHE.set(ck,cv);return cv}
 /* ---- t-shirt colour strip: suggested colours big (with the design) + every other garment colour small, stretched along the bottom ---- */
 function shirtSets(el,p){const sug=getPageCols(p,el.slot||"d").slice(0,3).filter(c=>c&&c[1]);const hx=new Set(sug.map(c=>String(c[1]).toLowerCase())),nm=new Set(sug.map(c=>String(c[0]).toLowerCase()));
   return {sug,rest:COLORS.filter(([n,h])=>!hx.has(String(h).toLowerCase())&&!nm.has(String(n).toLowerCase()))}}
@@ -646,6 +674,12 @@ const BP={
  "b:produto":{bp:true,name:"Produto v22 (editável)",group:"d",family:"produto",slots:["d"],theme:"white",desc:"O clássico, em caixas que podes mexer",els:[
   _E({type:"text",x:12,y:16.6,w:28,h:12,text:"{num}",font:"bb",size:11.5}),_E({type:"text",x:40,y:20,w:158,h:7,text:"{name}",font:"bb",size:6.6,upper:true,fit:true}),_E({type:"line",x:12,y:33,w:186,h:.3,fill:"ink"}),
   _E({type:"image",x:18,y:40,w:174,h:196,src:"d",fit:"contain"}),_E({type:"line",x:12,y:242,w:186,h:.3,fill:"ink"}),_E({type:"colors",x:12,y:252,w:40,h:16,slot:"d"}),_E({type:"qr",x:176,y:247,w:22,h:22,url:""})]},
+ "b:produto-cabide":{bp:true,name:"Produto · t-shirt no cabide",group:"d",family:"produto",slots:["d"],theme:"white",desc:"Foto da t-shirt na cor sugerida, num cabide de madeira, com o design a seguir o tecido",els:[
+  _E({type:"text",x:12,y:16.6,w:28,h:12,text:"{num}",font:"bb",size:11.5}),_E({type:"text",x:40,y:20,w:158,h:7,text:"{name}",font:"bb",size:6.6,upper:true,fit:true}),_E({type:"line",x:12,y:33,w:186,h:.3,fill:"ink"}),
+  _E({type:"hangmock",x:8,y:36,w:156,h:171.6,color:"c1",slot:"d",warp:1,alpha:.96,label:"NA FOTO · {c1}"}),
+  _E({type:"image",x:168,y:40,w:30,h:36,src:"d",fit:"contain"}),
+  _E({type:"hangmock",x:166,y:88,w:34,h:37.4,color:"c2",slot:"d",warp:1,alpha:.96,label:"{c2}",lsize:1.8}),_E({type:"hangmock",x:166,y:136,w:34,h:37.4,color:"c3",slot:"d",warp:1,alpha:.96,label:"{c3}",lsize:1.8}),
+  _E({type:"line",x:12,y:216,w:186,h:.3,fill:"ink"}),_E({type:"colors",x:12,y:224,w:40,h:16,slot:"d"}),_E({type:"text",x:60,y:226,w:100,h:8,text:"{price} · peça pelo número {num}",font:"mono",size:3}),_E({type:"qr",x:176,y:221,w:22,h:22,url:""})]},
  "b:produto-tira":{bp:true,name:"Produto + tira de cores",group:"d",family:"produto",slots:["d"],theme:"white",desc:"3 t-shirts sugeridas com o design, e todas as outras cores em miniatura ao longo do fundo",els:[
   _E({type:"text",x:12,y:16.6,w:28,h:12,text:"{num}",font:"bb",size:11.5}),_E({type:"text",x:40,y:20,w:158,h:7,text:"{name}",font:"bb",size:6.6,upper:true,fit:true}),_E({type:"line",x:12,y:33,w:186,h:.3,fill:"ink"}),
   _E({type:"image",x:18,y:38,w:174,h:180,src:"d",fit:"contain"}),_E({type:"shirts",x:12,y:222,w:186,h:50,garment:"tshirt",slot:"d",bg:"colour",strip:.3,big:.52}),_E({type:"qr",x:176,y:224,w:22,h:22,url:""})]},
@@ -682,7 +716,7 @@ const BP={
 };
 const EDITABLE_OF={produto:"b:produto",duo:"b:duo",separador:"b:separador",interludio:"b:interludio",capa:"b:capa",contracapa:"b:contracapa"};
 const FAMILIES=[
- {id:"produto",name:"PRODUTO · 1 DESIGN",icon:"▣",desc:"Uma página por design",v:["produto","b:produto-tira","b:produto-mockup","b:produto-cena","destaque","b:produto"]},
+ {id:"produto",name:"PRODUTO · 1 DESIGN",icon:"▣",desc:"Uma página por design",v:["produto","b:produto-cabide","b:produto-tira","b:produto-mockup","b:produto-cena","destaque","b:produto"]},
  {id:"galeria",name:"GALERIA · VÁRIOS DESIGNS",icon:"▦",desc:"2 a 6 designs por página",v:["duo","b:duo","b:duo-lado","grelha","b:cores-mockup"]},
  {id:"editorial",name:"EDITORIAL & CENAS",icon:"📷",desc:"Fotos, colagens e mockups em cena",v:["editorial","b:cena-pagina","imagem"]},
  {id:"capitulo",name:"CAPÍTULOS & PAUSAS",icon:"01",desc:"Abrir e respirar entre secções",v:["separador","b:separador","interludio","b:interludio"]},
@@ -1098,7 +1132,7 @@ $("#insp").addEventListener("click",ev=>{if(ev.target.closest("#tplProps"))retur
 
 /* ---------- layers (page) ---------- */
 let layerPick=null;
-const LAYER_DEF={text:{w:80,h:14,text:"Texto",font:"bb",size:8,color:"ink",lh:1.15},dyn:{w:90,h:10,text:"{num} · {name}",font:"monob",size:3.6,color:"ink",lh:1.15},image:{w:60,h:60,src:"d",fit:"contain"},svg:{w:30,h:30,svg:"b-star"},qr:{w:24,h:24,url:""},rect:{w:60,h:20,fill:"accent"},line:{w:120,h:.4,fill:"ink"},colors:{w:40,h:16,slot:"d"},mockup:{w:70,h:70,garment:"tshirt",color:"c1",slot:"d",label:"{c1}"},shirts:{w:186,h:50,garment:"tshirt",slot:"d",bg:"colour",strip:.3,big:.52},scene:{w:96,h:120,scene:"05-Em-Cena",slot:"d"}};
+const LAYER_DEF={text:{w:80,h:14,text:"Texto",font:"bb",size:8,color:"ink",lh:1.15},dyn:{w:90,h:10,text:"{num} · {name}",font:"monob",size:3.6,color:"ink",lh:1.15},image:{w:60,h:60,src:"d",fit:"contain"},svg:{w:30,h:30,svg:"b-star"},qr:{w:24,h:24,url:""},rect:{w:60,h:20,fill:"accent"},line:{w:120,h:.4,fill:"ink"},colors:{w:40,h:16,slot:"d"},mockup:{w:70,h:70,garment:"tshirt",color:"c1",slot:"d",label:"{c1}"},hangmock:{w:120,h:132,color:"c1",slot:"d",warp:1,alpha:.96,label:"{c1}"},shirts:{w:186,h:50,garment:"tshirt",slot:"d",bg:"colour",strip:.3,big:.52},scene:{w:96,h:120,scene:"05-Em-Cena",slot:"d"}};
 function addLayerTo(arr,type){const d=LAYER_DEF[type];const el={id:uid(),type:type==="dyn"?"text":type,x:Math.round((W-d.w)/2),y:Math.round((H-(d.h||10))/2),...JSON.parse(JSON.stringify(d))};arr.push(el);return el}
 function addLayer(type){const p=S.pages[sel];p.layers=p.layers||[];const el=addLayerTo(p.layers,type);selLayer=el.id;p.edited=Date.now();if(!layerMode){layerMode=true;$("#btnLayerMode").classList.add("yel")}changed(false);renderStage();renderInspector()}
 function curLayer(){const p=S.pages[sel];return (p&&p.layers||[]).find(l=>l.id===selLayer)}
@@ -1110,7 +1144,7 @@ function layerAct(a){const p=S.pages[sel],L=p.layers||[];const i=L.findIndex(l=>
   p.edited=Date.now();changed(false);renderInspector();drawOv()}
 function layersHtml(p){const L=p.layers||[];const el=curLayer();
   let h=`<h3>CAMADAS DESTA PÁGINA</h3><p class="hint">Texto fixo, texto dinâmico (preenche-se sozinho com vendas, preço, nome…), imagens, SVG, QR e caixas por cima do modelo.</p>
-  <div class="row" style="flex-wrap:wrap;gap:0;margin:0 -4px 8px">${[["text","T TEXTO"],["dyn","{ } DINÂMICO"],["image","🖼 IMAGEM"],["svg","✦ SVG"],["qr","▣ QR"],["rect","■ CAIXA"],["line","— LINHA"],["colors","◼◼ CORES"],["shirts","👕 T-SHIRTS"]].map(([k,l])=>`<button class="btn xs alt" data-addl="${k}" style="flex:none">${l}</button>`).join("")}</div>`;
+  <div class="row" style="flex-wrap:wrap;gap:0;margin:0 -4px 8px">${[["text","T TEXTO"],["dyn","{ } DINÂMICO"],["image","🖼 IMAGEM"],["svg","✦ SVG"],["qr","▣ QR"],["rect","■ CAIXA"],["line","— LINHA"],["colors","◼◼ CORES"],["shirts","👕 T-SHIRTS"],["hangmock","🪝 CABIDE"]].map(([k,l])=>`<button class="btn xs alt" data-addl="${k}" style="flex:none">${l}</button>`).join("")}</div>`;
   h+=L.length?[...L].reverse().map(l=>`<div class="ly ${l.id===selLayer?"on":""}" data-ly="${l.id}"><i>${elLabel(l).split(" ")[0]}</i><span>${esc(l.type==="text"?l.text:l.type==="svg"?((S.svgLib[l.svg]||BUILTIN_SVG[l.svg]||{}).name||"svg"):l.type==="image"?(LIB[l.src]?.name||l.src):l.type==="qr"?(l.url||"QR da página"):l.type)}</span></div>`).join(""):`<p class="hint">Sem camadas. Junta uma acima.</p>`;
   if(el)h+=`<h3>PROPRIEDADES</h3>`+elPropsHtml(el,"lk")+`<div class="row" style="flex-wrap:wrap;gap:0;margin:6px -4px"><button class="btn xs alt" data-lact="up" style="flex:none">▲</button><button class="btn xs alt" data-lact="down" style="flex:none">▼</button><button class="btn xs alt" data-lact="dup" style="flex:none">⧉</button><button class="btn xs alt" data-lact="toall" style="flex:none">→ SECÇÃO</button><button class="btn xs" data-lact="del" style="flex:none">🗑</button></div>`;
   return h}
@@ -1134,6 +1168,11 @@ function elPropsHtml(el,A){const n=(k,l,step=.5)=>`<label class="f" style="margi
     <label class="f">Cor da peça<select ${A}="color">${[["c1","Cor 1 da página"],["c2","Cor 2 da página"],["c3","Cor 3 da página"]].map(([a,b])=>`<option value="${a}" ${el.color===a?"selected":""}>${b}</option>`).join("")}${COLORS.map(([n])=>`<option ${el.color===n?"selected":""}>${n}</option>`).join("")}</select></label>
     <label class="f">Legenda (aceita tokens)<input type="text" ${A}="label" value="${esc(el.label||"")}" placeholder="{c1}"></label><label class="f">Design<select ${A}="slot"><option value="d">Design 1</option><option value="d2" ${el.slot==="d2"?"selected":""}>Design 2</option></select></label>`;
   if(el.type==="scene")h+=`<label class="f">Cena<select ${A}="scene">${SCENES.map(s=>`<option value="${s.id}" ${el.scene===s.id?"selected":""}>${esc(s.name)}</option>`).join("")}</select></label><label class="f">Design<select ${A}="slot"><option value="d">Design 1</option><option value="d2" ${el.slot==="d2"?"selected":""}>Design 2</option></select></label>`;
+  if(el.type==="hangmock")h+=`<label class="f">Cor da t-shirt<select ${A}="color">${[["c1","Cor 1 da página"],["c2","Cor 2 da página"],["c3","Cor 3 da página"]].map(([a,b])=>`<option value="${a}" ${(el.color||"c1")===a?"selected":""}>${b}</option>`).join("")}${COLORS.map(([n,hx])=>`<option value="${hx}" ${el.color===hx?"selected":""}>${n}</option>`).join("")}</select></label>
+    <label class="f">Design segue o tecido<input type="range" min="0" max="2.5" step="0.1" ${A}="warp" data-num value="${el.warp??1}"></label>
+    <label class="f">Opacidade do design (96% = mistura no tecido)<input type="range" min="0.7" max="1" step="0.01" ${A}="alpha" data-num value="${el.alpha??.96}"></label>
+    <label class="f row" style="gap:6px;align-items:center"><input type="checkbox" ${A}="hanger" ${el.hanger!==false?"checked":""}> Cabide de madeira</label>
+    <label class="f">Legenda (aceita tokens)<input type="text" ${A}="label" value="${esc(el.label||"")}" placeholder="{c1}"></label><label class="f">Design<select ${A}="slot"><option value="d">Design 1</option><option value="d2" ${el.slot==="d2"?"selected":""}>Design 2</option></select></label>`;
   if(el.type==="shirts"){const ck=(k,l,def=true)=>`<label class="f row" style="gap:6px;align-items:center"><input type="checkbox" ${A}="${k}" ${(el[k]??def)!==false?"checked":""}> ${l}</label>`;
     h+=`<label class="f">Peça<select ${A}="garment">${Object.entries(MOCKS).filter(([g,m])=>!m.noTint).map(([g,m])=>`<option value="${g}" ${el.garment===g?"selected":""}>${esc(m.name)}</option>`).join("")}</select></label>
     <label class="f">Fundo da tira<select ${A}="bg">${[["colour","Cada peça sobre a sua cor (tira contínua)"],["band","Peças + barra de cor por baixo"],["none","Só as peças"]].map(([v,l])=>`<option value="${v}" ${(el.bg||"colour")===v?"selected":""}>${l}</option>`).join("")}</select></label>
@@ -1240,7 +1279,7 @@ function renderTplProps(){const u=S.tpls[tplSel];const box=TPLPROPS;if(!u){box.i
   <div class="row" style="gap:6px"><label class="f">Fundo<select data-tp="bgmode"><option value="theme" ${u.themeable!==false?"selected":""}>Branca/preta (escolhe na página)</option><option value="fixed" ${u.themeable===false?"selected":""}>Cor fixa</option></select></label>${u.themeable===false?`<label class="f">Cor<input type="color" data-tp="bg" value="${u.bg||"#ff4f1f"}"></label><label class="f">Tinta<select data-tp="theme"><option value="white" ${u.theme!=="black"?"selected":""}>Escura</option><option value="black" ${u.theme==="black"?"selected":""}>Clara</option></select></label>`:""}</div>
   <label class="row" style="justify-content:flex-start;font-size:18px"><input type="checkbox" data-tp="header" ${u.header!==false?"checked":""}> Cabeçalho MADE IN MAIA</label><label class="row" style="justify-content:flex-start;font-size:18px;margin:6px 0 10px"><input type="checkbox" data-tp="footer" ${u.footer!==false?"checked":""}> Rodapé COLLECTION / nº página</label>
   <div class="row" style="flex-wrap:wrap;gap:0;margin:0 -4px"><button class="btn xs go" data-tact="use" style="flex:none">+ USAR NUMA PÁGINA</button><button class="btn xs alt" data-tact="dup" style="flex:none">⧉</button><button class="btn xs" data-tact="del" style="flex:none">🗑</button></div>
-  <h3>CAIXAS</h3><div class="row" style="flex-wrap:wrap;gap:0;margin:0 -4px 8px">${[["text","T TEXTO"],["dyn","{ } DINÂMICO"],["image","🖼 IMAGEM"],["svg","✦ SVG"],["qr","▣ QR"],["rect","■ CAIXA"],["line","— LINHA"],["colors","◼◼ CORES"],["shirts","👕 T-SHIRTS"]].map(([k,l])=>`<button class="btn xs alt" data-tadd="${k}" style="flex:none">${l}</button>`).join("")}</div>
+  <h3>CAIXAS</h3><div class="row" style="flex-wrap:wrap;gap:0;margin:0 -4px 8px">${[["text","T TEXTO"],["dyn","{ } DINÂMICO"],["image","🖼 IMAGEM"],["svg","✦ SVG"],["qr","▣ QR"],["rect","■ CAIXA"],["line","— LINHA"],["colors","◼◼ CORES"],["shirts","👕 T-SHIRTS"],["hangmock","🪝 CABIDE"]].map(([k,l])=>`<button class="btn xs alt" data-tadd="${k}" style="flex:none">${l}</button>`).join("")}</div>
   ${[...u.els].reverse().map(e=>`<div class="ly ${e.id===tplElSel?"on":""}" data-tel="${e.id}"><i>${elLabel(e).split(" ")[0]}</i><span>${esc(e.type==="text"?e.text:e.type==="image"?e.src:e.type==="svg"?e.svg:e.type)}</span></div>`).join("")}
   ${el?`<h3>CAIXA SELECIONADA</h3>${elPropsHtml(el,"data-tl")}<div class="row" style="flex-wrap:wrap;gap:0;margin:6px -4px"><button class="btn xs alt" data-teact="up" style="flex:none">▲</button><button class="btn xs alt" data-teact="down" style="flex:none">▼</button><button class="btn xs alt" data-teact="dup" style="flex:none">⧉</button><button class="btn xs" data-teact="del" style="flex:none">🗑</button></div>`:""}
   <p class="hint" style="margin-top:14px">Campos livres: escreve <code>{f:nome}</code> num texto e esse campo aparece no inspector de cada página que usa o modelo.</p>`}
