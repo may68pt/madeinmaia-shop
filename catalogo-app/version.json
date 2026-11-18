@@ -1,1 +1,1 @@
-{"v": "1.6.3", "date": "2026-11-18", "notes": ["Lista de páginas: os spreads cabem sempre na largura do painel", "Colunas ajustáveis: arrasta a divisória entre páginas / página / painel (duplo clique repõe), larguras guardadas"]}
+{"v": "1.6.4", "date": "2026-11-18", "notes": ["Colocação: o editor mostra o tamanho real do design (antes mostrava-o maior que nas páginas quando ainda não tinha colocação guardada)", "A colocação guardada no design é a que aparece nas páginas, mockups e gerações"]}
