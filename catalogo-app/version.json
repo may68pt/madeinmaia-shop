@@ -1,1 +1,1 @@
-{"v": "1.7.1", "date": "2026-11-23", "notes": ["Inverter funciona em qualquer design: “Invertida” na Versão dos designs e o botão ◐ já não precisam de “Monocromático” (Auto continua a precisar)"]}
+{"v": "1.7.2", "date": "2026-11-23", "notes": ["Designs sem fundo ficam transparentes: acabou a caixa cinzenta/clara por trás quando o design e a página têm tons parecidos (fica só um aviso na barra de estado)"]}
