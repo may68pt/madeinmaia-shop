@@ -1,1 +1,1 @@
-{"v": "1.7.2", "date": "2026-11-23", "notes": ["Designs sem fundo ficam transparentes: acabou a caixa cinzenta/clara por trás quando o design e a página têm tons parecidos (fica só um aviso na barra de estado)"]}
+{"v": "1.7.3", "date": "2026-11-23", "notes": ["↶ Desfazer / ↷ Refazer (⌘Z, ⇧⌘Z) para tudo o que mexes no catálogo, com aviso do que voltou", "🕘 Histórico: versões guardadas no servidor (cada ~3 min a trabalhar + uma por dia); mostra o que foi apagado e repõe só o que falta ou o catálogo todo"]}

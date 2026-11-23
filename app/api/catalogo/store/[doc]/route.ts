@@ -2,7 +2,7 @@
 // One database for every entry point (phone app, web, Mac app). Each document carries a revision:
 //  GET  → body + x-rev header;  GET ?rev=N → 204 when unchanged (cheap polling from open devices)
 //  PUT  with x-base-rev → 409 + current doc if another device saved in between (client merges and retries)
-import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { authorized, catalogoDir } from "@/lib/catalogo-auth";
@@ -11,6 +11,21 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const DOCS = new Set(["state", "stats", "prints", "sales", "svgs"]);
 const NO_STORE = { "cache-control": "no-store" };
+
+/* History for undo / restore: one file per day (last save of the day, kept 90 days) plus rolling snapshots
+   at most every 3 minutes while editing (last 120 kept, ≈ 6 h of active work). Listed by /api/catalogo/history. */
+const RING_GAP = 3 * 60_000, RING_KEEP = 120, DAY_KEEP = 90;
+async function snapshot(dir: string, text: string) {
+  const hist = path.join(dir, "history"), now = new Date();
+  await writeFile(path.join(hist, `state-${now.toISOString().slice(0, 10)}.json`), text);
+  const files = (await readdir(hist)).sort();
+  const ring = files.filter((f) => /^r-\d+\.json$/.test(f));
+  const last = ring.length ? Number(ring[ring.length - 1].slice(2, -5)) : 0;
+  if (now.getTime() - last >= RING_GAP) { await writeFile(path.join(hist, `r-${now.getTime()}.json`), text); ring.push(`r-${now.getTime()}.json`); }
+  for (const f of ring.slice(0, Math.max(0, ring.length - RING_KEEP))) await unlink(path.join(hist, f)).catch(() => undefined);
+  const cutoff = new Date(now.getTime() - DAY_KEEP * 86400_000).toISOString().slice(0, 10);
+  for (const f of files.filter((f) => /^state-\d{4}-\d{2}-\d{2}\.json$/.test(f) && f.slice(6, 16) < cutoff)) await unlink(path.join(hist, f)).catch(() => undefined);
+}
 
 async function revOf(file: string) { try { return String(Math.round((await stat(file)).mtimeMs)); } catch { return "0"; } }
 
@@ -38,7 +53,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ doc:
     return new Response(JSON.stringify({ conflict: true, rev: cur, doc: JSON.parse(current) }), { status: 409, headers: { "content-type": "application/json", ...NO_STORE, "x-rev": cur } });
   }
   await writeFile(tmp, text); await rename(tmp, file);
-  if (doc === "state") { const day = new Date().toISOString().slice(0, 10); await writeFile(path.join(dir, "history", `state-${day}.json`), text).catch(() => undefined); }
+  if (doc === "state") await snapshot(dir, text).catch(() => undefined);
   const rev = await revOf(file);
   return NextResponse.json({ ok: true, saved: Date.now(), rev }, { headers: { "x-rev": rev } });
 }
