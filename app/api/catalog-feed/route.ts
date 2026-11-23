@@ -1,6 +1,7 @@
 // MiM Catálogo Studio feed: per-design daily sales, views and cart adds.
 // GET /api/catalog-feed?days=90  (headers x-studio-user / x-studio-key, same as /api/analytics)
 // Returns JSON the Catálogo Studio imports in LIGAÇÕES › mim-dash.
+// Every product is listed (with its tags), even without sales or views in the period.
 import { NextResponse } from "next/server";
 import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { getDb } from "@/db";
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
   const db = getDb();
   try {
     const [catalogue, paid, views] = await Promise.all([
-      db.select({ slug: products.slug, code: products.designCode, name: products.name, priceCents: products.priceCents }).from(products),
+      db.select({ slug: products.slug, code: products.designCode, name: products.name, priceCents: products.priceCents, tags: products.tags }).from(products),
       db.select({ items: orders.items, createdAt: orders.createdAt, reference: orders.reference }).from(orders)
         .where(and(gte(orders.createdAt, start), inArray(orders.status, ["paid", "preparing", "shipped", "completed"]))),
       db.select({
@@ -36,14 +37,17 @@ export async function GET(request: Request) {
         .groupBy(analyticsEvents.entityId, sql`date_trunc('day', ${analyticsEvents.createdAt})`),
     ]);
     const bySlug = new Map(catalogue.map((p) => [p.slug, p]));
-    const designs = new Map<string, { code: string; slug: string; name: string; priceCents: number; daily: Record<string, Day> }>();
+    const designs = new Map<string, { code: string; slug: string; name: string; priceCents: number; tags: string[]; daily: Record<string, Day> }>();
     const entry = (slug: string) => {
       const p = bySlug.get(slug);
       const code = (p?.code || slug.match(/^(\d{3,4})/)?.[1] || slug).trim();
-      if (!designs.has(code)) designs.set(code, { code, slug, name: p?.name || slug, priceCents: p?.priceCents || 0, daily: {} });
-      return designs.get(code)!;
+      if (!designs.has(code)) designs.set(code, { code, slug, name: p?.name || slug, priceCents: p?.priceCents || 0, tags: [], daily: {} });
+      const e = designs.get(code)!;
+      for (const t of p?.tags || []) if (t && !e.tags.includes(t)) e.tags.push(t);
+      return e;
     };
     const dayOf = (e: ReturnType<typeof entry>, d: string) => (e.daily[d] ||= { units: 0, revenue: 0, orders: 0, views: 0, cart: 0 });
+    for (const p of catalogue) entry(p.slug);
     for (const o of paid) {
       const d = o.createdAt.toISOString().slice(0, 10);
       const seen = new Set<string>();
