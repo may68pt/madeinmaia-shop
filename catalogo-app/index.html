@@ -499,6 +499,10 @@ const TPL_DEF={
 const DESIGN_FIELDS=["d","d2","d3","d4","photo"];
 /* tamanho da imagem principal, por design e por página: d → p.scale, d2 → p.scale_d2, photo → p.scale_photo … (30–100%) */
 const scaleKey=f=>f==="d"?"scale":"scale_"+f;
+const alignKey=f=>"align_"+f;
+const alignFactor=a=>a==="left"?0:a==="right"?1:.5;
+function slotAlign(p,key,field){return p&&p[alignKey(field||slotOf(p,key))]||"center"}
+function alignmentHtml(p,k,label){const a=slotAlign(p,null,k);return `<div class="row" style="gap:8px;margin:6px 0 12px;align-items:center"><span class="hint">Alinhar:</span><div class="seg" role="group" aria-label="Alinhar · ${esc(label)}" style="margin:0"><span class="hint" style="align-self:center;margin:0 8px 0 0">Alinhar:</span>${[["left","Esquerda","⇤"],["center","Centro","↔"],["right","Direita","⇥"]].map(([v,n,i])=>`<button type="button" data-design-align="${v}" data-design-slot="${k}" class="${a===v?"on":""}" aria-label="${n}" title="${n}" aria-pressed="${a===v}">${i}</button>`).join("")}</div></div>`}
 function slotOf(p,key){if(!p||!key)return null;return Object.keys(p).find(k=>k!=="tpl"&&p[k]===key&&(DESIGN_FIELDS.includes(k)||tplOf(p).fields.some(x=>x[0]===k&&x[2]==="design")))||null}
 const clampSc=v=>Math.min(100,Math.max(30,+v||100));
 function slotScale(p,key){const f=slotOf(p,key);return f?clampSc(p[scaleKey(f)]):100}
@@ -642,14 +646,14 @@ function tokens(str,e,slot){str=String(str||"");if(!str.includes("{"))return str
   return str.replace(/\{f:([a-z0-9_]+)\}/gi,(m,f)=>p[f]??"").replace(/\{([a-z0-9]+)\}/gi,(m,t)=>v[t]?v[t]():m)}
 function colorOf(c,e){if(!c||c==="ink")return e.T.ink;if(c==="soft")return e.T.soft;if(c==="bg")return e.T.bg;if(c==="accent")return e.sec?.color||"#ff4f1f";return c}
 /* ---- elements (custom templates + page layers) ---- */
-function drawEls(c,e,els){for(const el of els){if(el.hidden)continue;c.save();c.globalAlpha=el.opacity??1;let x=+el.x,y=+el.y,w=+el.w,h=+el.h;{const sf=elScale(el,e.p)/100;if(sf<1){x+=w*(1-sf)/2;y+=h*(1-sf)/2;w*=sf;h*=sf}}
+function drawEls(c,e,els){for(const el of els){if(el.hidden)continue;c.save();c.globalAlpha=el.opacity??1;let x=+el.x,y=+el.y,w=+el.w,h=+el.h;{const sf=elScale(el,e.p)/100;if(sf<1){x+=w*(1-sf)*alignFactor(slotAlign(e.p,null,elField(el,e.p)));y+=h*(1-sf)/2;w*=sf;h*=sf}}
   if(el.type==="rect"){c.fillStyle=colorOf(el.fill||"accent",e);if(el.r){c.beginPath();c.roundRect?c.roundRect(x,y,w,h,+el.r):c.rect(x,y,w,h);c.fill()}else c.fillRect(x,y,w,h)}
   else if(el.type==="line"){c.fillStyle=colorOf(el.fill||"ink",e);c.fillRect(x,y,w,Math.max(.2,+h||.3))}
   else if(el.type==="text"){const t=tokens(el.text,e,el.slot);const f=el.font||"bb";let size=+el.size||6;const col=colorOf(el.color,e);
     if(el.fit){c.font=font(f,size);const mw=c.measureText(t).width;if(mw>w)size=size*w/mw;txt(c,el.upper?t.toUpperCase():t,el.align==="center"?x+w/2:el.align==="right"?x+w:x,y+size*.86,{f,size,color:col,align:el.align||"left"})}
     else{const lines=wrapLines(c,el.upper?t.toUpperCase():t,w,f,size);const lh=size*(+el.lh||1.15);const max=Math.max(1,Math.floor((h+0.01)/lh));if(lines.length>max)e.warn.push(["warn",`Texto não cabe na caixa (“${t.slice(0,20)}…”).`]);
       lines.slice(0,max).forEach((ln,i)=>txt(c,ln,el.align==="center"?x+w/2:el.align==="right"?x+w:x,y+size*.86+i*lh,{f,size,color:col,align:el.align||"left"}))}}
-  else if(el.type==="image"){const key=el.src&&!LIB[el.src]?e.p[el.src]:el.src;if(key&&LIB[key]&&LIB[key].photo)photoFill(c,e,key,x,y,w,h,el.fit||"cover",1);else art(c,e,key,x,y,w,h,{ink:e.T.soft,T:e.T,req:!!el.req,scale:100})}
+  else if(el.type==="image"){const key=el.src&&!LIB[el.src]?e.p[el.src]:el.src;if(key&&LIB[key]&&LIB[key].photo)photoFill(c,e,key,x,y,w,h,el.fit||"cover",1);else art(c,e,key,x,y,w,h,{ink:e.T.soft,T:e.T,req:!!el.req,scale:100,slot:elField(el,e.p)})}
   else if(el.type==="qr"){const u=el.url?withUtm(fillVars(tokens(el.url,e,el.slot)),e.no):qrFor(e.p,e.no,"qr",el.slot||"d");if(u)qr(c,u,x,y,Math.min(w,h));else lines(c,S.settings.lblAsk.replace(" BY "," BY\n"),x,y+4,{size:3.6,color:e.T.ink,lh:3.6})}
   else if(el.type==="svg"){const im=e.imgs["svg:"+el.id];if(im){const r=(im.naturalWidth||1)/(im.naturalHeight||1);let dw=w,dh=w/r;if(dh>h){dh=h;dw=h*r}c.drawImage(im,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}}
   else if(el.type==="mockup"){const mk=e.imgs["mk:"+el.id];const gk=garOf(el,e.p);const g=MOCKS[gk];const S0=Math.min(w,h),ox=x+(w-S0)/2,oy=y+(h-S0)/2;
@@ -853,7 +857,7 @@ function art(c,e,key,x,y,w,h,o={}){const im=e.imgs[key],l=LIB[key];if(!key||!l){
   /* transparent designs stay transparent: no backing box; just a heads-up when the art almost disappears on this page colour */
   if(o.T&&!l.photo&&vim===im){const pale=!o.T.dark&&l.lum>195,dim=o.T.dark&&l.lum<45;if(pale||dim)e.warn.push(["warn",`${l.code}: confirma se o design se vê bem nesta cor de página (se não, usa ◐ INVERTER ou troca a cor).`])}
   const sc=Math.min(1,Math.max(.3,(o.scale||slotScale(e.p,key))/100));let dw=w,dh=w*l.h/l.w;if(dh>h){dh=h;dw=h*l.w/l.h}dw*=sc;dh*=sc;
-  const ax=x+(w-dw)/2,ay=o.top?y:y+(h-dh)/2;if(im)drawArt(c,vim,l,ax,ay,dw,dh);
+  const ax=x+(w-dw)*alignFactor(slotAlign(e.p,key,o.slot)),ay=o.top?y:y+(h-dh)/2;if(im)drawArt(c,vim,l,ax,ay,dw,dh);
   if(l.missing){e.warn.push(["bad",`${l.code} ${l.name}: falta a arte (ARTWORK TO CONFIRM).`]);c.save();c.strokeStyle=o.ink||"#999";c.setLineDash([2,2]);c.lineWidth=.3;c.strokeRect(x,y,w,h);c.restore();txt(c,"ARTWORK TO CONFIRM",x+w/2,y+h/2,{size:6,color:o.ink||"#999",align:"center",base:"middle"});return null}
   const srcPx=Math.min(l.w,l.cap||1800);const ppi=srcPx/(dw/25.4);
   if(ppi<200)e.warn.push(["bad",`${l.code}: só ${Math.floor(ppi)} ppi neste tamanho. Vai sair pixelizado.`]);else if(ppi<260)e.warn.push(["warn",`${l.code}: ${Math.floor(ppi)} ppi. Aceitável, não perfeito.`]);
@@ -913,9 +917,9 @@ function colourFooter(c,e,cols,x,y,w,h,T,o={}){const st=S.settings;const sug=(co
 /* QR placed before the design number in the title row; returns where the number starts */
 function qrBeforeNum(c,url,x,base,qs){if(!url)return x;qr(c,url,x,base-qs+.4,qs);return x+qs+2.6}
 function themeOf(p){const d=p.theme==="black";return {dark:d,ink:d?"#ffffff":"#111111",bg:d?"#111111":"#f5f2eb",soft:d?"#bdbdbd":"#6b6b6b"}}
-function photoFill(c,e,key,x,y,w,h,mode,ns){if(!ns){const sf=slotScale(e.p,key)/100;if(sf<1){x+=w*(1-sf)/2;y+=h*(1-sf)/2;w*=sf;h*=sf}}const im=e.imgs[key],l=LIB[key];if(!l||!im){c.fillStyle="#555";c.fillRect(x,y,w,h);txt(c,"ESCOLHE UMA IMAGEM",x+w/2,y+h/2,{f:"mono",size:3,color:"#ddd",align:"center",base:"middle"});return}
+function photoFill(c,e,key,x,y,w,h,mode,ns){if(!ns){const sf=slotScale(e.p,key)/100;if(sf<1){x+=w*(1-sf)*alignFactor(slotAlign(e.p,key));y+=h*(1-sf)/2;w*=sf;h*=sf}}const im=e.imgs[key],l=LIB[key];if(!l||!im){c.fillStyle="#555";c.fillRect(x,y,w,h);txt(c,"ESCOLHE UMA IMAGEM",x+w/2,y+h/2,{f:"mono",size:3,color:"#ddd",align:"center",base:"middle"});return}
   const r=l.w/l.h,R=w/h;let sw=l.w,sh=l.h,sx=0,sy=0;if(mode!=="contain"){if(r>R){sw=l.h*R;sx=(l.w-sw)/2}else{sh=l.w/R;sy=(l.h-sh)/2}c.drawImage(im,sx*im.naturalWidth/l.w,sy*im.naturalHeight/l.h,sw*im.naturalWidth/l.w,sh*im.naturalHeight/l.h,x,y,w,h)}
-  else{let dw=w,dh=w/r;if(dh>h){dh=h;dw=h*r}drawArt(c,im,l,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}
+  else{let dw=w,dh=w/r;if(dh>h){dh=h;dw=h*r}drawArt(c,im,l,x+(w-dw)*alignFactor(slotAlign(e.p,key)),y+(h-dh)/2,dw,dh)}
   const ppi=Math.min(im.naturalWidth/((mode!=="contain"?w*l.w/sw:w)/25.4),9999);if(ppi<150)e.warn.push(["warn",`${l.name}: ${Math.floor(ppi)} ppi. Serve para rascunho; para impressão final usa a foto original.`])}
 const R={
  produto(c,e){const p=e.p,T=themeOf(p);bgFill(c,e,T.bg);hdr(c,e,seriesOf(e));
@@ -932,8 +936,8 @@ const R={
      txt(c,l?l.name.toUpperCase():"",tx,24.8+dy,{size:6,color:T.ink,maxW:198-tx,minSize:4,env:e});rule(c,31.5+dy,T.ink,12,186);
      if(!p[f]&&f==="d2")return;
      const hide=!p[f==="d"?"showCols":"showCols2"];
-     if(hide){art(c,e,p[f],12,37+dy,186,104,{req:f==="d",ink:T.soft,T});return}
-     const ax=L?84:12,cx=L?12:134;art(c,e,p[f],ax,37+dy,114,104,{req:f==="d",ink:T.soft,T});
+     if(hide){art(c,e,p[f],12,37+dy,186,104,{req:f==="d",ink:T.soft,T,slot:f});return}
+     const ax=L?84:12,cx=L?12:134;art(c,e,p[f],ax,37+dy,114,104,{req:f==="d",ink:T.soft,T,slot:f});
      const cb=colourBlock(c,e,p[cf]||defColors(l),null,cx,39+dy,T,{noQR:true,w:64,B:20,d:p[f],restW:.78,s0:8.3,fill:.8});if(!qu)lines(c,S.settings.lblAsk.replace(" BY "," BY\n"),cx,cb+5,{size:3.6,color:T.ink,lh:3.6})});
    ftr(c,e,T.ink)},
  editorial(c,e){const p=e.p,T=themeOf({theme:"black"});bgFill(c,e,T.bg);hdr(c,e,seriesOf(e));
@@ -1220,7 +1224,7 @@ function renderInspector(){$$("#inspTabs button").forEach(b=>b.classList.toggle(
     <select id="iTpl" style="flex:0 0 160px">${Object.entries(TPL).map(([k,t])=>`<option value="${k}" ${k===p.tpl?"selected":""}>${t.group==="d"?"▣ ":"✎ "}${esc(t.name)}</option>`).join("")}${Object.values(S.tpls).map(u=>`<option value="${u.id}" ${u.id===p.tpl?"selected":""}>★ ${esc(u.name)}</option>`).join("")}</select></div>
     <div class="row" style="flex-wrap:wrap;gap:0;margin:-4px -4px 8px"><button class="btn xs alt" data-act="dup" style="flex:none">⧉ DUPLICAR</button><button class="btn xs alt" data-act="del" style="flex:none">🗑 APAGAR</button>
     <select data-act="move" style="flex:1;min-width:120px;margin:4px"><option value="">MOVER PARA…</option>${S.sections.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("")}</select></div>`;
-  T.fields.forEach(([k,label,type])=>{h+=fieldHtml(p,k,label,type);if(type==="design"&&p[k]&&!T.fields.some(x=>x[0]===scaleKey(k)))h+=fieldHtml(p,scaleKey(k),"Tamanho · "+label,"range")});
+  T.fields.forEach(([k,label,type])=>{h+=fieldHtml(p,k,label,type);if(type==="design"){if(p[k]&&!T.fields.some(x=>x[0]===scaleKey(k)))h+=fieldHtml(p,scaleKey(k),"Tamanho · "+label,"range");h+=alignmentHtml(p,k,label)}});
   const dks=pageDesigns(p).filter(k=>LIB[k]&&!LIB[k].photo);if(dks.length){h+=`<h3>VERSÃO DOS DESIGNS</h3>`+dks.map(k=>{const l=LIB[k],v=(p.ver||{})[k]||"auto",ok=hasAltVer(k);
     return `<label class="f">${esc(l.code)} ${esc(l.name)}${ok?"":` <span class="hint">· Auto só troca sozinho se o design estiver marcado Monocromático (popup do design); Invertida funciona sempre</span>`}<select data-ver="${k}">${[["auto",ok?"Auto · escolhe pelo fundo":"Auto · original"],["orig","Original"],["alt",l&&l.alt?"Alternativa (imagem carregada)":"Invertida"]].map(([a,b])=>`<option value="${a}" ${v===a?"selected":""}>${b}</option>`).join("")}</select></label>`}).join("")}
   h+=`<h3>NOTAS</h3><label class="f"><textarea data-k="notes" placeholder="Ideias, o que os clientes disseram…">${esc(p.notes||"")}</textarea></label>`;
@@ -1257,6 +1261,7 @@ $("#insp").addEventListener("change",ev=>{const t=ev.target;if(t.closest("#tplPr
   if(t.dataset.k==="notes")save("state")});
 $("#insp").addEventListener("click",ev=>{if(ev.target.closest("#tplProps"))return;const b=ev.target.closest("button,[data-key],.tp,.ly,[data-madd],[data-mkadd]");if(!b)return;if(b.dataset.madd||b.dataset.mkadd||b.dataset.mact){mediaClick(b);return}if(b.dataset.mkvar){makeEditable(b.dataset.mkvar,b.dataset.scope);return}
   if(b.closest("[data-theme]")&&b.dataset.v){setField("theme",b.dataset.v);renderInspector();return}
+  if(b.dataset.designAlign){setField(alignKey(b.dataset.designSlot),b.dataset.designAlign);renderInspector();return}
   if(b.dataset.pick){pickField=b.dataset.pick;inspTab="lib";renderInspector();return}
   if(b.dataset.clear){setField(b.dataset.clear,"");renderInspector();return}
   if(b.dataset.cnt){bump(b.dataset.dk,b.dataset.cnt,+b.dataset.d);renderInspector();return}
