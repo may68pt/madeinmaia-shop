@@ -50,6 +50,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ tag
       image: product.imageKey || "/products/white-shirt-1.jpg", colors: product.colors,
       monochrome: product.monochrome, disabledSupports: product.disabledSupports,
       artworkPlacements: product.artworkPlacements ?? {}, previewColorIds: product.previewColorIds ?? [],
+      publishedAt: product.publishedAt, badges: product.badges, imageAlt: product.imageAlt,
     }));
     if (settings?.data.productCatalog) catalog = { ...settings.data.productCatalog, supports: settings.data.productCatalog.supports.map(normalizeSupport) };
     if (storedTemplate?.blocks?.length) templateBlocks = storedTemplate.blocks as PageBlockData[];

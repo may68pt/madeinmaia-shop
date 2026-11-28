@@ -15,9 +15,9 @@ const schema = z.object({
 });
 
 const fallback = new Map([
-  ["guardiao-zen", { name:"Guardião Zen", priceCents:2000, colors:["Branco"], sizes:["XS","S","M","L","XL","XXL"] }],
-  ["piramide-digital", { name:"Pirâmide Digital", priceCents:2000, colors:["Vermelho"], sizes:["XS","S","M","L","XL","XXL"] }],
-  ["los-robots", { name:"Los Robots", priceCents:2000, colors:["Azul"], sizes:["XS","S","M","L","XL","XXL"] }],
+  ["guardiao-zen", { name:"Guardião Zen", priceCents:1500, colors:["Branco"], sizes:["XS","S","M","L","XL","XXL"] }],
+  ["piramide-digital", { name:"Pirâmide Digital", priceCents:1500, colors:["Vermelho"], sizes:["XS","S","M","L","XL","XXL"] }],
+  ["los-robots", { name:"Los Robots", priceCents:1500, colors:["Azul"], sizes:["XS","S","M","L","XL","XXL"] }],
 ]);
 
 function validOrigin(request:Request){

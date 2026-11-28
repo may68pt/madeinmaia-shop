@@ -93,6 +93,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         monochrome:products.monochrome,
         disabledSupports:products.disabledSupports,
         artworkPlacements:products.artworkPlacements,
+        publishedAt:products.publishedAt,
+        badges:products.badges,
+        imageAlt:products.imageAlt,
       }).from(products).where(and(eq(products.status,"published"),eq(products.onlineSaleEnabled,true),ne(products.slug,product.slug))).limit(48);
       const tagMatches = candidates.filter((candidate) => candidate.tags.some((tag) => product?.tags.includes(tag)));
       related = tagMatches.slice(0, 6).map((candidate)=>({...candidate,artworkPlacements:candidate.artworkPlacements??{}}));

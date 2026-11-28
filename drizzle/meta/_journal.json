@@ -232,6 +232,13 @@
       "when": 1794900000000,
       "tag": "0032_media_assets",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1795000000000,
+      "tag": "0033_prices_and_badges",
+      "breakpoints": true
     }
   ]
 }
