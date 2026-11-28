@@ -5,7 +5,6 @@ import Stripe from "stripe";
 import { getDb } from "@/db";
 import { orders, products, siteSettings } from "@/db/schema";
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport, supportOptions } from "@/lib/product-catalog";
-import { sendOrderStatusEmail } from "@/lib/order-email";
 import { calculateShippingCents, isPortugal } from "@/lib/shipping";
 
 const schema = z.object({
@@ -82,10 +81,11 @@ export async function POST(request: Request) {
   if (process.env.STRIPE_SECRET_KEY) {
     try {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-      const origin = new URL(request.url).origin;
+      // Public address of the shop (the browser's Origin; validOrigin() already checked it matches this host).
+      const origin = process.env.PUBLIC_SITE_URL?.replace(/\/$/, "") || request.headers.get("origin") || new URL(request.url).origin;
       const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = orderItems.map((item)=>({ quantity:item.quantity, price_data:{ currency:"eur", unit_amount:item.unitPriceCents, product_data:{ name:item.name, description:`${item.productType} · ${item.size} · ${item.color} · ${item.printColor} print` } } }));
       if (shippingCents) lineItems.push({ quantity:1, price_data:{ currency:"eur", unit_amount:shippingCents, product_data:{ name:isPortugal(customer.country)?"Envio Portugal":"Envio internacional" } } });
-      const session = await stripe.checkout.sessions.create({ mode:"payment", customer_email:customer.email, line_items:lineItems, success_url:`${origin}/checkout/sucesso?session_id={CHECKOUT_SESSION_ID}`, cancel_url:`${origin}/checkout`, metadata:{ reference }, payment_intent_data:{ metadata:{ reference } } });
+      const session = await stripe.checkout.sessions.create({ mode:"payment", customer_email:customer.email, client_reference_id:reference, locale:isPortugal(customer.country)?"pt":"auto", line_items:lineItems, success_url:`${origin}/checkout/sucesso?session_id={CHECKOUT_SESSION_ID}`, cancel_url:`${origin}/checkout`, metadata:{ reference }, payment_intent_data:{ metadata:{ reference } } });
       paymentUrl = session.url;
       if (process.env.DATABASE_URL) await getDb().update(orders).set({ paymentReference:session.id }).where(inArray(orders.reference,[reference]));
     } catch {
@@ -101,6 +101,6 @@ export async function POST(request: Request) {
     if(process.env.DATABASE_URL)await getDb().update(orders).set({status:"cancelled"}).where(eq(orders.reference,reference)).catch(()=>undefined);
     return NextResponse.json({error:"O pagamento online está temporariamente indisponível."},{status:503});
   }
-  if(process.env.DATABASE_URL)await sendOrderStatusEmail({reference,customerEmail:customer.email,customerName:customer.name,items:orderItems,shippingCents,totalCents,status:"pending"}).catch(()=>undefined);
+  // No email yet: the customer gets the confirmation when Stripe reports the payment (webhook).
   return NextResponse.json({ ok:true, reference, subtotalCents, shippingCents, totalCents, paymentUrl, testMode:!process.env.DATABASE_URL });
 }
