@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DesignImagePanel, LibraryCrunchPanel } from "@/components/studio-image-tools";
 import { BadgesPanel } from "@/components/studio-badges-panel";
+import { PaymentsPanel } from "@/components/studio-payments-panel";
 import type { ProductBadges } from "@/lib/product-badges";
 import {
   Select,
@@ -1518,6 +1519,7 @@ export default function Studio() {
                   {paymentConfigured ? "Pagamento ativo" : "Modo manual"}
                 </span>
               </div>
+              <PaymentsPanel user={studioUser} studioKey={studioKey} />
               {orders.length === 0 ? (
                 <div className="grid min-h-80 place-items-center border border-dashed border-black/20 bg-white p-8 text-center">
                   <div>
