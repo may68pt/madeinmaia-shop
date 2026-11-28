@@ -225,6 +225,13 @@
       "when": 1794800000000,
       "tag": "0031_cyberpet_releases",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794900000000,
+      "tag": "0032_media_assets",
+      "breakpoints": true
     }
   ]
 }

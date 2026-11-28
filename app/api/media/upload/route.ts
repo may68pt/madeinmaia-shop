@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import { crunchUpload } from "@/lib/image-pipeline";
 
 export const runtime = "nodejs";
 
@@ -49,7 +50,10 @@ export async function POST(request: Request) {
     await mkdir(directory,{recursive:true});
     await writeFile(temporaryPath,bytes,{flag:"wx"});
     await rename(temporaryPath,path.join(directory,filename));
-    return NextResponse.json({url:publicUrl(filename),filename});
+    const url=publicUrl(filename);
+    // Make the WebP copies right away; a failure here never loses the upload (the library can re-crunch it).
+    const crunch=file.type==="image/gif"?null:await crunchUpload(url).catch(()=>null);
+    return NextResponse.json({url,filename,crunched:crunch?.ok??false,variants:crunch?.variants??[],crunchError:crunch&&!crunch.ok?crunch.error:undefined});
   } catch {
     await unlink(temporaryPath).catch(()=>undefined);
     return NextResponse.json({ error:"Não foi possível guardar a imagem no servidor." }, { status:500 });

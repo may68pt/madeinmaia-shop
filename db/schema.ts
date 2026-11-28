@@ -28,6 +28,9 @@ export const products = pgTable("products", {
   seoCanonical: text("seo_canonical").notNull().default(""),
   seoNoIndex: boolean("seo_no_index").notNull().default(false),
   imageKey: text("image_key"),
+  imageAlt: text("image_alt").notNull().default(""),
+  imageTitle: text("image_title").notNull().default(""),
+  imageCaption: text("image_caption").notNull().default(""),
   gallery: jsonb("gallery").$type<string[]>().notNull().default([]),
   disabledSupports: jsonb("disabled_supports").$type<string[]>().notNull().default([]),
   artworkPlacements: jsonb("artwork_placements").$type<ArtworkPlacements>().notNull().default({}),
@@ -236,3 +239,21 @@ export const analyticsEvents = pgTable("analytics_events", {
   index("analytics_events_name_created_idx").on(table.eventName, table.createdAt),
   index("analytics_events_entity_created_idx").on(table.entityType, table.entityId, table.createdAt),
 ]);
+
+export type MediaVariant = { width: number; height: number; bytes: number; url: string; format: string };
+
+/** One row per uploaded image file: its original and the crunched WebP copies made from it. */
+export const mediaAssets = pgTable("media_assets", {
+  id: serial("id").primaryKey(),
+  url: text("url").notNull().unique(),
+  filename: text("filename").notNull(),
+  format: text("format").notNull().default(""),
+  width: integer("width").notNull().default(0),
+  height: integer("height").notNull().default(0),
+  bytes: integer("bytes").notNull().default(0),
+  hasAlpha: boolean("has_alpha").notNull().default(false),
+  variants: jsonb("variants").$type<MediaVariant[]>().notNull().default([]),
+  crunchedAt: timestamp("crunched_at", { withTimezone: true }),
+  error: text("error").notNull().default(""),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
