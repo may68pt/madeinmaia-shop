@@ -18,6 +18,9 @@ function stableColourOffset(value: string, length: number) {
   return length ? [...value].reduce((total, character) => ((total * 31) + character.charCodeAt(0)) >>> 0, 7) % length : 0;
 }
 
+/** Card price: whole euros without cents ("15 €"), otherwise "15,50 €". */
+function cardPrice(cents:number){return cents%100===0?`${cents/100} €`:`${(cents/100).toFixed(2).replace(".",",")} €`;}
+
 export type ProductCardData = {
   slug: string;
   name: string;
@@ -71,7 +74,7 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
 
   useEffect(()=>{const element=cardRef.current;if(!element)return;const observer=new IntersectionObserver((entries)=>{if(entries[0]?.isIntersecting){trackEvent("product_impression",{entityType:"product",entityId:product.slug,metadata:{source:"product_grid"}});observer.disconnect();}},{threshold:.5});observer.observe(element);return()=>observer.disconnect();},[product.slug]);
 
-  return <article ref={cardRef} id={`mim-product-${product.slug}`} className="mim-product-card group min-w-0 border border-white/10 text-[var(--foreground)]">
+  return <article ref={cardRef} id={`mim-product-${product.slug}`} className="mim-product-card group flex min-w-0 flex-col border border-white/10 text-[var(--foreground)]">
     <div className="mim-product-card__visual relative aspect-square overflow-hidden border border-white/10 bg-[var(--surface)]">
       <Link href={`/designs/${product.slug}`} onClick={()=>trackEvent("product_click",{entityType:"product",entityId:product.slug,metadata:{source:"product_grid"}})} className="absolute inset-0" aria-label={`Open ${product.name}`}>
         {slide?.id === "design" ? <div className="mim-product-card__design-preview absolute inset-0 grid place-items-center p-[10%] transition-colors duration-500" style={{backgroundColor:designBackground?.hex ?? "#dedbd2",backgroundImage:"radial-gradient(circle at 22% 15%, rgba(255,255,255,.24), transparent 36%), repeating-linear-gradient(118deg, rgba(255,255,255,.035) 0 1px, rgba(0,0,0,.025) 1px 3px)"}}><div className="relative size-full"><Image src={product.image} alt={product.imageAlt || product.name} title={product.imageTitle || undefined} fill sizes="(max-width: 1023px) 50vw, 33vw" unoptimized={product.image.startsWith("http")} className="object-contain drop-shadow-2xl" style={product.monochrome ? {filter:printColor === "white" ? "grayscale(1) brightness(0) invert(1)" : "grayscale(1) brightness(0)"} : undefined}/></div></div> : slide && "defaultPlacement" in slide ? <ProductMockup artwork={product.image} color={color?.name ?? "White"} name={product.name} templateImage={slide.templateImage} supportId={slide.id} printColor={product.monochrome ? printColor : "original"} placements={{[slide.id]:slide.defaultPlacement,...product.artworkPlacements}} /> : null}
@@ -87,12 +90,12 @@ export function ProductCard({ product, catalogColors, supports, label = "New", s
           </button>)}
       </div>}
     </div>
-    <div className="mim-product-card__details min-w-0 pt-2 sm:pt-3"><Link href={`/designs/${product.slug}`} onClick={()=>trackEvent("product_click",{entityType:"product",entityId:product.slug,metadata:{source:"product_title"}})}><h3 className="mim-product-card__title mt-0.5 line-clamp-2 text-sm font-black uppercase leading-tight tracking-[-.025em] sm:mt-1 sm:text-xl">{product.name}</h3></Link></div>
+    <div className="mim-product-card__details min-w-0 flex-1 pt-2 sm:pt-3"><Link href={`/designs/${product.slug}`} onClick={()=>trackEvent("product_click",{entityType:"product",entityId:product.slug,metadata:{source:"product_title"}})}><h3 className="mim-product-card__title mt-0.5 line-clamp-2 text-sm font-black uppercase leading-tight tracking-[-.025em] sm:mt-1 sm:text-xl">{product.name}</h3></Link></div>
     <div className="mim-product-card__bar mt-2 flex min-w-0 items-center justify-between gap-1 bg-black px-1 py-1.5 sm:mt-3 sm:gap-3 sm:px-3 sm:py-2.5">
       <div className="mim-product-card__support-selector flex min-w-0 flex-1 items-center gap-0.5 sm:gap-2" aria-label={strings.support}>
       {slides.map((item,index)=><button key={item.id} type="button" onClick={()=>{setSlideIndex(index);trackEvent("product_configure",{entityType:"product",entityId:product.slug,metadata:{source:"product_grid",option:"support",value:item.id}});}} aria-label={item.name} aria-pressed={slide?.id===item.id} title={item.name} className={`mim-product-card__support group/support relative grid size-[22px] shrink-0 place-items-center rounded-full border transition sm:size-10 ${slide?.id===item.id?"border-[var(--accent-brand)] bg-[var(--accent-brand)] text-[#171715]":"border-white/10 bg-white/[.28] text-[#242421] hover:bg-white/45 hover:text-[#151513]"}`}>{supportIcon(item.id)}<span role="tooltip" className="pointer-events-none absolute bottom-[calc(100%+.45rem)] left-1/2 z-30 hidden w-max max-w-28 -translate-x-1/2 rounded-lg bg-white px-2 py-1 text-center text-[10px] font-bold text-black shadow-xl group-hover/support:block group-focus-visible/support:block">{item.name}</span></button>)}
       </div>
-      <strong className="mim-product-card__price shrink-0 whitespace-nowrap bg-white px-1.5 py-0.5 text-[11px] text-black sm:px-3 sm:py-1 sm:text-lg">{slide && "priceCents" in slide?`${(slide.priceCents/100).toFixed(2).replace(".",",")} €`:product.price}</strong>
+      <strong className="mim-product-card__price shrink-0 whitespace-nowrap bg-white px-1.5 py-0.5 text-[11px] text-black sm:px-3 sm:py-1 sm:text-lg">{slide && "priceCents" in slide?cardPrice(slide.priceCents):product.price.replace(/,00\s*€$/," €")}</strong>
     </div>
   </article>;
 }
