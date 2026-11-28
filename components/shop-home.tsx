@@ -19,7 +19,7 @@ import { BrandLogo } from "@/components/brand-logo";
 import { LivingDesignGrid, type LivingGridProduct } from "@/components/living-design-grid";
 import { StoreHeader } from "@/components/store-header";
 
-type ShopProduct = { slug: string; name: string; nameTranslations:Record<string,string>; collection: string; tags:string[]; price: string; priceCents: number; image: string; colors: string[]; previewColorIds:string[]; sizes: string[]; monochrome:boolean; disabledSupports:string[]; artworkPlacements:ArtworkPlacements };
+type ShopProduct = { slug: string; name: string; nameTranslations:Record<string,string>; collection: string; tags:string[]; price: string; priceCents: number; image: string; colors: string[]; previewColorIds:string[]; sizes: string[]; monochrome:boolean; disabledSupports:string[]; artworkPlacements:ArtworkPlacements; imageAlt?:string; imageTitle?:string };
 
 const defaultProducts: ShopProduct[] = LOCAL_FALLBACK_PRODUCTS.map((product) => ({
   ...product,
@@ -30,7 +30,7 @@ const defaultProducts: ShopProduct[] = LOCAL_FALLBACK_PRODUCTS.map((product) => 
 
 const PAGE_SIZE = 24;
 function stableBlockOrder(blockId:number, slug:string) { return [...`${blockId}-${slug}`].reduce((total,character)=>((total*33)+character.charCodeAt(0))>>>0,5381); }
-export type ApiProduct = { slug:string; name:string; nameTranslations:Record<string,string>; collection:string; tags:string[]; priceCents:number; imageKey:string|null; colors:string[]; previewColorIds?:string[]; sizes:string[]; monochrome:boolean; disabledSupports?:string[]; artworkPlacements?:ArtworkPlacements };
+export type ApiProduct = { slug:string; name:string; nameTranslations:Record<string,string>; collection:string; tags:string[]; priceCents:number; imageKey:string|null; colors:string[]; previewColorIds?:string[]; sizes:string[]; monochrome:boolean; disabledSupports?:string[]; artworkPlacements?:ArtworkPlacements; imageAlt?:string; imageTitle?:string };
 export type FeaturedPost = { slug:string; title:string; description:string; category:string; image?:string; imageAlt?:string };
 
 function mapProduct(product: ApiProduct): ShopProduct {
@@ -43,6 +43,8 @@ function mapProduct(product: ApiProduct): ShopProduct {
     price: `${(product.priceCents / 100).toFixed(2).replace(".", ",")} €`,
     priceCents: product.priceCents,
     image: product.imageKey || "/products/white-shirt-1.jpg",
+    imageAlt: product.imageAlt ?? "",
+    imageTitle: product.imageTitle ?? "",
     colors: product.colors?.length ? product.colors : ["Unique"],
     previewColorIds: product.previewColorIds ?? [],
     sizes: product.sizes?.length ? product.sizes : ["One size"],

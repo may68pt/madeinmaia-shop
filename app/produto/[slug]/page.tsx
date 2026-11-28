@@ -13,9 +13,10 @@ import { DEFAULT_NAVIGATION,type NavigationItem } from "@/lib/site-navigation";
 
 export const dynamic = "force-dynamic";
 
-type ProductView = { slug:string; name:string; nameTranslations:Record<string,string>; description:string; priceCents:number; collection:string; tags:string[]; imageKey:string; gallery:string[]; disabledSupports:string[]; monochrome:boolean; artworkPlacements:ArtworkPlacements };
+type ProductView = { slug:string; name:string; nameTranslations:Record<string,string>; description:string; priceCents:number; collection:string; tags:string[]; imageKey:string; imageAlt?:string; imageTitle?:string; imageCaption?:string; gallery:string[]; disabledSupports:string[]; monochrome:boolean; artworkPlacements:ArtworkPlacements };
 
 const fallback: ProductView[] = LOCAL_FALLBACK_PRODUCTS;
+const absoluteUrl = (url:string) => /^https?:/i.test(url) ? url : `https://madeinmaia.pt${url.startsWith("/") ? "" : "/"}${url}`;
 
 function fallbackDiscoveryProducts(currentSlug:string, currentTags:string[]) {
   const candidates:RelatedProduct[] = LOCAL_FALLBACK_PRODUCTS.filter((item)=>item.slug!==currentSlug).map((item)=>({
@@ -49,7 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         openGraph: {
           title: product.seoTitle || product.name,
           description: product.seoDescription || product.description || "Original Made in Maia design.",
-          images: product.imageKey ? [{ url: product.imageKey, alt: product.name }] : undefined,
+          images: product.imageKey ? [{ url: product.imageKey, alt: product.imageAlt || product.name }] : undefined,
           type: "website",
         },
       };
@@ -76,7 +77,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   try {
     const db = getDb();
     const [[stored], [settings]] = await Promise.all([db.select().from(products).where(and(eq(products.slug, slug),eq(products.onlineSaleEnabled,true))), db.select().from(siteSettings).where(eq(siteSettings.key,"global"))]);
-    if (stored?.status === "published") product = { slug:stored.slug, name:stored.name, nameTranslations:stored.nameTranslations, description:stored.description, priceCents:stored.priceCents, collection:stored.collection, tags:stored.tags, imageKey:stored.imageKey || "/products/white-shirt-1.jpg", gallery:stored.gallery, disabledSupports:stored.disabledSupports, monochrome:stored.monochrome, artworkPlacements:stored.artworkPlacements??{} };
+    if (stored?.status === "published") product = { slug:stored.slug, name:stored.name, nameTranslations:stored.nameTranslations, description:stored.description, priceCents:stored.priceCents, collection:stored.collection, tags:stored.tags, imageKey:stored.imageKey || "/products/white-shirt-1.jpg", imageAlt:stored.imageAlt, imageTitle:stored.imageTitle, imageCaption:stored.imageCaption, gallery:stored.gallery, disabledSupports:stored.disabledSupports, monochrome:stored.monochrome, artworkPlacements:stored.artworkPlacements??{} };
     if (settings?.data.productCatalog) catalog = settings.data.productCatalog;
     if(settings?.data.navigation?.length)navigation=[...settings.data.navigation,...DEFAULT_NAVIGATION.filter((required)=>!settings.data.navigation.some((item)=>item.id===required.id))];
     if (product) {
@@ -108,7 +109,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     "@type": "Product",
     name: product.name,
     description: product.description || `Original Made in Maia design: ${product.name}.`,
-    image: [product.imageKey, ...product.gallery].filter(Boolean),
+    image: [
+      { "@type": "ImageObject", contentUrl: absoluteUrl(product.imageKey), url: absoluteUrl(product.imageKey), name: product.imageTitle || product.name, description: product.imageAlt || product.name, ...(product.imageCaption ? { caption: product.imageCaption } : {}) },
+      ...product.gallery.filter(Boolean).map(absoluteUrl),
+    ],
     brand: { "@type": "Brand", name: "Made in Maia" },
     offers: {
       "@type": "Offer",

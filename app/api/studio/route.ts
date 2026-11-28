@@ -445,6 +445,10 @@ export async function POST(request: Request) {
           seoCanonical: String(value.seoCanonical ?? ""),
           seoNoIndex: value.seoNoIndex === true,
           imageKey: value.imageKey ? String(value.imageKey) : null,
+          // Image SEO is only written when the Studio sent it, so list-only saves never blank it.
+          ...("imageAlt" in value ? { imageAlt: String(value.imageAlt ?? "").slice(0, 300) } : {}),
+          ...("imageTitle" in value ? { imageTitle: String(value.imageTitle ?? "").slice(0, 200) } : {}),
+          ...("imageCaption" in value ? { imageCaption: String(value.imageCaption ?? "").slice(0, 600) } : {}),
           gallery: Array.isArray(value.gallery) ? value.gallery.map(String).filter(Boolean) : [],
           disabledSupports: Array.isArray(value.disabledSupports) ? value.disabledSupports.map(String) : [],
           artworkPlacements: value.artworkPlacements && typeof value.artworkPlacements === "object" ? value.artworkPlacements as Record<string,{x:number;y:number;width:number;height:number}> : {},

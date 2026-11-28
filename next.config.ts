@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Uploaded designs are served from their pre-crunched WebP copies (lib/image-loader.ts),
+  // so the server no longer resizes images on each request.
+  images: { loader: "custom", loaderFile: "./lib/image-loader.ts" },
   async redirects(){return [
     {source:"/produto/:slug",destination:"/designs/:slug",permanent:true},
     {source:"/colecao/:tag",destination:"/collections/:tag",permanent:true},

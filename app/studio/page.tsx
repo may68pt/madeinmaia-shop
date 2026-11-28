@@ -36,6 +36,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DesignImagePanel, LibraryCrunchPanel } from "@/components/studio-image-tools";
 import {
   Select,
   SelectContent,
@@ -92,6 +93,9 @@ type Product = {
   seoCanonical: string;
   seoNoIndex: boolean;
   imageKey: string;
+  imageAlt?: string;
+  imageTitle?: string;
+  imageCaption?: string;
   gallery: string[];
   disabledSupports: string[];
   artworkPlacements: ArtworkPlacements;
@@ -1672,7 +1676,7 @@ export default function Studio() {
                 {pagedMedia.map(({ item, index }) => (
                   <article key={`${item.url}-${index}`} className="bg-white p-4">
                     <div className="relative mb-4 aspect-square overflow-hidden bg-[#11110f]">
-                      {item.url ? <Image src={item.url} alt={item.alt || "Media"} fill sizes="(min-width: 1024px) 30vw, 50vw" unoptimized className="object-contain p-4" /> : <span className="grid h-full place-items-center text-sm text-black/40">Sem imagem</span>}
+                      {item.url ? <Image src={item.url} alt={item.alt || "Media"} fill sizes="(min-width: 1024px) 30vw, 50vw" className="object-contain p-4" /> : <span className="grid h-full place-items-center text-sm text-black/40">Sem imagem</span>}
                     </div>
                     <div className="grid gap-2">
                       <Input value={item.url} onChange={(event) => setSettings({ ...settings, media: settings.media.map((entry, i) => i === index ? { ...entry, url: event.target.value } : entry) })} placeholder="https://..." />
@@ -1962,6 +1966,7 @@ export default function Studio() {
                   Novo produto
                 </Button>
               </div>
+              <LibraryCrunchPanel creds={{ user: studioUser, key: studioKey }} />
               <ProductQualityDashboard products={catalogue} onEdit={(id) => {
                 const product = catalogue.find((item) => item.id === id);
                 setProductQuery("");
@@ -1995,7 +2000,7 @@ export default function Studio() {
                         <button type="button" aria-label={selectedProductIds.has(product.id)?`Desselecionar ${product.name}`:`Selecionar ${product.name}`} aria-pressed={selectedProductIds.has(product.id)} onClick={()=>toggleProductSelection(product.id)} className={`row-span-2 grid size-6 place-items-center border text-xs font-black transition ${selectedProductIds.has(product.id)?'border-[var(--brand)] bg-[var(--brand)] text-white':'border-black/20 bg-white text-transparent hover:border-black/50'}`}>✓</button>
                         <GripVertical className="row-span-2 size-5 cursor-grab text-black/30 active:cursor-grabbing" aria-label="Arrastar para reordenar" />
                         <button type="button" onClick={() => void openProduct(product)} className="mim-studio-product-thumb relative row-span-2 size-16 overflow-hidden border border-black/10 sm:size-[72px]">
-                          {product.imageKey ? <Image src={product.imageKey} alt="" fill sizes="64px" unoptimized className="object-contain p-1" /> : <Images className="absolute inset-0 m-auto size-5 text-black/25" />}
+                          {product.imageKey ? <Image src={product.imageKey} alt="" fill sizes="64px" className="object-contain p-1" /> : <Images className="absolute inset-0 m-auto size-5 text-black/25" />}
                         </button>
                         <button type="button" onClick={() => void openProduct(product)} className="flex min-w-0 items-baseline gap-2 self-end text-left">
                           <span className="shrink-0 font-mono text-[11px] font-black uppercase text-black/45 sm:text-xs">{product.designCode || "MiM_0000"}</span>
@@ -2034,7 +2039,7 @@ export default function Studio() {
                                 </div>
                                 {product.imageKey ? (
                                   <div className="mim-product-artwork-preview relative aspect-square w-full overflow-hidden border-2 border-black/10">
-                                    <Image src={product.imageKey} alt={product.name} fill sizes="360px" unoptimized className="object-contain p-5" />
+                                    <Image src={product.imageKey} alt={product.imageAlt || product.name} fill sizes="360px" className="object-contain p-5" />
                                   </div>
                                 ) : (
                                   <label
@@ -2053,6 +2058,7 @@ export default function Studio() {
                                   </label>
                                 )}
                                 {product.imageKey && <label className={`mt-3 flex min-h-16 cursor-pointer items-center justify-center gap-3 border-2 border-dashed px-4 text-center transition ${productImageDragOver===product.id?"border-[var(--brand)] bg-orange-50":"border-black/20 hover:border-[var(--brand)]"}`} onDragEnter={(event)=>{event.preventDefault();setProductImageDragOver(product.id)}} onDragOver={(event)=>{event.preventDefault();event.dataTransfer.dropEffect="copy";setProductImageDragOver(product.id)}} onDragLeave={(event)=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setProductImageDragOver(null)}} onDrop={(event)=>{event.preventDefault();const file=event.dataTransfer.files[0];if(file)void uploadProductArtwork(product.id,file)}}><input type="file" accept="image/png,.png" className="sr-only" disabled={productImageUploading===product.id} onChange={(event)=>{const file=event.target.files?.[0];if(file)void uploadProductArtwork(product.id,file);event.target.value=""}}/><UploadCloud className="size-5"/><strong className="text-xs uppercase">{productImageUploading===product.id?"A substituir…":"Substituir design PNG"}</strong></label>}
+                                <div className="mt-4"><DesignImagePanel creds={{ user: studioUser, key: studioKey }} url={product.imageKey} name={product.name} alt={product.imageAlt ?? ""} title={product.imageTitle ?? ""} caption={product.imageCaption ?? ""} onChange={(patch) => updateProduct(product.id, patch)} /></div>
                               </section>
                               <details className="mim-product-translations rounded-2xl border border-black/10 p-4 md:col-start-1">
                                 <summary className="cursor-pointer text-xs font-black uppercase">Traduções do nome</summary>
@@ -2094,7 +2100,7 @@ export default function Studio() {
                                   })}
                                 </div>
                               </section>
-                              <section className="mim-product-gallery-editor border-t border-black/10 pt-6 md:col-span-2"><p className="text-xs font-bold uppercase">Fotografias do produto</p><p className="mt-1 text-xs text-black/45">Fotografias com modelos, lifestyle, detalhes ou fotografia de estúdio deste produto.</p>{product.gallery.length > 0 && <div className="mt-3 grid grid-cols-2 gap-2">{product.gallery.map((photo, index) => <div key={`${photo}-${index}`} className="group relative aspect-[4/3] overflow-hidden bg-[#eee]"><Image src={photo} alt={`${product.name} · fotografia ${index + 1}`} fill sizes="180px" unoptimized className="object-cover" /><div className="absolute inset-x-1 top-1 flex justify-between gap-1 opacity-95"><div className="flex gap-1"><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===0} onClick={()=>{const gallery=[...product.gallery];[gallery[index-1],gallery[index]]=[gallery[index],gallery[index-1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para trás"><ArrowUp className="size-3"/></Button><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===product.gallery.length-1} onClick={()=>{const gallery=[...product.gallery];[gallery[index+1],gallery[index]]=[gallery[index],gallery[index+1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para a frente"><ArrowDown className="size-3"/></Button></div><Button type="button" size="icon" variant="destructive" className="size-7" onClick={() => updateProduct(product.id, { gallery: product.gallery.filter((_, itemIndex) => itemIndex !== index) })} aria-label="Remover fotografia"><Trash2 className="size-3" /></Button></div></div>)}</div>}<label className={`mt-3 grid min-h-28 cursor-pointer place-items-center border-2 border-dashed p-4 text-center transition ${galleryDragOver===product.id?"border-[var(--brand)] bg-orange-50":"border-black/20 bg-black/[.025] hover:border-[var(--brand)]"}`} onDragEnter={(event)=>{event.preventDefault();setGalleryDragOver(product.id)}} onDragOver={(event)=>{event.preventDefault();event.dataTransfer.dropEffect="copy";setGalleryDragOver(product.id)}} onDragLeave={(event)=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setGalleryDragOver(null)}} onDrop={(event)=>{event.preventDefault();void uploadProductGallery(product.id,Array.from(event.dataTransfer.files));}}><input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={galleryUploading===product.id} onChange={(event)=>{void uploadProductGallery(product.id,Array.from(event.target.files??[]));event.target.value=""}}/><span><UploadCloud className="mx-auto size-8 text-black/25"/><strong className="mt-2 block text-xs uppercase">{galleryUploading===product.id?"A carregar fotografias…":"Adicionar fotografias deste produto"}</strong><span className="mt-1 block text-[11px] text-black/40">JPG, PNG ou WebP · podes selecionar várias</span></span></label></section>
+                              <section className="mim-product-gallery-editor border-t border-black/10 pt-6 md:col-span-2"><p className="text-xs font-bold uppercase">Fotografias do produto</p><p className="mt-1 text-xs text-black/45">Fotografias com modelos, lifestyle, detalhes ou fotografia de estúdio deste produto.</p>{product.gallery.length > 0 && <div className="mt-3 grid grid-cols-2 gap-2">{product.gallery.map((photo, index) => <div key={`${photo}-${index}`} className="group relative aspect-[4/3] overflow-hidden bg-[#eee]"><Image src={photo} alt={`${product.name} · fotografia ${index + 1}`} fill sizes="180px" className="object-cover" /><div className="absolute inset-x-1 top-1 flex justify-between gap-1 opacity-95"><div className="flex gap-1"><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===0} onClick={()=>{const gallery=[...product.gallery];[gallery[index-1],gallery[index]]=[gallery[index],gallery[index-1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para trás"><ArrowUp className="size-3"/></Button><Button type="button" size="icon" variant="secondary" className="size-7" disabled={index===product.gallery.length-1} onClick={()=>{const gallery=[...product.gallery];[gallery[index+1],gallery[index]]=[gallery[index],gallery[index+1]];updateProduct(product.id,{gallery});}} aria-label="Mover fotografia para a frente"><ArrowDown className="size-3"/></Button></div><Button type="button" size="icon" variant="destructive" className="size-7" onClick={() => updateProduct(product.id, { gallery: product.gallery.filter((_, itemIndex) => itemIndex !== index) })} aria-label="Remover fotografia"><Trash2 className="size-3" /></Button></div></div>)}</div>}<label className={`mt-3 grid min-h-28 cursor-pointer place-items-center border-2 border-dashed p-4 text-center transition ${galleryDragOver===product.id?"border-[var(--brand)] bg-orange-50":"border-black/20 bg-black/[.025] hover:border-[var(--brand)]"}`} onDragEnter={(event)=>{event.preventDefault();setGalleryDragOver(product.id)}} onDragOver={(event)=>{event.preventDefault();event.dataTransfer.dropEffect="copy";setGalleryDragOver(product.id)}} onDragLeave={(event)=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setGalleryDragOver(null)}} onDrop={(event)=>{event.preventDefault();void uploadProductGallery(product.id,Array.from(event.dataTransfer.files));}}><input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={galleryUploading===product.id} onChange={(event)=>{void uploadProductGallery(product.id,Array.from(event.target.files??[]));event.target.value=""}}/><span><UploadCloud className="mx-auto size-8 text-black/25"/><strong className="mt-2 block text-xs uppercase">{galleryUploading===product.id?"A carregar fotografias…":"Adicionar fotografias deste produto"}</strong><span className="mt-1 block text-[11px] text-black/40">JPG, PNG ou WebP · podes selecionar várias</span></span></label></section>
                               <section className="mim-product-seo-editor space-y-4 border-t border-black/10 pt-6 md:col-span-2">
                                 <div><p className="text-xs font-black uppercase">SEO do produto</p><p className="mt-1 text-xs text-black/45">Controlos essenciais ao estilo Yoast. Se deixares um campo vazio, usamos automaticamente o nome e a descrição do produto.</p></div>
                                 <div className="rounded-2xl border border-black/10 bg-[#f7f7f4] p-4"><p className="truncate text-xs text-green-700">madeinmaia.pt/designs/{product.slug}</p><p className="mt-1 line-clamp-1 text-lg text-[#1a0dab]">{product.seoTitle || product.name}</p><p className="mt-1 line-clamp-2 text-sm leading-5 text-black/60">{product.seoDescription || product.description || `${product.name}, um design original Made in Maia.`}</p></div>
