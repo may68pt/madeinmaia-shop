@@ -1,5 +1,6 @@
 import { readFile, stat, writeFile, rename, unlink } from "node:fs/promises";
 import path from "node:path";
+import sharp from "sharp";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { mediaAssets, type MediaVariant } from "@/db/schema";
@@ -20,17 +21,15 @@ export function filenameFromUrl(url: string): string | null {
   return /^[a-z0-9-]+\.(?:png|jpe?g|webp)$/i.test(name) ? name : null;
 }
 
-type SharpModule = typeof import("sharp");
-let sharpModule: SharpModule | null = null;
-async function loadSharp(): Promise<SharpModule> {
-  if (!sharpModule) {
-    const imported = (await import("sharp")) as unknown as { default?: SharpModule } & SharpModule;
-    sharpModule = imported.default ?? imported;
+let sharpReady = false;
+function loadSharp() {
+  if (!sharpReady) {
     // Small instance: one thread, no decoded-image cache, so memory is released after each file.
-    sharpModule.cache(false);
-    sharpModule.concurrency(1);
+    sharp.cache(false);
+    sharp.concurrency(1);
+    sharpReady = true;
   }
-  return sharpModule;
+  return sharp;
 }
 
 export type CrunchResult = { url: string; ok: boolean; error?: string; bytes?: number; variants?: MediaVariant[] };
@@ -46,7 +45,7 @@ export async function crunchUpload(url: string): Promise<CrunchResult> {
   const originalPath = path.join(directory, filename);
   const db = getDb();
   try {
-    const sharp = await loadSharp();
+    loadSharp();
     const input = await readFile(originalPath);
     const meta = await sharp(input, { limitInputPixels: 60_000_000 }).metadata();
     const width = meta.width ?? 0;
