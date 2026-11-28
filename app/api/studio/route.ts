@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { asc, desc, eq, notInArray } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, notInArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   orders,
@@ -11,6 +11,12 @@ import {
 import { sendOrderStatusEmail } from "@/lib/order-email";
 import { DEFAULT_COLORS, DEFAULT_SUPPORTS, normalizeSupport } from "@/lib/product-catalog";
 import { DEFAULT_NAVIGATION } from "@/lib/site-navigation";
+import { normalizeBadges } from "@/lib/product-badges";
+
+/** Designs that are published but have no publish date get "now" — this starts their 2-month "New" badge. */
+async function stampPublishedAt() {
+  await getDb().update(products).set({ publishedAt: new Date() }).where(and(eq(products.status, "published"), isNull(products.publishedAt)));
+}
 
 function isAuthenticated(request: Request) {
   const expectedPassword = process.env.STUDIO_PASSWORD;
@@ -191,6 +197,7 @@ export async function POST(request: Request) {
       .set({ status: String(body.status), updatedAt: new Date() })
       .where(eq(products.id, Number(body.productId)))
       .returning({ id: products.id });
+    if (body.status === "published") await stampPublishedAt();
     return updated.length
       ? NextResponse.json({ ok: true })
       : NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
@@ -449,6 +456,8 @@ export async function POST(request: Request) {
           ...("imageAlt" in value ? { imageAlt: String(value.imageAlt ?? "").slice(0, 300) } : {}),
           ...("imageTitle" in value ? { imageTitle: String(value.imageTitle ?? "").slice(0, 200) } : {}),
           ...("imageCaption" in value ? { imageCaption: String(value.imageCaption ?? "").slice(0, 600) } : {}),
+          ...("badges" in value ? { badges: normalizeBadges(value.badges) } : {}),
+          ...("publishedAt" in value ? { publishedAt: value.publishedAt && !Number.isNaN(new Date(String(value.publishedAt)).getTime()) ? new Date(String(value.publishedAt)) : null } : {}),
           gallery: Array.isArray(value.gallery) ? value.gallery.map(String).filter(Boolean) : [],
           disabledSupports: Array.isArray(value.disabledSupports) ? value.disabledSupports.map(String) : [],
           artworkPlacements: value.artworkPlacements && typeof value.artworkPlacements === "object" ? value.artworkPlacements as Record<string,{x:number;y:number;width:number;height:number}> : {},
@@ -494,6 +503,7 @@ export async function POST(request: Request) {
       await db
         .delete(products)
         .where(notInArray(products.slug, entries.map((entry) => entry.slug)));
+    await stampPublishedAt();
     return NextResponse.json({ ok: true, count: entries.length, products: savedProducts });
   }
   if (body.resource === "pages") {

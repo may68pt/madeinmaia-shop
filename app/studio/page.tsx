@@ -37,6 +37,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DesignImagePanel, LibraryCrunchPanel } from "@/components/studio-image-tools";
+import { BadgesPanel } from "@/components/studio-badges-panel";
+import type { ProductBadges } from "@/lib/product-badges";
 import {
   Select,
   SelectContent,
@@ -96,6 +98,8 @@ type Product = {
   imageAlt?: string;
   imageTitle?: string;
   imageCaption?: string;
+  publishedAt?: string | null;
+  badges?: ProductBadges | null;
   gallery: string[];
   disabledSupports: string[];
   artworkPlacements: ArtworkPlacements;
@@ -217,7 +221,7 @@ const initialProducts: Product[] = [
     name: "Guardião Zen",
     nameTranslations: {},
     description: "",
-    priceCents: 2000,
+    priceCents: 1500,
     collection: "Made in Maia",
     tags: ["Cats"],
     seoTitle: "",
@@ -246,7 +250,7 @@ const initialProducts: Product[] = [
     name: "Pirâmide Digital",
     nameTranslations: {},
     description: "",
-    priceCents: 2000,
+    priceCents: 1500,
     collection: "Pop Culture",
     tags: ["Quotes"],
     seoTitle: "",
@@ -275,7 +279,7 @@ const initialProducts: Product[] = [
     name: "Los Robots",
     nameTranslations: {},
     description: "",
-    priceCents: 2000,
+    priceCents: 1500,
     collection: "Música",
     tags: ["Jars"],
     seoTitle: "",
@@ -1934,7 +1938,7 @@ export default function Studio() {
                         name: "Novo produto",
                         nameTranslations: {},
                         description: "",
-                        priceCents: 2000,
+                        priceCents: 1500,
                         collection: "Made in Maia",
                         tags: [],
                         seoTitle: "",
@@ -2030,6 +2034,7 @@ export default function Studio() {
                                 <span><strong className="block text-sm uppercase">Design monocromático</strong><span className="mt-1 block text-xs font-normal text-black/50">Ativa a escolha de impressão preta ou branca e o filtro CSS do design. Mantém desligado para preservar todas as cores do PNG.</span></span>
                                 <Switch aria-label="Design monocromático" checked={product.monochrome} onCheckedChange={(checked) => void updateProductMonochrome(product, checked)} />
                               </label>
+                              <BadgesPanel badges={product.badges} publishedAt={product.publishedAt ?? null} collection={product.collection} status={product.status} onChange={(patch) => updateProduct(product.id, patch)} />
                             </div>
                             <div className="grid min-w-0 gap-6 md:grid-cols-2 md:items-start">
                               <section className="min-w-0 md:row-span-3">

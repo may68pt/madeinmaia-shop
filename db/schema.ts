@@ -12,6 +12,7 @@ import {
 import type { ProductVariant } from "@/lib/product-variants";
 import type { ArtworkPlacements } from "@/lib/artwork-placement";
 import type { CatalogColor, ProductSupport } from "@/lib/product-catalog";
+import type { ProductBadges } from "@/lib/product-badges";
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
@@ -20,7 +21,7 @@ export const products = pgTable("products", {
   name: text("name").notNull(),
   nameTranslations: jsonb("name_translations").$type<Record<string, string>>().notNull().default({}),
   description: text("description").notNull().default(""),
-  priceCents: integer("price_cents").notNull().default(2000),
+  priceCents: integer("price_cents").notNull().default(1500),
   collection: text("collection").notNull().default("Made in Maia"),
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
   seoTitle: text("seo_title").notNull().default(""),
@@ -46,6 +47,8 @@ export const products = pgTable("products", {
   onlineSaleEnabled: boolean("online_sale_enabled").notNull().default(true),
   salesRank: integer("sales_rank").notNull().default(0),
   status: text("status").notNull().default("draft"),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  badges: jsonb("badges").$type<ProductBadges>().notNull().default({}),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
