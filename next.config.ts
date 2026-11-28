@@ -31,6 +31,9 @@ const nextConfig: NextConfig = {
       {source:"/badsamaritan",destination:"/badsamaritan/index.html"},
       // its service worker (offline play + install); served from the site root so its scope can be /badsamaritan
       {source:"/badsamaritan-sw.js",destination:"/badsamaritan/sw.js"},
+      // "Every Day" — Paulo & Luna's 16-bit life organizer (static files in public/everydaylife-app/, sync API in app/everydaylife-app/api)
+      {source:"/everydaylife-app",destination:"/everydaylife-app/index.html"},
+      {source:"/everyday",destination:"/everydaylife-app/index.html"},
     ],
     afterFiles:[],
     fallback:[],
